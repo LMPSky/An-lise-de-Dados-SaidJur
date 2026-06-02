@@ -32,10 +32,20 @@ def _buscar_em_tabela(
     Retorna lista de resultados agrupados por coluna.
     """
     resultados: list[dict[str, Any]] = []
-    padrao = f"%{termo}%"
+
+    from sqlalchemy import MetaData, Table, select
+    meta = MetaData()
+    try:
+        tbl = Table(nome_tabela, meta, autoload_with=engine)
+    except Exception as exc:
+        logger.warning("Erro ao refletir tabela '%s': %s", nome_tabela, exc)
+        return resultados
 
     for coluna in colunas:
         try:
+            col = tbl.c[coluna]
+            stmt = select(tbl).where(col.like(f"%{termo}%")).limit(limite)
+
             with engine.connect() as conn:
                 # SET SESSION max_execution_time define timeout em ms (MySQL 5.7.4+).
                 # Silencia o erro em bancos que não suportam esse comando (ex: SQLite em testes).
@@ -43,10 +53,7 @@ def _buscar_em_tabela(
                     conn.execute(text(f"SET SESSION max_execution_time={timeout * 1000}"))
                 except Exception:
                     pass
-                sql = text(
-                    f"SELECT * FROM `{nome_tabela}` WHERE `{coluna}` LIKE :padrao LIMIT :limite"
-                )
-                resultado = conn.execute(sql, {"padrao": padrao, "limite": limite})
+                resultado = conn.execute(stmt)
                 chaves = list(resultado.keys())
                 linhas = [dict(zip(chaves, row)) for row in resultado]
                 if linhas:
