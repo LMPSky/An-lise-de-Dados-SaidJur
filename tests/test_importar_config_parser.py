@@ -21,6 +21,7 @@ banco:
   host: 127.0.0.1
   usuario: root # comentário inline
   senha: "Acd9854#@yui\\\"!$"
+  caminho: "path\\\\to\\\\file"
   senha_sem_aspas: senhaSegura123
   nome: saidjur
 """,
@@ -46,5 +47,8 @@ banco:
     banco = config["banco"]
 
     assert banco["senha"] == 'Acd9854#@yui"!$'
+    assert "#" in banco["senha"]
+    assert banco["caminho"] == "path\\to\\file"
     assert banco["senha_sem_aspas"] == "senhaSegura123"
     assert banco["usuario"] == "root"
+    assert "comentário inline" not in banco["usuario"]

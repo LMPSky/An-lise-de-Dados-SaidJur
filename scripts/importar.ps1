@@ -55,8 +55,10 @@ function Ler-Config {
             $chave = $matches[1]
             $valorBruto = $matches[2].Trim()
 
-            if ($valorBruto -match '^\s*"((?:[^"\\]|\\.)*)"\s*(?:#.*)?$') {
-                $valor = $matches[1] -replace '\\\"', '"' -replace '\\\\', '\'
+            # Valor entre aspas duplas, permitindo apenas escapes \" e \\,
+            # com suporte a comentário inline fora das aspas.
+            if ($valorBruto -match '^\s*"((?:[^"\\]|\\["\\])*)"\s*(?:#.*)?$') {
+                $valor = [regex]::Replace($matches[1], '\\(["\\])', '$1')
             }
             elseif ($valorBruto -match "^\s*'((?:[^']|'')*)'\s*(?:#.*)?$") {
                 $valor = $matches[1] -replace "''", "'"
@@ -233,25 +235,32 @@ $stdinStream = $processo.StandardInput.BaseStream
 $errosTarefa = $processo.StandardError.ReadToEndAsync()
 
 $ultimaAtualizacao = Get-Date
-$primeiraLeitura = $true
+
+$prefixo = New-Object byte[] 3
+$bytesPrefixo = 0
+while ($bytesPrefixo -lt 3) {
+    $lidoPrefixo = $streamLeitura.Read($prefixo, $bytesPrefixo, 3 - $bytesPrefixo)
+    if ($lidoPrefixo -eq 0) { break }
+    $bytesPrefixo += $lidoPrefixo
+}
+$temBomUtf8 = (
+    $bytesPrefixo -eq 3 -and
+    $prefixo[0] -eq 0xEF -and
+    $prefixo[1] -eq 0xBB -and
+    $prefixo[2] -eq 0xBF
+)
+
+if (-not $temBomUtf8 -and $bytesPrefixo -gt 0) {
+    $stdinStream.Write($prefixo, 0, $bytesPrefixo)
+}
+$bytesLidos += $bytesPrefixo
 
 try {
     while ($true) {
         $lido = $streamLeitura.Read($buffer, 0, $bufferSize)
         if ($lido -eq 0) { break }
 
-        $offset = 0
-        if ($primeiraLeitura) {
-            $primeiraLeitura = $false
-            if ($lido -ge 3 -and $buffer[0] -eq 0xEF -and $buffer[1] -eq 0xBB -and $buffer[2] -eq 0xBF) {
-                $offset = 3
-            }
-        }
-
-        $bytesParaEscrever = $lido - $offset
-        if ($bytesParaEscrever -gt 0) {
-            $stdinStream.Write($buffer, $offset, $bytesParaEscrever)
-        }
+        $stdinStream.Write($buffer, 0, $lido)
         $bytesLidos += $lido
 
         # Atualiza progresso a cada segundo
