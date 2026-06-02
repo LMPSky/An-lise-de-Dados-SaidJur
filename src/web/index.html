@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visualizador de Dados SaidJur</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Alpine.js via CDN -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <!-- Estilos personalizados -->
+  <link rel="stylesheet" href="/static/styles.css" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { DEFAULT: '#1d4ed8', light: '#3b82f6', dark: '#1e3a8a' }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+
+<!-- ════════════════════════════════════════════════════════════════
+     Componente principal Alpine.js
+     ════════════════════════════════════════════════════════════════ -->
+<div x-data="app()" x-init="iniciar()" class="flex flex-col min-h-screen">
+
+  <!-- ── Cabeçalho ──────────────────────────────────────────────── -->
+  <header class="bg-primary shadow-md sticky top-0 z-40">
+    <div class="max-w-screen-2xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center gap-3">
+      <div class="flex items-center gap-2 shrink-0">
+        <span class="text-2xl">📊</span>
+        <h1 class="text-white font-bold text-lg leading-tight">
+          Visualizador de Dados<br>
+          <span class="font-normal text-blue-200 text-sm" x-text="nomeBanco || 'SaidJur'"></span>
+        </h1>
+      </div>
+
+      <!-- Barra de busca global -->
+      <div class="flex-1 w-full max-w-2xl">
+        <form @submit.prevent="buscarGlobal()" class="flex gap-2">
+          <input
+            type="search"
+            x-model="termoBusca"
+            placeholder="🔍 Pesquisar em todo o banco de dados..."
+            class="w-full px-4 py-2 rounded-lg border-0 shadow text-gray-800
+                   focus:ring-2 focus:ring-blue-300 focus:outline-none text-base"
+          />
+          <button
+            type="submit"
+            :disabled="buscandoGlobal"
+            class="bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded-lg
+                   font-semibold shadow transition disabled:opacity-60 whitespace-nowrap"
+          >
+            <span x-show="!buscandoGlobal">Buscar</span>
+            <span x-show="buscandoGlobal">⏳</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Corpo principal ───────────────────────────────────────── -->
+  <div class="flex flex-1 overflow-hidden max-w-screen-2xl mx-auto w-full">
+
+    <!-- ── Sidebar de tabelas ──────────────────────────────────── -->
+    <aside class="w-72 shrink-0 bg-white border-r border-gray-200 flex flex-col overflow-hidden">
+      <div class="p-3 border-b">
+        <input
+          type="search"
+          x-model="filtroTabela"
+          placeholder="🔎 Filtrar tabelas..."
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm
+                 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+        />
+      </div>
+
+      <!-- Lista de tabelas -->
+      <div class="overflow-y-auto flex-1 py-1">
+        <!-- Skeleton de carregamento -->
+        <template x-if="carregandoTabelas">
+          <div class="px-4 py-2 space-y-2">
+            <template x-for="i in 8">
+              <div class="h-8 bg-gray-200 rounded animate-pulse"></div>
+            </template>
+          </div>
+        </template>
+
+        <!-- Estado vazio -->
+        <template x-if="!carregandoTabelas && tabelasFiltradas.length === 0">
+          <div class="px-4 py-8 text-center text-gray-400">
+            <div class="text-3xl mb-2">🗄️</div>
+            <p class="text-sm">Nenhuma tabela encontrada.</p>
+            <template x-if="filtroTabela">
+              <p class="text-xs mt-1">Tente outro filtro.</p>
+            </template>
+          </div>
+        </template>
+
+        <!-- Lista real -->
+        <template x-if="!carregandoTabelas && tabelasFiltradas.length > 0">
+          <ul>
+            <template x-for="tabela in tabelasFiltradas" :key="tabela.nome">
+              <li>
+                <button
+                  @click="selecionarTabela(tabela.nome)"
+                  class="w-full text-left px-4 py-2 text-sm hover:bg-blue-50 transition
+                         border-l-4 flex flex-col"
+                  :class="tabelaSelecionada === tabela.nome
+                    ? 'border-primary bg-blue-50 font-semibold text-primary'
+                    : 'border-transparent text-gray-700'"
+                >
+                  <span>📋 <span x-text="tabela.nome"></span></span>
+                  <span class="text-xs text-gray-400 pl-5"
+                        x-text="formatarNumero(tabela.linhas_aprox) + ' registros · ' + tabela.tamanho_mb + ' MB'">
+                  </span>
+                </button>
+              </li>
+            </template>
+          </ul>
+        </template>
+      </div>
+    </aside>
+
+    <!-- ── Área central ────────────────────────────────────────── -->
+    <main class="flex-1 overflow-auto flex flex-col">
+
+      <!-- === Resultados de busca global === -->
+      <template x-if="mostrarBusca">
+        <div class="p-4">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold">
+              Resultados para "<span class="text-primary" x-text="termoBuscaAtiva"></span>"
+            </h2>
+            <button @click="fecharBusca()"
+                    class="text-gray-500 hover:text-gray-800 text-sm underline">
+              ✕ Fechar busca
+            </button>
+          </div>
+
+          <!-- Skeleton busca -->
+          <template x-if="buscandoGlobal">
+            <div class="space-y-4">
+              <template x-for="i in 3">
+                <div class="bg-white rounded-lg p-4 shadow-sm border">
+                  <div class="h-5 bg-gray-200 rounded w-1/4 mb-3 animate-pulse"></div>
+                  <div class="h-24 bg-gray-100 rounded animate-pulse"></div>
+                </div>
+              </template>
+            </div>
+          </template>
+
+          <!-- Resultados -->
+          <template x-if="!buscandoGlobal">
+            <div>
+              <template x-if="resultadosBusca.length === 0">
+                <div class="bg-white rounded-lg p-12 text-center shadow-sm border">
+                  <div class="text-5xl mb-3">🔍</div>
+                  <p class="text-gray-500 text-lg">Nenhum resultado encontrado.</p>
+                  <p class="text-gray-400 text-sm mt-1">Tente palavras diferentes ou mais curtas.</p>
+                </div>
+              </template>
+              <div class="space-y-4">
+                <template x-for="grupo in resultadosBusca" :key="grupo.tabela + grupo.coluna">
+                  <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+                    <div class="px-4 py-2 bg-gray-50 border-b flex items-center gap-2">
+                      <span class="font-semibold text-primary" x-text="grupo.tabela"></span>
+                      <span class="text-gray-400">→ coluna</span>
+                      <span class="font-medium text-gray-700" x-text="grupo.coluna"></span>
+                      <span class="ml-auto text-xs text-gray-400"
+                            x-text="grupo.registros.length + ' resultado(s)'"></span>
+                    </div>
+                    <div class="overflow-x-auto max-h-64">
+                      <table class="w-full text-sm">
+                        <thead class="bg-gray-100 sticky top-0">
+                          <tr>
+                            <template x-for="col in Object.keys(grupo.registros[0] || {})" :key="col">
+                              <th class="px-3 py-2 text-left font-semibold text-gray-600 whitespace-nowrap"
+                                  x-text="col"></th>
+                            </template>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <template x-for="(linha, idx) in grupo.registros" :key="idx">
+                            <tr :class="idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
+                              <template x-for="col in Object.keys(linha)" :key="col">
+                                <td class="px-3 py-1.5 text-gray-700 max-w-xs truncate"
+                                    :title="String(linha[col] ?? '')"
+                                    x-text="linha[col] ?? '—'"></td>
+                              </template>
+                            </tr>
+                          </template>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+        </div>
+      </template>
+
+      <!-- === Tela inicial (sem tabela selecionada) === -->
+      <template x-if="!mostrarBusca && !tabelaSelecionada">
+        <div class="flex-1 flex items-center justify-center p-8">
+          <div class="text-center max-w-md">
+            <div class="text-6xl mb-4">👋</div>
+            <h2 class="text-2xl font-bold text-gray-700 mb-2">Bem-vindo ao Visualizador!</h2>
+            <p class="text-gray-500 mb-6">
+              Selecione uma tabela no menu à esquerda para ver os dados,
+              ou use a barra de busca no topo para encontrar informações em todo o banco.
+            </p>
+            <div class="bg-blue-50 rounded-lg p-4 text-left text-sm text-blue-800 space-y-2">
+              <p>💡 <strong>Dicas de uso:</strong></p>
+              <p>• Digite um nome na barra de busca para encontrar em todo o banco</p>
+              <p>• Clique no nome de uma coluna para ordenar os dados</p>
+              <p>• Clique no ícone 🔽 para filtrar por coluna</p>
+              <p>• Use o botão <strong>📥 Exportar</strong> para baixar os dados</p>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- === Visualização de tabela === -->
+      <template x-if="!mostrarBusca && tabelaSelecionada">
+        <div class="flex flex-col h-full">
+
+          <!-- Barra de controles -->
+          <div class="bg-white border-b px-4 py-2 flex flex-wrap items-center gap-2 sticky top-0 z-30">
+            <h2 class="font-bold text-primary text-base">
+              📋 <span x-text="tabelaSelecionada"></span>
+            </h2>
+            <span class="text-gray-400 text-sm"
+                  x-text="'(' + formatarNumero(totalRegistros) + ' registros)'"></span>
+
+            <!-- Filtros ativos -->
+            <template x-for="(filtro, col) in filtrosAtivos" :key="col">
+              <span class="inline-flex items-center gap-1 bg-blue-100 text-blue-800 text-xs
+                           px-2 py-0.5 rounded-full">
+                <span x-text="col + ': ' + filtro.valor"></span>
+                <button @click="removerFiltro(col)" class="ml-1 hover:text-red-600">✕</button>
+              </span>
+            </template>
+
+            <button
+              x-show="Object.keys(filtrosAtivos).length > 0"
+              @click="limparFiltros()"
+              class="text-xs text-red-500 hover:underline"
+            >Limpar filtros</button>
+
+            <div class="ml-auto flex gap-2">
+              <a
+                :href="urlExportar('csv')"
+                class="inline-flex items-center gap-1 bg-green-600 hover:bg-green-500
+                       text-white px-3 py-1.5 rounded-lg text-sm font-semibold shadow transition"
+              >
+                📥 Exportar CSV
+              </a>
+              <a
+                :href="urlExportar('xlsx')"
+                class="inline-flex items-center gap-1 bg-emerald-700 hover:bg-emerald-600
+                       text-white px-3 py-1.5 rounded-lg text-sm font-semibold shadow transition"
+              >
+                📥 Exportar Excel
+              </a>
+            </div>
+          </div>
+
+          <!-- Tabela de dados -->
+          <div class="flex-1 overflow-auto">
+            <!-- Skeleton carregamento -->
+            <template x-if="carregandoDados">
+              <div class="p-4 space-y-2">
+                <div class="h-8 bg-gray-200 rounded animate-pulse w-full"></div>
+                <template x-for="i in 10">
+                  <div class="h-7 bg-gray-100 rounded animate-pulse w-full"
+                       :class="i % 2 === 0 ? 'opacity-70' : ''"></div>
+                </template>
+              </div>
+            </template>
+
+            <!-- Tabela real -->
+            <template x-if="!carregandoDados && linhas.length > 0">
+              <table class="w-full text-sm border-collapse">
+                <thead class="bg-gray-100 sticky top-0 z-20 shadow-sm">
+                  <tr>
+                    <template x-for="col in colunas" :key="col.nome">
+                      <th class="px-3 py-2 text-left font-semibold text-gray-600 whitespace-nowrap
+                                 border-b border-gray-200 group">
+                        <div class="flex items-center gap-1">
+                          <!-- Botão ordenar -->
+                          <button
+                            @click="ordenarPor(col.nome)"
+                            class="hover:text-primary flex items-center gap-0.5"
+                          >
+                            <span x-text="col.nome"></span>
+                            <span x-show="ordenarColuna === col.nome && direcaoOrdem === 'asc'">▲</span>
+                            <span x-show="ordenarColuna === col.nome && direcaoOrdem === 'desc'">▼</span>
+                          </button>
+                          <!-- Botão filtro -->
+                          <div class="relative">
+                            <button
+                              @click.stop="abrirFiltro(col.nome)"
+                              :class="filtrosAtivos[col.nome] ? 'text-primary' : 'text-gray-300 opacity-0 group-hover:opacity-100'"
+                              class="hover:text-primary transition text-xs px-0.5"
+                              title="Filtrar por esta coluna"
+                            >🔽</button>
+
+                            <!-- Popover de filtro -->
+                            <div
+                              x-show="filtroAberto === col.nome"
+                              @click.outside="filtroAberto = null"
+                              class="absolute left-0 top-7 z-50 bg-white border border-gray-200
+                                     rounded-lg shadow-xl p-3 w-60"
+                              style="min-width:220px"
+                            >
+                              <p class="text-xs font-semibold text-gray-500 mb-2"
+                                 x-text="'Filtrar: ' + col.nome"></p>
+                              <select
+                                x-model="filtroTemp.op"
+                                class="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-2"
+                              >
+                                <option value="contem">Contém</option>
+                                <option value="igual">É igual a</option>
+                                <option value="diferente">É diferente de</option>
+                                <option value="comeca_com">Começa com</option>
+                                <option value="maior">Maior que</option>
+                                <option value="menor">Menor que</option>
+                              </select>
+                              <input
+                                type="text"
+                                x-model="filtroTemp.valor"
+                                @keyup.enter="aplicarFiltro(col.nome)"
+                                placeholder="Digite o valor..."
+                                class="w-full border border-gray-300 rounded px-2 py-1 text-sm mb-2
+                                       focus:ring-1 focus:ring-blue-400 focus:outline-none"
+                              />
+                              <div class="flex gap-2">
+                                <button
+                                  @click="aplicarFiltro(col.nome)"
+                                  class="flex-1 bg-primary text-white rounded px-2 py-1 text-xs font-semibold"
+                                >Aplicar</button>
+                                <button
+                                  @click="filtroAberto = null"
+                                  class="flex-1 border border-gray-300 rounded px-2 py-1 text-xs"
+                                >Cancelar</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </th>
+                    </template>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template x-for="(linha, idx) in linhas" :key="idx">
+                    <tr :class="idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'"
+                        class="hover:bg-blue-50 transition">
+                      <template x-for="col in colunas" :key="col.nome">
+                        <td class="px-3 py-1.5 text-gray-700 max-w-xs truncate border-b border-gray-100"
+                            :title="String(linha[col.nome] ?? '')"
+                            x-text="linha[col.nome] ?? '—'"></td>
+                      </template>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </template>
+
+            <!-- Estado vazio -->
+            <template x-if="!carregandoDados && linhas.length === 0">
+              <div class="flex flex-col items-center justify-center h-full py-16 text-gray-400">
+                <div class="text-5xl mb-3">🗃️</div>
+                <p class="text-lg">Nenhum registro encontrado.</p>
+                <p class="text-sm mt-1">Tente remover os filtros.</p>
+              </div>
+            </template>
+          </div>
+
+          <!-- Paginação -->
+          <div class="bg-white border-t px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-sm">
+            <div class="flex items-center gap-2">
+              <span class="text-gray-500">Mostrar</span>
+              <select
+                x-model.number="porPagina"
+                @change="pagina = 1; carregarDados()"
+                class="border border-gray-300 rounded px-2 py-1 text-sm"
+              >
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="200">200</option>
+                <option value="500">500</option>
+              </select>
+              <span class="text-gray-500">por página</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button
+                @click="irPagina(pagina - 1)"
+                :disabled="pagina <= 1"
+                class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+              >◀ Anterior</button>
+
+              <span class="text-gray-600">
+                Página <strong x-text="pagina"></strong>
+                de <strong x-text="totalPaginas"></strong>
+              </span>
+
+              <button
+                @click="irPagina(pagina + 1)"
+                :disabled="pagina >= totalPaginas"
+                class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+              >Próxima ▶</button>
+            </div>
+          </div>
+
+        </div>
+      </template>
+
+    </main>
+  </div>
+
+  <!-- ── Mensagem de erro global ─────────────────────────────── -->
+  <div
+    x-show="mensagemErro"
+    x-transition
+    class="fixed bottom-4 right-4 bg-red-600 text-white px-4 py-3 rounded-lg shadow-lg z-50
+           max-w-sm flex items-start gap-2"
+  >
+    <span class="text-xl">⚠️</span>
+    <div>
+      <p class="font-semibold text-sm">Ocorreu um erro</p>
+      <p class="text-xs mt-0.5" x-text="mensagemErro"></p>
+    </div>
+    <button @click="mensagemErro = null" class="ml-2 text-red-200 hover:text-white">✕</button>
+  </div>
+
+</div><!-- fim Alpine -->
+
+<script src="/static/app.js"></script>
+</body>
+</html>
