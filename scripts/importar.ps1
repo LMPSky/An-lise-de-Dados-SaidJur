@@ -14,8 +14,9 @@
 #>
 
 param(
-    [Parameter(Mandatory = $true)]
-    [string]$ArquivoSQL
+    [string]$ArquivoSQL,
+    [switch]$SomenteLerConfig,
+    [string]$ConfigPath
 )
 
 # Configurações de encoding
@@ -25,8 +26,15 @@ $OutputEncoding = [System.Text.Encoding]::UTF8
 # ── Funções auxiliares ──────────────────────────────────────────────────────
 
 function Ler-Config {
-    $configPath = Join-Path $PSScriptRoot "..\config.yaml"
-    if (-not (Test-Path $configPath)) {
+    param(
+        [string]$ConfigPath
+    )
+
+    if ([string]::IsNullOrWhiteSpace($ConfigPath)) {
+        $ConfigPath = Join-Path $PSScriptRoot "..\config.yaml"
+    }
+
+    if (-not (Test-Path $ConfigPath)) {
         Write-Host "[ERRO] Arquivo config.yaml não encontrado." -ForegroundColor Red
         Write-Host "Execute instalar.bat primeiro." -ForegroundColor Yellow
         exit 1
@@ -34,18 +42,29 @@ function Ler-Config {
 
     $config = @{}
     $secao = ""
-    foreach ($linha in Get-Content $configPath -Encoding UTF8) {
-        $linha = $linha -replace '#.*', ''  # remove comentários
+    foreach ($linha in Get-Content $ConfigPath -Encoding UTF8) {
         $linha = $linha.Trim()
         if ($linha -eq "") { continue }
+        if ($linha.StartsWith("#")) { continue }
 
-        if ($linha -match '^(\w+):$') {
+        if ($linha -match '^(\w+):\s*(?:#.*)?$') {
             $secao = $matches[1]
             $config[$secao] = @{}
         }
         elseif ($linha -match '^(\w+):\s*(.*)$' -and $secao -ne "") {
             $chave = $matches[1]
-            $valor = $matches[2].Trim().Trim('"').Trim("'")
+            $valorBruto = $matches[2].Trim()
+
+            if ($valorBruto -match '^\s*"((?:[^"\\]|\\.)*)"\s*(?:#.*)?$') {
+                $valor = $matches[1] -replace '\\\"', '"' -replace '\\\\', '\'
+            }
+            elseif ($valorBruto -match "^\s*'((?:[^']|'')*)'\s*(?:#.*)?$") {
+                $valor = $matches[1] -replace "''", "'"
+            }
+            else {
+                $valor = ($valorBruto -replace '\s+#.*$', '').Trim()
+            }
+
             $config[$secao][$chave] = $valor
         }
     }
@@ -67,6 +86,17 @@ function Formatar-Duracao {
 }
 
 # ── Início ──────────────────────────────────────────────────────────────────
+
+if ($SomenteLerConfig) {
+    $config = Ler-Config -ConfigPath $ConfigPath
+    $config | ConvertTo-Json -Depth 5 -Compress
+    exit 0
+}
+
+if ([string]::IsNullOrWhiteSpace($ArquivoSQL)) {
+    Write-Host "[ERRO] Informe o caminho do arquivo .sql para importar." -ForegroundColor Red
+    exit 1
+}
 
 Write-Host ""
 Write-Host "============================================================" -ForegroundColor Cyan
@@ -148,11 +178,10 @@ Write-Host "Criando banco de dados '$dbNome' (se não existir)..." -ForegroundCo
 
 $criarDB = "CREATE DATABASE IF NOT EXISTS ``$dbNome`` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
-if ($dbSenha -ne "") {
-    $resultado = echo $criarDB | mysql -h $dbHost -P $dbPorta -u $dbUsuario "-p$dbSenha" 2>&1
-} else {
-    $resultado = echo $criarDB | mysql -h $dbHost -P $dbPorta -u $dbUsuario 2>&1
-}
+$mysqlCreateArgs = @("-h", $dbHost, "-P", $dbPorta, "-u", $dbUsuario)
+if ($dbSenha -ne "") { $mysqlCreateArgs += "-p$dbSenha" }
+$mysqlCreateArgs += @("-e", $criarDB)
+$resultado = & mysql @mysqlCreateArgs 2>&1
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "[ERRO] Falha ao conectar ao MySQL." -ForegroundColor Red
@@ -204,13 +233,25 @@ $stdinStream = $processo.StandardInput.BaseStream
 $errosTarefa = $processo.StandardError.ReadToEndAsync()
 
 $ultimaAtualizacao = Get-Date
+$primeiraLeitura = $true
 
 try {
     while ($true) {
         $lido = $streamLeitura.Read($buffer, 0, $bufferSize)
         if ($lido -eq 0) { break }
 
-        $stdinStream.Write($buffer, 0, $lido)
+        $offset = 0
+        if ($primeiraLeitura) {
+            $primeiraLeitura = $false
+            if ($lido -ge 3 -and $buffer[0] -eq 0xEF -and $buffer[1] -eq 0xBB -and $buffer[2] -eq 0xBF) {
+                $offset = 3
+            }
+        }
+
+        $bytesParaEscrever = $lido - $offset
+        if ($bytesParaEscrever -gt 0) {
+            $stdinStream.Write($buffer, $offset, $bytesParaEscrever)
+        }
         $bytesLidos += $lido
 
         # Atualiza progresso a cada segundo

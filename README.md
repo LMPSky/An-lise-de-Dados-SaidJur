@@ -57,6 +57,9 @@ banco:
   nome: saidjur          # Nome que será dado ao banco
 ```
 
+> ✅ Senhas com caracteres especiais (`#`, `@`, `$`, `!` e aspas escapadas como `\"`)
+> funcionam normalmente quando informadas entre aspas no `config.yaml`.
+
 ---
 
 ## 📂 Importando seu arquivo `.sql`
