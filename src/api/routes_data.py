@@ -15,17 +15,23 @@ from src.db import tabelas_validas, colunas_validas
 router = APIRouter(tags=["Dados"])
 logger = logging.getLogger("saidjur.dados")
 
+def _escapar_like(valor: str, escape: str = "!") -> str:
+    """Escapa caracteres especiais de LIKE (%, _, e o próprio escape) no valor do usuário."""
+    return valor.replace(escape, escape + escape).replace("%", escape + "%").replace("_", escape + "_")
+
+
 # Operadores de filtro permitidos → função que constrói a expressão SQLAlchemy
+# Valores com wildcards LIKE (%, _) são escapados para evitar correspondências inesperadas.
 _OPERADORES: dict[str, Any] = {
-    "contem":      lambda col, val: col.like(f"%{val}%"),
-    "nao_contem":  lambda col, val: ~col.like(f"%{val}%"),
+    "contem":      lambda col, val: col.like("%" + _escapar_like(val) + "%", escape="!"),
+    "nao_contem":  lambda col, val: ~col.like("%" + _escapar_like(val) + "%", escape="!"),
     "igual":       lambda col, val: col == val,
     "diferente":   lambda col, val: col != val,
     "maior":       lambda col, val: col > val,
     "menor":       lambda col, val: col < val,
     "maior_igual": lambda col, val: col >= val,
     "menor_igual": lambda col, val: col <= val,
-    "comeca_com":  lambda col, val: col.like(f"{val}%"),
+    "comeca_com":  lambda col, val: col.like(_escapar_like(val) + "%", escape="!"),
 }
 
 _POR_PAGINA_MAX = 500

@@ -44,13 +44,19 @@ def _buscar_em_tabela(
     for coluna in colunas:
         try:
             col = tbl.c[coluna]
-            stmt = select(tbl).where(col.like(f"%{termo}%")).limit(limite)
+            from src.api.routes_data import _escapar_like
+            padrao = "%" + _escapar_like(termo) + "%"
+            stmt = select(tbl).where(col.like(padrao, escape="!")).limit(limite)
 
             with engine.connect() as conn:
                 # SET SESSION max_execution_time define timeout em ms (MySQL 5.7.4+).
+                # O timeout vem da configuração (inteiro validado), não de entrada do usuário.
                 # Silencia o erro em bancos que não suportam esse comando (ex: SQLite em testes).
                 try:
-                    conn.execute(text(f"SET SESSION max_execution_time={timeout * 1000}"))
+                    conn.execute(
+                        text("SET SESSION max_execution_time=:ms"),
+                        {"ms": timeout * 1000},
+                    )
                 except Exception:
                     pass
                 resultado = conn.execute(stmt)
