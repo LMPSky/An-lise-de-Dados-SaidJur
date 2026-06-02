@@ -1,0 +1,14 @@
+servidor:
+  host: 127.0.0.1     # Mude para 0.0.0.0 para acessar pela rede local
+  porta: 8000
+
+banco:
+  host: 127.0.0.1
+  porta: 3306
+  usuario: root
+  senha: ""           # Coloque aqui a senha do seu MySQL
+  nome: saidjur       # Nome do banco de dados que será criado
+
+busca:
+  timeout_segundos: 10
+  limite_padrao: 100
