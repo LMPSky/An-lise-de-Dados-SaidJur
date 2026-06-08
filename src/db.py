@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import re
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from sqlalchemy import create_engine, text
+from sqlalchemy import MetaData, Table, create_engine, func, inspect, select, text
 from sqlalchemy.engine import Engine
 
 from src.config import CONFIG
@@ -19,11 +18,6 @@ _CACHE_STATS: dict[tuple[str, str], tuple[datetime, dict[str, Any]]] = {}
 _CACHE_TTL = timedelta(minutes=5)
 
 
-def _quote_ident(nome: str) -> str:
-    """Protege identificadores SQL com aspas invertidas."""
-    return "`" + nome.replace("`", "``") + "`"
-
-
 def _url_banco(cfg: dict[str, Any] | None = None) -> str:
     """Constrói a URL de conexão com o banco de dados."""
     if cfg is None:
@@ -33,34 +27,29 @@ def _url_banco(cfg: dict[str, Any] | None = None) -> str:
     host = cfg.get("host", "127.0.0.1")
     porta = cfg.get("porta", 3306)
     nome = cfg.get("nome", "saidjur")
-    # PyMySQL puro Python — mais fácil de instalar no Windows
     return f"mysql+pymysql://{usuario}:{senha}@{host}:{porta}/{nome}?charset=utf8mb4"
 
 
 def criar_engine(cfg: dict[str, Any] | None = None) -> Engine:
     """Cria e retorna o engine SQLAlchemy configurado para MySQL via PyMySQL."""
     url = _url_banco(cfg)
-    return create_engine(
-        url,
-        pool_pre_ping=True,
-        pool_recycle=3600,
-        echo=False,
-    )
+    return create_engine(url, pool_pre_ping=True, pool_recycle=3600, echo=False)
 
 
 def listar_tabelas(engine: Engine) -> list[dict[str, Any]]:
     """Retorna todas as tabelas com contagem aproximada de linhas e tamanho em MB."""
     if engine.dialect.name == "sqlite":
+        insp = inspect(engine)
+        meta = MetaData()
+        tabelas: list[dict[str, Any]] = []
         with engine.connect() as conn:
-            resultado = conn.execute(
-                text("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
-            )
-            tabelas: list[dict[str, Any]] = []
-            for row in resultado:
-                nome = row[0]
-                total = conn.execute(text(f"SELECT COUNT(*) FROM {_quote_ident(nome)}")).scalar_one()
+            for nome in sorted(insp.get_table_names()):
+                if nome.startswith("sqlite_"):
+                    continue
+                tbl = Table(nome, meta, autoload_with=engine)
+                total = conn.execute(select(func.count()).select_from(tbl)).scalar_one()
                 tabelas.append({"nome": nome, "linhas_aprox": int(total), "tamanho_mb": 0.0})
-            return tabelas
+        return tabelas
 
     sql = text(
         """
@@ -91,17 +80,20 @@ def listar_tabelas(engine: Engine) -> list[dict[str, Any]]:
 def listar_colunas(engine: Engine, nome_tabela: str) -> list[dict[str, Any]]:
     """Retorna as colunas de uma tabela com tipo, nulidade e chave."""
     if engine.dialect.name == "sqlite":
-        with engine.connect() as conn:
-            resultado = conn.execute(text(f"PRAGMA table_info({_quote_ident(nome_tabela)})"))
-            return [
+        insp = inspect(engine)
+        pk_cols = set(insp.get_pk_constraint(nome_tabela).get("constrained_columns", []))
+        colunas = []
+        for c in insp.get_columns(nome_tabela):
+            tipo = str(c.get("type", ""))
+            colunas.append(
                 {
-                    "nome": row[1],
-                    "tipo": row[2],
-                    "nulo": row[3] == 0,
-                    "chave": "PRI" if row[5] == 1 else "",
+                    "nome": c["name"],
+                    "tipo": tipo,
+                    "nulo": bool(c.get("nullable", True)),
+                    "chave": "PRI" if c["name"] in pk_cols else "",
                 }
-                for row in resultado
-            ]
+            )
+        return colunas
 
     sql = text(
         """
@@ -132,18 +124,21 @@ def listar_colunas(engine: Engine, nome_tabela: str) -> list[dict[str, Any]]:
 def listar_chaves_estrangeiras(engine: Engine, nome_tabela: str) -> list[dict[str, str]]:
     """Retorna FKs da tabela informada."""
     if engine.dialect.name == "sqlite":
-        with engine.connect() as conn:
-            resultado = conn.execute(
-                text(f"PRAGMA foreign_key_list({_quote_ident(nome_tabela)})")
-            )
-            return [
+        insp = inspect(engine)
+        resultado: list[dict[str, str]] = []
+        for fk in insp.get_foreign_keys(nome_tabela):
+            colunas = fk.get("constrained_columns") or []
+            ref_colunas = fk.get("referred_columns") or []
+            if not colunas or not ref_colunas:
+                continue
+            resultado.append(
                 {
-                    "coluna": row[3],
-                    "tabela_referenciada": row[2],
-                    "coluna_referenciada": row[4],
+                    "coluna": colunas[0],
+                    "tabela_referenciada": fk.get("referred_table") or "",
+                    "coluna_referenciada": ref_colunas[0],
                 }
-                for row in resultado
-            ]
+            )
+        return resultado
 
     sql = text(
         """
@@ -210,10 +205,58 @@ def dados_dashboard(engine: Engine) -> dict[str, Any]:
 
 
 def _limpar_comentarios_sql(sql: str) -> str:
-    sem_bloco = re.sub(r"/\*.*?\*/", " ", sql, flags=re.DOTALL)
-    sem_linha = re.sub(r"--.*?$", " ", sem_bloco, flags=re.MULTILINE)
-    sem_hash = re.sub(r"#.*?$", " ", sem_linha, flags=re.MULTILINE)
-    return sem_hash.strip()
+    """Remove comentários SQL de forma linear (evita regex ReDoS)."""
+    out: list[str] = []
+    i = 0
+    n = len(sql)
+    em_string: str | None = None
+
+    while i < n:
+        ch = sql[i]
+        prox = sql[i + 1] if i + 1 < n else ""
+
+        if em_string:
+            out.append(ch)
+            if ch == em_string:
+                em_string = None
+            elif ch == "\\" and i + 1 < n:
+                i += 1
+                out.append(sql[i])
+            i += 1
+            continue
+
+        if ch in {"'", '"'}:
+            em_string = ch
+            out.append(ch)
+            i += 1
+            continue
+
+        if ch == "/" and prox == "*":
+            i += 2
+            while i + 1 < n and not (sql[i] == "*" and sql[i + 1] == "/"):
+                i += 1
+            i += 2 if i + 1 <= n else 1
+            out.append(" ")
+            continue
+
+        if ch == "-" and prox == "-":
+            i += 2
+            while i < n and sql[i] not in "\r\n":
+                i += 1
+            out.append(" ")
+            continue
+
+        if ch == "#":
+            i += 1
+            while i < n and sql[i] not in "\r\n":
+                i += 1
+            out.append(" ")
+            continue
+
+        out.append(ch)
+        i += 1
+
+    return "".join(out).strip()
 
 
 def validar_sql_somente_leitura(query: str) -> str:
@@ -227,14 +270,15 @@ def validar_sql_somente_leitura(query: str) -> str:
         raise ValueError("Apenas queries SELECT ou WITH são permitidas.")
 
     corpo = limpa.rstrip()
-    if ";" in corpo[:-1] or (corpo.endswith(";") and ";" in corpo[:-1]):
+    if ";" in corpo[:-1]:
         raise ValueError("Apenas uma query é permitida por execução.")
 
-    bloqueados = re.compile(
-        r"\b(insert|update|delete|drop|alter|create|truncate|replace|grant|revoke|call|execute|set)\b",
-        flags=re.IGNORECASE,
-    )
-    if bloqueados.search(corpo):
+    bloqueados = [
+        "insert", "update", "delete", "drop", "alter", "create", "truncate",
+        "replace", "grant", "revoke", "call", "execute", "set",
+    ]
+    palavras = {token.lower() for token in corpo.replace("(", " ").replace(")", " ").split()}
+    if any(cmd in palavras for cmd in bloqueados):
         raise ValueError("Comandos de alteração de dados/estrutura não são permitidos.")
 
     return limpa
@@ -247,9 +291,7 @@ def executar_sql_somente_leitura(
     timeout_segundos: int = 30,
 ) -> dict[str, Any]:
     """Executa query somente leitura com timeout e limite de linhas."""
-    limpa = validar_sql_somente_leitura(query)
-
-    sql_final = f"SELECT * FROM ({limpa.rstrip(';')}) _q LIMIT {int(limite)}"
+    limpa = validar_sql_somente_leitura(query).rstrip(";")
 
     with engine.connect() as conn:
         try:
@@ -260,9 +302,9 @@ def executar_sql_somente_leitura(
         except Exception:
             pass
 
-        resultado = conn.execute(text(sql_final))
+        resultado = conn.execute(text(limpa))
         colunas = list(resultado.keys())
-        linhas = [dict(zip(colunas, row)) for row in resultado]
+        linhas = [dict(zip(colunas, row)) for row in resultado.fetchmany(int(limite))]
 
     return {
         "colunas": colunas,
@@ -275,48 +317,44 @@ def executar_sql_somente_leitura(
 def estatisticas_coluna(engine: Engine, tabela: str, coluna: str) -> dict[str, Any]:
     """Retorna estatísticas rápidas para uma coluna, com cache de 5 minutos."""
     chave_cache = (tabela, coluna)
-    agora = datetime.utcnow()
+    agora = datetime.now(UTC)
     if chave_cache in _CACHE_STATS:
         ts, valor = _CACHE_STATS[chave_cache]
         if agora - ts < _CACHE_TTL:
             return {**valor, "cache": True}
 
-    q_tabela = _quote_ident(tabela)
-    q_coluna = _quote_ident(coluna)
+    meta = MetaData()
+    tbl = Table(tabela, meta, autoload_with=engine)
+    col = tbl.c[coluna]
 
     with engine.connect() as conn:
-        total_aprox = conn.execute(text(f"SELECT COUNT(*) FROM {q_tabela}")).scalar_one()
+        total_aprox = conn.execute(select(func.count()).select_from(tbl)).scalar_one()
 
-        fonte = f"{q_tabela}"
-        amostrado = False
-        tamanho_amostra = 200000
-        if int(total_aprox) > 1_000_000:
-            fonte = f"(SELECT {q_coluna} FROM {q_tabela} LIMIT {tamanho_amostra}) amostra"
-            amostrado = True
+        amostrado = int(total_aprox) > 1_000_000
+        if amostrado:
+            fonte = select(col.label("valor")).select_from(tbl).limit(200000).subquery("amostra")
+            col_ref = fonte.c.valor
+        else:
+            fonte = tbl
+            col_ref = col
 
-        base_sql = text(
-            f"""
-            SELECT
-                COUNT({q_coluna}) AS nao_nulos,
-                COUNT(DISTINCT {q_coluna}) AS distintos,
-                MIN({q_coluna}) AS minimo,
-                MAX({q_coluna}) AS maximo
-            FROM {fonte}
-        """
+        base_stmt = select(
+            func.count(col_ref).label("nao_nulos"),
+            func.count(func.distinct(col_ref)).label("distintos"),
+            func.min(col_ref).label("minimo"),
+            func.max(col_ref).label("maximo"),
+        ).select_from(fonte)
+        base = conn.execute(base_stmt).mappings().one()
+
+        top_stmt = (
+            select(col_ref.label("valor"), func.count().label("quantidade"))
+            .select_from(fonte)
+            .where(col_ref.is_not(None))
+            .group_by(col_ref)
+            .order_by(func.count().desc())
+            .limit(5)
         )
-        base = conn.execute(base_sql).mappings().one()
-
-        top_sql = text(
-            f"""
-            SELECT {q_coluna} AS valor, COUNT(*) AS quantidade
-            FROM {fonte}
-            WHERE {q_coluna} IS NOT NULL
-            GROUP BY {q_coluna}
-            ORDER BY quantidade DESC
-            LIMIT 5
-        """
-        )
-        top5 = [dict(r) for r in conn.execute(top_sql).mappings()]
+        top5 = [dict(r) for r in conn.execute(top_stmt).mappings()]
 
     dados = {
         "nao_nulos": int(base["nao_nulos"] or 0),

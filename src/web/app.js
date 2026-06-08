@@ -281,6 +281,10 @@ function app() {
       return this.fksMapAtual[coluna] || null;
     },
 
+    ehFkValido(coluna, valor) {
+      return Boolean(this.fkAtual(coluna) && valor !== null && valor !== undefined && valor !== '');
+    },
+
     async abrirFk(event, tabelaOrigem, colunaOrigem, valor) {
       event.stopPropagation();
       if (valor === null || valor === undefined || valor === '') return;
@@ -532,11 +536,6 @@ function app() {
       this.detalheLinhasContexto = contextoLinhas || [];
       this.detalheIndiceContexto = Number.isInteger(indice) ? indice : -1;
       this.detalheAberto = true;
-      this.$nextTick(() => {
-        if (window.Prism) {
-          window.Prism.highlightAllUnder(this.$refs.modalDetalhe);
-        }
-      });
     },
 
     fecharDetalhe() {
@@ -613,6 +612,7 @@ function app() {
 
     ehData(texto) {
       if (!texto) return false;
+      // 10 dígitos: timestamp Unix em segundos; 13 dígitos: milissegundos.
       if (/^\d{4}-\d{2}-\d{2}/.test(texto) || /^\d{10,13}$/.test(texto)) return !Number.isNaN(new Date(texto).getTime());
       return false;
     },

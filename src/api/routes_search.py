@@ -103,7 +103,7 @@ def _iter_busca_global(
     encontrados = 0
     processadas = 0
 
-    with ThreadPoolExecutor(max_workers=max(1, parallelism)) as executor:
+    with ThreadPoolExecutor(max_workers=parallelism) as executor:
         futuros = {
             executor.submit(_buscar_em_tabela, engine, nome, colunas, termo, limite, timeout): nome
             for nome, colunas, _linhas in tabelas
@@ -153,7 +153,7 @@ async def busca_global(
     cfg_busca = CONFIG.get("busca", {})
     timeout = int(cfg_busca.get("timeout_segundos", 10))
     limite_efetivo = limite or int(cfg_busca.get("limite_padrao", 100))
-    parallelism = int(cfg_busca.get("parallelism", 8))
+    parallelism = max(1, int(cfg_busca.get("parallelism", 8)))
 
     if len(q.strip()) == 0:
         raise HTTPException(status_code=400, detail="O termo de busca não pode ser vazio.")
@@ -194,7 +194,7 @@ async def busca_global_stream(
     cfg_busca = CONFIG.get("busca", {})
     timeout = int(cfg_busca.get("timeout_segundos", 10))
     limite_efetivo = limite or int(cfg_busca.get("limite_padrao", 100))
-    parallelism = int(cfg_busca.get("parallelism", 8))
+    parallelism = max(1, int(cfg_busca.get("parallelism", 8)))
 
     if len(q.strip()) == 0:
         raise HTTPException(status_code=400, detail="O termo de busca não pode ser vazio.")
@@ -216,7 +216,8 @@ async def busca_global_stream(
                 yield f"data: {payload}\n\n"
                 await asyncio.sleep(0)
         except Exception as exc:
-            erro = json.dumps({"tipo": "error", "mensagem": str(exc)}, ensure_ascii=False)
+            logger.exception("Falha na busca streaming")
+            erro = json.dumps({"tipo": "error", "mensagem": "Falha interna durante a busca."}, ensure_ascii=False)
             yield f"data: {erro}\n\n"
 
     headers = {
