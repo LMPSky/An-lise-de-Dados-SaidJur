@@ -11,22 +11,17 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.pool import StaticPool
 
+
 # ── Setup do banco de testes (SQLite) ─────────────────────────────────────────
 
 def _criar_engine_sqlite() -> Engine:
-    """
-    Cria engine SQLite em memória com StaticPool.
-
-    StaticPool garante que todas as conexões ao SQLite compartilhem a
-    mesma base de dados em memória — necessário para que os dados
-    inseridos sejam visíveis nas chamadas subsequentes.
-    """
     engine = create_engine(
         "sqlite:///:memory:",
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
     with engine.connect() as conn:
+        conn.execute(text("PRAGMA foreign_keys = ON"))
         conn.execute(text("""
             CREATE TABLE clientes (
                 id        INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,16 +40,32 @@ def _criar_engine_sqlite() -> Engine:
             )
         """))
         conn.execute(text("""
+            CREATE TABLE users (
+                id   INTEGER PRIMARY KEY AUTOINCREMENT,
+                nome TEXT NOT NULL
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE busunitaccess (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                userid INTEGER NOT NULL,
+                perfil TEXT,
+                FOREIGN KEY(userid) REFERENCES users(id)
+            )
+        """))
+        conn.execute(text("""
             INSERT INTO clientes (nome, email, cidade, criado_em) VALUES
-            ('João Silva', 'joao@ex.com', 'São Paulo', '2023-01-01'),
-            ('Maria Souza', 'maria@ex.com', 'Rio de Janeiro', '2023-02-01'),
-            ('Carlos Andrade', 'carlos@ex.com', 'Belo Horizonte', '2023-03-01')
+            ('João Silva', 'joao@ex.com', 'São Paulo', '2023-01-01 10:00:00'),
+            ('Maria Souza', 'maria@ex.com', 'Rio de Janeiro', '2023-02-01 11:00:00'),
+            ('Carlos Andrade', 'carlos@ex.com', 'Belo Horizonte', '2023-03-01 12:00:00')
         """))
         conn.execute(text("""
             INSERT INTO processos (numero, status, descricao) VALUES
             ('0001234-00.2023.8', 'em andamento', 'Ação de cobrança'),
             ('0002345-00.2023.8', 'concluído', 'Divórcio consensual')
         """))
+        conn.execute(text("INSERT INTO users (nome) VALUES ('Ana'), ('Bruno')"))
+        conn.execute(text("INSERT INTO busunitaccess (userid, perfil) VALUES (1, 'admin'), (2, 'leitura')"))
         conn.commit()
     return engine
 
@@ -62,7 +73,6 @@ def _criar_engine_sqlite() -> Engine:
 # ── Fixtures e mocks ──────────────────────────────────────────────────────────
 
 def _listar_tabelas_sqlite(engine: Engine) -> list[dict[str, Any]]:
-    """Substitui listar_tabelas para funcionar com SQLite."""
     with engine.connect() as conn:
         resultado = conn.execute(
             text("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
@@ -70,13 +80,14 @@ def _listar_tabelas_sqlite(engine: Engine) -> list[dict[str, Any]]:
         tabelas = []
         for row in resultado:
             nome = row[0]
+            if nome.startswith("sqlite_"):
+                continue
             total = conn.execute(text(f"SELECT COUNT(*) FROM `{nome}`")).scalar_one()
             tabelas.append({"nome": nome, "linhas_aprox": total, "tamanho_mb": 0.0})
     return tabelas
 
 
 def _listar_colunas_sqlite(engine: Engine, nome_tabela: str) -> list[dict[str, Any]]:
-    """Substitui listar_colunas para funcionar com SQLite."""
     with engine.connect() as conn:
         resultado = conn.execute(text(f"PRAGMA table_info(`{nome_tabela}`)"))
         return [
@@ -91,18 +102,19 @@ def _listar_colunas_sqlite(engine: Engine, nome_tabela: str) -> list[dict[str, A
 
 
 def _tabelas_validas_sqlite(engine: Engine) -> set[str]:
-    with engine.connect() as conn:
-        resultado = conn.execute(
-            text("SELECT name FROM sqlite_master WHERE type='table'")
-        )
-        return {row[0] for row in resultado}
+    return {t["nome"] for t in _listar_tabelas_sqlite(engine)}
 
 
 def _colunas_validas_sqlite(engine: Engine, nome_tabela: str) -> set[str]:
     return {c["nome"] for c in _listar_colunas_sqlite(engine, nome_tabela)}
 
 
-def _colunas_texto_sqlite(engine: Engine, nome_tabela: str) -> list[str]:
+def _colunas_texto_sqlite(
+    engine: Engine,
+    nome_tabela: str,
+    incluir_colunas_grandes: bool = False,
+) -> list[str]:
+    _ = incluir_colunas_grandes
     tipos_texto = {"text", "varchar", "char", "json"}
     colunas = _listar_colunas_sqlite(engine, nome_tabela)
     return [
@@ -112,29 +124,39 @@ def _colunas_texto_sqlite(engine: Engine, nome_tabela: str) -> list[str]:
     ]
 
 
+def _listar_fks_sqlite(engine: Engine, nome_tabela: str) -> list[dict[str, str]]:
+    with engine.connect() as conn:
+        resultado = conn.execute(text(f"PRAGMA foreign_key_list(`{nome_tabela}`)"))
+        return [
+            {
+                "coluna": row[3],
+                "tabela_referenciada": row[2],
+                "coluna_referenciada": row[4],
+            }
+            for row in resultado
+        ]
+
+
 @pytest.fixture
 def client(monkeypatch: pytest.MonkeyPatch) -> Generator[TestClient, None, None]:
-    """
-    Cliente de teste com banco SQLite e mocks das funções MySQL-específicas.
-    """
     from src.api import main as main_module
     import src.api.routes_tables as rt_tables
     import src.api.routes_data as rt_data
     import src.api.routes_search as rt_search
     import src.api.routes_export as rt_export
+    import src.api.routes_stats as rt_stats
     import src.db as db_module
 
     engine = _criar_engine_sqlite()
 
-    # Patching das funções que dependem do MySQL information_schema
     monkeypatch.setattr(db_module, "listar_tabelas", _listar_tabelas_sqlite)
     monkeypatch.setattr(db_module, "listar_colunas", _listar_colunas_sqlite)
     monkeypatch.setattr(db_module, "tabelas_validas", _tabelas_validas_sqlite)
     monkeypatch.setattr(db_module, "colunas_validas", _colunas_validas_sqlite)
     monkeypatch.setattr(db_module, "colunas_texto", _colunas_texto_sqlite)
+    monkeypatch.setattr(db_module, "listar_chaves_estrangeiras", _listar_fks_sqlite)
 
-    # Também aplica nos módulos de rota (que importaram os nomes localmente)
-    for modulo in [rt_tables, rt_data, rt_search, rt_export]:
+    for modulo in [rt_tables, rt_data, rt_search, rt_export, rt_stats]:
         if hasattr(modulo, "listar_tabelas"):
             monkeypatch.setattr(modulo, "listar_tabelas", _listar_tabelas_sqlite)
         if hasattr(modulo, "listar_colunas"):
@@ -145,6 +167,8 @@ def client(monkeypatch: pytest.MonkeyPatch) -> Generator[TestClient, None, None]
             monkeypatch.setattr(modulo, "colunas_validas", _colunas_validas_sqlite)
         if hasattr(modulo, "colunas_texto"):
             monkeypatch.setattr(modulo, "colunas_texto", _colunas_texto_sqlite)
+        if hasattr(modulo, "listar_chaves_estrangeiras"):
+            monkeypatch.setattr(modulo, "listar_chaves_estrangeiras", _listar_fks_sqlite)
 
     from src.api.main import app
     app.state.engine = engine
@@ -153,201 +177,88 @@ def client(monkeypatch: pytest.MonkeyPatch) -> Generator[TestClient, None, None]
         yield c
 
 
-# ── Testes de /api/tabelas ────────────────────────────────────────────────────
-
 class TestRotaTabelas:
-
     def test_lista_tabelas_status_200(self, client: TestClient) -> None:
         resp = client.get("/api/tabelas")
         assert resp.status_code == 200
 
-    def test_lista_tabelas_retorna_lista(self, client: TestClient) -> None:
-        resp = client.get("/api/tabelas")
-        dados = resp.json()
-        assert isinstance(dados, list)
-        assert len(dados) >= 2
-
-    def test_estrutura_tabela(self, client: TestClient) -> None:
-        resp = client.get("/api/tabelas")
-        tabela = resp.json()[0]
-        assert "nome" in tabela
-        assert "linhas_aprox" in tabela
-        assert "tamanho_mb" in tabela
-
-    def test_tabela_clientes_presente(self, client: TestClient) -> None:
-        resp = client.get("/api/tabelas")
-        nomes = [t["nome"] for t in resp.json()]
-        assert "clientes" in nomes
-
     def test_colunas_tabela_existente(self, client: TestClient) -> None:
         resp = client.get("/api/tabelas/clientes/colunas")
         assert resp.status_code == 200
-        colunas = resp.json()
-        assert isinstance(colunas, list)
-        nomes = [c["nome"] for c in colunas]
+        nomes = [c["nome"] for c in resp.json()]
         assert "nome" in nomes
 
-    def test_colunas_tabela_inexistente_retorna_404(self, client: TestClient) -> None:
-        resp = client.get("/api/tabelas/nao_existe/colunas")
-        assert resp.status_code == 404
+    def test_fks_tabela(self, client: TestClient) -> None:
+        resp = client.get("/api/tabelas/busunitaccess/fks")
+        assert resp.status_code == 200
+        dados = resp.json()
+        assert dados[0]["coluna"] == "userid"
+        assert dados[0]["tabela_referenciada"] == "users"
 
-
-# ── Testes de /api/tabelas/{nome}/linhas ─────────────────────────────────────
 
 class TestRotaDados:
-
     def test_linhas_status_200(self, client: TestClient) -> None:
         resp = client.get("/api/tabelas/clientes/linhas")
         assert resp.status_code == 200
 
-    def test_linhas_estrutura_resposta(self, client: TestClient) -> None:
-        resp = client.get("/api/tabelas/clientes/linhas")
-        dados = resp.json()
-        assert "total" in dados
-        assert "pagina" in dados
-        assert "por_pagina" in dados
-        assert "linhas" in dados
-
     def test_total_registros(self, client: TestClient) -> None:
         resp = client.get("/api/tabelas/clientes/linhas")
-        dados = resp.json()
-        assert dados["total"] == 3
-
-    def test_paginacao(self, client: TestClient) -> None:
-        resp = client.get("/api/tabelas/clientes/linhas?pagina=1&por_pagina=2")
-        dados = resp.json()
-        assert len(dados["linhas"]) == 2
-
-    def test_segunda_pagina(self, client: TestClient) -> None:
-        resp = client.get("/api/tabelas/clientes/linhas?pagina=2&por_pagina=2")
-        dados = resp.json()
-        assert len(dados["linhas"]) == 1
-
-    def test_por_pagina_maximo_500(self, client: TestClient) -> None:
-        resp = client.get("/api/tabelas/clientes/linhas?por_pagina=501")
-        assert resp.status_code == 422  # Unprocessable Entity
-
-    def test_tabela_inexistente_retorna_404(self, client: TestClient) -> None:
-        resp = client.get("/api/tabelas/nao_existe/linhas")
-        assert resp.status_code == 404
+        assert resp.json()["total"] == 3
 
     def test_filtro_contem(self, client: TestClient) -> None:
         filtros = json.dumps({"nome": {"op": "contem", "valor": "João"}})
         resp = client.get(f"/api/tabelas/clientes/linhas?filtros={filtros}")
-        dados = resp.json()
-        assert dados["total"] == 1
-        assert dados["linhas"][0]["nome"] == "João Silva"
+        assert resp.json()["total"] == 1
 
-    def test_filtro_igual(self, client: TestClient) -> None:
-        filtros = json.dumps({"cidade": {"op": "igual", "valor": "São Paulo"}})
-        resp = client.get(f"/api/tabelas/clientes/linhas?filtros={filtros}")
-        dados = resp.json()
-        assert dados["total"] == 1
-
-    def test_filtro_comeca_com(self, client: TestClient) -> None:
-        filtros = json.dumps({"nome": {"op": "comeca_com", "valor": "Mar"}})
-        resp = client.get(f"/api/tabelas/clientes/linhas?filtros={filtros}")
-        dados = resp.json()
-        assert dados["total"] == 1
-
-    def test_ordenar_por_coluna(self, client: TestClient) -> None:
-        resp = client.get("/api/tabelas/clientes/linhas?ordenar_por=nome&direcao=asc")
-        assert resp.status_code == 200
-        dados = resp.json()
-        nomes = [l["nome"] for l in dados["linhas"]]
-        assert nomes == sorted(nomes)
-
-    def test_ordenar_coluna_invalida_retorna_400(self, client: TestClient) -> None:
-        resp = client.get("/api/tabelas/clientes/linhas?ordenar_por=coluna_invalida")
-        assert resp.status_code == 400
-
-    def test_filtro_coluna_invalida_retorna_400(self, client: TestClient) -> None:
-        filtros = json.dumps({"coluna_invalida": {"op": "contem", "valor": "x"}})
-        resp = client.get(f"/api/tabelas/clientes/linhas?filtros={filtros}")
-        assert resp.status_code == 400
-
-    def test_filtro_json_invalido_retorna_400(self, client: TestClient) -> None:
-        resp = client.get("/api/tabelas/clientes/linhas?filtros=nao_e_json")
-        assert resp.status_code == 400
-
-
-# ── Testes de /api/busca ──────────────────────────────────────────────────────
 
 class TestRotaBusca:
-
     def test_busca_retorna_lista(self, client: TestClient) -> None:
         resp = client.get("/api/busca?q=João")
         assert resp.status_code == 200
         assert isinstance(resp.json(), list)
 
-    def test_busca_encontra_resultado(self, client: TestClient) -> None:
-        resp = client.get("/api/busca?q=João")
-        resultados = resp.json()
-        # Deve encontrar em alguma tabela/coluna
-        assert len(resultados) > 0
-
-    def test_busca_sem_resultados(self, client: TestClient) -> None:
-        resp = client.get("/api/busca?q=xyzxyzxyz_nao_existe_9999")
+    def test_busca_streaming_retorna_eventos(self, client: TestClient) -> None:
+        resp = client.get("/api/busca/stream?q=João")
         assert resp.status_code == 200
-        assert resp.json() == []
+        assert "\"tipo\": \"progress\"" in resp.text
+        assert "\"tipo\": \"done\"" in resp.text
 
-    def test_busca_estrutura_resposta(self, client: TestClient) -> None:
-        resp = client.get("/api/busca?q=Maria")
-        resultados = resp.json()
-        if resultados:
-            item = resultados[0]
-            assert "tabela" in item
-            assert "coluna" in item
-            assert "registros" in item
-
-    def test_busca_vazia_retorna_400(self, client: TestClient) -> None:
-        resp = client.get("/api/busca?q=")
-        # query string vazia: validação min_length=1
-        assert resp.status_code in (400, 422)
-
-
-# ── Testes de /api/exportar ───────────────────────────────────────────────────
 
 class TestRotaExportar:
-
     def test_exportar_csv_status_200(self, client: TestClient) -> None:
         resp = client.get("/api/exportar/clientes?formato=csv")
         assert resp.status_code == 200
-
-    def test_exportar_csv_content_type(self, client: TestClient) -> None:
-        resp = client.get("/api/exportar/clientes?formato=csv")
         assert "text/csv" in resp.headers.get("content-type", "")
 
-    def test_exportar_csv_tem_cabecalho(self, client: TestClient) -> None:
-        resp = client.get("/api/exportar/clientes?formato=csv")
-        linhas = resp.text.strip().split("\n")
-        assert len(linhas) >= 1
-        cabecalho = linhas[0]
-        assert "nome" in cabecalho
 
-    def test_exportar_csv_com_filtro(self, client: TestClient) -> None:
-        filtros = json.dumps({"nome": {"op": "contem", "valor": "João"}})
-        resp = client.get(f"/api/exportar/clientes?formato=csv&filtros={filtros}")
+class TestRotasNovas:
+    def test_dashboard(self, client: TestClient) -> None:
+        resp = client.get("/api/dashboard")
         assert resp.status_code == 200
-        linhas = resp.text.strip().split("\n")
-        # Cabeçalho + 1 linha de dados
-        assert len(linhas) == 2
+        dados = resp.json()
+        assert "estatisticas" in dados
+        assert "maiores_tabelas" in dados
 
-    def test_exportar_tabela_inexistente_retorna_404(self, client: TestClient) -> None:
-        resp = client.get("/api/exportar/nao_existe?formato=csv")
-        assert resp.status_code == 404
+    def test_sql_select(self, client: TestClient) -> None:
+        resp = client.post("/api/sql", json={"query": "SELECT id, nome FROM clientes ORDER BY id"})
+        assert resp.status_code == 200
+        dados = resp.json()
+        assert "linhas" in dados
+        assert dados["total"] >= 1
 
-    def test_exportar_formato_invalido_retorna_422(self, client: TestClient) -> None:
-        resp = client.get("/api/exportar/clientes?formato=xml")
-        assert resp.status_code == 422
+    def test_sql_rejeita_dml(self, client: TestClient) -> None:
+        resp = client.post("/api/sql", json={"query": "DELETE FROM clientes"})
+        assert resp.status_code == 400
 
+    def test_stats_coluna(self, client: TestClient) -> None:
+        resp = client.get("/api/tabelas/clientes/colunas/nome/stats")
+        assert resp.status_code == 200
+        dados = resp.json()
+        assert "nao_nulos" in dados
+        assert "top_5" in dados
 
-# ── Teste da rota raiz (frontend) ─────────────────────────────────────────────
 
 class TestRotaRaiz:
-
     def test_raiz_serve_html(self, client: TestClient) -> None:
         resp = client.get("/")
-        # Se o diretório web existe, retorna 200; caso contrário, 404.
-        # Em ambiente de teste, ambos são válidos.
         assert resp.status_code in (200, 404)

@@ -1,14 +1,11 @@
 /* Estilos personalizados para o Visualizador SaidJur */
-/* Tailwind lida com a maior parte; aqui ficam apenas ajustes finos */
 
-/* Fonte legível e tamanho base confortável */
 body {
   font-size: 15px;
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Tabela: linhas não quebram desnecessariamente */
 table td, table th {
   white-space: nowrap;
   overflow: hidden;
@@ -16,14 +13,17 @@ table td, table th {
   max-width: 280px;
 }
 
-/* Cabeçalho da tabela fixo com sombra sutil */
 thead th {
   position: sticky;
   top: 0;
   z-index: 10;
 }
 
-/* Barra de rolagem fina e discreta */
+pre code {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 ::-webkit-scrollbar {
   width: 7px;
   height: 7px;
@@ -39,21 +39,18 @@ thead th {
   background: #94a3b8;
 }
 
-/* Cor primária Tailwind customizada */
 .text-primary { color: #1d4ed8; }
-.bg-primary   { background-color: #1d4ed8; }
+.bg-primary { background-color: #1d4ed8; }
 .border-primary { border-color: #1d4ed8; }
 .focus\:ring-primary:focus { --tw-ring-color: #1d4ed8; }
 
-/* Transição suave para popover de filtro */
 [x-show] {
   transition: opacity 0.15s ease;
 }
 
-/* Skeleton pulse */
 @keyframes pulse {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
+  50% { opacity: 0.4; }
 }
 .animate-pulse {
   animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;

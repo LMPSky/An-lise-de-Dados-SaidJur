@@ -86,6 +86,25 @@ O programa mostrará:
 
 ---
 
+## 🆕 Novidades desta versão
+
+- 🔍 **Busca global incremental** com progresso real ("Buscando em X/Y tabelas") e botão **Cancelar**
+- 🧾 **Modal de detalhe do registro** ao clicar em qualquer linha (com copiar valor, links e navegação por teclado)
+- 🔗 **Navegação por chaves estrangeiras (FK)** clicando no valor referenciado
+- 🏠 **Dashboard inicial** com estatísticas gerais e 10 maiores tabelas
+- 💻 **Console SQL** (somente `SELECT`/`WITH`, limite de 5000 linhas)
+- 🎛️ **Mostrar/ocultar colunas** com persistência local por tabela
+- ⭐ **Favoritos** e 🕒 **Recentes** na sidebar (persistidos no navegador)
+- 📊 **Estatísticas rápidas de coluna** (não nulos, distintos, mínimo/máximo e top 5)
+
+### Endpoints novos
+
+- `GET /api/busca/stream` — busca global incremental via SSE
+- `GET /api/tabelas/{nome}/fks` — lista foreign keys da tabela
+- `GET /api/dashboard` — dados agregados da tela inicial
+- `POST /api/sql` — executa consulta SQL somente leitura
+- `GET /api/tabelas/{nome}/colunas/{coluna}/stats` — estatísticas rápidas da coluna
+
 ## 📖 Como usar o visualizador
 
 ### Busca global
