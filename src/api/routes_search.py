@@ -1,18 +1,20 @@
-"""Rota de busca global: pesquisa texto em todas as colunas textuais do banco."""
+"""Rotas de busca global (tradicional e streaming incremental)."""
 
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Any
+from typing import Any, Generator
 
 from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi.responses import StreamingResponse
 from sqlalchemy import text
 from sqlalchemy.engine import Engine
 
 from src.config import CONFIG
-from src.db import listar_tabelas, colunas_texto
+from src.db import colunas_texto, listar_tabelas
 
 router = APIRouter(tags=["Busca"])
 logger = logging.getLogger("saidjur.busca")
@@ -26,14 +28,11 @@ def _buscar_em_tabela(
     limite: int,
     timeout: int,
 ) -> list[dict[str, Any]]:
-    """
-    Executa busca LIKE em todas as colunas textuais de uma tabela.
-
-    Retorna lista de resultados agrupados por coluna.
-    """
+    """Executa busca LIKE em todas as colunas textuais de uma tabela."""
     resultados: list[dict[str, Any]] = []
 
     from sqlalchemy import MetaData, Table, select
+
     meta = MetaData()
     try:
         tbl = Table(nome_tabela, meta, autoload_with=engine)
@@ -45,13 +44,11 @@ def _buscar_em_tabela(
         try:
             col = tbl.c[coluna]
             from src.api.routes_data import _escapar_like
+
             padrao = "%" + _escapar_like(termo) + "%"
             stmt = select(tbl).where(col.like(padrao, escape="!")).limit(limite)
 
             with engine.connect() as conn:
-                # SET SESSION max_execution_time define timeout em ms (MySQL 5.7.4+).
-                # O timeout vem da configuração (inteiro validado), não de entrada do usuário.
-                # Silencia o erro em bancos que não suportam esse comando (ex: SQLite em testes).
                 try:
                     conn.execute(
                         text("SET SESSION max_execution_time=:ms"),
@@ -67,11 +64,77 @@ def _buscar_em_tabela(
                         {"tabela": nome_tabela, "coluna": coluna, "registros": linhas}
                     )
         except Exception as exc:
-            logger.warning(
-                "Erro ao buscar em %s.%s: %s", nome_tabela, coluna, exc
-            )
+            logger.warning("Erro ao buscar em %s.%s: %s", nome_tabela, coluna, exc)
 
     return resultados
+
+
+def _preparar_tabelas_busca(
+    engine: Engine,
+    incluir_colunas_grandes: bool,
+) -> list[tuple[str, list[str], int]]:
+    tabelas = listar_tabelas(engine)
+    tabelas_ordenadas = sorted(tabelas, key=lambda t: int(t.get("linhas_aprox") or 0))
+
+    tabelas_com_colunas: list[tuple[str, list[str], int]] = []
+    for t in tabelas_ordenadas:
+        nome = t["nome"]
+        colunas = colunas_texto(engine, nome, incluir_colunas_grandes=incluir_colunas_grandes)
+        if colunas:
+            tabelas_com_colunas.append((nome, colunas, int(t.get("linhas_aprox") or 0)))
+    return tabelas_com_colunas
+
+
+def _iter_busca_global(
+    engine: Engine,
+    termo: str,
+    limite: int,
+    timeout: int,
+    parallelism: int,
+    incluir_colunas_grandes: bool,
+) -> Generator[dict[str, Any], None, None]:
+    """Itera eventos de progresso e resultados conforme tabelas finalizam."""
+    tabelas = _preparar_tabelas_busca(engine, incluir_colunas_grandes)
+    total = len(tabelas)
+    if total == 0:
+        yield {"tipo": "done", "processadas": 0, "total": 0, "encontrados": 0}
+        return
+
+    encontrados = 0
+    processadas = 0
+
+    with ThreadPoolExecutor(max_workers=parallelism) as executor:
+        futuros = {
+            executor.submit(_buscar_em_tabela, engine, nome, colunas, termo, limite, timeout): nome
+            for nome, colunas, _linhas in tabelas
+        }
+
+        for futuro in as_completed(futuros):
+            nome_tabela = futuros[futuro]
+            processadas += 1
+            try:
+                resultados = futuro.result()
+            except Exception as exc:
+                logger.warning("Falha na busca em tabela '%s': %s", nome_tabela, exc)
+                resultados = []
+
+            if resultados:
+                encontrados += len(resultados)
+                yield {"tipo": "result", "tabela": nome_tabela, "items": resultados}
+
+            yield {
+                "tipo": "progress",
+                "processadas": processadas,
+                "total": total,
+                "encontrados": encontrados,
+            }
+
+    yield {
+        "tipo": "done",
+        "processadas": processadas,
+        "total": total,
+        "encontrados": encontrados,
+    }
 
 
 @router.get(
@@ -82,61 +145,84 @@ async def busca_global(
     request: Request,
     q: str = Query(min_length=1, description="Texto para pesquisar"),
     limite: int = Query(default=None, ge=1, le=500, description="Máximo de registros por coluna"),
+    incluir_colunas_grandes: bool = Query(default=False, description="Inclui MEDIUMTEXT/LONGTEXT"),
 ) -> list[dict[str, Any]]:
-    """
-    Pesquisa o texto em todas as colunas textuais de todas as tabelas.
-
-    - Busca com LIKE %texto% em colunas do tipo CHAR, VARCHAR, TEXT, JSON etc.
-    - Execução paralela por tabela (até 4 threads simultâneas)
-    - Timeout configurável por query (padrão: 10 segundos por coluna)
-
-    Resposta: [{tabela, coluna, registros: [...]}]
-    """
+    """Busca global em todas as tabelas, retornando resposta agregada."""
     engine = request.app.state.engine
 
     cfg_busca = CONFIG.get("busca", {})
     timeout = int(cfg_busca.get("timeout_segundos", 10))
     limite_efetivo = limite or int(cfg_busca.get("limite_padrao", 100))
+    parallelism = max(1, int(cfg_busca.get("parallelism", 8)))
 
     if len(q.strip()) == 0:
         raise HTTPException(status_code=400, detail="O termo de busca não pode ser vazio.")
 
-    # Descobre tabelas e suas colunas textuais
     try:
-        tabelas = listar_tabelas(engine)
+        eventos = _iter_busca_global(
+            engine,
+            q,
+            limite_efetivo,
+            timeout,
+            parallelism,
+            incluir_colunas_grandes,
+        )
+        resultados: list[dict[str, Any]] = []
+        for evento in eventos:
+            if evento.get("tipo") == "result":
+                resultados.extend(evento.get("items", []))
     except Exception as exc:
-        raise HTTPException(
-            status_code=503, detail=f"Não foi possível acessar o banco: {exc}"
-        ) from exc
+        raise HTTPException(status_code=503, detail=f"Não foi possível acessar o banco: {exc}") from exc
 
-    tabelas_com_colunas = [
-        (t["nome"], colunas_texto(engine, t["nome"]))
-        for t in tabelas
-        if colunas_texto(engine, t["nome"])
-    ]
+    logger.info("Busca '%s' retornou %d grupos de resultados", q, len(resultados))
+    return resultados
 
-    if not tabelas_com_colunas:
-        return []
 
-    logger.info("Busca global: '%s' em %d tabelas", q, len(tabelas_com_colunas))
+@router.get(
+    "/busca/stream",
+    summary="Busca global incremental por streaming (SSE)",
+)
+async def busca_global_stream(
+    request: Request,
+    q: str = Query(min_length=1, description="Texto para pesquisar"),
+    limite: int = Query(default=None, ge=1, le=500, description="Máximo de registros por coluna"),
+    incluir_colunas_grandes: bool = Query(default=False, description="Inclui MEDIUMTEXT/LONGTEXT"),
+) -> StreamingResponse:
+    """Retorna eventos SSE com progresso e resultados incrementais."""
+    engine = request.app.state.engine
 
-    # Executa buscas em paralelo (thread pool — operações bloqueantes de banco)
-    todos_resultados: list[dict[str, Any]] = []
+    cfg_busca = CONFIG.get("busca", {})
+    timeout = int(cfg_busca.get("timeout_segundos", 10))
+    limite_efetivo = limite or int(cfg_busca.get("limite_padrao", 100))
+    parallelism = max(1, int(cfg_busca.get("parallelism", 8)))
 
-    loop = asyncio.get_event_loop()
-    with ThreadPoolExecutor(max_workers=4) as executor:
-        futuros = {
-            executor.submit(
-                _buscar_em_tabela, engine, nome, colunas, q, limite_efetivo, timeout
-            ): nome
-            for nome, colunas in tabelas_com_colunas
-        }
-        for futuro in as_completed(futuros):
-            try:
-                todos_resultados.extend(futuro.result())
-            except Exception as exc:
-                tabela = futuros[futuro]
-                logger.warning("Falha na busca em tabela '%s': %s", tabela, exc)
+    if len(q.strip()) == 0:
+        raise HTTPException(status_code=400, detail="O termo de busca não pode ser vazio.")
 
-    logger.info("Busca '%s' retornou %d grupos de resultados", q, len(todos_resultados))
-    return todos_resultados
+    async def gerar_eventos() -> Any:
+        try:
+            for evento in _iter_busca_global(
+                engine,
+                q,
+                limite_efetivo,
+                timeout,
+                parallelism,
+                incluir_colunas_grandes,
+            ):
+                if await request.is_disconnected():
+                    logger.info("Busca streaming cancelada pelo cliente")
+                    break
+                payload = json.dumps(evento, ensure_ascii=False, default=str)
+                yield f"data: {payload}\n\n"
+                await asyncio.sleep(0)
+        except Exception as exc:
+            logger.exception("Falha na busca streaming")
+            erro = json.dumps({"tipo": "error", "mensagem": "Falha interna durante a busca."}, ensure_ascii=False)
+            yield f"data: {erro}\n\n"
+
+    headers = {
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "X-Accel-Buffering": "no",
+    }
+    return StreamingResponse(gerar_eventos(), media_type="text/event-stream", headers=headers)

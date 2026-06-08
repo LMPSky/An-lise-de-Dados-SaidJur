@@ -19,6 +19,9 @@ from src.api.routes_tables import router as router_tabelas
 from src.api.routes_data import router as router_dados
 from src.api.routes_search import router as router_busca
 from src.api.routes_export import router as router_exportar
+from src.api.routes_dashboard import router as router_dashboard
+from src.api.routes_sql import router as router_sql
+from src.api.routes_stats import router as router_stats
 
 # ── Logging ─────────────────────────────────────────────────────────────────
 
@@ -87,7 +90,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=_origens_permitidas,
     allow_credentials=True,
-    allow_methods=["GET"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
@@ -115,6 +118,9 @@ app.include_router(router_tabelas, prefix="/api")
 app.include_router(router_dados, prefix="/api")
 app.include_router(router_busca, prefix="/api")
 app.include_router(router_exportar, prefix="/api")
+app.include_router(router_dashboard, prefix="/api")
+app.include_router(router_sql, prefix="/api")
+app.include_router(router_stats, prefix="/api")
 
 # ── Arquivos estáticos (frontend) ─────────────────────────────────────────────
 

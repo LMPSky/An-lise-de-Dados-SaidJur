@@ -12,3 +12,4 @@ banco:
 busca:
   timeout_segundos: 10
   limite_padrao: 100
+  parallelism: 8

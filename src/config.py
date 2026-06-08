@@ -30,7 +30,7 @@ def _config_padrao() -> dict[str, Any]:
             "senha": "",
             "nome": "saidjur",
         },
-        "busca": {"timeout_segundos": 10, "limite_padrao": 100},
+        "busca": {"timeout_segundos": 10, "limite_padrao": 100, "parallelism": 8},
     }
 
 
