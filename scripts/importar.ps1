@@ -14,8 +14,9 @@
 #>
 
 param(
-    [Parameter(Mandatory = $true)]
-    [string]$ArquivoSQL
+    [string]$ArquivoSQL,
+    [switch]$SomenteLerConfig,
+    [string]$ConfigPath
 )
 
 # Configurações de encoding
@@ -25,8 +26,15 @@ $OutputEncoding = [System.Text.Encoding]::UTF8
 # ── Funções auxiliares ──────────────────────────────────────────────────────
 
 function Ler-Config {
-    $configPath = Join-Path $PSScriptRoot "..\config.yaml"
-    if (-not (Test-Path $configPath)) {
+    param(
+        [string]$ConfigPath
+    )
+
+    if ([string]::IsNullOrWhiteSpace($ConfigPath)) {
+        $ConfigPath = Join-Path $PSScriptRoot "..\config.yaml"
+    }
+
+    if (-not (Test-Path $ConfigPath)) {
         Write-Host "[ERRO] Arquivo config.yaml não encontrado." -ForegroundColor Red
         Write-Host "Execute instalar.bat primeiro." -ForegroundColor Yellow
         exit 1
@@ -34,18 +42,31 @@ function Ler-Config {
 
     $config = @{}
     $secao = ""
-    foreach ($linha in Get-Content $configPath -Encoding UTF8) {
-        $linha = $linha -replace '#.*', ''  # remove comentários
+    foreach ($linha in Get-Content $ConfigPath -Encoding UTF8) {
         $linha = $linha.Trim()
         if ($linha -eq "") { continue }
+        if ($linha.StartsWith("#")) { continue }
 
-        if ($linha -match '^(\w+):$') {
+        if ($linha -match '^(\w+):\s*(?:#.*)?$') {
             $secao = $matches[1]
             $config[$secao] = @{}
         }
         elseif ($linha -match '^(\w+):\s*(.*)$' -and $secao -ne "") {
             $chave = $matches[1]
-            $valor = $matches[2].Trim().Trim('"').Trim("'")
+            $valorBruto = $matches[2].Trim()
+
+            # Valor entre aspas duplas, permitindo apenas escapes \" e \\,
+            # com suporte a comentário inline fora das aspas.
+            if ($valorBruto -match '^\s*"((?:[^"\\]|\\["\\])*)"\s*(?:#.*)?$') {
+                $valor = [regex]::Replace($matches[1], '\\(["\\])', '$1')
+            }
+            elseif ($valorBruto -match "^\s*'((?:[^']|'')*)'\s*(?:#.*)?$") {
+                $valor = $matches[1] -replace "''", "'"
+            }
+            else {
+                $valor = ($valorBruto -replace '\s+#.*$', '').Trim()
+            }
+
             $config[$secao][$chave] = $valor
         }
     }
@@ -67,6 +88,17 @@ function Formatar-Duracao {
 }
 
 # ── Início ──────────────────────────────────────────────────────────────────
+
+if ($SomenteLerConfig) {
+    $config = Ler-Config -ConfigPath $ConfigPath
+    $config | ConvertTo-Json -Depth 5 -Compress
+    exit 0
+}
+
+if ([string]::IsNullOrWhiteSpace($ArquivoSQL)) {
+    Write-Host "[ERRO] Informe o caminho do arquivo .sql para importar." -ForegroundColor Red
+    exit 1
+}
 
 Write-Host ""
 Write-Host "============================================================" -ForegroundColor Cyan
@@ -148,11 +180,10 @@ Write-Host "Criando banco de dados '$dbNome' (se não existir)..." -ForegroundCo
 
 $criarDB = "CREATE DATABASE IF NOT EXISTS ``$dbNome`` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
-if ($dbSenha -ne "") {
-    $resultado = echo $criarDB | mysql -h $dbHost -P $dbPorta -u $dbUsuario "-p$dbSenha" 2>&1
-} else {
-    $resultado = echo $criarDB | mysql -h $dbHost -P $dbPorta -u $dbUsuario 2>&1
-}
+$mysqlCreateArgs = @("-h", $dbHost, "-P", $dbPorta, "-u", $dbUsuario)
+if ($dbSenha -ne "") { $mysqlCreateArgs += "-p$dbSenha" }
+$mysqlCreateArgs += @("-e", $criarDB)
+$resultado = & mysql @mysqlCreateArgs 2>&1
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "[ERRO] Falha ao conectar ao MySQL." -ForegroundColor Red
@@ -204,6 +235,25 @@ $stdinStream = $processo.StandardInput.BaseStream
 $errosTarefa = $processo.StandardError.ReadToEndAsync()
 
 $ultimaAtualizacao = Get-Date
+
+$prefixo = New-Object byte[] 3
+$bytesPrefixo = 0
+while ($bytesPrefixo -lt 3) {
+    $lidoPrefixo = $streamLeitura.Read($prefixo, $bytesPrefixo, 3 - $bytesPrefixo)
+    if ($lidoPrefixo -eq 0) { break }
+    $bytesPrefixo += $lidoPrefixo
+}
+$temBomUtf8 = (
+    $bytesPrefixo -eq 3 -and
+    $prefixo[0] -eq 0xEF -and
+    $prefixo[1] -eq 0xBB -and
+    $prefixo[2] -eq 0xBF
+)
+
+if (-not $temBomUtf8 -and $bytesPrefixo -gt 0) {
+    $stdinStream.Write($prefixo, 0, $bytesPrefixo)
+}
+$bytesLidos += $bytesPrefixo
 
 try {
     while ($true) {
