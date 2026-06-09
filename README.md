@@ -94,6 +94,9 @@ O programa mostrará:
 - 🔍 **Busca global incremental** com progresso real ("Buscando em X/Y tabelas") e botão **Cancelar**
 - 🧾 **Modal de detalhe do registro** ao clicar em qualquer linha (com copiar valor, links e navegação por teclado)
 - 🔗 **Navegação por chaves estrangeiras (FK)** clicando no valor referenciado
+- 🏷️ **Resolução automática de labels FK** — colunas FK exibem `Nome (ID)` em vez de apenas o número cru
+- 🔎 **Detecção de FKs implícitas** — FKs não declaradas no banco são detectadas automaticamente por heurística de nomes de coluna
+- 🎛️ **Toggle Mostrar nomes / Mostrar IDs** — botão para alternar entre exibição com nome e exibição de ID puro
 - 🏠 **Dashboard inicial** com estatísticas gerais e 10 maiores tabelas
 - 💻 **Console SQL** (somente `SELECT`/`WITH`, limite de 5000 linhas)
 - 🎛️ **Mostrar/ocultar colunas** com persistência local por tabela
@@ -104,6 +107,8 @@ O programa mostrará:
 
 - `GET /api/busca/stream` — busca global incremental via SSE
 - `GET /api/tabelas/{nome}/fks` — lista foreign keys da tabela
+- `GET /api/tabelas/{nome}/fks_inferidas` — lista FKs detectadas por heurística (FKs implícitas)
+- `POST /api/labels/resolver` — resolve IDs em labels em lote para múltiplas tabelas
 - `GET /api/dashboard` — dados agregados da tela inicial
 - `POST /api/sql` — executa consulta SQL somente leitura
 - `GET /api/tabelas/{nome}/colunas/{coluna}/stats` — estatísticas rápidas da coluna
@@ -201,6 +206,14 @@ concluir antes de usar o visualizador.
 **O programa acessa a internet?**
 Não. Tudo roda localmente no seu computador. As únicas conexões externas são
 para carregar o visual da interface (Tailwind CSS e Alpine.js via CDN na primeira abertura).
+
+**Por que algumas colunas mostram nome e outras só o número?**
+Colunas que referenciam outras tabelas (chaves estrangeiras) mostram automaticamente o nome
+correspondente no formato `Nome (ID)` — por exemplo, `Rio de Janeiro (3665)` em vez de apenas `3665`.
+Isso funciona quando a tabela referenciada possui uma coluna de nome reconhecível (`name`, `nome`,
+`descricao`, etc.). Quando não há coluna de nome na tabela referenciada, ou quando a FK não é
+detectada, o ID puro é exibido. Você pode alternar entre "nomes" e "IDs puros" clicando no botão
+**🏷️ Mostrar IDs / Mostrar nomes** no topo da tabela.
 
 ---
 

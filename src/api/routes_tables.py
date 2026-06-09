@@ -9,6 +9,7 @@ from src.db import (
     listar_colunas,
     listar_chaves_estrangeiras,
     tabelas_validas,
+    fks_inferidas,
 )
 
 router = APIRouter(tags=["Tabelas"])
@@ -55,3 +56,18 @@ async def get_fks(nome: str, request: Request) -> list[dict]:
         raise HTTPException(status_code=404, detail=f"Tabela '{nome}' não encontrada.")
 
     return listar_chaves_estrangeiras(engine, nome)
+
+
+@router.get(
+    "/tabelas/{nome}/fks_inferidas",
+    summary="Lista FKs implícitas (heurísticas) de uma tabela",
+)
+async def get_fks_inferidas(nome: str, request: Request) -> list[dict]:
+    """Retorna FKs detectadas por heurística de nome/tipo de coluna."""
+    engine = request.app.state.engine
+
+    validas = tabelas_validas(engine)
+    if nome not in validas:
+        raise HTTPException(status_code=404, detail=f"Tabela '{nome}' não encontrada.")
+
+    return fks_inferidas(engine, nome)

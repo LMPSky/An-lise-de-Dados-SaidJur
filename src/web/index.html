@@ -234,6 +234,8 @@
               </div>
             </div>
 
+            <button @click="alternarMostrarLabels()" class="text-sm border rounded px-2 py-1 hover:bg-gray-50" :aria-label="mostrarLabels ? 'Mostrar apenas IDs' : 'Mostrar nomes das referências'" :title="mostrarLabels ? 'Clique para mostrar apenas IDs' : 'Clique para mostrar nomes'" x-text="mostrarLabels ? '🏷️ Mostrar IDs' : '🏷️ Mostrar nomes'"></button>
+
             <div class="ml-auto flex gap-2">
               <a :href="urlExportar('csv')" class="inline-flex items-center gap-1 bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded-lg text-sm font-semibold">📥 CSV</a>
               <a :href="urlExportar('xlsx')" class="inline-flex items-center gap-1 bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold">📥 Excel</a>
@@ -296,7 +298,12 @@
                       <template x-for="col in colunasExibidas" :key="col.nome">
                         <td class="px-3 py-1.5 text-gray-700 max-w-xs truncate border-b border-gray-100" :title="String(linha[col.nome] ?? '')">
                           <template x-if="ehFkValido(col.nome, linha[col.nome])">
-                            <button @click="abrirFk($event, tabelaSelecionada, col.nome, linha[col.nome])" class="text-primary underline" :title="`${col.nome} → ${fkAtual(col.nome).tabela_referenciada}.${fkAtual(col.nome).coluna_referenciada}`" x-text="linha[col.nome]"></button>
+                            <span>
+                              <button @click="abrirFk($event, tabelaSelecionada, col.nome, linha[col.nome])" class="text-primary underline" :title="`${col.nome} → ${fkAtualOuInferida(col.nome)?.tabela_referenciada}.${fkAtualOuInferida(col.nome)?.coluna_referenciada}`" x-text="exibirComLabel(tabelaSelecionada, col.nome, linha[col.nome])"></button>
+                              <template x-if="mostrarLabels && labelParaValor(fkAtualOuInferida(col.nome)?.tabela_referenciada, linha[col.nome])">
+                                <span class="text-gray-400 text-xs ml-1" x-text="'(' + linha[col.nome] + ')'"></span>
+                              </template>
+                            </span>
                           </template>
                           <template x-if="!ehFkValido(col.nome, linha[col.nome])"><span x-text="linha[col.nome] ?? '—'"></span></template>
                         </td>
@@ -335,8 +342,13 @@
           <div class="border rounded p-3">
             <div class="flex items-center gap-2 mb-2">
               <p class="text-sm font-semibold text-gray-700" x-text="campo.nome"></p>
-              <template x-if="fkDeTabela(detalheTabela, campo.nome)">
-                <button @click="abrirFk($event, detalheTabela, campo.nome, campo.valor)" class="text-xs text-primary underline" :title="`${campo.nome} → ${fkDeTabela(detalheTabela, campo.nome)?.tabela_referenciada}.${fkDeTabela(detalheTabela, campo.nome)?.coluna_referenciada}`">Abrir referência</button>
+              <template x-if="fkDeTabela(detalheTabela, campo.nome) || fkInferidaDeTabela(detalheTabela, campo.nome)">
+                <span>
+                  <button @click="abrirFk($event, detalheTabela, campo.nome, campo.valor)" class="text-xs text-primary underline" :title="`${campo.nome} → ${(fkDeTabela(detalheTabela, campo.nome) || fkInferidaDeTabela(detalheTabela, campo.nome))?.tabela_referenciada}.${(fkDeTabela(detalheTabela, campo.nome) || fkInferidaDeTabela(detalheTabela, campo.nome))?.coluna_referenciada}`">Abrir referência</button>
+                  <template x-if="mostrarLabels && labelParaValor((fkDeTabela(detalheTabela, campo.nome) || fkInferidaDeTabela(detalheTabela, campo.nome))?.tabela_referenciada, campo.valor)">
+                    <span class="text-xs text-gray-500 ml-1" x-text="'→ ' + labelParaValor((fkDeTabela(detalheTabela, campo.nome) || fkInferidaDeTabela(detalheTabela, campo.nome))?.tabela_referenciada, campo.valor)"></span>
+                  </template>
+                </span>
               </template>
               <button @click="copiarValor(campo.valor)" class="ml-auto text-xs border rounded px-2 py-1">Copiar valor</button>
             </div>

@@ -12,6 +12,8 @@ from src.db import (
     tabelas_validas,
     colunas_validas,
     colunas_texto,
+    coluna_label,
+    fks_inferidas,
 )
 
 
@@ -55,7 +57,88 @@ def engine_teste() -> Engine:
     return engine
 
 
-class TestTabelasValidas:
+@pytest.fixture
+def engine_labels() -> Engine:
+    """Engine com tabelas para testar coluna_label e fks_inferidas."""
+    import src.db as db_module
+    # Limpar caches para garantir testes isolados
+    db_module._CACHE_COLUNA_LABEL.clear()
+    db_module._CACHE_FKS_INFERIDAS.clear()
+
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("PRAGMA foreign_keys = ON"))
+        # tabela com 'name' como coluna de label
+        conn.execute(text("""
+            CREATE TABLE cities (
+                id   INTEGER PRIMARY KEY,
+                name TEXT NOT NULL
+            )
+        """))
+        # tabela com 'nome' (sem 'name')
+        conn.execute(text("""
+            CREATE TABLE lawsuit_types (
+                id   INTEGER PRIMARY KEY,
+                nome TEXT NOT NULL
+            )
+        """))
+        # tabela sem nenhuma coluna de label
+        conn.execute(text("""
+            CREATE TABLE raw_ids (
+                id  INTEGER PRIMARY KEY,
+                val INTEGER
+            )
+        """))
+        # tabela com coluna city_id (FK implícita)
+        conn.execute(text("""
+            CREATE TABLE lawsuits (
+                id      INTEGER PRIMARY KEY,
+                city_id INTEGER,
+                paid    INTEGER
+            )
+        """))
+        conn.execute(text("INSERT INTO cities VALUES (1, 'São Paulo'), (2, 'Rio de Janeiro')"))
+        conn.execute(text("INSERT INTO lawsuit_types VALUES (6, 'Cível'), (7, 'Trabalhista')"))
+        conn.execute(text("INSERT INTO lawsuits VALUES (1, 1, 0), (2, 2, 1)"))
+        conn.commit()
+    return engine
+
+
+class TestColunaLabel:
+    """Testes para a função coluna_label."""
+
+    def test_encontra_name(self, engine_labels: Engine) -> None:
+        """Deve encontrar 'name' como coluna de label."""
+        assert coluna_label(engine_labels, "cities") == "name"
+
+    def test_encontra_nome_sem_name(self, engine_labels: Engine) -> None:
+        """Deve encontrar 'nome' quando não há 'name'."""
+        assert coluna_label(engine_labels, "lawsuit_types") == "nome"
+
+    def test_retorna_none_quando_nao_encontra(self, engine_labels: Engine) -> None:
+        """Deve retornar None quando nenhuma candidata existe."""
+        assert coluna_label(engine_labels, "raw_ids") is None
+
+
+class TestFksInferidas:
+    """Testes para a função fks_inferidas."""
+
+    def test_detecta_city_id(self, engine_labels: Engine) -> None:
+        """city_id deve ser detectado como FK implícita para cities."""
+        resultado = fks_inferidas(engine_labels, "lawsuits")
+        colunas = [r["coluna"] for r in resultado]
+        assert "city_id" in colunas
+        ref = next(r for r in resultado if r["coluna"] == "city_id")
+        assert ref["tabela_referenciada"] == "cities"
+
+    def test_nao_confunde_paid_com_fk(self, engine_labels: Engine) -> None:
+        """'paid' não deve ser detectado como FK implícita."""
+        resultado = fks_inferidas(engine_labels, "lawsuits")
+        colunas = [r["coluna"] for r in resultado]
+        assert "paid" not in colunas
+
+
+
     """Testes para tabelas_validas e tabelas_existentes."""
 
     def test_retorna_set(self, engine_teste: Engine) -> None:
