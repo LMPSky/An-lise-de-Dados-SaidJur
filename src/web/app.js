@@ -57,6 +57,7 @@ function app() {
     resultadosBusca: [],
     buscandoGlobal: false,
     mostrarBusca: false,
+    buscaCancelada: false,
     buscaProgresso: { processadas: 0, total: 0, encontrados: 0 },
     buscaController: null,
 
@@ -513,8 +514,10 @@ function app() {
     cancelarBuscaGlobal() {
       if (this.buscaController) {
         this.buscaController.abort();
+        this.buscaController = null;
       }
       this.buscandoGlobal = false;
+      this.buscaCancelada = true;
     },
 
     async buscarGlobal() {
@@ -528,6 +531,7 @@ function app() {
       this.mostrarBusca = true;
       this.tabelaSelecionada = null;
       this.buscandoGlobal = true;
+      this.buscaCancelada = false;
       this.resultadosBusca = [];
       this.buscaProgresso = { processadas: 0, total: 0, encontrados: 0 };
       this.buscaController = new AbortController();
@@ -582,6 +586,12 @@ function app() {
       this.termoBusca = '';
       this.resultadosBusca = [];
       this.buscaProgresso = { processadas: 0, total: 0, encontrados: 0 };
+      this.buscaCancelada = false;
+    },
+
+    reiniciarBusca() {
+      this.termoBusca = this.termoBuscaAtiva;
+      this.buscarGlobal();
     },
 
     // ── Estatísticas de coluna ───────────────────────────────────

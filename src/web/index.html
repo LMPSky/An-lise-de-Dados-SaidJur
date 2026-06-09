@@ -118,15 +118,28 @@
         <div class="p-4 space-y-4">
           <div class="flex items-center justify-between">
             <h2 class="text-lg font-semibold">Resultados para "<span class="text-primary" x-text="termoBuscaAtiva"></span>"</h2>
-            <button @click="fecharBusca()" class="text-sm underline text-gray-500">Fechar busca</button>
+            <button @click="fecharBusca()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm font-semibold">Fechar busca</button>
           </div>
-          <div class="bg-white border rounded p-3 text-sm">
-            <p class="text-gray-600" x-text="`Buscando em ${buscaProgresso.processadas}/${buscaProgresso.total} tabelas...`"></p>
-            <div class="w-full bg-gray-200 h-2 rounded mt-2 overflow-hidden">
-              <div class="bg-blue-500 h-full" :style="`width: ${buscaProgresso.total ? (buscaProgresso.processadas * 100 / buscaProgresso.total) : 0}%`"></div>
+
+          <template x-if="buscaCancelada">
+            <div class="bg-amber-50 border border-amber-300 rounded p-3 flex flex-wrap items-center gap-3">
+              <span class="text-amber-800 font-semibold text-sm"><span aria-hidden="true">🛑</span> Busca cancelada. <span x-text="buscaProgresso.encontrados"></span> resultado(s) parcial(is) exibido(s) abaixo.</span>
+              <div class="flex gap-2 ml-auto">
+                <button @click="reiniciarBusca()" class="bg-primary text-white px-3 py-1 rounded text-sm font-semibold hover:bg-blue-700">Buscar novamente</button>
+                <button @click="fecharBusca()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm font-semibold">Fechar busca</button>
+              </div>
             </div>
-            <p class="text-xs text-gray-500 mt-1" x-text="`${buscaProgresso.encontrados} grupo(s) encontrado(s)`"></p>
-          </div>
+          </template>
+
+          <template x-if="!buscaCancelada">
+            <div class="bg-white border rounded p-3 text-sm">
+              <p class="text-gray-600" x-text="`Buscando em ${buscaProgresso.processadas}/${buscaProgresso.total} tabelas...`"></p>
+              <div class="w-full bg-gray-200 h-2 rounded mt-2 overflow-hidden">
+                <div class="bg-blue-500 h-full" :style="`width: ${buscaProgresso.total ? (buscaProgresso.processadas * 100 / buscaProgresso.total) : 0}%`"></div>
+              </div>
+              <p class="text-xs text-gray-500 mt-1" x-text="`${buscaProgresso.encontrados} grupo(s) encontrado(s)`"></p>
+            </div>
+          </template>
 
           <div class="space-y-4">
             <template x-for="grupo in resultadosBusca" :key="grupo.tabela + grupo.coluna + Math.random()">
@@ -138,7 +151,7 @@
                   <span class="ml-auto text-xs text-gray-400" x-text="grupo.registros.length + ' resultado(s)'"></span>
                 </div>
                 <div class="overflow-x-auto max-h-64">
-                  <table class="w-full text-sm">
+                  <table class="min-w-max text-sm">
                     <thead class="bg-gray-100 sticky top-0"><tr><template x-for="col in Object.keys(grupo.registros[0] || {})" :key="col"><th class="px-3 py-2 text-left" x-text="col"></th></template></tr></thead>
                     <tbody>
                       <template x-for="(linha, idx) in grupo.registros" :key="idx">
@@ -149,7 +162,7 @@
                 </div>
               </div>
             </template>
-            <template x-if="!buscandoGlobal && resultadosBusca.length===0"><p class="text-gray-500">Nenhum resultado encontrado.</p></template>
+            <template x-if="!buscandoGlobal && !buscaCancelada && resultadosBusca.length===0"><p class="text-gray-500">Nenhum resultado encontrado.</p></template>
           </div>
         </div>
       </template>
@@ -195,7 +208,7 @@
             <div class="space-y-2">
               <p class="text-sm text-gray-500" x-text="`${formatarNumero(sqlResultado.total)} linha(s) retornada(s)`"></p>
               <div class="overflow-auto border rounded max-h-[60vh]">
-                <table class="w-full text-sm">
+                <table class="min-w-max text-sm">
                   <thead class="bg-gray-100"><tr><template x-for="col in sqlResultado.colunas" :key="col"><th class="px-3 py-2 text-left" x-text="col"></th></template></tr></thead>
                   <tbody>
                     <template x-for="(linha, idx) in sqlLinhasPaginadas" :key="idx">
@@ -246,7 +259,7 @@
             <template x-if="carregandoDados"><div class="p-4 space-y-2"><div class="h-8 bg-gray-200 rounded animate-pulse w-full"></div><template x-for="i in 10"><div class="h-7 bg-gray-100 rounded animate-pulse w-full"></div></template></div></template>
 
             <template x-if="!carregandoDados && linhas.length > 0">
-              <table class="w-full text-sm border-collapse">
+              <table class="min-w-max text-sm border-collapse">
                 <thead class="bg-gray-100 sticky top-0 z-20 shadow-sm">
                   <tr>
                     <template x-for="col in colunasExibidas" :key="col.nome">
