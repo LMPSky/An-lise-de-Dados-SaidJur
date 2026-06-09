@@ -22,6 +22,7 @@ from src.api.routes_export import router as router_exportar
 from src.api.routes_dashboard import router as router_dashboard
 from src.api.routes_sql import router as router_sql
 from src.api.routes_stats import router as router_stats
+from src.api.routes_labels import router as router_labels
 
 # ── Logging ─────────────────────────────────────────────────────────────────
 
@@ -121,6 +122,7 @@ app.include_router(router_exportar, prefix="/api")
 app.include_router(router_dashboard, prefix="/api")
 app.include_router(router_sql, prefix="/api")
 app.include_router(router_stats, prefix="/api")
+app.include_router(router_labels, prefix="/api")
 
 # ── Arquivos estáticos (frontend) ─────────────────────────────────────────────
 

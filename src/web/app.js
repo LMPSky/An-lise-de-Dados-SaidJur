@@ -36,6 +36,11 @@ function app() {
     filtroTemp: { op: 'contem', valor: '' },
     fksPorTabela: {},
     fksMapAtual: {},
+    fksInferidas: {},
+
+    // ── Labels ───────────────────────────────────────────────────
+    labels: {},
+    mostrarLabels: true,
 
     // ── Colunas visíveis ─────────────────────────────────────────
     colunasVisiveis: {},
@@ -144,6 +149,7 @@ function app() {
     carregarPreferenciasLocal() {
       this.favoritos = this.lerJsonLocal('saidjur_favoritos', []);
       this.recentes = this.lerJsonLocal('saidjur_recentes', []);
+      this.mostrarLabels = this.lerJsonLocal('saidjur_mostrar_labels', true);
     },
 
     salvarFavoritos() {
@@ -224,7 +230,9 @@ function app() {
         this.carregarColunas(nome),
         this.carregarDados(),
         this.carregarFks(nome),
+        this.carregarFksInferidas(nome),
       ]);
+      await this.carregarLabels();
     },
 
     async carregarColunas(nome) {
@@ -273,16 +281,95 @@ function app() {
       }
     },
 
+    async carregarFksInferidas(nomeTabela) {
+      try {
+        const res = await fetch(`/api/tabelas/${encodeURIComponent(nomeTabela)}/fks_inferidas`);
+        if (!res.ok) return;
+        const fks = await res.json();
+        const mapa = {};
+        for (const fk of fks) mapa[fk.coluna] = fk;
+        this.fksInferidas[nomeTabela] = mapa;
+      } catch {
+        this.fksInferidas[nomeTabela] = {};
+      }
+    },
+
     fkDeTabela(nomeTabela, coluna) {
       return this.fksPorTabela[nomeTabela]?.[coluna] || null;
+    },
+
+    fkInferidaDeTabela(nomeTabela, coluna) {
+      return this.fksInferidas[nomeTabela]?.[coluna] || null;
     },
 
     fkAtual(coluna) {
       return this.fksMapAtual[coluna] || null;
     },
 
+    fkAtualOuInferida(coluna) {
+      return this.fkAtual(coluna) || this.fkInferidaDeTabela(this.tabelaSelecionada, coluna) || null;
+    },
+
+    alternarMostrarLabels() {
+      this.mostrarLabels = !this.mostrarLabels;
+      this.salvarJsonLocal('saidjur_mostrar_labels', this.mostrarLabels);
+    },
+
+    async carregarLabels() {
+      const tabela = this.tabelaSelecionada;
+      if (!tabela || !this.linhas.length) return;
+
+      // Coletar todas as FKs (declaradas + inferidas)
+      const todasFks = {
+        ...(this.fksPorTabela[tabela] || {}),
+        ...(this.fksInferidas[tabela] || {}),
+      };
+
+      const pedidos = [];
+      for (const [coluna, fk] of Object.entries(todasFks)) {
+        const ids = [...new Set(
+          this.linhas
+            .map(l => l[coluna])
+            .filter(v => v !== null && v !== undefined && v !== '')
+        )];
+        if (ids.length > 0) {
+          pedidos.push({ tabela: fk.tabela_referenciada, coluna_chave: fk.coluna_referenciada || 'id', ids });
+        }
+      }
+
+      if (!pedidos.length) return;
+
+      try {
+        const res = await fetch('/api/labels/resolver', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ resolucoes: pedidos }),
+        });
+        if (!res.ok) return;
+        const dados = await res.json();
+        this.labels = { ...this.labels, ...dados };
+      } catch {
+        // silently fail — UI shows raw IDs
+      }
+    },
+
+    labelParaValor(tabelaRef, valor) {
+      if (valor === null || valor === undefined || valor === '') return null;
+      const mapa = this.labels[tabelaRef] || {};
+      return mapa[String(valor)] || null;
+    },
+
+    exibirComLabel(nomeTabela, coluna, valor) {
+      if (valor === null || valor === undefined || valor === '') return '—';
+      const fk = this.fkDeTabela(nomeTabela, coluna) || this.fkInferidaDeTabela(nomeTabela, coluna);
+      if (!fk || !this.mostrarLabels) return String(valor);
+      const label = this.labelParaValor(fk.tabela_referenciada, valor);
+      if (!label) return String(valor);
+      return label;
+    },
+
     ehFkValido(coluna, valor) {
-      return Boolean(this.fkAtual(coluna) && valor !== null && valor !== undefined && valor !== '');
+      return Boolean(this.fkAtualOuInferida(coluna) && valor !== null && valor !== undefined && valor !== '');
     },
 
     async abrirFk(event, tabelaOrigem, colunaOrigem, valor) {
@@ -292,7 +379,10 @@ function app() {
       if (!this.fksPorTabela[tabelaOrigem]) {
         await this.carregarFks(tabelaOrigem);
       }
-      const fk = this.fkDeTabela(tabelaOrigem, colunaOrigem);
+      if (!this.fksInferidas[tabelaOrigem]) {
+        await this.carregarFksInferidas(tabelaOrigem);
+      }
+      const fk = this.fkDeTabela(tabelaOrigem, colunaOrigem) || this.fkInferidaDeTabela(tabelaOrigem, colunaOrigem);
       if (!fk) return;
 
       const filtros = encodeURIComponent(JSON.stringify({
@@ -352,6 +442,8 @@ function app() {
         const dados = await res.json();
         this.linhas = dados.linhas;
         this.totalRegistros = dados.total;
+        // Carregar labels para os novos dados (fire-and-forget)
+        this.carregarLabels();
       } catch (e) {
         this.exibirErro('Erro ao carregar os dados: ' + e.message);
       } finally {

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
@@ -16,6 +17,29 @@ _TIPOS_TEXTO_GRANDE = frozenset({"mediumtext", "longtext"})
 
 _CACHE_STATS: dict[tuple[str, str], tuple[datetime, dict[str, Any]]] = {}
 _CACHE_TTL = timedelta(minutes=5)
+
+# ── Caches para label resolution ─────────────────────────────────────────────
+# cache permanente: tabela → coluna de label (None se não encontrada)
+_CACHE_COLUNA_LABEL: dict[str, str | None] = {}
+# cache de FKs inferidas: tabela → (timestamp, lista)
+_CACHE_FKS_INFERIDAS: dict[str, tuple[datetime, list[dict[str, str]]]] = {}
+_CACHE_FKS_INFERIDAS_TTL = timedelta(hours=1)
+# cache LRU simples para labels: "tabela:id" → label
+_CACHE_LABELS: dict[str, str] = {}
+_CACHE_LABELS_MAX = 10_000
+
+# Candidatos de colunas de label, em ordem de preferência
+_CANDIDATAS_LABEL = (
+    "name", "nome", "descricao", "description", "title",
+    "titulo", "label", "display_name", "displayname",
+    "razao_social", "fantasia",
+)
+
+# Tipos numéricos reconhecidos para heurística de FK inferida
+_TIPOS_NUMERICOS = frozenset({
+    "int", "bigint", "mediumint", "smallint", "tinyint",
+    "integer",
+})
 
 
 def _url_banco(cfg: dict[str, Any] | None = None) -> str:
@@ -184,6 +208,200 @@ def colunas_texto(
         for col in colunas
         if col["tipo"].split("(")[0].lower().strip() in tipos
     ]
+
+
+def coluna_label(engine: Engine, nome_tabela: str) -> str | None:
+    """Retorna o nome da coluna mais adequada como label para a tabela dada.
+
+    Tenta as candidatas em ordem de preferência. Resultado em cache permanente.
+    Retorna None se nenhuma candidata existir.
+    """
+    if nome_tabela in _CACHE_COLUNA_LABEL:
+        return _CACHE_COLUNA_LABEL[nome_tabela]
+
+    try:
+        cols = {c["nome"].lower() for c in listar_colunas(engine, nome_tabela)}
+    except Exception:
+        _CACHE_COLUNA_LABEL[nome_tabela] = None
+        return None
+
+    for candidata in _CANDIDATAS_LABEL:
+        if candidata in cols:
+            _CACHE_COLUNA_LABEL[nome_tabela] = candidata
+            return candidata
+
+    _CACHE_COLUNA_LABEL[nome_tabela] = None
+    return None
+
+
+def _candidatos_para(coluna: str) -> list[str]:
+    """Gera nomes de tabela candidatas para uma coluna FK implícita."""
+    base = re.sub(r"(_id|id|_pk)$", "", coluna, flags=re.IGNORECASE).lower()
+    base = base.rstrip("_")
+    if not base:
+        return []
+
+    # Pluralização simples em inglês
+    if base.endswith("y"):
+        plural = base[:-1] + "ies"
+    elif base.endswith(("s", "x", "z", "ch", "sh")):
+        plural = base + "es"
+    else:
+        plural = base + "s"
+
+    candidates = [
+        base,
+        plural,
+        base + "es",
+        base.replace("user", "usuario"),
+        base.replace("users", "usuarios"),
+        base.replace("city", "cidade"),
+        base.replace("cities", "cidades"),
+        base.replace("type", "tipo"),
+        base.replace("types", "tipos"),
+    ]
+    # deduplicate preservando ordem
+    seen: set[str] = set()
+    result = []
+    for c in candidates:
+        if c and c not in seen:
+            seen.add(c)
+            result.append(c)
+    return result
+
+
+# Colunas a ignorar na heurística (falsos positivos comuns)
+_COLUNAS_FK_IGNORADAS = frozenset({"paid", "said", "laid", "void", "fluid", "rapid", "valid", "acid"})
+
+
+def fks_inferidas(engine: Engine, nome_tabela: str) -> list[dict[str, str]]:
+    """Detecta FKs implícitas (não declaradas) por heurística de nomes de coluna.
+
+    Resultado em cache de 1h.
+    Retorna lista no mesmo formato que listar_chaves_estrangeiras.
+    """
+    agora = datetime.now(UTC)
+    if nome_tabela in _CACHE_FKS_INFERIDAS:
+        ts, valor = _CACHE_FKS_INFERIDAS[nome_tabela]
+        if agora - ts < _CACHE_FKS_INFERIDAS_TTL:
+            return valor
+
+    try:
+        todas_tabelas = tabelas_validas(engine)
+        colunas = listar_colunas(engine, nome_tabela)
+    except Exception:
+        return []
+
+    # FKs já declaradas — não duplicar
+    try:
+        fks_declaradas = {fk["coluna"] for fk in listar_chaves_estrangeiras(engine, nome_tabela)}
+    except Exception:
+        fks_declaradas = set()
+
+    resultado: list[dict[str, str]] = []
+    for col in colunas:
+        nome_col = col["nome"]
+        tipo_col = col["tipo"].lower().split("(")[0].strip()
+
+        if nome_col in fks_declaradas:
+            continue
+        if nome_col.lower() in _COLUNAS_FK_IGNORADAS:
+            continue
+        if tipo_col not in _TIPOS_NUMERICOS:
+            continue
+        # deve terminar em _id, id, _pk ou começar com id_
+        if not re.search(r"(_id|id|_pk)$", nome_col, flags=re.IGNORECASE) and \
+                not re.match(r"^id_", nome_col, flags=re.IGNORECASE):
+            continue
+        # não é só "id" sozinho (PK da própria tabela)
+        if nome_col.lower() == "id":
+            continue
+
+        candidatos = _candidatos_para(nome_col)
+        tabela_ref = next((c for c in candidatos if c in todas_tabelas), None)
+        if not tabela_ref:
+            continue
+
+        # tabela referenciada deve ter coluna "id"
+        try:
+            cols_ref = {c["nome"].lower() for c in listar_colunas(engine, tabela_ref)}
+        except Exception:
+            continue
+        if "id" not in cols_ref:
+            continue
+
+        resultado.append({
+            "coluna": nome_col,
+            "tabela_referenciada": tabela_ref,
+            "coluna_referenciada": "id",
+        })
+
+    _CACHE_FKS_INFERIDAS[nome_tabela] = (agora, resultado)
+    return resultado
+
+
+def resolver_labels(
+    engine: Engine,
+    resolucoes: list[dict[str, Any]],
+) -> dict[str, dict[str, str]]:
+    """Resolve IDs em labels para múltiplas tabelas em um único request.
+
+    Parâmetro resolucoes: lista de dicts com chaves 'tabela', 'coluna_chave', 'ids'.
+    Retorna dict: tabela → {str(id): label}.
+    Usa cache LRU de até _CACHE_LABELS_MAX entradas.
+    """
+    resposta: dict[str, dict[str, str]] = {}
+
+    for pedido in resolucoes:
+        tabela = pedido.get("tabela", "")
+        coluna_chave = pedido.get("coluna_chave", "id")
+        ids = pedido.get("ids", [])
+
+        if not tabela or not ids:
+            continue
+
+        col_label = coluna_label(engine, tabela)
+        mapa: dict[str, str] = {}
+
+        ids_pendentes = []
+        for id_val in ids:
+            cache_key = f"{tabela}:{id_val}"
+            if cache_key in _CACHE_LABELS:
+                mapa[str(id_val)] = _CACHE_LABELS[cache_key]
+            else:
+                ids_pendentes.append(id_val)
+
+        if ids_pendentes:
+            try:
+                meta = MetaData()
+                tbl = Table(tabela, meta, autoload_with=engine)
+                if col_label and col_label in {c.name for c in tbl.columns}:
+                    col_ref = tbl.c[coluna_chave]
+                    col_lbl = tbl.c[col_label]
+                    stmt = select(col_ref, col_lbl).where(col_ref.in_(ids_pendentes))
+                    with engine.connect() as conn:
+                        for row in conn.execute(stmt):
+                            id_str = str(row[0])
+                            lbl = str(row[1]) if row[1] is not None else id_str
+                            # truncar labels longos
+                            if len(lbl) > 60:
+                                lbl = lbl[:57] + "..."
+                            mapa[id_str] = lbl
+                            cache_key = f"{tabela}:{row[0]}"
+                            # manter cache dentro do limite
+                            if len(_CACHE_LABELS) >= _CACHE_LABELS_MAX:
+                                try:
+                                    del _CACHE_LABELS[next(iter(_CACHE_LABELS))]
+                                except StopIteration:
+                                    pass
+                            _CACHE_LABELS[cache_key] = lbl
+            except Exception:
+                pass
+
+        if mapa:
+            resposta[tabela] = mapa
+
+    return resposta
 
 
 def dados_dashboard(engine: Engine) -> dict[str, Any]:
