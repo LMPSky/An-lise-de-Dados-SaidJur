@@ -270,7 +270,8 @@ def _candidatos_para(coluna: str) -> list[str]:
     return result
 
 
-# Colunas a ignorar na heurística (falsos positivos comuns)
+# Colunas a ignorar na heurística — palavras comuns que terminam em "id"
+# mas não são FKs (ex: "paid", "said", "valid").
 _COLUNAS_FK_IGNORADAS = frozenset({"paid", "said", "laid", "void", "fluid", "rapid", "valid", "acid"})
 
 

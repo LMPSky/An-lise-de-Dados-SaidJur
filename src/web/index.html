@@ -234,7 +234,7 @@
               </div>
             </div>
 
-            <button @click="alternarMostrarLabels()" class="text-sm border rounded px-2 py-1 hover:bg-gray-50" :title="mostrarLabels ? 'Clique para mostrar apenas IDs' : 'Clique para mostrar nomes'" x-text="mostrarLabels ? '🏷️ Mostrar IDs' : '🏷️ Mostrar nomes'"></button>
+            <button @click="alternarMostrarLabels()" class="text-sm border rounded px-2 py-1 hover:bg-gray-50" :aria-label="mostrarLabels ? 'Mostrar apenas IDs' : 'Mostrar nomes das referências'" :title="mostrarLabels ? 'Clique para mostrar apenas IDs' : 'Clique para mostrar nomes'" x-text="mostrarLabels ? '🏷️ Mostrar IDs' : '🏷️ Mostrar nomes'"></button>
 
             <div class="ml-auto flex gap-2">
               <a :href="urlExportar('csv')" class="inline-flex items-center gap-1 bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded-lg text-sm font-semibold">📥 CSV</a>
