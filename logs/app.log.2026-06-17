@@ -1,0 +1,3 @@
+2026-06-17 13:35:12,440 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-06-17 13:35:34,034 [INFO] saidjur.dados: Tabela 'publicationxml' | página 1 | filtros=None | total=9254152
+2026-06-17 13:45:09,142 [INFO] saidjur: Servidor encerrado.

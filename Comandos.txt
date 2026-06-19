@@ -1,0 +1,3 @@
+cd D:\SaidJur
+
+.\iniciar.bat
