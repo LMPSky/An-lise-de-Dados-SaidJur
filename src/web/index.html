@@ -158,7 +158,7 @@
                       <thead class="bg-gray-100 sticky top-0"><tr><template x-for="col in Object.keys(grupo.registros[0] || {})" :key="col"><th class="px-3 py-2 text-left" x-text="col"></th></template></tr></thead>
                       <tbody>
                         <template x-for="(linha, idx) in grupo.registros" :key="idx">
-                          <tr :class="idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'"><template x-for="col in Object.keys(linha)" :key="col"><td class="px-3 py-1.5 max-w-xs truncate" :title="String(linha[col] ?? '')" x-text="exibirValor(grupo.tabela, col, linha[col])"></td></template></tr>
+                          <tr :class="idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'"><template x-for="col in Object.keys(linha)" :key="col"><td class="px-3 py-1.5 max-w-xs truncate" :title="exibirValor(grupo.tabela, col, linha[col])" x-text="exibirValor(grupo.tabela, col, linha[col])"></td></template></tr>
                         </template>
                       </tbody>
                     </table>
@@ -219,7 +219,7 @@
                   <thead class="bg-gray-100"><tr><template x-for="col in sqlResultado.colunas" :key="col"><th class="px-3 py-2 text-left" x-text="col"></th></template></tr></thead>
                   <tbody>
                     <template x-for="(linha, idx) in sqlLinhasPaginadas" :key="idx">
-                      <tr :class="idx%2===0 ? 'bg-white' : 'bg-gray-50'"><template x-for="col in sqlResultado.colunas" :key="col"><td class="px-3 py-1.5 max-w-xs truncate" :title="String(linha[col] ?? '')" x-text="exibirValor(sqlTabelaContexto, col, linha[col])"></td></template></tr>
+                      <tr :class="idx%2===0 ? 'bg-white' : 'bg-gray-50'"><template x-for="col in sqlResultado.colunas" :key="col"><td class="px-3 py-1.5 max-w-xs truncate" :title="exibirValor(sqlTabelaContexto, col, linha[col])" x-text="exibirValor(sqlTabelaContexto, col, linha[col])"></td></template></tr>
                     </template>
                   </tbody>
                 </table>
@@ -319,7 +319,7 @@
                   <template x-for="(linha, idx) in linhas" :key="idx">
                     <tr :class="idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'" class="hover:bg-blue-50 transition cursor-pointer" @click="abrirDetalheIndice(idx)">
                       <template x-for="col in colunasExibidas" :key="col.nome">
-                        <td class="px-3 py-1.5 text-gray-700 max-w-xs truncate border-b border-gray-100" :title="String(linha[col.nome] ?? '')">
+                        <td class="px-3 py-1.5 text-gray-700 max-w-xs truncate border-b border-gray-100" :title="exibirValor(tabelaSelecionada, col.nome, linha[col.nome])">
                           <template x-if="ehFkValido(col.nome, linha[col.nome])">
                             <span>
                               <button @click="abrirFk($event, tabelaSelecionada, col.nome, linha[col.nome])" class="text-primary underline" :title="`${col.nome} → ${fkAtualOuInferida(col.nome)?.tabela_referenciada}.${fkAtualOuInferida(col.nome)?.coluna_referenciada}`" x-text="exibirComLabel(tabelaSelecionada, col.nome, linha[col.nome])"></button>

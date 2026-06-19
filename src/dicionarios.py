@@ -14,6 +14,7 @@ logger = logging.getLogger("saidjur.dicionarios")
 _CAMINHO = Path(__file__).resolve().parent.parent / "dicionarios.yaml"
 _CAMINHO_EXEMPLO = Path(__file__).resolve().parent.parent / "dicionarios.example.yaml"
 _LOCK = threading.RLock()
+# Estrutura do cache: {"mtime": float, "dados": dict[str, Any]}.
 _CACHE: dict[str, Any] = {"mtime": 0.0, "dados": {}}
 
 

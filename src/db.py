@@ -88,15 +88,13 @@ def executar_com_retry_db(
 ) -> _T:
     """Executa uma função com retry simples para falhas transitórias de conexão."""
     log = logger_retry or logger
-    ultima_excecao: Exception | None = None
 
     for tentativa in range(1, max_tentativas + 1):
         try:
             return func()
         except (OperationalError, DBAPIError) as exc:
-            ultima_excecao = exc
             if tentativa >= max_tentativas:
-                break
+                raise
             log.warning(
                 "%s falhou na tentativa %d/%d. Nova tentativa em %.1fs.",
                 descricao,
@@ -106,8 +104,6 @@ def executar_com_retry_db(
             )
             time.sleep(delay_segundos)
 
-    if ultima_excecao is not None:
-        raise ultima_excecao
     raise RuntimeError("Retry de banco finalizado sem resultado nem exceção.")
 
 

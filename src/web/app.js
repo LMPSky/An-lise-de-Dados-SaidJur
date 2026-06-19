@@ -837,7 +837,7 @@ function app() {
     },
 
     extrairTabelaPrincipalSql(query) {
-      const match = query.match(/\bfrom\s+[`"]?([a-zA-Z0-9_]+)[`"]?/i);
+      const match = query.match(/\bfrom\s+(?:[`"]?[a-zA-Z0-9_]+[`"]?\.)?[`"]?([a-zA-Z0-9_]+)[`"]?/i);
       return match ? match[1] : null;
     },
 
