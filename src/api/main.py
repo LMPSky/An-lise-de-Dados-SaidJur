@@ -8,10 +8,11 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import AsyncGenerator
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from src.config import CONFIG
 from src.db import criar_engine
@@ -23,6 +24,7 @@ from src.api.routes_dashboard import router as router_dashboard
 from src.api.routes_sql import router as router_sql
 from src.api.routes_stats import router as router_stats
 from src.api.routes_labels import router as router_labels
+from src.api.routes_dicionarios import router as router_dicionarios
 
 # ── Logging ─────────────────────────────────────────────────────────────────
 
@@ -95,6 +97,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.middleware("http")
+async def log_excecoes_nao_tratadas(request: Request, call_next):
+    """Registra exceções não tratadas para facilitar diagnóstico em produção."""
+    try:
+        return await call_next(request)
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Exceção não tratada em %s %s", request.method, request.url.path)
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Erro interno do servidor. Veja logs/app.log."},
+        )
+
 # ── Middleware de autenticação (desabilitado — preparado para uso futuro) ────
 # Para habilitar autenticação básica no futuro, descomente e implemente:
 #
@@ -123,6 +140,7 @@ app.include_router(router_dashboard, prefix="/api")
 app.include_router(router_sql, prefix="/api")
 app.include_router(router_stats, prefix="/api")
 app.include_router(router_labels, prefix="/api")
+app.include_router(router_dicionarios, prefix="/api")
 
 # ── Arquivos estáticos (frontend) ─────────────────────────────────────────────
 
@@ -135,4 +153,3 @@ if _WEB_DIR.exists():
     async def raiz() -> FileResponse:
         """Serve a interface web principal."""
         return FileResponse(str(_WEB_DIR / "index.html"))
-

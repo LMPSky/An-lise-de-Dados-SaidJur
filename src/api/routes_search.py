@@ -172,6 +172,7 @@ async def busca_global(
             if evento.get("tipo") == "result":
                 resultados.extend(evento.get("items", []))
     except Exception as exc:
+        logger.exception("Falha ao executar busca global")
         raise HTTPException(status_code=503, detail=f"Não foi possível acessar o banco: {exc}") from exc
 
     logger.info("Busca '%s' retornou %d grupos de resultados", q, len(resultados))

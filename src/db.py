@@ -2,14 +2,20 @@
 
 from __future__ import annotations
 
+import logging
 import re
+import time
 from datetime import UTC, datetime, timedelta
-from typing import Any
+from typing import Any, Callable, TypeVar
 
 from sqlalchemy import MetaData, Table, create_engine, func, inspect, select, text
 from sqlalchemy.engine import Engine
+from sqlalchemy.exc import DBAPIError, OperationalError
 
 from src.config import CONFIG
+
+logger = logging.getLogger("saidjur.db")
+_T = TypeVar("_T")
 
 # Tipos de coluna considerados "textuais" para busca global
 _TIPOS_TEXTO_BASE = frozenset({"char", "varchar", "tinytext", "text", "json", "enum", "set"})
@@ -57,7 +63,48 @@ def _url_banco(cfg: dict[str, Any] | None = None) -> str:
 def criar_engine(cfg: dict[str, Any] | None = None) -> Engine:
     """Cria e retorna o engine SQLAlchemy configurado para MySQL via PyMySQL."""
     url = _url_banco(cfg)
-    return create_engine(url, pool_pre_ping=True, pool_recycle=3600, echo=False)
+    return create_engine(
+        url,
+        pool_pre_ping=True,
+        pool_recycle=1800,
+        pool_size=5,
+        max_overflow=10,
+        pool_timeout=30,
+        connect_args={
+            "connect_timeout": 10,
+            "read_timeout": 60,
+        },
+        echo=False,
+    )
+
+
+def executar_com_retry_db(
+    func: Callable[[], _T],
+    *,
+    logger_retry: logging.Logger | None = None,
+    descricao: str = "Operação de banco",
+    max_tentativas: int = 2,
+    delay_segundos: float = 0.5,
+) -> _T:
+    """Executa uma função com retry simples para falhas transitórias de conexão."""
+    log = logger_retry or logger
+
+    for tentativa in range(1, max_tentativas + 1):
+        try:
+            return func()
+        except (OperationalError, DBAPIError) as exc:
+            if tentativa >= max_tentativas:
+                raise
+            log.warning(
+                "%s falhou na tentativa %d/%d. Nova tentativa em %.1fs.",
+                descricao,
+                tentativa,
+                max_tentativas,
+                delay_segundos,
+            )
+            time.sleep(delay_segundos)
+
+    raise RuntimeError("Retry de banco finalizado sem resultado nem exceção.")
 
 
 def listar_tabelas(engine: Engine) -> list[dict[str, Any]]:

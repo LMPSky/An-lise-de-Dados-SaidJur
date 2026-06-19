@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import json
+import logging
 from typing import Any, Generator
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.pool import StaticPool
 
 
@@ -195,6 +197,39 @@ class TestRotaTabelas:
         assert dados[0]["coluna"] == "userid"
         assert dados[0]["tabela_referenciada"] == "users"
 
+    def test_lista_tabelas_retry_na_primeira_falha(self, client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
+        import src.api.routes_tables as rt_tables
+
+        chamadas = {"total": 0}
+
+        def flaky(engine: Engine) -> list[dict[str, Any]]:
+            chamadas["total"] += 1
+            if chamadas["total"] == 1:
+                raise OperationalError("SELECT 1", {}, RuntimeError("stale connection"))
+            return _listar_tabelas_sqlite(engine)
+
+        monkeypatch.setattr(rt_tables, "listar_tabelas", flaky)
+
+        resp = client.get("/api/tabelas")
+
+        assert resp.status_code == 200
+        assert chamadas["total"] == 2
+
+    def test_lista_tabelas_503_faz_log(self, client: TestClient, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture) -> None:
+        import src.api.routes_tables as rt_tables
+
+        def falhar(_: Engine) -> list[dict[str, Any]]:
+            raise RuntimeError("banco indisponível")
+
+        monkeypatch.setattr(rt_tables, "listar_tabelas", falhar)
+
+        with caplog.at_level(logging.ERROR):
+            resp = client.get("/api/tabelas")
+
+        assert resp.status_code == 503
+        assert "Não foi possível conectar ao banco de dados" in resp.json()["detail"]
+        assert "Falha ao listar tabelas" in caplog.text
+
 
 class TestRotaDados:
     def test_linhas_status_200(self, client: TestClient) -> None:
@@ -239,6 +274,24 @@ class TestRotasNovas:
         assert "estatisticas" in dados
         assert "maiores_tabelas" in dados
 
+    def test_dashboard_retry_na_primeira_falha(self, client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
+        import src.api.routes_dashboard as rt_dashboard
+
+        chamadas = {"total": 0}
+
+        def flaky(engine: Engine) -> dict[str, Any]:
+            chamadas["total"] += 1
+            if chamadas["total"] == 1:
+                raise OperationalError("SELECT 1", {}, RuntimeError("stale connection"))
+            return {"estatisticas": {"total_tabelas": 1, "total_registros": 2, "tamanho_total_mb": 0}, "maiores_tabelas": []}
+
+        monkeypatch.setattr(rt_dashboard, "dados_dashboard", flaky)
+
+        resp = client.get("/api/dashboard")
+
+        assert resp.status_code == 200
+        assert chamadas["total"] == 2
+
     def test_sql_select(self, client: TestClient) -> None:
         resp = client.post("/api/sql", json={"query": "SELECT id, nome FROM clientes ORDER BY id"})
         assert resp.status_code == 200
@@ -262,3 +315,21 @@ class TestRotaRaiz:
     def test_raiz_serve_html(self, client: TestClient) -> None:
         resp = client.get("/")
         assert resp.status_code in (200, 404)
+
+
+class TestMiddlewareGlobal:
+    def test_middleware_loga_excecao_nao_tratada(self, caplog: pytest.LogCaptureFixture) -> None:
+        from src.api.main import app
+
+        caminho = "/api/__teste_excecao_nao_tratada"
+        if not any(getattr(route, "path", None) == caminho for route in app.router.routes):
+            @app.get(caminho)
+            async def _rota_explosiva() -> dict[str, str]:
+                raise RuntimeError("falha inesperada")
+
+        with TestClient(app, raise_server_exceptions=False) as client_sem_raise, caplog.at_level(logging.ERROR):
+            resp = client_sem_raise.get(caminho)
+
+        assert resp.status_code == 500
+        assert resp.json()["detail"] == "Erro interno do servidor. Veja logs/app.log."
+        assert "Exceção não tratada em GET /api/__teste_excecao_nao_tratada" in caplog.text

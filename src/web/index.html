@@ -113,62 +113,66 @@
       </div>
     </aside>
 
-    <main class="flex-1 overflow-auto flex flex-col">
+    <main class="flex-1 overflow-hidden flex flex-col min-h-0">
       <template x-if="mostrarBusca">
-        <div class="p-4 space-y-4">
-          <div class="flex items-center justify-between">
-            <h2 class="text-lg font-semibold">Resultados para "<span class="text-primary" x-text="termoBuscaAtiva"></span>"</h2>
-            <button @click="fecharBusca()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm font-semibold">Fechar busca</button>
-          </div>
-
-          <template x-if="buscaCancelada">
-            <div class="bg-amber-50 border border-amber-300 rounded p-3 flex flex-wrap items-center gap-3">
-              <span class="text-amber-800 font-semibold text-sm"><span aria-hidden="true">🛑</span> Busca cancelada. <span x-text="buscaProgresso.encontrados"></span> resultado(s) parcial(is) exibido(s) abaixo.</span>
-              <div class="flex gap-2 ml-auto">
-                <button @click="reiniciarBusca()" class="bg-primary text-white px-3 py-1 rounded text-sm font-semibold hover:bg-blue-700">Buscar novamente</button>
-                <button @click="fecharBusca()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm font-semibold">Fechar busca</button>
-              </div>
+        <div class="flex flex-col h-full min-h-0">
+          <div class="p-4 pb-3 space-y-4 bg-gray-50 border-b shrink-0">
+            <div class="flex items-center justify-between">
+              <h2 class="text-lg font-semibold">Resultados para "<span class="text-primary" x-text="termoBuscaAtiva"></span>"</h2>
+              <button @click="fecharBusca()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm font-semibold">Fechar busca</button>
             </div>
-          </template>
 
-          <template x-if="!buscaCancelada">
-            <div class="bg-white border rounded p-3 text-sm">
-              <p class="text-gray-600" x-text="`Buscando em ${buscaProgresso.processadas}/${buscaProgresso.total} tabelas...`"></p>
-              <div class="w-full bg-gray-200 h-2 rounded mt-2 overflow-hidden">
-                <div class="bg-blue-500 h-full" :style="`width: ${buscaProgresso.total ? (buscaProgresso.processadas * 100 / buscaProgresso.total) : 0}%`"></div>
-              </div>
-              <p class="text-xs text-gray-500 mt-1" x-text="`${buscaProgresso.encontrados} grupo(s) encontrado(s)`"></p>
-            </div>
-          </template>
-
-          <div class="space-y-4">
-            <template x-for="grupo in resultadosBusca" :key="grupo.tabela + grupo.coluna + Math.random()">
-              <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
-                <div class="px-4 py-2 bg-gray-50 border-b flex items-center gap-2">
-                  <span class="font-semibold text-primary" x-text="grupo.tabela"></span>
-                  <span class="text-gray-400">→</span>
-                  <span class="font-medium text-gray-700" x-text="grupo.coluna"></span>
-                  <span class="ml-auto text-xs text-gray-400" x-text="grupo.registros.length + ' resultado(s)'"></span>
-                </div>
-                <div class="overflow-x-auto max-h-64">
-                  <table class="min-w-max text-sm">
-                    <thead class="bg-gray-100 sticky top-0"><tr><template x-for="col in Object.keys(grupo.registros[0] || {})" :key="col"><th class="px-3 py-2 text-left" x-text="col"></th></template></tr></thead>
-                    <tbody>
-                      <template x-for="(linha, idx) in grupo.registros" :key="idx">
-                        <tr :class="idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'"><template x-for="col in Object.keys(linha)" :key="col"><td class="px-3 py-1.5 max-w-xs truncate" :title="String(linha[col] ?? '')" x-text="linha[col] ?? '—'"></td></template></tr>
-                      </template>
-                    </tbody>
-                  </table>
+            <template x-if="buscaCancelada">
+              <div class="bg-amber-50 border border-amber-300 rounded p-3 flex flex-wrap items-center gap-3">
+                <span class="text-amber-800 font-semibold text-sm"><span aria-hidden="true">🛑</span> Busca cancelada. <span x-text="buscaProgresso.encontrados"></span> resultado(s) parcial(is) exibido(s) abaixo.</span>
+                <div class="flex gap-2 ml-auto">
+                  <button @click="reiniciarBusca()" class="bg-primary text-white px-3 py-1 rounded text-sm font-semibold hover:bg-blue-700">Buscar novamente</button>
+                  <button @click="fecharBusca()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm font-semibold">Fechar busca</button>
                 </div>
               </div>
             </template>
-            <template x-if="!buscandoGlobal && !buscaCancelada && resultadosBusca.length===0"><p class="text-gray-500">Nenhum resultado encontrado.</p></template>
+
+            <template x-if="!buscaCancelada">
+              <div class="bg-white border rounded p-3 text-sm">
+                <p class="text-gray-600" x-text="`Buscando em ${buscaProgresso.processadas}/${buscaProgresso.total} tabelas...`"></p>
+                <div class="w-full bg-gray-200 h-2 rounded mt-2 overflow-hidden">
+                  <div class="bg-blue-500 h-full" :style="`width: ${buscaProgresso.total ? (buscaProgresso.processadas * 100 / buscaProgresso.total) : 0}%`"></div>
+                </div>
+                <p class="text-xs text-gray-500 mt-1" x-text="`${buscaProgresso.encontrados} grupo(s) encontrado(s)`"></p>
+              </div>
+            </template>
+          </div>
+
+          <div class="flex-1 overflow-auto p-4 min-h-0">
+            <div class="space-y-4">
+              <template x-for="grupo in resultadosBusca" :key="grupo.tabela + grupo.coluna + Math.random()">
+                <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+                  <div class="px-4 py-2 bg-gray-50 border-b flex items-center gap-2">
+                    <span class="font-semibold text-primary" x-text="grupo.tabela"></span>
+                    <span class="text-gray-400">→</span>
+                    <span class="font-medium text-gray-700" x-text="grupo.coluna"></span>
+                    <span class="ml-auto text-xs text-gray-400" x-text="grupo.registros.length + ' resultado(s)'"></span>
+                  </div>
+                  <div class="overflow-x-auto max-h-64">
+                    <table class="min-w-max text-sm">
+                      <thead class="bg-gray-100 sticky top-0"><tr><template x-for="col in Object.keys(grupo.registros[0] || {})" :key="col"><th class="px-3 py-2 text-left" x-text="col"></th></template></tr></thead>
+                      <tbody>
+                        <template x-for="(linha, idx) in grupo.registros" :key="idx">
+                          <tr :class="idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'"><template x-for="col in Object.keys(linha)" :key="col"><td class="px-3 py-1.5 max-w-xs truncate" :title="exibirValor(grupo.tabela, col, linha[col])" x-text="exibirValor(grupo.tabela, col, linha[col])"></td></template></tr>
+                        </template>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </template>
+              <template x-if="!buscandoGlobal && !buscaCancelada && resultadosBusca.length===0"><p class="text-gray-500">Nenhum resultado encontrado.</p></template>
+            </div>
           </div>
         </div>
       </template>
 
       <template x-if="!mostrarBusca && abaAtiva==='dados' && !tabelaSelecionada">
-        <div class="p-6 space-y-6">
+        <div class="flex-1 overflow-auto min-h-0 p-6 space-y-6">
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-4" x-show="dashboard">
             <div class="bg-white border rounded p-4"><p class="text-xs text-gray-500">Total de tabelas</p><p class="text-2xl font-bold" x-text="formatarNumero(dashboard?.estatisticas?.total_tabelas)"></p></div>
             <div class="bg-white border rounded p-4"><p class="text-xs text-gray-500">Total de registros</p><p class="text-2xl font-bold" x-text="formatarNumero(dashboard?.estatisticas?.total_registros)"></p></div>
@@ -201,37 +205,44 @@
       </template>
 
       <template x-if="!mostrarBusca && abaAtiva==='sql'">
-        <div class="p-4 space-y-4">
-          <h2 class="font-semibold text-lg">Resultado SQL</h2>
-          <template x-if="sqlCarregando"><div class="h-16 bg-gray-200 rounded animate-pulse"></div></template>
-          <template x-if="!sqlCarregando && sqlResultado">
-            <div class="space-y-2">
-              <p class="text-sm text-gray-500" x-text="`${formatarNumero(sqlResultado.total)} linha(s) retornada(s)`"></p>
-              <div class="overflow-auto border rounded max-h-[60vh]">
+        <div class="flex flex-col h-full min-h-0">
+          <div class="p-4 pb-3 border-b bg-white shrink-0">
+            <h2 class="font-semibold text-lg">Resultado SQL</h2>
+          </div>
+          <div class="flex-1 min-h-0 flex flex-col p-4">
+            <template x-if="sqlCarregando"><div class="h-16 bg-gray-200 rounded animate-pulse"></div></template>
+            <template x-if="!sqlCarregando && sqlResultado">
+              <div class="flex flex-col flex-1 min-h-0 space-y-2">
+                <p class="text-sm text-gray-500 shrink-0" x-text="`${formatarNumero(sqlResultado.total)} linha(s) retornada(s)`"></p>
+                <div class="flex-1 min-h-0 overflow-auto border rounded">
                 <table class="min-w-max text-sm">
                   <thead class="bg-gray-100"><tr><template x-for="col in sqlResultado.colunas" :key="col"><th class="px-3 py-2 text-left" x-text="col"></th></template></tr></thead>
                   <tbody>
                     <template x-for="(linha, idx) in sqlLinhasPaginadas" :key="idx">
-                      <tr :class="idx%2===0 ? 'bg-white' : 'bg-gray-50'"><template x-for="col in sqlResultado.colunas" :key="col"><td class="px-3 py-1.5 max-w-xs truncate" :title="String(linha[col] ?? '')" x-text="linha[col] ?? '—'"></td></template></tr>
+                      <tr :class="idx%2===0 ? 'bg-white' : 'bg-gray-50'"><template x-for="col in sqlResultado.colunas" :key="col"><td class="px-3 py-1.5 max-w-xs truncate" :title="exibirValor(sqlTabelaContexto, col, linha[col])" x-text="exibirValor(sqlTabelaContexto, col, linha[col])"></td></template></tr>
                     </template>
                   </tbody>
                 </table>
+                </div>
+                <div class="bg-white border rounded px-4 py-2 flex items-center justify-between gap-2 text-sm shrink-0">
+                  <span class="text-gray-600">Página <strong x-text="sqlPagina"></strong> de <strong x-text="sqlTotalPaginas"></strong></span>
+                  <div class="flex items-center gap-2">
+                    <button @click="irPaginaSql(-1)" :disabled="sqlPagina<=1" class="px-3 py-1 border rounded disabled:opacity-40">◀ Anterior</button>
+                    <button @click="irPaginaSql(1)" :disabled="sqlPagina>=sqlTotalPaginas" class="px-3 py-1 border rounded disabled:opacity-40">Próxima ▶</button>
+                  </div>
+                </div>
               </div>
-              <div class="flex items-center gap-2 text-sm">
-                <button @click="irPaginaSql(-1)" :disabled="sqlPagina<=1" class="px-2 py-1 border rounded disabled:opacity-40">◀</button>
-                <span>Página <strong x-text="sqlPagina"></strong> de <strong x-text="sqlTotalPaginas"></strong></span>
-                <button @click="irPaginaSql(1)" :disabled="sqlPagina>=sqlTotalPaginas" class="px-2 py-1 border rounded disabled:opacity-40">▶</button>
-              </div>
-            </div>
-          </template>
+            </template>
+          </div>
         </div>
       </template>
 
       <template x-if="!mostrarBusca && abaAtiva==='dados' && tabelaSelecionada">
-        <div class="flex flex-col h-full">
-          <div class="bg-white border-b px-4 py-2 flex flex-wrap items-center gap-2 sticky top-0 z-30">
+        <div class="flex flex-col h-full min-h-0">
+          <div class="bg-white border-b px-4 py-2 flex flex-wrap items-center gap-2 shrink-0">
             <h2 class="font-bold text-primary text-base">📋 <span x-text="tabelaSelecionada"></span></h2>
             <span class="text-gray-400 text-sm" x-text="'(' + formatarNumero(totalRegistros) + ' registros)'"></span>
+            <span class="text-gray-400 text-xs">· página <strong x-text="pagina"></strong> de <strong x-text="formatarNumero(totalPaginas)"></strong></span>
 
             <template x-for="(filtro, col) in filtrosAtivos" :key="col">
               <span class="inline-flex items-center gap-1 bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full"><span x-text="col + ': ' + filtro.valor"></span><button @click="removerFiltro(col)" class="ml-1 hover:text-red-600">✕</button></span>
@@ -255,9 +266,8 @@
             </div>
           </div>
 
-          <div class="flex-1 overflow-auto">
+          <div class="flex-1 overflow-auto min-h-0">
             <template x-if="carregandoDados"><div class="p-4 space-y-2"><div class="h-8 bg-gray-200 rounded animate-pulse w-full"></div><template x-for="i in 10"><div class="h-7 bg-gray-100 rounded animate-pulse w-full"></div></template></div></template>
-
             <template x-if="!carregandoDados && linhas.length > 0">
               <table class="min-w-max text-sm border-collapse">
                 <thead class="bg-gray-100 sticky top-0 z-20 shadow-sm">
@@ -309,16 +319,16 @@
                   <template x-for="(linha, idx) in linhas" :key="idx">
                     <tr :class="idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'" class="hover:bg-blue-50 transition cursor-pointer" @click="abrirDetalheIndice(idx)">
                       <template x-for="col in colunasExibidas" :key="col.nome">
-                        <td class="px-3 py-1.5 text-gray-700 max-w-xs truncate border-b border-gray-100" :title="String(linha[col.nome] ?? '')">
+                        <td class="px-3 py-1.5 text-gray-700 max-w-xs truncate border-b border-gray-100" :title="exibirValor(tabelaSelecionada, col.nome, linha[col.nome])">
                           <template x-if="ehFkValido(col.nome, linha[col.nome])">
                             <span>
                               <button @click="abrirFk($event, tabelaSelecionada, col.nome, linha[col.nome])" class="text-primary underline" :title="`${col.nome} → ${fkAtualOuInferida(col.nome)?.tabela_referenciada}.${fkAtualOuInferida(col.nome)?.coluna_referenciada}`" x-text="exibirComLabel(tabelaSelecionada, col.nome, linha[col.nome])"></button>
-                              <template x-if="mostrarLabels && labelParaValor(fkAtualOuInferida(col.nome)?.tabela_referenciada, linha[col.nome])">
+                              <template x-if="mostrarLabels && descricaoHumana(tabelaSelecionada, col.nome, linha[col.nome])">
                                 <span class="text-gray-400 text-xs ml-1" x-text="'(' + linha[col.nome] + ')'"></span>
                               </template>
                             </span>
                           </template>
-                          <template x-if="!ehFkValido(col.nome, linha[col.nome])"><span x-text="linha[col.nome] ?? '—'"></span></template>
+                          <template x-if="!ehFkValido(col.nome, linha[col.nome])"><span x-text="exibirValor(tabelaSelecionada, col.nome, linha[col.nome])"></span></template>
                         </td>
                       </template>
                     </tr>
@@ -370,7 +380,7 @@
               <a :href="valorTexto(campo.valor)" target="_blank" rel="noopener" class="text-primary underline break-all" x-text="valorTexto(campo.valor)"></a>
             </template>
             <template x-if="!ehUrl(valorTexto(campo.valor))">
-              <pre class="bg-gray-50 rounded p-2 text-xs overflow-auto"><code :class="classeCodigo(campo.valor)" x-text="valorFormatado(campo.valor)"></code></pre>
+              <pre class="bg-gray-50 rounded p-2 text-xs overflow-auto"><code :class="classeCodigo(campo.valor)" x-text="valorDetalhe(detalheTabela, campo.nome, campo.valor)"></code></pre>
             </template>
           </div>
         </template>
