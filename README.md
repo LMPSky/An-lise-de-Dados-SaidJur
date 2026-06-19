@@ -138,6 +138,22 @@ Clique no ícone **🔽** ao lado do nome da coluna para abrir o menu de filtro:
 Clique em **📥 Exportar Excel** ou **📥 Exportar CSV** no topo direito da tabela.
 Os filtros aplicados são respeitados na exportação.
 
+### 🌐 Traduzindo códigos e ENUMs
+Algumas colunas podem guardar códigos curtos, como `nature: "p"` ou campos
+numéricos binários (`0` / `1`). Para exibir nomes mais legíveis, copie o
+arquivo `dicionarios.example.yaml` para `dicionarios.yaml` na raiz do projeto e
+edite os significados:
+
+```yaml
+publicationxml:
+  nature:
+    p: "Publicação"
+    m: "Manifestação"
+```
+
+Ao recarregar a página, o visualizador relê o arquivo automaticamente. Não é
+necessário reiniciar o servidor.
+
 ---
 
 ## 🌐 Compartilhando com colegas da rede

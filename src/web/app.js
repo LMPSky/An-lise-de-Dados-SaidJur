@@ -40,6 +40,7 @@ function app() {
 
     // ── Labels ───────────────────────────────────────────────────
     labels: {},
+    dicionarios: {},
     mostrarLabels: true,
 
     // ── Colunas visíveis ─────────────────────────────────────────
@@ -76,6 +77,7 @@ function app() {
     sqlHistorico: [],
     sqlPagina: 1,
     sqlPorPagina: 50,
+    sqlTabelaContexto: null,
 
     // ── Getters computados ────────────────────────────────────────
 
@@ -128,7 +130,7 @@ function app() {
     async iniciar() {
       this.carregarPreferenciasLocal();
       this.sqlHistorico = this.lerJsonLocal('saidjur_sql_historico', []);
-      await Promise.all([this.carregarTabelas(), this.carregarDashboard()]);
+      await Promise.all([this.carregarTabelas(), this.carregarDashboard(), this.carregarDicionarios()]);
       window.addEventListener('keydown', (event) => this.atalhosTeclado(event));
     },
 
@@ -195,6 +197,16 @@ function app() {
       }
     },
 
+    async carregarDicionarios() {
+      try {
+        const res = await fetch('/api/dicionarios');
+        if (!res.ok) throw new Error(await res.text());
+        this.dicionarios = await res.json();
+      } catch {
+        this.dicionarios = {};
+      }
+    },
+
     alternarFavorito(nomeTabela) {
       if (this.favoritos.includes(nomeTabela)) {
         this.favoritos = this.favoritos.filter(n => n !== nomeTabela);
@@ -233,7 +245,7 @@ function app() {
         this.carregarFks(nome),
         this.carregarFksInferidas(nome),
       ]);
-      await this.carregarLabels();
+      await this.carregarLabelsParaLinhas(nome, this.linhas);
     },
 
     async carregarColunas(nome) {
@@ -295,6 +307,14 @@ function app() {
       }
     },
 
+    async garantirMetadadosTabela(nomeTabela) {
+      if (!nomeTabela) return;
+      const pendencias = [];
+      if (!this.fksPorTabela[nomeTabela]) pendencias.push(this.carregarFks(nomeTabela));
+      if (!this.fksInferidas[nomeTabela]) pendencias.push(this.carregarFksInferidas(nomeTabela));
+      if (pendencias.length > 0) await Promise.all(pendencias);
+    },
+
     fkDeTabela(nomeTabela, coluna) {
       return this.fksPorTabela[nomeTabela]?.[coluna] || null;
     },
@@ -317,8 +337,12 @@ function app() {
     },
 
     async carregarLabels() {
-      const tabela = this.tabelaSelecionada;
-      if (!tabela || !this.linhas.length) return;
+      await this.carregarLabelsParaLinhas(this.tabelaSelecionada, this.linhas);
+    },
+
+    async carregarLabelsParaLinhas(tabela, linhas) {
+      if (!tabela || !linhas?.length) return;
+      await this.garantirMetadadosTabela(tabela);
 
       // Coletar todas as FKs (declaradas + inferidas)
       const todasFks = {
@@ -329,7 +353,7 @@ function app() {
       const pedidos = [];
       for (const [coluna, fk] of Object.entries(todasFks)) {
         const ids = [...new Set(
-          this.linhas
+          linhas
             .map(l => l[coluna])
             .filter(v => v !== null && v !== undefined && v !== '')
         )];
@@ -354,19 +378,49 @@ function app() {
       }
     },
 
+    textoCru(valor) {
+      if (valor === null || valor === undefined) return '—';
+      if (typeof valor === 'object') return JSON.stringify(valor);
+      return String(valor);
+    },
+
     labelParaValor(tabelaRef, valor) {
       if (valor === null || valor === undefined || valor === '') return null;
       const mapa = this.labels[tabelaRef] || {};
       return mapa[String(valor)] || null;
     },
 
+    traduzirValor(tabela, coluna, valor) {
+      if (!this.mostrarLabels || valor === null || valor === undefined || valor === '') return null;
+      return this.dicionarios?.[tabela]?.[coluna]?.[String(valor)] || null;
+    },
+
+    descricaoHumana(nomeTabela, coluna, valor) {
+      if (!this.mostrarLabels || valor === null || valor === undefined || valor === '') return null;
+      const fk = this.fkDeTabela(nomeTabela, coluna) || this.fkInferidaDeTabela(nomeTabela, coluna);
+      if (fk) {
+        const label = this.labelParaValor(fk.tabela_referenciada, valor);
+        if (label) return label;
+      }
+      return this.traduzirValor(nomeTabela, coluna, valor);
+    },
+
     exibirComLabel(nomeTabela, coluna, valor) {
       if (valor === null || valor === undefined || valor === '') return '—';
-      const fk = this.fkDeTabela(nomeTabela, coluna) || this.fkInferidaDeTabela(nomeTabela, coluna);
-      if (!fk || !this.mostrarLabels) return String(valor);
-      const label = this.labelParaValor(fk.tabela_referenciada, valor);
-      if (!label) return String(valor);
-      return label;
+      return this.descricaoHumana(nomeTabela, coluna, valor) || this.textoCru(valor);
+    },
+
+    exibirValor(nomeTabela, coluna, valor) {
+      if (valor === null || valor === undefined || valor === '') return '—';
+      const descricao = this.descricaoHumana(nomeTabela, coluna, valor);
+      if (descricao) return `${descricao} (${this.textoCru(valor)})`;
+      return this.textoCru(valor);
+    },
+
+    valorDetalhe(nomeTabela, coluna, valor) {
+      const descricao = this.descricaoHumana(nomeTabela, coluna, valor);
+      if (descricao) return `${descricao} (${this.textoCru(valor)})`;
+      return this.valorFormatado(valor);
     },
 
     ehFkValido(coluna, valor) {
@@ -443,8 +497,7 @@ function app() {
         const dados = await res.json();
         this.linhas = dados.linhas;
         this.totalRegistros = dados.total;
-        // Carregar labels para os novos dados (fire-and-forget)
-        this.carregarLabels();
+        await this.carregarLabelsParaLinhas(this.tabelaSelecionada, this.linhas);
       } catch (e) {
         this.exibirErro('Erro ao carregar os dados: ' + e.message);
       } finally {
@@ -760,8 +813,11 @@ function app() {
           body: JSON.stringify({ query: this.sqlQuery }),
         });
         if (!res.ok) throw new Error((await res.json()).detail || await res.text());
-        this.sqlResultado = await res.json();
+        const dados = await res.json();
+        this.sqlResultado = dados;
+        this.sqlTabelaContexto = this.extrairTabelaPrincipalSql(this.sqlQuery);
         this.atualizarHistoricoSql(this.sqlQuery);
+        await this.carregarLabelsParaLinhas(this.sqlTabelaContexto, dados.linhas || []);
       } catch (e) {
         this.exibirErro('Erro no SQL: ' + e.message);
       } finally {
@@ -778,6 +834,11 @@ function app() {
     usarQueryHistorico(query) {
       this.sqlQuery = query;
       this.abaAtiva = 'sql';
+    },
+
+    extrairTabelaPrincipalSql(query) {
+      const match = query.match(/\bfrom\s+[`"]?([a-zA-Z0-9_]+)[`"]?/i);
+      return match ? match[1] : null;
     },
 
     irPaginaSql(delta) {

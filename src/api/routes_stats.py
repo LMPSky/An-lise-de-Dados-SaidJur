@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import logging
+
 from fastapi import APIRouter, HTTPException, Request
 
 from src.db import colunas_validas, estatisticas_coluna, tabelas_validas
 
 router = APIRouter(tags=["Estatísticas"])
+logger = logging.getLogger("saidjur.stats")
 
 
 @router.get(
@@ -28,4 +31,5 @@ async def get_stats_coluna(nome: str, coluna: str, request: Request) -> dict:
     try:
         return estatisticas_coluna(engine, nome, coluna)
     except Exception as exc:
+        logger.exception("Falha ao calcular estatísticas de %s.%s", nome, coluna)
         raise HTTPException(status_code=500, detail=f"Falha ao calcular estatísticas: {exc}") from exc

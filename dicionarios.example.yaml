@@ -1,0 +1,14 @@
+# Dicionário de tradução de ENUMs e códigos curtos.
+# Copie este arquivo para dicionarios.yaml e ajuste os significados conforme
+# a sua base e a nomenclatura usada internamente.
+#
+# Estrutura: tabela > coluna > codigo: "Significado humano"
+
+publicationxml:
+  nature:
+    p: "Exemplo: Publicação"
+    m: "Exemplo: Manifestação"
+
+  cpfl_spreadsheet_import:
+    "0": "Exemplo: Não"
+    "1": "Exemplo: Sim"

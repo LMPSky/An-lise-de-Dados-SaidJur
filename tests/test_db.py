@@ -5,8 +5,11 @@ from __future__ import annotations
 import pytest
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
+from sqlalchemy.exc import OperationalError
 
 from src.db import (
+    criar_engine,
+    executar_com_retry_db,
     listar_tabelas,
     listar_colunas,
     tabelas_validas,
@@ -260,3 +263,52 @@ class TestSeguranca:
 
         # SQLAlchemy parametrizado trata o valor como string literal
         assert len(linhas) == 0
+
+
+class TestConfiguracaoEngine:
+    def test_criar_engine_aplica_parametros_de_resiliencia(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        capturado: dict[str, object] = {}
+
+        def fake_create_engine(url: str, **kwargs: object) -> str:
+            capturado["url"] = url
+            capturado["kwargs"] = kwargs
+            return "engine-falso"
+
+        monkeypatch.setattr("src.db.create_engine", fake_create_engine)
+
+        engine = criar_engine(
+            {
+                "host": "db.local",
+                "porta": 3307,
+                "usuario": "alice",
+                "senha": "segredo",
+                "nome": "saidjur_teste",
+            }
+        )
+
+        assert engine == "engine-falso"
+        url = str(capturado["url"])
+        assert url.startswith("mysql+pymysql://alice:")
+        assert url.endswith("@db.local:3307/saidjur_teste?charset=utf8mb4")
+        kwargs = capturado["kwargs"]
+        assert kwargs["pool_pre_ping"] is True
+        assert kwargs["pool_recycle"] == 1800
+        assert kwargs["pool_size"] == 5
+        assert kwargs["max_overflow"] == 10
+        assert kwargs["pool_timeout"] == 30
+        assert kwargs["connect_args"] == {"connect_timeout": 10, "read_timeout": 60}
+        assert kwargs["echo"] is False
+
+    def test_retry_db_tenta_uma_vez_novamente(self) -> None:
+        chamadas = {"total": 0}
+
+        def flaky() -> str:
+            chamadas["total"] += 1
+            if chamadas["total"] == 1:
+                raise OperationalError("SELECT 1", {}, RuntimeError("conexão caiu"))
+            return "ok"
+
+        resultado = executar_com_retry_db(flaky, delay_segundos=0)
+
+        assert resultado == "ok"
+        assert chamadas["total"] == 2

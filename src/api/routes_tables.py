@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import logging
+
 from fastapi import APIRouter, HTTPException, Request
 
 from src.db import (
+    executar_com_retry_db,
     listar_tabelas,
     listar_colunas,
     listar_chaves_estrangeiras,
@@ -13,6 +16,7 @@ from src.db import (
 )
 
 router = APIRouter(tags=["Tabelas"])
+logger = logging.getLogger("saidjur.tabelas")
 
 
 @router.get("/tabelas", summary="Lista todas as tabelas do banco")
@@ -20,8 +24,13 @@ async def get_tabelas(request: Request) -> list[dict]:
     """Retorna todas as tabelas do banco com contagem aproximada e tamanho."""
     engine = request.app.state.engine
     try:
-        return listar_tabelas(engine)
+        return executar_com_retry_db(
+            lambda: listar_tabelas(engine),
+            logger_retry=logger,
+            descricao="Listagem de tabelas",
+        )
     except Exception as exc:
+        logger.exception("Falha ao listar tabelas")
         raise HTTPException(
             status_code=503,
             detail=f"Não foi possível conectar ao banco de dados: {exc}",
