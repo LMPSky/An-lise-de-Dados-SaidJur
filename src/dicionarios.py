@@ -13,7 +13,7 @@ logger = logging.getLogger("saidjur.dicionarios")
 
 _CAMINHO = Path(__file__).resolve().parent.parent / "dicionarios.yaml"
 _CAMINHO_EXEMPLO = Path(__file__).resolve().parent.parent / "dicionarios.example.yaml"
-_LOCK = threading.RLock()
+_LOCK = threading.Lock()
 # Estrutura do cache: {"mtime": float, "dados": dict[str, Any]}.
 _CACHE: dict[str, Any] = {"mtime": 0.0, "dados": {}}
 
@@ -55,12 +55,17 @@ def traduzir(tabela: str, coluna: str, valor: Any) -> str | None:
     """Retorna a tradução de um valor, quando existir."""
     if valor is None:
         return None
-    dados = _carregar_se_mudou()
+    dados = obter_dicionarios()
     return dados.get(tabela, {}).get(coluna, {}).get(str(valor))
 
 
 def dicionario_de_coluna(tabela: str, coluna: str) -> dict[str, str]:
     """Retorna o mapa completo de tradução de uma coluna."""
-    dados = _carregar_se_mudou()
+    dados = obter_dicionarios()
     coluna_dict = dados.get(tabela, {}).get(coluna, {})
     return coluna_dict if isinstance(coluna_dict, dict) else {}
+
+
+def obter_dicionarios() -> dict[str, Any]:
+    """Retorna todos os dicionários carregados no momento."""
+    return _carregar_se_mudou()

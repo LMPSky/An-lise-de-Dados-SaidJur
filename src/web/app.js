@@ -837,6 +837,8 @@ function app() {
     },
 
     extrairTabelaPrincipalSql(query) {
+      // Heurística best-effort para SELECTs simples; joins/CTEs complexos podem não
+      // fornecer contexto suficiente para tradução automática de códigos.
       const match = query.match(/\bfrom\s+(?:[`"]?[a-zA-Z0-9_]+[`"]?\.)?[`"]?([a-zA-Z0-9_]+)[`"]?/i);
       return match ? match[1] : null;
     },
