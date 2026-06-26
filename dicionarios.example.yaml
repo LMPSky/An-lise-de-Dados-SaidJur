@@ -3,12 +3,28 @@
 # a sua base e a nomenclatura usada internamente.
 #
 # Estrutura: tabela > coluna > codigo: "Significado humano"
+#
+# O servidor relê o arquivo automaticamente quando ele muda.
+# Não é necessário reiniciar — apenas recarregue a página (Ctrl+Shift+R).
 
 publicationxml:
   nature:
-    p: "Exemplo: Publicação"
-    m: "Exemplo: Manifestação"
+    p: "Publicação"
+    m: "Manifestação"
+    api: "Integração API"
+    api_int: "API Interna"
+    aut: "Autuação"
+    a: "Audiência"
+    i: "Intimação"
+    j: "Julgamento"
+    ag: "Agendamento"
+    cron: "Tarefa Agendada"
+    av: "Aviso"
+
+  aut_event:
+    h: "Habilitação"
+    l: "Liminar"
 
   cpfl_spreadsheet_import:
-    "0": "Exemplo: Não"
-    "1": "Exemplo: Sim"
+    "0": "Não"
+    "1": "Sim"
