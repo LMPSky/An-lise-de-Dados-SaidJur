@@ -342,7 +342,7 @@
 
           <div class="bg-white border-t px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-sm">
             <div class="flex items-center gap-2"><span class="text-gray-500">Mostrar</span><select x-model.number="porPagina" @change="pagina = 1; carregarDados()" class="border rounded px-2 py-1 text-sm"><option value="25">25</option><option value="50">50</option><option value="100">100</option><option value="200">200</option><option value="500">500</option></select><span class="text-gray-500">por página</span></div>
-            <div class="flex items-center gap-2"><button @click="irPagina(pagina - 1)" :disabled="pagina <= 1" class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-40">◀ Anterior</button><span class="text-gray-600">Página <strong x-text="pagina"></strong> de <strong x-text="totalPaginas"></strong></span><button @click="irPagina(pagina + 1)" :disabled="pagina >= totalPaginas" class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-40">Próxima ▶</button></div>
+            <div class="flex items-center gap-2"><button @click="irPagina(pagina - 1)" :disabled="pagina <= 1" class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-40">◀ Anterior</button><span class="text-gray-600">Página <strong x-text="formatarNumero(pagina)"></strong> de <strong x-text="formatarNumero(totalPaginas)"></strong></span><button @click="irPagina(pagina + 1)" :disabled="pagina >= totalPaginas" class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-40">Próxima ▶</button></div>
           </div>
         </div>
       </template>
