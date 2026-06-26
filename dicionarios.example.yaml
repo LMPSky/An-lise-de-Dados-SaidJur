@@ -9,13 +9,14 @@
 
 publicationxml:
   nature:
-    p: "Publicação"
-    m: "Manifestação"
-    api: "Integração API"
-    api_int: "API Interna"
-    aut: "Autuação"
-    a: "Audiência"
+    p: "Publicação XML"
+    m: "Publicação Manual"
+    api: "Publicação Webjur (API)"
+    api_int: "Intimação Webjur (API)"
+    aut: "Publicação Automática"
+    # Códigos abaixo são antigos/desatualizados (mantidos para compatibilidade):
     i: "Intimação"
+    a: "Audiência"
     j: "Julgamento"
     ag: "Agendamento"
     cron: "Tarefa Agendada"
@@ -24,6 +25,8 @@ publicationxml:
   aut_event:
     h: "Habilitação"
     l: "Liminar"
+    # Nota: aut_event representa a lógica de negócio de prazos automáticos.
+    # Para detalhes completos, consulte o corpo do prazo gerado.
 
   cpfl_spreadsheet_import:
     "0": "Não"
