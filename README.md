@@ -154,33 +154,37 @@ publicationxml:
 Ao recarregar a página, o visualizador relê o arquivo automaticamente. Não é
 necessário reiniciar o servidor.
 
+## 🧹 Ocultando colunas vazias automaticamente
+
+Por padrão, o visualizador **remove automaticamente colunas que só têm valores NULL ou vazios**.
+Isso torna a interface muito mais limpa — especialmente útil em buscas ou tabelas com muitos campos opcionais.
+
+**Exemplo:** Se você busca por "Sila do Brasil", o sistema vai:
+- ✅ Mostrar todas as colunas com dados relevantes
+- ❌ Ocultar automaticamente as colunas que só têm `-` ou vazias
+
+Se por algum motivo quiser ver **todas as colunas** (inclusive as vazias), edite `src/web/app.js` e mude:
+
+```javascript
+sem_colunas_vazias: false,  // Mude para false
+
 ---
 
-## 🌐 Compartilhando com colegas da rede
+## 🌐 Compartilhando com colegas da rede (Acesso remoto)
 
-Por padrão, o programa só funciona no seu computador. Para liberar para outros
-computadores da mesma rede:
+Por padrão, o programa só funciona no seu computador (`127.0.0.1`). Para permitir que outros computadores da rede acessem:
 
-**1. Edite o `config.yaml`:**
-```yaml
-servidor:
-  host: 0.0.0.0   # Mude de 127.0.0.1 para 0.0.0.0
-```
+### ✅ Passo 1 — Configurar o servidor para aceitar conexões remotas
 
-**2. Libere a porta no Firewall do Windows** (abra o PowerShell como Administrador):
+O programa **já vem pronto** para aceitar conexões remotas. Não precisa fazer nada!
+
+### ✅ Passo 2 — Liberar a porta no Firewall do Windows
+
+1. Abra o **PowerShell como Administrador** (clique direito em PowerShell → "Executar como administrador")
+2. Cole este comando:
+
 ```powershell
 New-NetFirewallRule -DisplayName "Visualizador SaidJur" -Direction Inbound -LocalPort 8000 -Protocol TCP -Action Allow
-```
-
-**3. Descubra seu IP:**
-```
-ipconfig
-```
-Procure por **"Endereço IPv4"** (ex: `192.168.1.100`).
-
-**4. Seus colegas acessam:** `http://192.168.1.100:8000`
-
----
 
 ## ⚡ Dicas para importação mais rápida (opcional)
 

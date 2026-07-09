@@ -472,39 +472,56 @@ function app() {
 
     async carregarDados() {
       if (!this.tabelaSelecionada) return;
-
       this.carregandoDados = true;
+
       try {
         const params = new URLSearchParams({
           pagina: this.pagina,
           por_pagina: this.porPagina,
+          sem_colunas_vazias: true,  // ← ATIVA O FILTRO AUTOMATICAMENTE
         });
 
-        if (this.ordenarColuna) {
-          params.set('ordenar_por', this.ordenarColuna);
-          params.set('direcao', this.direcaoOrdem);
-        }
+        // Adiciona filtros ativos
+        Object.entries(this.filtrosAtivos).forEach(([col, filtro]) => {
+          params.append(col, filtro.valor);
+        });
 
-        if (Object.keys(this.filtrosAtivos).length > 0) {
-          params.set('filtros', JSON.stringify(this.filtrosAtivos));
+        // Adiciona ordenação
+        if (this.ordenarColuna) {
+          params.append('ordem_coluna', this.ordenarColuna);
+          params.append('ordem_direcao', this.direcaoOrdem);
         }
 
         const res = await fetch(
-          `/api/tabelas/${encodeURIComponent(this.tabelaSelecionada)}/linhas?${params}`
+          `/api/tabelas/${this.tabelaSelecionada}/dados?${params}`,
+          { headers: { 'Accept': 'application/json' } }
         );
-        if (!res.ok) throw new Error(await res.text());
 
-        const dados = await res.json();
-        this.linhas = dados.linhas;
-        this.totalRegistros = dados.total;
-        await this.carregarLabelsParaLinhas(this.tabelaSelecionada, this.linhas);
-      } catch (e) {
-        this.exibirErro('Erro ao carregar os dados: ' + e.message);
+        if (!res.ok) {
+          const erro = await res.json();
+          throw new Error(erro.detail || 'Erro ao carregar dados');
+        }
+
+        const resposta = await res.json();
+
+        this.linhas = resposta.dados;
+        this.colunas = resposta.colunas.filter(c => !c.vazio);  // ← Filtra colunas vazias
+        this.totalRegistros = resposta.total_registros;
+        this.totalPaginas = resposta.total_paginas;
+        this.atualizarColunasExibidas();
+
+        // Log dos dados ocultados
+        if (resposta.colunas_ocultadas?.length > 0) {
+          console.log(`ℹ️ ${resposta.colunas_ocultadas.length} coluna(s) vazia(s) ocultada(s):`, resposta.colunas_ocultadas.join(', '));
+        }
+      } catch (erro) {
+        this.mensagemErro = erro.message;
+        logger.error('Erro ao carregar dados:', erro);
       } finally {
         this.carregandoDados = false;
       }
     },
-
+    
     irPagina(nova) {
       if (nova < 1 || nova > this.totalPaginas) return;
       this.pagina = nova;
