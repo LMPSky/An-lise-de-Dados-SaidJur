@@ -478,7 +478,7 @@ function app() {
         const params = new URLSearchParams({
           pagina: this.pagina,
           por_pagina: this.porPagina,
-          sem_colunas_vazias: true,  // ← ATIVA O FILTRO AUTOMATICAMENTE
+          sem_colunas_vazias: true,  // ← Ativa o filtro
         });
 
         // Adiciona filtros ativos
@@ -488,12 +488,13 @@ function app() {
 
         // Adiciona ordenação
         if (this.ordenarColuna) {
-          params.append('ordem_coluna', this.ordenarColuna);
-          params.append('ordem_direcao', this.direcaoOrdem);
+          params.append('ordenar_por', this.ordenarColuna);
+          params.append('direcao', this.direcaoOrdem);
         }
 
+        // ← MUDA AQUI: de /dados para /linhas
         const res = await fetch(
-          `/api/tabelas/${this.tabelaSelecionada}/dados?${params}`,
+          `/api/tabelas/${this.tabelaSelecionada}/linhas?${params}`,
           { headers: { 'Accept': 'application/json' } }
         );
 
@@ -504,13 +505,19 @@ function app() {
 
         const resposta = await res.json();
 
-        this.linhas = resposta.dados;
-        this.colunas = resposta.colunas.filter(c => !c.vazio);  // ← Filtra colunas vazias
-        this.totalRegistros = resposta.total_registros;
-        this.totalPaginas = resposta.total_paginas;
+        // Usa 'linhas' em vez de 'dados'
+        this.linhas = resposta.linhas;
+        this.totalRegistros = resposta.total;
+        this.totalPaginas = Math.ceil(resposta.total / this.porPagina);
+        
+        // Atualiza colunas dinâmicas
+        if (resposta.colunas) {
+          this.colunas = resposta.colunas.map(c => ({ nome: c, tipo: 'text' }));
+        }
+        
         this.atualizarColunasExibidas();
 
-        // Log dos dados ocultados
+        // Log das colunas ocultadas
         if (resposta.colunas_ocultadas?.length > 0) {
           console.log(`ℹ️ ${resposta.colunas_ocultadas.length} coluna(s) vazia(s) ocultada(s):`, resposta.colunas_ocultadas.join(', '));
         }
