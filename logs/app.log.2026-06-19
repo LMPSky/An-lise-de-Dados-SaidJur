@@ -1,0 +1,30 @@
+2026-06-19 13:44:44,347 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-06-19 13:45:35,213 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-06-19 13:56:44,817 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-06-19 13:57:01,686 [INFO] saidjur.dados: Tabela 'publicationxml' | página 1 | filtros=None | total=9254152
+2026-06-19 13:57:32,369 [INFO] saidjur.dados: Tabela 'publicationxml' | página 1 | filtros=None | total=9254152
+2026-06-19 13:57:34,739 [INFO] saidjur.dados: Tabela 'accounts' | página 1 | filtros=None | total=56
+2026-06-19 13:57:48,208 [INFO] saidjur.dados: Tabela 'automaticprazos_lawsuit_clients' | página 1 | filtros=None | total=349
+2026-06-19 13:57:53,811 [INFO] saidjur.dados: Tabela 'activitynature' | página 1 | filtros=None | total=21
+2026-06-19 13:58:05,273 [INFO] saidjur.dados: Tabela 'accounts' | página 1 | filtros=None | total=56
+2026-06-19 13:58:11,294 [INFO] saidjur.dados: Tabela 'publicationxml' | página 1 | filtros=None | total=9254152
+2026-06-19 13:59:17,942 [INFO] saidjur: Servidor encerrado.
+2026-06-19 17:31:36,031 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-06-19 17:31:43,480 [INFO] saidjur.dados: Tabela 'prazo2publication' | página 1 | filtros=None | total=1087058
+2026-06-19 17:32:05,083 [INFO] saidjur.dados: Tabela 'publications2text_search_terms' | página 1 | filtros=None | total=1181077
+2026-06-19 17:32:32,370 [INFO] saidjur.dados: Tabela 'publication_text_search_terms' | página 1 | filtros={"id":{"op":"igual","valor":"1"}} | total=1
+2026-06-19 17:32:44,926 [INFO] saidjur: Servidor encerrado.
+2026-06-19 17:33:59,980 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-06-19 17:34:05,007 [INFO] saidjur.dados: Tabela 'prazo2publication' | página 1 | filtros=None | total=1087058
+2026-06-19 17:34:15,016 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.example.yaml (1 tabelas)
+2026-06-19 17:34:20,980 [INFO] saidjur.dados: Tabela 'prazos_log' | página 1 | filtros=None | total=253523
+2026-06-19 17:34:33,636 [INFO] saidjur: Servidor encerrado.
+2026-06-19 17:51:53,767 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-06-19 17:51:54,646 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.example.yaml (1 tabelas)
+2026-06-19 17:52:04,097 [INFO] saidjur.dados: Tabela 'publications_duplicate_info' | página 1 | filtros=None | total=3604611
+2026-06-19 17:55:14,804 [INFO] saidjur: Servidor encerrado.
+2026-06-19 18:15:42,154 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-06-19 18:15:43,182 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.example.yaml (1 tabelas)
+2026-06-19 18:17:42,359 [INFO] saidjur.dados: Tabela 'lawsuitdocsmetadata' | página 1 | filtros=None | total=1306032
+2026-06-19 18:17:43,409 [INFO] saidjur.dados: Tabela 'publications_duplicate_info' | página 1 | filtros=None | total=3604611
+2026-06-19 18:17:52,005 [INFO] saidjur: Servidor encerrado.

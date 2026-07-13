@@ -1,169 +1,224 @@
-"""Rota de exportação: gera CSV ou XLSX em streaming sem carregar tudo na memória."""
+"""Rotas para consulta paginada de dados de uma tabela, com filtros e ordenação."""
 
 from __future__ import annotations
 
-import csv
-import io
+import json
 import logging
-from typing import Any, AsyncGenerator
+from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query, Request
-from fastapi.responses import StreamingResponse
-from sqlalchemy import MetaData, Table, select, and_
+from sqlalchemy import MetaData, Table, func, select, and_, asc, desc
 from sqlalchemy.engine import Engine
+from sqlalchemy.orm import Session
 
 from src.db import tabelas_validas, colunas_validas
-from src.api.routes_data import _get_table, _montar_where_exprs
 
-router = APIRouter(tags=["Exportação"])
-logger = logging.getLogger("saidjur.exportar")
+router = APIRouter(tags=["Dados"])
+logger = logging.getLogger("saidjur.dados")
 
-_CHUNK_SIZE = 1000  # linhas por lote no streaming
+def _escapar_like(valor: str, escape: str = "!") -> str:
+    """Escapa caracteres especiais de LIKE (%, _, e o próprio escape) no valor do usuário."""
+    return valor.replace(escape, escape + escape).replace("%", escape + "%").replace("_", escape + "_")
 
 
-async def _stream_csv(
-    engine: Engine,
+# Operadores de filtro permitidos → função que constrói a expressão SQLAlchemy
+# Valores com wildcards LIKE (%, _) são escapados para evitar correspondências inesperadas.
+_OPERADORES: dict[str, Any] = {
+    "contem":      lambda col, val: col.like("%" + _escapar_like(val) + "%", escape="!"),
+    "nao_contem":  lambda col, val: ~col.like("%" + _escapar_like(val) + "%", escape="!"),
+    "igual":       lambda col, val: col == val,
+    "diferente":   lambda col, val: col != val,
+    "maior":       lambda col, val: col > val,
+    "menor":       lambda col, val: col < val,
+    "maior_igual": lambda col, val: col >= val,
+    "menor_igual": lambda col, val: col <= val,
+    "comeca_com":  lambda col, val: col.like(_escapar_like(val) + "%", escape="!"),
+}
+
+_POR_PAGINA_MAX = 500
+
+
+def _get_table(engine: Engine, nome: str) -> Table:
+    """Retorna um objeto Table do SQLAlchemy via reflexão do banco."""
+    meta = MetaData()
+    return Table(nome, meta, autoload_with=engine)
+
+
+def _montar_where_exprs(
     tbl: Table,
-    where_exprs: list[Any],
-) -> AsyncGenerator[str, None]:
-    """Gera o CSV linha a linha, lendo do banco em lotes (streaming sem estouro de memória)."""
-    output = io.StringIO()
-    writer: csv.DictWriter | None = None
-    offset = 0
+    filtros_json: str | None,
+    colunas_ok: set[str],
+) -> list[Any]:
+    """
+    Converte o JSON de filtros em expressões SQLAlchemy (sem interpolação de strings).
 
-    while True:
-        stmt = select(tbl)
-        if where_exprs:
-            stmt = stmt.where(and_(*where_exprs))
-        stmt = stmt.limit(_CHUNK_SIZE).offset(offset)
+    Formato esperado:
+        {"coluna": {"op": "contem|igual|...", "valor": "texto"}}
 
-        with engine.connect() as conn:
-            resultado = conn.execute(stmt)
-            colunas = list(resultado.keys())
-            linhas = resultado.fetchall()
+    Retorna lista de expressões para uso em .where(and_(*exprs)).
+    """
+    if not filtros_json:
+        return []
 
-        if not linhas:
-            break
-
-        if writer is None:
-            writer = csv.DictWriter(output, fieldnames=colunas)
-            writer.writeheader()
-            yield output.getvalue()
-            output.seek(0)
-            output.truncate(0)
-
-        for row in linhas:
-            writer.writerow(dict(zip(colunas, row)))
-
-        yield output.getvalue()
-        output.seek(0)
-        output.truncate(0)
-
-        if len(linhas) < _CHUNK_SIZE:
-            break
-        offset += _CHUNK_SIZE
-
-
-async def _stream_xlsx(
-    engine: Engine,
-    tbl: Table,
-    where_exprs: list[Any],
-) -> AsyncGenerator[bytes, None]:
-    """Gera XLSX em modo write_only (baixo uso de memória) e retorna em chunks."""
     try:
-        from openpyxl import Workbook
-    except ImportError as exc:
-        raise HTTPException(
-            status_code=501,
-            detail="Exportação XLSX requer a biblioteca openpyxl. Execute: pip install openpyxl",
-        ) from exc
+        filtros: dict[str, dict[str, str]] = json.loads(filtros_json)
+    except json.JSONDecodeError as exc:
+        raise HTTPException(status_code=400, detail=f"JSON de filtros inválido: {exc}") from exc
 
-    buf = io.BytesIO()
-    wb = Workbook(write_only=True)
-    ws = wb.create_sheet("Dados")
+    exprs: list[Any] = []
 
-    cabecalho_escrito = False
-    offset = 0
+    for coluna, opcoes in filtros.items():
+        if coluna not in colunas_ok:
+            raise HTTPException(
+                status_code=400, detail=f"Coluna desconhecida no filtro: '{coluna}'"
+            )
+        op_nome = opcoes.get("op", "contem")
+        valor = opcoes.get("valor", "")
 
-    while True:
-        stmt = select(tbl)
-        if where_exprs:
-            stmt = stmt.where(and_(*where_exprs))
-        stmt = stmt.limit(_CHUNK_SIZE).offset(offset)
+        if op_nome not in _OPERADORES:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Operador inválido '{op_nome}'. Use: {list(_OPERADORES)}",
+            )
 
-        with engine.connect() as conn:
-            resultado = conn.execute(stmt)
-            colunas = list(resultado.keys())
-            linhas = resultado.fetchall()
+        col = tbl.c[coluna]
+        exprs.append(_OPERADORES[op_nome](col, valor))
 
-        if not linhas:
-            break
+    return exprs
 
-        if not cabecalho_escrito:
-            ws.append([str(c) for c in colunas])
-            cabecalho_escrito = True
 
-        for row in linhas:
-            ws.append([str(v) if v is not None else "" for v in row])
-
-        if len(linhas) < _CHUNK_SIZE:
-            break
-        offset += _CHUNK_SIZE
-
-    wb.save(buf)
-    buf.seek(0)
-    yield buf.read()
+def _colunas_vazias(session: Session, engine: Engine, tabela_nome: str, colunas_nomes: list[str]) -> set[str]:
+    """
+    Identifica quais colunas têm APENAS valores NULL ou string vazia em toda a tabela.
+    Retorna um set com os nomes das colunas vazias.
+    """
+    try:
+        tbl = _get_table(engine, tabela_nome)
+        colunas_vazias = set()
+        
+        for col_nome in colunas_nomes:
+            col = tbl.c.get(col_nome)
+            if col is None:
+                continue
+            
+            # Conta quantos valores NÃO são NULL e NÃO são string vazia
+            stmt = select(func.count()).select_from(tbl).where(
+                and_(
+                    col.isnot(None),
+                    col != '',
+                    col != '—',
+                    col != '-',
+                )
+            )
+            
+            count_nao_vazios = session.execute(stmt).scalar() or 0
+            
+            # Se NÃO há valores não-vazios, coluna é considerada vazia
+            if count_nao_vazios == 0:
+                colunas_vazias.add(col_nome)
+        
+        return colunas_vazias
+    
+    except Exception as exc:
+        logger.warning("Erro ao detectar colunas vazias em %s: %s", tabela_nome, exc)
+        return set()
 
 
 @router.get(
-    "/exportar/{nome}",
-    summary="Exporta tabela para CSV ou XLSX em streaming",
+    "/tabelas/{nome}/linhas",
+    summary="Consulta registros de uma tabela com paginação e filtros",
 )
-async def exportar(
+async def get_linhas(
     nome: str,
     request: Request,
-    formato: str = Query(default="csv", pattern="^(csv|xlsx)$", description="csv ou xlsx"),
-    filtros: str | None = Query(
-        default=None, description="JSON de filtros (mesmo formato de /linhas)"
+    pagina: int = Query(default=1, ge=1, description="Número da página"),
+    por_pagina: int = Query(
+        default=50, ge=1, le=_POR_PAGINA_MAX, description="Registros por página (máx 500)"
     ),
-) -> StreamingResponse:
+    ordenar_por: str | None = Query(default=None, description="Nome da coluna para ordenar"),
+    direcao: str = Query(default="asc", pattern="^(asc|desc)$", description="asc ou desc"),
+    filtros: str | None = Query(
+        default=None,
+        description='JSON de filtros: {"col":{"op":"contem","valor":"x"}}',
+    ),
+    sem_colunas_vazias: bool = Query(
+        default=False,
+        description="Se true, remove colunas que só têm valores NULL/vazios",
+    ),
+) -> dict[str, Any]:
     """
-    Exporta os dados de uma tabela em formato CSV ou XLSX.
+    Retorna registros paginados de uma tabela.
 
-    - CSV: streaming linha a linha — nunca carrega tudo na memória.
-    - XLSX: gerado em write_only mode com openpyxl (baixo uso de RAM).
-    - Respeita os mesmos filtros de /tabelas/{nome}/linhas.
-    - Queries 100% parametrizadas via SQLAlchemy expression language.
+    - Suporta filtros por coluna (contem, igual, diferente, maior, menor, comeca_com)
+    - Suporta ordenação segura via SQLAlchemy expression language
+    - Nunca carrega mais de 500 linhas por requisição
+    - Queries 100% parametrizadas via SQLAlchemy (sem interpolação de valores do usuário)
+    - Opção de remover colunas vazias automaticamente
     """
     engine = request.app.state.engine
 
+    # Valida nome da tabela contra whitelist do banco
     tabelas_ok = tabelas_validas(engine)
     if nome not in tabelas_ok:
         raise HTTPException(status_code=404, detail=f"Tabela '{nome}' não encontrada.")
 
     cols_ok = colunas_validas(engine, nome)
+
+    # Obtém objeto Table via reflexão (usa metadados do banco, não input do usuário)
     tbl = _get_table(engine, nome)
+
+    # Monta expressões de filtro (totalmente parametrizadas)
     where_exprs = _montar_where_exprs(tbl, filtros, cols_ok)
 
-    logger.info("Exportar: tabela='%s' formato='%s' filtros=%s", nome, formato, filtros)
+    # Monta expressão de ordenação (coluna validada contra whitelist)
+    order_expr = None
+    if ordenar_por:
+        if ordenar_por not in cols_ok:
+            raise HTTPException(
+                status_code=400, detail=f"Coluna de ordenação desconhecida: '{ordenar_por}'"
+            )
+        col_ord = tbl.c[ordenar_por]
+        order_expr = asc(col_ord) if direcao.lower() == "asc" else desc(col_ord)
 
-    if formato == "csv":
-        return StreamingResponse(
-            _stream_csv(engine, tbl, where_exprs),
-            media_type="text/csv; charset=utf-8",
-            headers={
-                "Content-Disposition": f'attachment; filename="{nome}.csv"',
-                "X-Content-Type-Options": "nosniff",
-            },
-        )
+    offset = (pagina - 1) * por_pagina
 
-    # XLSX
-    return StreamingResponse(
-        _stream_xlsx(engine, tbl, where_exprs),
-        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={
-            "Content-Disposition": f'attachment; filename="{nome}.xlsx"',
-            "X-Content-Type-Options": "nosniff",
-        },
+    with engine.connect() as conn:
+        # Contagem total
+        count_stmt = select(func.count()).select_from(tbl)
+        if where_exprs:
+            count_stmt = count_stmt.where(and_(*where_exprs))
+        total: int = conn.execute(count_stmt).scalar_one()
+
+        # Dados paginados
+        data_stmt = select(tbl)
+        if where_exprs:
+            data_stmt = data_stmt.where(and_(*where_exprs))
+        if order_expr is not None:
+            data_stmt = data_stmt.order_by(order_expr)
+        data_stmt = data_stmt.limit(por_pagina).offset(offset)
+
+        resultado = conn.execute(data_stmt)
+        colunas = list(resultado.keys())
+        linhas = [dict(zip(colunas, row)) for row in resultado]
+
+    # ── Filtrar colunas vazias (se solicitado) ──
+    colunas_ocultar = set()
+    if sem_colunas_vazias:
+        with Session(engine) as session:
+            colunas_ocultar = _colunas_vazias(session, engine, nome, colunas)
+            colunas = [c for c in colunas if c not in colunas_ocultar]
+            linhas = [{c: row.get(c) for c in colunas} for row in linhas]
+
+    logger.info(
+        "Tabela '%s' | página %d | filtros=%s | total=%d | ocultas=%d", 
+        nome, pagina, filtros, total, len(colunas_ocultar)
     )
 
+    return {
+        "total": total,
+        "pagina": pagina,
+        "por_pagina": por_pagina,
+        "linhas": linhas,
+        "colunas": colunas,
+        "colunas_ocultadas": list(colunas_ocultar),
+    }

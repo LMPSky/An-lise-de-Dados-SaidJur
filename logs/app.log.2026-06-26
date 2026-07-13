@@ -1,0 +1,1293 @@
+2026-06-26 14:39:18,043 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-06-26 14:39:19,374 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.example.yaml (1 tabelas)
+2026-06-26 14:39:30,792 [INFO] saidjur.dados: Tabela 'accounts' | página 1 | filtros=None | total=56
+2026-06-26 14:40:01,679 [INFO] saidjur.dados: Tabela 'agenda_busunits' | página 1 | filtros=None | total=26
+2026-06-26 15:17:56,986 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-06-26 15:17:58,273 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.example.yaml (1 tabelas)
+2026-06-26 15:19:50,428 [ERROR] saidjur.sql: Falha ao executar SQL
+Traceback (most recent call last):
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 153, in execute
+    result = self._query(query)
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 322, in _query
+    conn.query(q)
+    ~~~~~~~~~~^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 563, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 825, in _read_query_result
+    result.read()
+    ~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1206, in read
+    self._read_result_packet(first_packet)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1283, in _read_result_packet
+    self._read_rowdata_packet()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1330, in _read_rowdata_packet
+    packet = self.connection._read_packet()
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.OperationalError: (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\SaidJur\src\api\routes_sql.py", line 25, in executar_sql
+    return executar_sql_somente_leitura(
+        engine,
+    ...<2 lines>...
+        timeout_segundos=30,
+    )
+  File "D:\SaidJur\src\db.py", line 571, in executar_sql_somente_leitura
+    resultado = conn.execute(text(limpa))
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1421, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1643, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2365, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 153, in execute
+    result = self._query(query)
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 322, in _query
+    conn.query(q)
+    ~~~~~~~~~~^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 563, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 825, in _read_query_result
+    result.read()
+    ~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1206, in read
+    self._read_result_packet(first_packet)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1283, in _read_result_packet
+    self._read_rowdata_packet()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1330, in _read_rowdata_packet
+    packet = self.connection._read_packet()
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+sqlalchemy.exc.OperationalError: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT DISTINCT cpfl_spreadsheet_import FROM publicationxml]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 15:19:59,431 [INFO] saidjur: Servidor encerrado.
+2026-06-26 15:20:24,679 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-06-26 15:20:25,003 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.example.yaml (1 tabelas)
+2026-06-26 15:21:02,740 [ERROR] saidjur.sql: Falha ao executar SQL
+Traceback (most recent call last):
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 153, in execute
+    result = self._query(query)
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 322, in _query
+    conn.query(q)
+    ~~~~~~~~~~^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 563, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 825, in _read_query_result
+    result.read()
+    ~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1206, in read
+    self._read_result_packet(first_packet)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1283, in _read_result_packet
+    self._read_rowdata_packet()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1330, in _read_rowdata_packet
+    packet = self.connection._read_packet()
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.OperationalError: (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\SaidJur\src\api\routes_sql.py", line 25, in executar_sql
+    return executar_sql_somente_leitura(
+        engine,
+    ...<2 lines>...
+        timeout_segundos=30,
+    )
+  File "D:\SaidJur\src\db.py", line 571, in executar_sql_somente_leitura
+    resultado = conn.execute(text(limpa))
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1421, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1643, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2365, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 153, in execute
+    result = self._query(query)
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 322, in _query
+    conn.query(q)
+    ~~~~~~~~~~^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 563, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 825, in _read_query_result
+    result.read()
+    ~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1206, in read
+    self._read_result_packet(first_packet)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1283, in _read_result_packet
+    self._read_rowdata_packet()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1330, in _read_rowdata_packet
+    packet = self.connection._read_packet()
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+sqlalchemy.exc.OperationalError: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT DISTINCT cpfl_spreadsheet_import FROM publicationxml]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 15:22:28,118 [INFO] saidjur.dados: Tabela 'publicationxml' | página 1 | filtros=None | total=9254152
+2026-06-26 15:28:34,795 [ERROR] saidjur.sql: Falha ao executar SQL
+Traceback (most recent call last):
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 153, in execute
+    result = self._query(query)
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 322, in _query
+    conn.query(q)
+    ~~~~~~~~~~^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 563, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 825, in _read_query_result
+    result.read()
+    ~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1199, in read
+    first_packet = self.connection._read_packet()
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.OperationalError: (1140, "In aggregated query without GROUP BY, expression #1 of SELECT list contains nonaggregated column 'saidjur.publicationxml.nature'; this is incompatible with sql_mode=only_full_group_by")
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\SaidJur\src\api\routes_sql.py", line 25, in executar_sql
+    return executar_sql_somente_leitura(
+        engine,
+    ...<2 lines>...
+        timeout_segundos=30,
+    )
+  File "D:\SaidJur\src\db.py", line 571, in executar_sql_somente_leitura
+    resultado = conn.execute(text(limpa))
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1421, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1643, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2365, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 153, in execute
+    result = self._query(query)
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 322, in _query
+    conn.query(q)
+    ~~~~~~~~~~^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 563, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 825, in _read_query_result
+    result.read()
+    ~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1199, in read
+    first_packet = self.connection._read_packet()
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+sqlalchemy.exc.OperationalError: (pymysql.err.OperationalError) (1140, "In aggregated query without GROUP BY, expression #1 of SELECT list contains nonaggregated column 'saidjur.publicationxml.nature'; this is incompatible with sql_mode=only_full_group_by")
+[SQL: SELECT DISTINCT nature, COUNT(*) as frequencia
+FROM publicationxml
+ORDER BY frequencia DESC
+LIMIT 20]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 15:28:48,632 [ERROR] saidjur.sql: Falha ao executar SQL
+Traceback (most recent call last):
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 153, in execute
+    result = self._query(query)
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 322, in _query
+    conn.query(q)
+    ~~~~~~~~~~^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 563, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 825, in _read_query_result
+    result.read()
+    ~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1199, in read
+    first_packet = self.connection._read_packet()
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.OperationalError: (1054, "Unknown column 'nature' in 'field list'")
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\SaidJur\src\api\routes_sql.py", line 25, in executar_sql
+    return executar_sql_somente_leitura(
+        engine,
+    ...<2 lines>...
+        timeout_segundos=30,
+    )
+  File "D:\SaidJur\src\db.py", line 571, in executar_sql_somente_leitura
+    resultado = conn.execute(text(limpa))
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1421, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1643, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2365, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 153, in execute
+    result = self._query(query)
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 322, in _query
+    conn.query(q)
+    ~~~~~~~~~~^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 563, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 825, in _read_query_result
+    result.read()
+    ~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1199, in read
+    first_packet = self.connection._read_packet()
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+sqlalchemy.exc.OperationalError: (pymysql.err.OperationalError) (1054, "Unknown column 'nature' in 'field list'")
+[SQL: SELECT DISTINCT nature, COUNT(*) as frequencia]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 15:28:58,520 [ERROR] saidjur.sql: Falha ao executar SQL
+Traceback (most recent call last):
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 153, in execute
+    result = self._query(query)
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 322, in _query
+    conn.query(q)
+    ~~~~~~~~~~^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 563, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 825, in _read_query_result
+    result.read()
+    ~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1199, in read
+    first_packet = self.connection._read_packet()
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.OperationalError: (1140, "In aggregated query without GROUP BY, expression #1 of SELECT list contains nonaggregated column 'saidjur.publicationxml.nature'; this is incompatible with sql_mode=only_full_group_by")
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\SaidJur\src\api\routes_sql.py", line 25, in executar_sql
+    return executar_sql_somente_leitura(
+        engine,
+    ...<2 lines>...
+        timeout_segundos=30,
+    )
+  File "D:\SaidJur\src\db.py", line 571, in executar_sql_somente_leitura
+    resultado = conn.execute(text(limpa))
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1421, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1643, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2365, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 153, in execute
+    result = self._query(query)
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 322, in _query
+    conn.query(q)
+    ~~~~~~~~~~^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 563, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 825, in _read_query_result
+    result.read()
+    ~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1199, in read
+    first_packet = self.connection._read_packet()
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+sqlalchemy.exc.OperationalError: (pymysql.err.OperationalError) (1140, "In aggregated query without GROUP BY, expression #1 of SELECT list contains nonaggregated column 'saidjur.publicationxml.nature'; this is incompatible with sql_mode=only_full_group_by")
+[SQL: SELECT DISTINCT nature, COUNT(*) as frequencia
+FROM publicationxml
+ORDER BY frequencia DESC
+LIMIT 20]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 15:30:53,318 [ERROR] saidjur.sql: Falha ao executar SQL
+Traceback (most recent call last):
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 153, in execute
+    result = self._query(query)
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 322, in _query
+    conn.query(q)
+    ~~~~~~~~~~^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 563, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 825, in _read_query_result
+    result.read()
+    ~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1206, in read
+    self._read_result_packet(first_packet)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1283, in _read_result_packet
+    self._read_rowdata_packet()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1330, in _read_rowdata_packet
+    packet = self.connection._read_packet()
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.OperationalError: (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\SaidJur\src\api\routes_sql.py", line 25, in executar_sql
+    return executar_sql_somente_leitura(
+        engine,
+    ...<2 lines>...
+        timeout_segundos=30,
+    )
+  File "D:\SaidJur\src\db.py", line 571, in executar_sql_somente_leitura
+    resultado = conn.execute(text(limpa))
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1421, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1643, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2365, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 153, in execute
+    result = self._query(query)
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 322, in _query
+    conn.query(q)
+    ~~~~~~~~~~^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 563, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 825, in _read_query_result
+    result.read()
+    ~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1206, in read
+    self._read_result_packet(first_packet)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1283, in _read_result_packet
+    self._read_rowdata_packet()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1330, in _read_rowdata_packet
+    packet = self.connection._read_packet()
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+sqlalchemy.exc.OperationalError: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT nature, aut_event, COUNT(*) as qtd
+FROM publicationxml
+GROUP BY nature, aut_event
+ORDER BY qtd DESC
+LIMIT 30]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 15:33:20,820 [ERROR] saidjur.sql: Falha ao executar SQL
+Traceback (most recent call last):
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 153, in execute
+    result = self._query(query)
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 322, in _query
+    conn.query(q)
+    ~~~~~~~~~~^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 563, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 825, in _read_query_result
+    result.read()
+    ~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1206, in read
+    self._read_result_packet(first_packet)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1283, in _read_result_packet
+    self._read_rowdata_packet()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1330, in _read_rowdata_packet
+    packet = self.connection._read_packet()
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+pymysql.err.OperationalError: (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\SaidJur\src\api\routes_sql.py", line 25, in executar_sql
+    return executar_sql_somente_leitura(
+        engine,
+    ...<2 lines>...
+        timeout_segundos=30,
+    )
+  File "D:\SaidJur\src\db.py", line 571, in executar_sql_somente_leitura
+    resultado = conn.execute(text(limpa))
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1421, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 526, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1643, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<8 lines>...
+        cache_hit=cache_hit,
+    )
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2365, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 153, in execute
+    result = self._query(query)
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\cursors.py", line 322, in _query
+    conn.query(q)
+    ~~~~~~~~~~^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 563, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 825, in _read_query_result
+    result.read()
+    ~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1206, in read
+    self._read_result_packet(first_packet)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1283, in _read_result_packet
+    self._read_rowdata_packet()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 1330, in _read_rowdata_packet
+    packet = self.connection._read_packet()
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 775, in _read_packet
+    packet.raise_for_error()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "D:\SaidJur\venv\Lib\site-packages\pymysql\err.py", line 150, in raise_mysql_exception
+    raise errorclass(errno, errval)
+sqlalchemy.exc.OperationalError: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT nature, aut_event, COUNT(*) as qtd
+FROM publicationxml
+GROUP BY nature, aut_event
+ORDER BY qtd DESC
+LIMIT 30]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 15:34:37,531 [INFO] saidjur: Servidor encerrado.
+2026-06-26 16:27:17,986 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-06-26 16:27:18,785 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.example.yaml (1 tabelas)
+2026-06-26 16:27:25,647 [INFO] saidjur.dados: Tabela 'accounts' | página 1 | filtros=None | total=56
+2026-06-26 16:29:53,621 [INFO] saidjur: Servidor encerrado.
+2026-06-26 16:30:29,274 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-06-26 16:30:31,096 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.example.yaml (1 tabelas)
+2026-06-26 16:30:35,944 [INFO] saidjur.dados: Tabela 'accounts' | página 1 | filtros=None | total=56
+2026-06-26 16:32:12,898 [INFO] saidjur: Servidor encerrado.
+2026-06-26 16:33:07,463 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-06-26 16:33:09,022 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.example.yaml (1 tabelas)
+2026-06-26 16:33:59,911 [INFO] saidjur.dados: Tabela 'publicationxml' | página 1 | filtros=None | total=9254152
+2026-06-26 16:34:56,601 [INFO] saidjur: Servidor encerrado.
+2026-06-26 16:54:14,316 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-06-26 16:54:14,956 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.example.yaml (1 tabelas)
+2026-06-26 16:54:19,023 [INFO] saidjur.dados: Tabela 'accounts' | página 1 | filtros=None | total=56
+2026-06-26 17:00:17,140 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-06-26 17:00:18,121 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.example.yaml (1 tabelas)
+2026-06-26 17:00:22,653 [INFO] saidjur.dados: Tabela 'accounts' | página 1 | filtros=None | total=56
+2026-06-26 17:01:05,601 [INFO] saidjur: Servidor encerrado.
+2026-06-26 17:06:24,431 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-06-26 17:06:25,920 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.example.yaml (1 tabelas)
+2026-06-26 17:06:30,546 [INFO] saidjur.dados: Tabela 'accounts' | página 1 | filtros=None | total=56
+2026-06-26 17:07:00,197 [INFO] saidjur: Servidor encerrado.
+2026-06-26 17:09:08,790 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-06-26 17:09:10,244 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.example.yaml (1 tabelas)
+2026-06-26 17:09:45,410 [INFO] saidjur.dados: Tabela 'accounts' | página 1 | filtros=None | total=56
+2026-06-26 17:10:00,203 [INFO] saidjur.dados: Tabela 'publicationxml' | página 1 | filtros=None | total=9254152
+2026-06-26 17:10:07,808 [INFO] saidjur: Servidor encerrado.
+2026-06-26 18:37:55,728 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-06-26 18:37:56,289 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.example.yaml (1 tabelas)
+2026-06-26 18:38:38,021 [WARNING] saidjur.busca: Erro ao buscar em emails.msg_id: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT emails.id, emails.msg_id, emails.lawsuitdocmdata_id, emails.receiver, emails.sender, emails.date, emails.subject, emails.body, emails.flow, emails.userid, emails.timestamp 
+FROM emails 
+WHERE emails.msg_id LIKE %(msg_id_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'msg_id_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:38:48,063 [WARNING] saidjur.busca: Erro ao buscar em emails.receiver: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT emails.id, emails.msg_id, emails.lawsuitdocmdata_id, emails.receiver, emails.sender, emails.date, emails.subject, emails.body, emails.flow, emails.userid, emails.timestamp 
+FROM emails 
+WHERE emails.receiver LIKE %(receiver_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'receiver_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:38:50,988 [WARNING] saidjur.busca: Erro ao buscar em prazo2publication.cpfl_spreadsheet_import: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT prazo2publication.id, prazo2publication.cpfl_spreadsheet_import, prazo2publication.prazo_id, prazo2publication.pubtype, prazo2publication.pzphase, prazo2publication.publicationxml_id, prazo2publication.companydeadline, prazo2publication.compdeadlineemail01, prazo2publication.compdeadlineemail02, prazo2publication.fataldeadline, prazo2publication.fataldeadlineemail01, prazo2publication.fataldeadlineemail02, prazo2publication.hearing, prazo2publication.hearingtype, prazo2publication.hearingdate, prazo2publication.hearingtime, prazo2publication.hearinglawyerid, prazo2publication.employee_id, prazo2publication.supervisor_id, prazo2publication.timesent, prazo2publication.sender_observations, prazo2publication.timechanged, prazo2publication.userchangedid, prazo2publication.timeconfirmed, prazo2publication.confirmed, prazo2publication.confirmed_data, prazo2publication.annotations, prazo2publication.prazoobs, prazo2publication.parentprazoid, prazo2publication.admprazo, prazo2publication.protocol_confirmed, prazo2publication.status, prazo2publication.closed_at, prazo2publication.closed_at_userid, prazo2publication.lawyerfinished, prazo2publication.date_finished, prazo2publication.finishdesc, prazo2publication.finishtype, prazo2publication.subsidy_receive_date, prazo2publication.client_sys_updated, prazo2publication.naf_confirmed, prazo2publication.skip_validate, prazo2publication.returned, prazo2publication.denied, prazo2publication.canceled, prazo2publication.canceled_at, prazo2publication.canceled_at_userid, prazo2publication.userid, prazo2publication.created_at, prazo2publication.updated_at, prazo2publication.timestamp 
+FROM prazo2publication 
+WHERE prazo2publication.cpfl_spreadsheet_import LIKE %(cpfl_spreadsheet_import_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'cpfl_spreadsheet_import_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:38:52,991 [WARNING] saidjur.busca: Erro ao buscar em lawsuitdocsmetadata.relativepath: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT lawsuitdocsmetadata.lawsuitdocmetadata_id, lawsuitdocsmetadata.relativepath, lawsuitdocsmetadata.lawsuit_id, lawsuitdocsmetadata.prazoid, lawsuitdocsmetadata.prazophase, lawsuitdocsmetadata.filename, lawsuitdocsmetadata.andamento_text, lawsuitdocsmetadata.next_andamento_text, lawsuitdocsmetadata.pages, lawsuitdocsmetadata.requestprotocol, lawsuitdocsmetadata.protocoldeadline, lawsuitdocsmetadata.deadlineobs, lawsuitdocsmetadata.confirm_doc_for_protocol, lawsuitdocsmetadata.confirmed_doc_at, lawsuitdocsmetadata.confirmed_doc_userid, lawsuitdocsmetadata.protocoldate, lawsuitdocsmetadata.protocolrequested, lawsuitdocsmetadata.protocol_confirmed, lawsuitdocsmetadata.protocol_confirmed_date, lawsuitdocsmetadata.protocol_location, lawsuitdocsmetadata.new_protocol_reason, lawsuitdocsmetadata.protocolstatus, lawsuitdocsmetadata.lawsuitdoc_id, lawsuitdocsmetadata.procuracao_status, lawsuitdocsmetadata.parentmetadata_id, lawsuitdocsmetadata.adddoc2lawsuitdoc_id, lawsuitdocsmetadata.doccomplement, lawsuitdocsmetadata.observations, lawsuitdocsmetadata.pje, lawsuitdocsmetadata.peca_fisica, lawsuitdocsmetadata.pjestatus, lawsuitdocsmetadata.docstatus, lawsuitdocsmetadata.docfiletype, lawsuitdocsmetadata.attachment, lawsuitdocsmetadata.imapemail, lawsuitdocsmetadata.emp_id, lawsuitdocsmetadata.user_id, lawsuitdocsmetadata.dateinserted, lawsuitdocsmetadata.datedeleted, lawsuitdocsmetadata.user_del, lawsuitdocsmetadata.created_at, lawsuitdocsmetadata.created_at_userid, lawsuitdocsmetadata.updated_at, lawsuitdocsmetadata.updated_at_userid, lawsuitdocsmetadata.timestamp 
+FROM lawsuitdocsmetadata 
+WHERE lawsuitdocsmetadata.relativepath LIKE %(relativepath_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'relativepath_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:38:58,080 [WARNING] saidjur.busca: Erro ao buscar em emails.sender: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT emails.id, emails.msg_id, emails.lawsuitdocmdata_id, emails.receiver, emails.sender, emails.date, emails.subject, emails.body, emails.flow, emails.userid, emails.timestamp 
+FROM emails 
+WHERE emails.sender LIKE %(sender_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'sender_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:39:02,196 [WARNING] saidjur.busca: Erro ao buscar em publications_duplicate_info.filename: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publications_duplicate_info.id, publications_duplicate_info.publication_id, publications_duplicate_info.filename, publications_duplicate_info.vara, publications_duplicate_info.lawsuitnumber, publications_duplicate_info.publication, publications_duplicate_info.date, publications_duplicate_info.effectivedate, publications_duplicate_info.created_at, publications_duplicate_info.created_at_userid 
+FROM publications_duplicate_info 
+WHERE publications_duplicate_info.filename LIKE %(filename_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'filename_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:39:03,024 [WARNING] saidjur.busca: Erro ao buscar em lawsuitdocsmetadata.prazophase: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT lawsuitdocsmetadata.lawsuitdocmetadata_id, lawsuitdocsmetadata.relativepath, lawsuitdocsmetadata.lawsuit_id, lawsuitdocsmetadata.prazoid, lawsuitdocsmetadata.prazophase, lawsuitdocsmetadata.filename, lawsuitdocsmetadata.andamento_text, lawsuitdocsmetadata.next_andamento_text, lawsuitdocsmetadata.pages, lawsuitdocsmetadata.requestprotocol, lawsuitdocsmetadata.protocoldeadline, lawsuitdocsmetadata.deadlineobs, lawsuitdocsmetadata.confirm_doc_for_protocol, lawsuitdocsmetadata.confirmed_doc_at, lawsuitdocsmetadata.confirmed_doc_userid, lawsuitdocsmetadata.protocoldate, lawsuitdocsmetadata.protocolrequested, lawsuitdocsmetadata.protocol_confirmed, lawsuitdocsmetadata.protocol_confirmed_date, lawsuitdocsmetadata.protocol_location, lawsuitdocsmetadata.new_protocol_reason, lawsuitdocsmetadata.protocolstatus, lawsuitdocsmetadata.lawsuitdoc_id, lawsuitdocsmetadata.procuracao_status, lawsuitdocsmetadata.parentmetadata_id, lawsuitdocsmetadata.adddoc2lawsuitdoc_id, lawsuitdocsmetadata.doccomplement, lawsuitdocsmetadata.observations, lawsuitdocsmetadata.pje, lawsuitdocsmetadata.peca_fisica, lawsuitdocsmetadata.pjestatus, lawsuitdocsmetadata.docstatus, lawsuitdocsmetadata.docfiletype, lawsuitdocsmetadata.attachment, lawsuitdocsmetadata.imapemail, lawsuitdocsmetadata.emp_id, lawsuitdocsmetadata.user_id, lawsuitdocsmetadata.dateinserted, lawsuitdocsmetadata.datedeleted, lawsuitdocsmetadata.user_del, lawsuitdocsmetadata.created_at, lawsuitdocsmetadata.created_at_userid, lawsuitdocsmetadata.updated_at, lawsuitdocsmetadata.updated_at_userid, lawsuitdocsmetadata.timestamp 
+FROM lawsuitdocsmetadata 
+WHERE lawsuitdocsmetadata.prazophase LIKE %(prazophase_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'prazophase_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:39:08,202 [WARNING] saidjur.busca: Erro ao buscar em emails.date: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT emails.id, emails.msg_id, emails.lawsuitdocmdata_id, emails.receiver, emails.sender, emails.date, emails.subject, emails.body, emails.flow, emails.userid, emails.timestamp 
+FROM emails 
+WHERE emails.date LIKE %(date_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'date_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:39:12,240 [WARNING] saidjur.busca: Erro ao buscar em publications_duplicate_info.vara: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publications_duplicate_info.id, publications_duplicate_info.publication_id, publications_duplicate_info.filename, publications_duplicate_info.vara, publications_duplicate_info.lawsuitnumber, publications_duplicate_info.publication, publications_duplicate_info.date, publications_duplicate_info.effectivedate, publications_duplicate_info.created_at, publications_duplicate_info.created_at_userid 
+FROM publications_duplicate_info 
+WHERE publications_duplicate_info.vara LIKE %(vara_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'vara_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:39:12,941 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.cpfl_spreadsheet_import: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.cpfl_spreadsheet_import LIKE %(cpfl_spreadsheet_import_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'cpfl_spreadsheet_import_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:39:18,358 [WARNING] saidjur.busca: Erro ao buscar em emails.subject: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT emails.id, emails.msg_id, emails.lawsuitdocmdata_id, emails.receiver, emails.sender, emails.date, emails.subject, emails.body, emails.flow, emails.userid, emails.timestamp 
+FROM emails 
+WHERE emails.subject LIKE %(subject_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'subject_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:39:22,283 [WARNING] saidjur.busca: Erro ao buscar em publications_duplicate_info.lawsuitnumber: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publications_duplicate_info.id, publications_duplicate_info.publication_id, publications_duplicate_info.filename, publications_duplicate_info.vara, publications_duplicate_info.lawsuitnumber, publications_duplicate_info.publication, publications_duplicate_info.date, publications_duplicate_info.effectivedate, publications_duplicate_info.created_at, publications_duplicate_info.created_at_userid 
+FROM publications_duplicate_info 
+WHERE publications_duplicate_info.lawsuitnumber LIKE %(lawsuitnumber_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'lawsuitnumber_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:39:22,993 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.nature: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.nature LIKE %(nature_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'nature_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:39:28,633 [WARNING] saidjur.busca: Erro ao buscar em emails.body: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT emails.id, emails.msg_id, emails.lawsuitdocmdata_id, emails.receiver, emails.sender, emails.date, emails.subject, emails.body, emails.flow, emails.userid, emails.timestamp 
+FROM emails 
+WHERE emails.body LIKE %(body_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'body_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:39:32,362 [WARNING] saidjur.busca: Erro ao buscar em publications_duplicate_info.publication: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publications_duplicate_info.id, publications_duplicate_info.publication_id, publications_duplicate_info.filename, publications_duplicate_info.vara, publications_duplicate_info.lawsuitnumber, publications_duplicate_info.publication, publications_duplicate_info.date, publications_duplicate_info.effectivedate, publications_duplicate_info.created_at, publications_duplicate_info.created_at_userid 
+FROM publications_duplicate_info 
+WHERE publications_duplicate_info.publication LIKE %(publication_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'publication_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:39:33,028 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.aut_event: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.aut_event LIKE %(aut_event_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'aut_event_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:39:38,669 [WARNING] saidjur.busca: Erro ao buscar em emails.flow: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT emails.id, emails.msg_id, emails.lawsuitdocmdata_id, emails.receiver, emails.sender, emails.date, emails.subject, emails.body, emails.flow, emails.userid, emails.timestamp 
+FROM emails 
+WHERE emails.flow LIKE %(flow_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'flow_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:39:43,050 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.from_lawsuit: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.from_lawsuit LIKE %(from_lawsuit_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'from_lawsuit_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:39:53,060 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.filename: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.filename LIKE %(filename_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'filename_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:40:03,080 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.hearing: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.hearing LIKE %(hearing_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'hearing_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:40:13,113 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.city: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.city LIKE %(city_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'city_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:40:23,138 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.vara: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.vara LIKE %(vara_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'vara_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:40:33,162 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.paper: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.paper LIKE %(paper_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'paper_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:40:43,181 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.lawsuitnumber: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.lawsuitnumber LIKE %(lawsuitnumber_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'lawsuitnumber_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:40:53,205 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.lawyer: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.lawyer LIKE %(lawyer_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'lawyer_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:41:03,225 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.plaintiff: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.plaintiff LIKE %(plaintiff_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'plaintiff_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:41:13,248 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.defendant: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.defendant LIKE %(defendant_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'defendant_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:41:23,341 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.includeexpedient: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.includeexpedient LIKE %(includeexpedient_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'includeexpedient_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:41:33,346 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.expedientfile: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.expedientfile LIKE %(expedientfile_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'expedientfile_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:41:43,362 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.expedientfileobs: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.expedientfileobs LIKE %(expedientfileobs_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'expedientfileobs_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:41:53,378 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.observations: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.observations LIKE %(observations_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'observations_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:42:03,406 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.instructions: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.instructions LIKE %(instructions_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'instructions_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:42:13,431 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.instructions_respfinish: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.instructions_respfinish LIKE %(instructions_respfinish_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'instructions_respfinish_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:42:23,438 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.instructions_sent: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.instructions_sent LIKE %(instructions_sent_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'instructions_sent_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:42:33,467 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.instructionsstatus: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.instructionsstatus LIKE %(instructionsstatus_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'instructionsstatus_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:42:43,490 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.containsprazo: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.containsprazo LIKE %(containsprazo_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'containsprazo_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:42:53,507 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.noprazoemailsent01: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.noprazoemailsent01 LIKE %(noprazoemailsent01_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'noprazoemailsent01_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:43:03,525 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.revised: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.revised LIKE %(revised_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'revised_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:43:13,531 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.sent: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.sent LIKE %(sent_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'sent_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:43:23,543 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.naf: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.naf LIKE %(naf_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'naf_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:43:33,564 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.analise_prov: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.analise_prov LIKE %(analise_prov_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'analise_prov_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:43:43,569 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.acomp_encerramento: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.acomp_encerramento LIKE %(acomp_encerramento_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'acomp_encerramento_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:43:53,579 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.sentence: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.sentence LIKE %(sentence_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'sentence_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:44:03,606 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.link: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.link LIKE %(link_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'link_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:44:13,647 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.status: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.status LIKE %(status_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'status_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:44:23,672 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.disconsider: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.disconsider LIKE %(disconsider_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'disconsider_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:44:33,713 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.objecttype: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.objecttype LIKE %(objecttype_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'objecttype_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:44:43,739 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.exprovas: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.exprovas LIKE %(exprovas_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'exprovas_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:44:53,742 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.cumsen: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.cumsen LIKE %(cumsen_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'cumsen_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:45:03,744 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.exccj: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.exccj LIKE %(exccj_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'exccj_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:45:13,757 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.acum: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.acum LIKE %(acum_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'acum_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:45:23,786 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.exfis: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.exfis LIKE %(exfis_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'exfis_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:45:33,814 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.extiex: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.extiex LIKE %(extiex_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'extiex_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:45:43,820 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.cartprecciv: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.cartprecciv LIKE %(cartprecciv_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'cartprecciv_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-06-26 18:45:53,831 [WARNING] saidjur.busca: Erro ao buscar em publicationxml.deleted: (pymysql.err.OperationalError) (3024, 'Query execution was interrupted, maximum statement execution time exceeded')
+[SQL: SELECT publicationxml.id, publicationxml.cpfl_spreadsheet_import, publicationxml.nature, publicationxml.aut_event, publicationxml.from_automatic_prazoid, publicationxml.from_lawsuit, publicationxml.filename, publicationxml.code, publicationxml.hearing, publicationxml.city, publicationxml.vara, publicationxml.paper, publicationxml.lawsuitnumber, publicationxml.lawsuit_id, publicationxml.user_changed_lawsuit, publicationxml.av_clientid, publicationxml.lawyer, publicationxml.plaintiff, publicationxml.defendant, publicationxml.includeexpedient, publicationxml.expedientfile, publicationxml.expedientprotocoldate, publicationxml.expedientfileobs, publicationxml.expedient, publicationxml.observations, publicationxml.observations_userid, publicationxml.instructions, publicationxml.instructions_resp, publicationxml.instructions_respfinish, publicationxml.instructions_sent, publicationxml.instructionsdate, publicationxml.instructionsinsertdate, publicationxml.instructionsinsertdate_userid, publicationxml.instructionstimestamp, publicationxml.instructionstimestamp_userid, publicationxml.instructionsstatus, publicationxml.containsprazo, publicationxml.noprazoemailsent01, publicationxml.processing_date, publicationxml.date, publicationxml.effectivedate, publicationxml.fromhearingcontrolid, publicationxml.revised, publicationxml.sent, publicationxml.naf, publicationxml.naf_userid, publicationxml.naf_userid_date, publicationxml.analise_prov, publicationxml.analise_prov_hearingid, publicationxml.acomp_encerramento, publicationxml.sentence, publicationxml.link, publicationxml.status, publicationxml.disconsider, publicationxml.objecttype, publicationxml.exprovas, publicationxml.cumsen, publicationxml.exccj, publicationxml.acum, publicationxml.exfis, publicationxml.extiex, publicationxml.cartprecciv, publicationxml.date_inserted, publicationxml.user_id, publicationxml.updated_at, publicationxml.updated_at_userid, publicationxml.deleted, publicationxml.deleted_at, publicationxml.deleted_at_userid, publicationxml.timestamp 
+FROM publicationxml 
+WHERE publicationxml.deleted LIKE %(deleted_1)s ESCAPE '!' 
+ LIMIT %(param_1)s]
+[parameters: {'deleted_1': '%5108845-95.2025.4.02.5101%', 'param_1': 100}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)

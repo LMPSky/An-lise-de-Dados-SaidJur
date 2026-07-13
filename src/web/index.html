@@ -209,22 +209,22 @@
           <div class="p-4 pb-3 border-b bg-white shrink-0">
             <h2 class="font-semibold text-lg">Resultado SQL</h2>
           </div>
-          <div class="flex-1 min-h-0 flex flex-col p-4">
+          <div class="flex-1 min-h-0 flex flex-col p-4 space-y-2">
             <template x-if="sqlCarregando"><div class="h-16 bg-gray-200 rounded animate-pulse"></div></template>
             <template x-if="!sqlCarregando && sqlResultado">
               <div class="flex flex-col flex-1 min-h-0 space-y-2">
                 <p class="text-sm text-gray-500 shrink-0" x-text="`${formatarNumero(sqlResultado.total)} linha(s) retornada(s)`"></p>
                 <div class="flex-1 min-h-0 overflow-auto border rounded">
-                <table class="min-w-max text-sm">
-                  <thead class="bg-gray-100"><tr><template x-for="col in sqlResultado.colunas" :key="col"><th class="px-3 py-2 text-left" x-text="col"></th></template></tr></thead>
-                  <tbody>
-                    <template x-for="(linha, idx) in sqlLinhasPaginadas" :key="idx">
-                      <tr :class="idx%2===0 ? 'bg-white' : 'bg-gray-50'"><template x-for="col in sqlResultado.colunas" :key="col"><td class="px-3 py-1.5 max-w-xs truncate" :title="exibirValor(sqlTabelaContexto, col, linha[col])" x-text="exibirValor(sqlTabelaContexto, col, linha[col])"></td></template></tr>
-                    </template>
-                  </tbody>
-                </table>
+                  <table class="min-w-max text-sm">
+                    <thead class="bg-gray-100 sticky top-0 z-20"><tr><template x-for="col in sqlResultado.colunas" :key="col"><th class="px-3 py-2 text-left" x-text="col"></th></template></tr></thead>
+                    <tbody>
+                      <template x-for="(linha, idx) in sqlLinhasPaginadas" :key="idx">
+                        <tr :class="idx%2===0 ? 'bg-white' : 'bg-gray-50'"><template x-for="col in sqlResultado.colunas" :key="col"><td class="px-3 py-1.5 max-w-xs truncate" :title="exibirValor(sqlTabelaContexto, col, linha[col])" x-text="exibirValor(sqlTabelaContexto, col, linha[col])"></td></template></tr>
+                      </template>
+                    </tbody>
+                  </table>
                 </div>
-                <div class="bg-white border rounded px-4 py-2 flex items-center justify-between gap-2 text-sm shrink-0">
+                <div class="bg-white border-t px-4 py-2 flex items-center justify-between gap-2 text-sm shrink-0 sticky bottom-0 z-10">
                   <span class="text-gray-600">Página <strong x-text="sqlPagina"></strong> de <strong x-text="sqlTotalPaginas"></strong></span>
                   <div class="flex items-center gap-2">
                     <button @click="irPaginaSql(-1)" :disabled="sqlPagina<=1" class="px-3 py-1 border rounded disabled:opacity-40">◀ Anterior</button>

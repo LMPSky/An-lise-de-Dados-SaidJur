@@ -58,12 +58,18 @@ engine = criar_engine()
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Gerencia o ciclo de vida do servidor (inicialização e encerramento)."""
-    cfg = CONFIG["servidor"]
+    cfg_servidor = CONFIG.get("servidor", {})
+    cfg_banco = CONFIG.get("banco", {})
+    
+    host = cfg_servidor.get("host", "0.0.0.0")
+    porta = cfg_servidor.get("porta", 8000)
+    nome_banco = cfg_banco.get("nome", "saidjur")
+    
     logger.info(
         "Servidor iniciado em http://%s:%s — banco: %s",
-        cfg.get("host", "127.0.0.1"),
-        cfg.get("porta", 8000),
-        CONFIG["banco"].get("nome", "saidjur"),
+        host,
+        porta,
+        nome_banco,
     )
     yield
     engine.dispose()
@@ -81,13 +87,10 @@ app = FastAPI(
 )
 
 # ── CORS ─────────────────────────────────────────────────────────────────────
-# Por padrão, permite apenas localhost. Para liberar na rede, configure
-# origins_extras em config.yaml ou altere allow_origins abaixo.
+# Por padrão, permite acesso remoto da rede. Para restringir apenas localhost:
+# origins_permitidas = ["http://localhost:8000", "http://127.0.0.1:8000"]
 
-_origens_permitidas = [
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-]
+_origens_permitidas = ["*"]  # Permite de qualquer origem (útil para redes internas)
 
 app.add_middleware(
     CORSMiddleware,
@@ -111,20 +114,6 @@ async def log_excecoes_nao_tratadas(request: Request, call_next):
             status_code=500,
             content={"detail": "Erro interno do servidor. Veja logs/app.log."},
         )
-
-# ── Middleware de autenticação (desabilitado — preparado para uso futuro) ────
-# Para habilitar autenticação básica no futuro, descomente e implemente:
-#
-# from fastapi import Request, HTTPException
-# from fastapi.responses import Response
-# import secrets
-#
-# @app.middleware("http")
-# async def autenticar(request: Request, call_next):
-#     # Implemente sua lógica de autenticação aqui
-#     # Exemplo: Basic Auth, JWT, API Key etc.
-#     response = await call_next(request)
-#     return response
 
 # ── Injeção do engine nas rotas ───────────────────────────────────────────────
 
@@ -153,3 +142,20 @@ if _WEB_DIR.exists():
     async def raiz() -> FileResponse:
         """Serve a interface web principal."""
         return FileResponse(str(_WEB_DIR / "index.html"))
+
+
+# ── Inicialização do servidor (para execução direta) ────────────────────────
+
+if __name__ == "__main__":
+    import uvicorn
+    
+    cfg_servidor = CONFIG.get("servidor", {})
+    host = cfg_servidor.get("host", "0.0.0.0")
+    porta = cfg_servidor.get("porta", 8000)
+    
+    uvicorn.run(
+        app,
+        host=host,
+        port=porta,
+        log_level="info",
+    )

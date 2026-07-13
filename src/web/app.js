@@ -472,63 +472,39 @@ function app() {
 
     async carregarDados() {
       if (!this.tabelaSelecionada) return;
-      this.carregandoDados = true;
 
+      this.carregandoDados = true;
       try {
         const params = new URLSearchParams({
           pagina: this.pagina,
           por_pagina: this.porPagina,
-          sem_colunas_vazias: true,  // ← Ativa o filtro
         });
 
-        // Adiciona filtros ativos
-        Object.entries(this.filtrosAtivos).forEach(([col, filtro]) => {
-          params.append(col, filtro.valor);
-        });
-
-        // Adiciona ordenação
         if (this.ordenarColuna) {
-          params.append('ordenar_por', this.ordenarColuna);
-          params.append('direcao', this.direcaoOrdem);
+          params.set('ordenar_por', this.ordenarColuna);
+          params.set('direcao', this.direcaoOrdem);
         }
 
-        // ← MUDA AQUI: de /dados para /linhas
+        if (Object.keys(this.filtrosAtivos).length > 0) {
+          params.set('filtros', JSON.stringify(this.filtrosAtivos));
+        }
+
         const res = await fetch(
-          `/api/tabelas/${this.tabelaSelecionada}/linhas?${params}`,
-          { headers: { 'Accept': 'application/json' } }
+          `/api/tabelas/${encodeURIComponent(this.tabelaSelecionada)}/linhas?${params}`
         );
+        if (!res.ok) throw new Error(await res.text());
 
-        if (!res.ok) {
-          const erro = await res.json();
-          throw new Error(erro.detail || 'Erro ao carregar dados');
-        }
-
-        const resposta = await res.json();
-
-        // Usa 'linhas' em vez de 'dados'
-        this.linhas = resposta.linhas;
-        this.totalRegistros = resposta.total;
-        this.totalPaginas = Math.ceil(resposta.total / this.porPagina);
-        
-        // Atualiza colunas dinâmicas
-        if (resposta.colunas) {
-          this.colunas = resposta.colunas.map(c => ({ nome: c, tipo: 'text' }));
-        }
-        
-        this.atualizarColunasExibidas();
-
-        // Log das colunas ocultadas
-        if (resposta.colunas_ocultadas?.length > 0) {
-          console.log(`ℹ️ ${resposta.colunas_ocultadas.length} coluna(s) vazia(s) ocultada(s):`, resposta.colunas_ocultadas.join(', '));
-        }
-      } catch (erro) {
-        this.mensagemErro = erro.message;
-        logger.error('Erro ao carregar dados:', erro);
+        const dados = await res.json();
+        this.linhas = dados.linhas;
+        this.totalRegistros = dados.total;
+        await this.carregarLabelsParaLinhas(this.tabelaSelecionada, this.linhas);
+      } catch (e) {
+        this.exibirErro('Erro ao carregar os dados: ' + e.message);
       } finally {
         this.carregandoDados = false;
       }
     },
-    
+
     irPagina(nova) {
       if (nova < 1 || nova > this.totalPaginas) return;
       this.pagina = nova;
