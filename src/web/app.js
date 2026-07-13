@@ -624,6 +624,15 @@ function app() {
             }
           }
         }
+
+        // ✅ Carrega labels para os resultados da busca
+        if (this.resultadosBusca.length > 0) {
+          const tabelas_unicas = [...new Set(this.resultadosBusca.map(r => r.tabela))];
+          for (const nomeTabela of tabelas_unicas) {
+            const linhas_tabela = this.resultadosBusca.filter(r => r.tabela === nomeTabela);
+            await this.carregarLabelsParaLinhas(nomeTabela, linhas_tabela);
+          }
+        }
       } catch (e) {
         if (e.name !== 'AbortError') {
           this.exibirErro('Erro na busca: ' + e.message);
