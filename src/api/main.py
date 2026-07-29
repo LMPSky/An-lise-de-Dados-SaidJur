@@ -20,14 +20,14 @@ from src.api.routes_tables import router as router_tabelas
 from src.api.routes_data import router as router_dados
 from src.api.routes_search import router as router_busca
 from src.api.routes_export import router as router_exportar
+from src.api.routes_export_search import router as router_exportar_busca
 from src.api.routes_dashboard import router as router_dashboard
 from src.api.routes_sql import router as router_sql
 from src.api.routes_stats import router as router_stats
 from src.api.routes_labels import router as router_labels
 from src.api.routes_dicionarios import router as router_dicionarios
-from src.api import routes_export
 
-# ── Logging ─────────────────────────────────────────────────────────────────
+# ── Logging ──────────────────────────────────────────────────────────────────
 
 _RAIZ = Path(__file__).resolve().parent.parent.parent
 _LOGS_DIR = _RAIZ / "logs"
@@ -54,7 +54,7 @@ logger = logging.getLogger("saidjur")
 
 engine = criar_engine()
 
-# ── Ciclo de vida da aplicação ────────────────────────────────────────────────
+# ── Ciclo de vida da aplicação ───────────────────────────────────────────────
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
@@ -116,24 +116,24 @@ async def log_excecoes_nao_tratadas(request: Request, call_next):
             content={"detail": "Erro interno do servidor. Veja logs/app.log."},
         )
 
-# ── Injeção do engine nas rotas ───────────────────────────────────────────────
+# ── Injeção do engine nas rotas ──────────────────────────────────────────────
 
 app.state.engine = engine
 
-# ── Rotas da API ──────────────────────────────────────────────────────────────
+# ── Rotas da API ─────────────────────────────────────────────────────────────
 
 app.include_router(router_tabelas, prefix="/api")
 app.include_router(router_dados, prefix="/api")
 app.include_router(router_busca, prefix="/api")
 app.include_router(router_exportar, prefix="/api")
+app.include_router(router_exportar_busca, prefix="/api")
 app.include_router(router_dashboard, prefix="/api")
 app.include_router(router_sql, prefix="/api")
 app.include_router(router_stats, prefix="/api")
 app.include_router(router_labels, prefix="/api")
 app.include_router(router_dicionarios, prefix="/api")
-app.include_router(routes_export.router)
 
-# ── Arquivos estáticos (frontend) ─────────────────────────────────────────────
+# ── Arquivos estáticos (frontend) ────────────────────────────────────────────
 
 _WEB_DIR = Path(__file__).resolve().parent.parent / "web"
 
