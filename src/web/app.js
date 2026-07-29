@@ -4,6 +4,7 @@
  * 
  * ✅ COM TRADUÇÕES DE COLUNAS (COMPLETAS)
  * ✅ COM SCROLL/PAGINAÇÃO FIXOS NO TOPO
+ * ✅ COM EXPORTAÇÃO DE RESULTADOS DE BUSCA
  * ✅ COM FORMATAÇÃO MELHORADA
  */
 
@@ -252,6 +253,7 @@ function app() {
     buscaCancelada: false,
     buscaProgresso: { processadas: 0, total: 0, encontrados: 0 },
     buscaController: null,
+    exportandoBusca: false,
 
     // ── Modal de detalhe ─────────────────────────────────────────
     detalheAberto: false,
@@ -915,6 +917,73 @@ function app() {
     reiniciarBusca() {
       this.termoBusca = this.termoBuscaAtiva;
       this.buscarGlobal();
+    },
+
+    // ── ✅ EXPORTAÇÃO DE BUSCA ────────────────────────────────────
+
+    /**
+     * Exporta resultados de busca em Excel ou CSV
+     */
+    async exportarResultadosBusca(formato = 'excel', tabela = null) {
+      if (this.resultadosBusca.length === 0) {
+        this.exibirErro('Nenhum resultado para exportar');
+        return;
+      }
+
+      this.exportandoBusca = true;
+
+      try {
+        const params = new URLSearchParams({ formato });
+        if (tabela) {
+          params.set('tabela', tabela);
+        }
+
+        const res = await fetch('/api/exportar/busca?' + params, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dados: this.resultadosBusca }),
+        });
+
+        if (!res.ok) {
+          const erro = await res.json();
+          throw new Error(erro.detail || 'Erro ao exportar');
+        }
+
+        // Extrair nome do arquivo do header Content-Disposition
+        const contentDisposition = res.headers.get('content-disposition');
+        let nomeArquivo = `busca_saidjur.${formato === 'excel' ? 'xlsx' : 'csv'}`;
+        
+        if (contentDisposition) {
+          const match = contentDisposition.match(/filename=(.+?)(?:;|$)/);
+          if (match) nomeArquivo = match[1].replace(/"/g, '');
+        }
+
+        // Criar blob e fazer download
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = nomeArquivo;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+
+        this.exibirErro(null);
+      } catch (e) {
+        this.exibirErro('Erro ao exportar: ' + e.message);
+      } finally {
+        this.exportandoBusca = false;
+      }
+    },
+
+    /**
+     * Obtém lista de tabelas encontradas na busca
+     */
+    obterTabelasEncontradas() {
+      if (!this.resultadosBusca.length) return [];
+      const tabelas = [...new Set(this.resultadosBusca.map(r => r.tabela))];
+      return tabelas.sort();
     },
 
     // ── Estatísticas de coluna ───────────────────────────────────
