@@ -55,3 +55,74 @@ pre code {
 .animate-pulse {
   animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+/* ============================================
+   FIX: Manter scroll/paginação no topo
+   ============================================ */
+
+/* Fazer header ficar no topo */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+/* Paginação no topo quando scroll */
+.pagination-container {
+    position: sticky;
+    top: 60px;
+    z-index: 99;
+    background: white;
+    padding: 10px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* Tabela com scroll horizontal */
+.table-container {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+
+/* Ajustar altura da página */
+main {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Espaço para pagination */
+.data-table {
+    margin-bottom: 100px;
+}
+
+/* Botões de navegação sempre visíveis */
+.pagination-buttons {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 200;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    gap: 10px;
+}
+
+.pagination-buttons button {
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.pagination-buttons button:hover {
+    background: #f0f0f0;
+    border-color: #999;
+}
+
+.pagination-buttons button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

@@ -1,224 +1,265 @@
-"""Rotas para consulta paginada de dados de uma tabela, com filtros e ordenação."""
+"""Rotas para exportar dados em CSV e Excel com traduções."""
 
 from __future__ import annotations
 
-import json
+import io
 import logging
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Query, Request
-from sqlalchemy import MetaData, Table, func, select, and_, asc, desc
-from sqlalchemy.engine import Engine
+from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import StreamingResponse
+import csv
+import json
+from sqlalchemy import select, and_, text, MetaData, Table
 from sqlalchemy.orm import Session
 
-from src.db import tabelas_validas, colunas_validas
+logger = logging.getLogger("saidjur.routes_export")
 
-router = APIRouter(tags=["Dados"])
-logger = logging.getLogger("saidjur.dados")
-
-def _escapar_like(valor: str, escape: str = "!") -> str:
-    """Escapa caracteres especiais de LIKE (%, _, e o próprio escape) no valor do usuário."""
-    return valor.replace(escape, escape + escape).replace("%", escape + "%").replace("_", escape + "_")
+router = APIRouter(tags=["Exportação"])
 
 
-# Operadores de filtro permitidos → função que constrói a expressão SQLAlchemy
-# Valores com wildcards LIKE (%, _) são escapados para evitar correspondências inesperadas.
-_OPERADORES: dict[str, Any] = {
-    "contem":      lambda col, val: col.like("%" + _escapar_like(val) + "%", escape="!"),
-    "nao_contem":  lambda col, val: ~col.like("%" + _escapar_like(val) + "%", escape="!"),
-    "igual":       lambda col, val: col == val,
-    "diferente":   lambda col, val: col != val,
-    "maior":       lambda col, val: col > val,
-    "menor":       lambda col, val: col < val,
-    "maior_igual": lambda col, val: col >= val,
-    "menor_igual": lambda col, val: col <= val,
-    "comeca_com":  lambda col, val: col.like(_escapar_like(val) + "%", escape="!"),
-}
-
-_POR_PAGINA_MAX = 500
+def _carregar_dicionarios(app_state) -> dict:
+    """Carrega os dicionários de tradução."""
+    if hasattr(app_state, 'dicionarios'):
+        return app_state.dicionarios
+    return {}
 
 
-def _get_table(engine: Engine, nome: str) -> Table:
-    """Retorna um objeto Table do SQLAlchemy via reflexão do banco."""
-    meta = MetaData()
-    return Table(nome, meta, autoload_with=engine)
-
-
-def _montar_where_exprs(
-    tbl: Table,
-    filtros_json: str | None,
-    colunas_ok: set[str],
-) -> list[Any]:
+def _traduzir_valor(
+    valor: Any,
+    tabela: str,
+    coluna: str,
+    dicionarios: dict,
+) -> str:
     """
-    Converte o JSON de filtros em expressões SQLAlchemy (sem interpolação de strings).
-
-    Formato esperado:
-        {"coluna": {"op": "contem|igual|...", "valor": "texto"}}
-
-    Retorna lista de expressões para uso em .where(and_(*exprs)).
+    Traduz um valor usando o dicionário.
+    Se não encontrar tradução, retorna o valor original.
     """
-    if not filtros_json:
-        return []
-
-    try:
-        filtros: dict[str, dict[str, str]] = json.loads(filtros_json)
-    except json.JSONDecodeError as exc:
-        raise HTTPException(status_code=400, detail=f"JSON de filtros inválido: {exc}") from exc
-
-    exprs: list[Any] = []
-
-    for coluna, opcoes in filtros.items():
-        if coluna not in colunas_ok:
-            raise HTTPException(
-                status_code=400, detail=f"Coluna desconhecida no filtro: '{coluna}'"
-            )
-        op_nome = opcoes.get("op", "contem")
-        valor = opcoes.get("valor", "")
-
-        if op_nome not in _OPERADORES:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Operador inválido '{op_nome}'. Use: {list(_OPERADORES)}",
-            )
-
-        col = tbl.c[coluna]
-        exprs.append(_OPERADORES[op_nome](col, valor))
-
-    return exprs
-
-
-def _colunas_vazias(session: Session, engine: Engine, tabela_nome: str, colunas_nomes: list[str]) -> set[str]:
-    """
-    Identifica quais colunas têm APENAS valores NULL ou string vazia em toda a tabela.
-    Retorna um set com os nomes das colunas vazias.
-    """
-    try:
-        tbl = _get_table(engine, tabela_nome)
-        colunas_vazias = set()
-        
-        for col_nome in colunas_nomes:
-            col = tbl.c.get(col_nome)
-            if col is None:
-                continue
-            
-            # Conta quantos valores NÃO são NULL e NÃO são string vazia
-            stmt = select(func.count()).select_from(tbl).where(
-                and_(
-                    col.isnot(None),
-                    col != '',
-                    col != '—',
-                    col != '-',
-                )
-            )
-            
-            count_nao_vazios = session.execute(stmt).scalar() or 0
-            
-            # Se NÃO há valores não-vazios, coluna é considerada vazia
-            if count_nao_vazios == 0:
-                colunas_vazias.add(col_nome)
-        
-        return colunas_vazias
+    if valor is None:
+        return ""
     
-    except Exception as exc:
-        logger.warning("Erro ao detectar colunas vazias em %s: %s", tabela_nome, exc)
-        return set()
+    valor_str = str(valor)
+    
+    # Procurar no dicionário
+    if tabela in dicionarios:
+        tabela_dict = dicionarios[tabela]
+        if coluna in tabela_dict:
+            coluna_dict = tabela_dict[coluna]
+            if valor_str in coluna_dict:
+                return coluna_dict[valor_str]
+    
+    # Se não encontrou, retorna original
+    return valor_str
 
 
-@router.get(
-    "/tabelas/{nome}/linhas",
-    summary="Consulta registros de uma tabela com paginação e filtros",
-)
-async def get_linhas(
-    nome: str,
+def _construir_query_com_filtros(
+    engine,
+    tabela_nome: str,
+    filtros: dict[str, Any] | None = None,
+    ordem_coluna: str | None = None,
+    direcao: str = "asc",
+) -> tuple:
+    """Constrói query com filtros e ordenação."""
+    try:
+        metadata = MetaData()
+        table = Table(tabela_nome, metadata, autoload_with=engine)
+        
+        stmt = select(table)
+        
+        # Aplicar filtros
+        if filtros:
+            condicoes = []
+            for coluna, filtro_info in filtros.items():
+                col = table.columns.get(coluna)
+                if col is None:
+                    continue
+                
+                op = filtro_info.get("op", "contem")
+                valor = filtro_info.get("valor", "")
+                
+                if op == "igual":
+                    condicoes.append(col == valor)
+                elif op == "contem":
+                    condicoes.append(col.ilike(f"%{valor}%"))
+                elif op == "comeca":
+                    condicoes.append(col.ilike(f"{valor}%"))
+                elif op == "termina":
+                    condicoes.append(col.ilike(f"%{valor}"))
+            
+            if condicoes:
+                stmt = stmt.where(and_(*condicoes))
+        
+        # Ordenação
+        if ordem_coluna:
+            col = table.columns.get(ordem_coluna)
+            if col is not None:
+                if direcao.lower() == "desc":
+                    stmt = stmt.order_by(col.desc())
+                else:
+                    stmt = stmt.order_by(col.asc())
+        
+        return table, stmt
+    
+    except Exception as e:
+        logger.error(f"Erro ao construir query para {tabela_nome}: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+def _serializar_valor(valor: Any) -> str:
+    """Converte valor para string exportável."""
+    if valor is None:
+        return ""
+    if isinstance(valor, (dict, list)):
+        return json.dumps(valor, ensure_ascii=False)
+    if isinstance(valor, bool):
+        return "Sim" if valor else "Não"
+    return str(valor)
+
+
+@router.get("/exportar/{tabela}")
+async def exportar_tabela(
+    tabela: str,
     request: Request,
-    pagina: int = Query(default=1, ge=1, description="Número da página"),
-    por_pagina: int = Query(
-        default=50, ge=1, le=_POR_PAGINA_MAX, description="Registros por página (máx 500)"
-    ),
-    ordenar_por: str | None = Query(default=None, description="Nome da coluna para ordenar"),
-    direcao: str = Query(default="asc", pattern="^(asc|desc)$", description="asc ou desc"),
-    filtros: str | None = Query(
-        default=None,
-        description='JSON de filtros: {"col":{"op":"contem","valor":"x"}}',
-    ),
-    sem_colunas_vazias: bool = Query(
-        default=False,
-        description="Se true, remove colunas que só têm valores NULL/vazios",
-    ),
-) -> dict[str, Any]:
+    formato: str = "csv",
+    filtros: str | None = None,
+) -> StreamingResponse:
     """
-    Retorna registros paginados de uma tabela.
-
-    - Suporta filtros por coluna (contem, igual, diferente, maior, menor, comeca_com)
-    - Suporta ordenação segura via SQLAlchemy expression language
-    - Nunca carrega mais de 500 linhas por requisição
-    - Queries 100% parametrizadas via SQLAlchemy (sem interpolação de valores do usuário)
-    - Opção de remover colunas vazias automaticamente
+    Exporta dados de uma tabela em CSV ou Excel com traduções.
+    
+    **Parâmetros:**
+    - `tabela`: nome da tabela
+    - `formato`: 'csv' ou 'excel'
+    - `filtros`: JSON com filtros (opcional)
+    
+    **Exemplo:**
+    ```
+    GET /api/exportar/clientes?formato=csv&filtros={"status":{"op":"igual","valor":"ATIVO"}}
+    ```
     """
+    
     engine = request.app.state.engine
-
-    # Valida nome da tabela contra whitelist do banco
-    tabelas_ok = tabelas_validas(engine)
-    if nome not in tabelas_ok:
-        raise HTTPException(status_code=404, detail=f"Tabela '{nome}' não encontrada.")
-
-    cols_ok = colunas_validas(engine, nome)
-
-    # Obtém objeto Table via reflexão (usa metadados do banco, não input do usuário)
-    tbl = _get_table(engine, nome)
-
-    # Monta expressões de filtro (totalmente parametrizadas)
-    where_exprs = _montar_where_exprs(tbl, filtros, cols_ok)
-
-    # Monta expressão de ordenação (coluna validada contra whitelist)
-    order_expr = None
-    if ordenar_por:
-        if ordenar_por not in cols_ok:
-            raise HTTPException(
-                status_code=400, detail=f"Coluna de ordenação desconhecida: '{ordenar_por}'"
-            )
-        col_ord = tbl.c[ordenar_por]
-        order_expr = asc(col_ord) if direcao.lower() == "asc" else desc(col_ord)
-
-    offset = (pagina - 1) * por_pagina
-
-    with engine.connect() as conn:
-        # Contagem total
-        count_stmt = select(func.count()).select_from(tbl)
-        if where_exprs:
-            count_stmt = count_stmt.where(and_(*where_exprs))
-        total: int = conn.execute(count_stmt).scalar_one()
-
-        # Dados paginados
-        data_stmt = select(tbl)
-        if where_exprs:
-            data_stmt = data_stmt.where(and_(*where_exprs))
-        if order_expr is not None:
-            data_stmt = data_stmt.order_by(order_expr)
-        data_stmt = data_stmt.limit(por_pagina).offset(offset)
-
-        resultado = conn.execute(data_stmt)
-        colunas = list(resultado.keys())
-        linhas = [dict(zip(colunas, row)) for row in resultado]
-
-    # ── Filtrar colunas vazias (se solicitado) ──
-    colunas_ocultar = set()
-    if sem_colunas_vazias:
+    dicionarios = _carregar_dicionarios(request.app.state)
+    
+    # Validar formato
+    if formato.lower() not in ("csv", "excel", "xlsx"):
+        raise HTTPException(status_code=400, detail="Formato deve ser 'csv' ou 'excel'")
+    
+    # Parsear filtros
+    filtros_dict = {}
+    if filtros:
+        try:
+            filtros_dict = json.loads(filtros)
+        except json.JSONDecodeError:
+            raise HTTPException(status_code=400, detail="Filtros JSON inválido")
+    
+    try:
+        table, stmt = _construir_query_com_filtros(
+            engine=engine,
+            tabela_nome=tabela,
+            filtros=filtros_dict,
+        )
+        
         with Session(engine) as session:
-            colunas_ocultar = _colunas_vazias(session, engine, nome, colunas)
-            colunas = [c for c in colunas if c not in colunas_ocultar]
-            linhas = [{c: row.get(c) for c in colunas} for row in linhas]
-
-    logger.info(
-        "Tabela '%s' | página %d | filtros=%s | total=%d | ocultas=%d", 
-        nome, pagina, filtros, total, len(colunas_ocultar)
-    )
-
-    return {
-        "total": total,
-        "pagina": pagina,
-        "por_pagina": por_pagina,
-        "linhas": linhas,
-        "colunas": colunas,
-        "colunas_ocultadas": list(colunas_ocultar),
-    }
+            resultado = session.execute(stmt).fetchall()
+            colunas = [col.name for col in table.columns]
+            
+            if formato.lower() == "csv":
+                # Exportar como CSV
+                output = io.StringIO()
+                writer = csv.writer(output, delimiter=",", quoting=csv.QUOTE_ALL, encoding='utf-8')
+                
+                # Cabeçalho
+                writer.writerow(colunas)
+                
+                # Dados com tradução
+                for row in resultado:
+                    row_dict = row._mapping
+                    linha_traduzida = []
+                    for col_nome in colunas:
+                        valor_original = row_dict.get(col_nome)
+                        valor_traduzido = _traduzir_valor(
+                            valor_original,
+                            tabela,
+                            col_nome,
+                            dicionarios,
+                        )
+                        linha_traduzida.append(valor_traduzido)
+                    writer.writerow(linha_traduzida)
+                
+                # Preparar resposta
+                output.seek(0)
+                return StreamingResponse(
+                    iter([output.getvalue()]),
+                    media_type="text/csv; charset=utf-8",
+                    headers={"Content-Disposition": f"attachment; filename={tabela}.csv"},
+                )
+            
+            else:  # excel/xlsx
+                try:
+                    import openpyxl
+                    from openpyxl.styles import Font, PatternFill, Alignment
+                except ImportError:
+                    raise HTTPException(
+                        status_code=500,
+                        detail="Biblioteca openpyxl não instalada. Execute: pip install openpyxl"
+                    )
+                
+                # Criar workbook
+                wb = openpyxl.Workbook()
+                ws = wb.active
+                ws.title = tabela[:31]  # Excel limita nome de sheet a 31 caracteres
+                
+                # Cabeçalho com estilo
+                header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
+                header_font = Font(bold=True, color="FFFFFF")
+                
+                for col_idx, col_nome in enumerate(colunas, 1):
+                    cell = ws.cell(row=1, column=col_idx)
+                    cell.value = col_nome
+                    cell.fill = header_fill
+                    cell.font = header_font
+                    cell.alignment = Alignment(horizontal="center", vertical="center")
+                
+                # Dados com tradução
+                for row_idx, row in enumerate(resultado, 2):
+                    row_dict = row._mapping
+                    for col_idx, col_nome in enumerate(colunas, 1):
+                        valor_original = row_dict.get(col_nome)
+                        valor_traduzido = _traduzir_valor(
+                            valor_original,
+                            tabela,
+                            col_nome,
+                            dicionarios,
+                        )
+                        
+                        cell = ws.cell(row=row_idx, column=col_idx)
+                        cell.value = valor_traduzido
+                        cell.alignment = Alignment(wrap_text=True, vertical="top")
+                
+                # Ajustar largura das colunas
+                for col_idx, col_nome in enumerate(colunas, 1):
+                    max_length = len(col_nome)
+                    for row in ws.iter_rows(min_col=col_idx, max_col=col_idx):
+                        for cell in row:
+                            if cell.value:
+                                max_length = max(max_length, len(str(cell.value)))
+                    
+                    adjusted_width = min(max_length + 2, 50)
+                    ws.column_dimensions[openpyxl.utils.get_column_letter(col_idx)].width = adjusted_width
+                
+                # Salvar em memória
+                output = io.BytesIO()
+                wb.save(output)
+                output.seek(0)
+                
+                return StreamingResponse(
+                    iter([output.getvalue()]),
+                    media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    headers={"Content-Disposition": f"attachment; filename={tabela}.xlsx"},
+                )
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception(f"Erro ao exportar {tabela}")
+        raise HTTPException(status_code=500, detail=f"Erro ao exportar: {str(e)}")

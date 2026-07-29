@@ -1,0 +1,47 @@
+2026-07-22 14:18:30,818 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-07-22 14:18:33,604 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.example.yaml (1 tabelas)
+2026-07-22 14:18:44,255 [INFO] saidjur.dados: Tabela 'publication_naf_reasons' | página 1 | filtros=None | total=267808
+2026-07-22 14:19:08,905 [INFO] saidjur.dados: Tabela 'accounts' | página 1 | filtros=None | total=56
+2026-07-22 14:19:37,888 [INFO] saidjur: Servidor encerrado.
+2026-07-22 14:57:22,268 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-07-22 14:57:22,533 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.example.yaml (1 tabelas)
+2026-07-22 14:57:33,933 [INFO] saidjur.dados: Tabela 'automaticprazos_lawsuit_clients' | página 1 | filtros=None | total=349
+2026-07-22 14:57:46,461 [INFO] saidjur.dados: Tabela 'cartorios' | página 1 | filtros=None | total=272
+2026-07-22 15:04:19,184 [INFO] saidjur: Servidor encerrado.
+2026-07-22 15:07:31,230 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-07-22 15:07:32,933 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.example.yaml (1 tabelas)
+2026-07-22 15:07:41,851 [INFO] saidjur.dados: Tabela 'automaticprazos_lawsuits' | página 1 | filtros=None | total=34
+2026-07-22 15:07:57,258 [INFO] saidjur.dados: Tabela 'busunitaccess_controllerlawsuits' | página 1 | filtros=None | total=2349
+2026-07-22 15:08:23,164 [INFO] saidjur.dados: Tabela 'automaticprazos_lawsuit_clients' | página 1 | filtros=None | total=349
+2026-07-22 15:09:01,078 [INFO] saidjur.dados: Tabela 'busunitaccess' | página 1 | filtros=None | total=5558
+2026-07-22 15:09:06,314 [INFO] saidjur.dados: Tabela 'coligadas' | página 1 | filtros=None | total=432
+2026-07-22 15:13:02,632 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-07-22 15:13:41,251 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.example.yaml (1 tabelas)
+2026-07-22 15:14:13,208 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-07-22 15:14:14,895 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.example.yaml (1 tabelas)
+2026-07-22 15:14:24,845 [INFO] saidjur.dados: Tabela 'client_units' | página 1 | filtros=None | total=244
+2026-07-22 15:15:07,458 [ERROR] saidjur.routes_export: Erro ao exportar client_units
+Traceback (most recent call last):
+  File "D:\SaidJur\src\api\routes_export.py", line 169, in exportar_tabela
+    writer = csv.writer(output, delimiter=",", quoting=csv.QUOTE_ALL, encoding='utf-8')
+TypeError: this function got an unexpected keyword argument 'encoding'
+2026-07-22 15:15:21,540 [INFO] saidjur: Servidor encerrado.
+2026-07-22 15:15:36,253 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-07-22 15:15:37,894 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.example.yaml (1 tabelas)
+2026-07-22 15:16:05,695 [INFO] saidjur.dados: Tabela 'client_units' | página 1 | filtros=None | total=244
+2026-07-22 15:16:16,827 [ERROR] saidjur.routes_export: Erro ao exportar client_units
+Traceback (most recent call last):
+  File "D:\SaidJur\src\api\routes_export.py", line 169, in exportar_tabela
+    writer = csv.writer(output, delimiter=",", quoting=csv.QUOTE_ALL, encoding='utf-8')
+TypeError: this function got an unexpected keyword argument 'encoding'
+2026-07-22 15:16:28,308 [INFO] saidjur.dados: Tabela 'accounts' | página 1 | filtros=None | total=56
+2026-07-22 15:16:40,611 [INFO] saidjur.dados: Tabela 'correspondent_state_activity_rates' | página 1 | filtros=None | total=387
+2026-07-22 15:16:44,880 [INFO] saidjur.dados: Tabela 'persons' | página 1 | filtros={"person_id":{"op":"igual","valor":"40089"}} | total=1
+2026-07-22 15:16:54,903 [INFO] saidjur.dados: Tabela 'correspondent_activity_rates' | página 1 | filtros=None | total=4598
+2026-07-22 15:17:17,190 [INFO] saidjur.dados: Tabela 'dates2hearing' | página 1 | filtros=None | total=74854
+2026-07-22 15:17:26,597 [INFO] saidjur.dados: Tabela 'hearings_log' | página 1 | filtros=None | total=9376
+2026-07-22 15:17:35,405 [ERROR] saidjur.routes_export: Erro ao exportar hearings_log
+Traceback (most recent call last):
+  File "D:\SaidJur\src\api\routes_export.py", line 169, in exportar_tabela
+    writer = csv.writer(output, delimiter=",", quoting=csv.QUOTE_ALL, encoding='utf-8')
+TypeError: this function got an unexpected keyword argument 'encoding'
