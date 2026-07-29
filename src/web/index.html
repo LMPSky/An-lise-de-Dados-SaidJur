@@ -34,7 +34,7 @@
 
       <div class="flex-1 w-full max-w-2xl">
         <form @submit.prevent="buscarGlobal()" class="flex gap-2">
-          <input type="search" x-model="termoBusca" placeholder="🔍 Pesquisar em todo o banco de dados..." class="w-full px-4 py-2 rounded-lg border-0 shadow text-gray-800 focus:ring-2 focus:ring-blue-300 focus:outline-none text-base" />
+          <input type="search" x-model="termoBusca" placeholder="🔍 Pesquisar em todo o banco de dados..." class="w-full px-4 py-2 rounded-lg border-0 shadow text-gray-800 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
           <button type="submit" :disabled="buscandoGlobal" class="bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded-lg font-semibold shadow transition disabled:opacity-60">Buscar</button>
           <button type="button" x-show="buscandoGlobal" @click="cancelarBuscaGlobal()" class="bg-red-500 hover:bg-red-400 text-white px-3 py-2 rounded-lg text-sm">Cancelar</button>
         </form>
@@ -85,7 +85,7 @@
           <ul>
             <template x-for="tabela in tabelasFiltradas" :key="tabela.nome">
               <li class="flex items-center px-2">
-                <button @click="selecionarTabela(tabela.nome)" class="flex-1 text-left px-2 py-2 text-sm hover:bg-blue-50 transition border-l-4" :class="tabelaSelecionada===tabela.nome ? 'border-primary bg-blue-50 text-primary font-semibold' : 'border-transparent text-gray-700'">
+                <button @click="selecionarTabela(tabela.nome)" class="flex-1 text-left px-2 py-2 text-sm hover:bg-blue-50 transition border-l-4" :class="tabelaSelecionada===tabela.nome ? 'border-primary bg-blue-50 text-primary font-semibold' : 'border-transparent'">
                   <span x-text="tabela.nome"></span>
                   <span class="text-xs text-gray-400 block" x-text="formatarNumero(tabela.linhas_aprox) + ' registros · ' + tabela.tamanho_mb + ' MB'"></span>
                 </button>
@@ -114,17 +114,82 @@
     </aside>
 
     <main class="flex-1 overflow-hidden flex flex-col min-h-0">
+      <!-- ✅ SEÇÃO DE RESULTADOS DE BUSCA COM EXPORTAÇÃO -->
       <template x-if="mostrarBusca">
         <div class="flex flex-col h-full min-h-0">
           <div class="p-4 pb-3 space-y-4 bg-gray-50 border-b shrink-0">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between flex-wrap gap-2">
               <h2 class="text-lg font-semibold">Resultados para "<span class="text-primary" x-text="termoBuscaAtiva"></span>"</h2>
               <button @click="fecharBusca()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm font-semibold">Fechar busca</button>
             </div>
 
+            <!-- ✅ BOTÕES DE EXPORTAÇÃO -->
+            <template x-if="resultadosBusca.length > 0 && !buscandoGlobal">
+              <div class="bg-white border rounded-lg p-3 space-y-3">
+                <p class="text-sm font-semibold text-gray-700">📥 Exportar resultados:</p>
+                
+                <!-- Linha 1: Downloads principais -->
+                <div class="flex flex-wrap gap-2">
+                  <!-- Baixar Tudo em Excel -->
+                  <button 
+                    @click="exportarResultadosBusca('excel')" 
+                    :disabled="exportandoBusca"
+                    class="flex items-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg font-semibold text-sm shadow transition">
+                    <span x-show="!exportandoBusca">📊</span>
+                    <span x-show="exportandoBusca" class="animate-spin">⏳</span>
+                    <span x-text="exportandoBusca ? 'Processando...' : 'Baixar Tudo (Excel)'"></span>
+                  </button>
+
+                  <!-- Baixar Tudo em CSV -->
+                  <button 
+                    @click="exportarResultadosBusca('csv')" 
+                    :disabled="exportandoBusca"
+                    class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg font-semibold text-sm shadow transition">
+                    <span x-show="!exportandoBusca">📄</span>
+                    <span x-show="exportandoBusca" class="animate-spin">⏳</span>
+                    <span x-text="exportandoBusca ? 'Processando...' : 'Baixar Tudo (CSV)'"></span>
+                  </button>
+                </div>
+
+                <!-- Linha 2: Dropdown para tabelas individuais -->
+                <div x-show="obterTabelasEncontradas().length > 1" class="border-t pt-3">
+                  <p class="text-xs font-semibold text-gray-600 mb-2">Ou exportar tabela específica:</p>
+                  <div class="flex flex-wrap gap-2">
+                    <template x-for="tabelaItem in obterTabelasEncontradas()" :key="tabelaItem">
+                      <div class="flex gap-1">
+                        <button 
+                          @click="exportarResultadosBusca('excel', tabelaItem)" 
+                          :disabled="exportandoBusca"
+                          class="flex items-center gap-1 bg-amber-500 hover:bg-amber-600 disabled:bg-gray-400 text-white px-3 py-1.5 rounded text-xs font-semibold shadow transition">
+                          <span x-show="!exportandoBusca">📊</span>
+                          <span x-show="exportandoBusca" class="animate-spin">⏳</span>
+                          <span x-text="tabelaItem + ' (Excel)'"></span>
+                        </button>
+                        <button 
+                          @click="exportarResultadosBusca('csv', tabelaItem)" 
+                          :disabled="exportandoBusca"
+                          class="flex items-center gap-1 bg-cyan-600 hover:bg-cyan-700 disabled:bg-gray-400 text-white px-3 py-1.5 rounded text-xs font-semibold shadow transition">
+                          <span x-show="!exportandoBusca">📄</span>
+                          <span x-show="exportandoBusca" class="animate-spin">⏳</span>
+                          <span x-text="tabelaItem + ' (CSV)'"></span>
+                        </button>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+
+                <!-- Resumo -->
+                <div class="bg-blue-50 border border-blue-200 rounded p-2 text-xs text-blue-800">
+                  <strong x-text="`${obterTabelasEncontradas().length} tabela(s)`"></strong> encontrada(s) com 
+                  <strong x-text="`${resultadosBusca.length} grupo(s) de resultado(s)`"></strong>
+                </div>
+              </div>
+            </template>
+
+            <!-- Status de busca -->
             <template x-if="buscaCancelada">
               <div class="bg-amber-50 border border-amber-300 rounded p-3 flex flex-wrap items-center gap-3">
-                <span class="text-amber-800 font-semibold text-sm"><span aria-hidden="true">🛑</span> Busca cancelada. <span x-text="buscaProgresso.encontrados"></span> resultado(s) parcial(is) exibido(s) abaixo.</span>
+                <span class="text-amber-800 font-semibold text-sm"><span aria-hidden="true">🛑</span> Busca cancelada. <span x-text="buscaProgresso.encontrados"></span> resultado(s) parcial(is)</span>
                 <div class="flex gap-2 ml-auto">
                   <button @click="reiniciarBusca()" class="bg-primary text-white px-3 py-1 rounded text-sm font-semibold hover:bg-blue-700">Buscar novamente</button>
                   <button @click="fecharBusca()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm font-semibold">Fechar busca</button>
@@ -132,7 +197,7 @@
               </div>
             </template>
 
-            <template x-if="!buscaCancelada">
+            <template x-if="!buscaCancelada && buscandoGlobal">
               <div class="bg-white border rounded p-3 text-sm">
                 <p class="text-gray-600" x-text="`Buscando em ${buscaProgresso.processadas}/${buscaProgresso.total} tabelas...`"></p>
                 <div class="w-full bg-gray-200 h-2 rounded mt-2 overflow-hidden">
@@ -155,28 +220,41 @@
                   </div>
                   <div class="overflow-x-auto max-h-64">
                     <table class="min-w-max text-sm">
-                      <thead class="bg-gray-100 sticky top-0"><tr><template x-for="col in Object.keys(grupo.registros[0] || {})" :key="col"><th class="px-3 py-2 text-left" x-text="traduzirColuna(col)"></th></template></tr></thead>
+                      <thead class="bg-gray-100 sticky top-0">
+                        <tr>
+                          <template x-for="col in Object.keys(grupo.registros[0] || {})" :key="col">
+                            <th class="px-3 py-2 text-left font-semibold text-gray-600" x-text="traduzirColuna(col)"></th>
+                          </template>
+                        </tr>
+                      </thead>
                       <tbody>
                         <template x-for="(linha, idx) in grupo.registros" :key="idx">
-                          <tr :class="idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'"><template x-for="col in Object.keys(linha)" :key="col"><td class="px-3 py-1.5 max-w-xs truncate" :title="exibirValor(grupo.tabela, col, linha[col])" x-text="exibirValor(grupo.tabela, col, linha[col])"></td></template></tr>
+                          <tr :class="idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
+                            <template x-for="col in Object.keys(linha)" :key="col">
+                              <td class="px-3 py-1.5 max-w-xs truncate" :title="exibirValor(grupo.tabela, col, linha[col])" x-text="exibirComLabel(grupo.tabela, col, linha[col])"></td>
+                            </template>
+                          </tr>
                         </template>
                       </tbody>
                     </table>
                   </div>
                 </div>
               </template>
-              <template x-if="!buscandoGlobal && !buscaCancelada && resultadosBusca.length===0"><p class="text-gray-500">Nenhum resultado encontrado.</p></template>
+              <template x-if="!buscandoGlobal && !buscaCancelada && resultadosBusca.length===0">
+                <p class="text-gray-500">Nenhum resultado encontrado.</p>
+              </template>
             </div>
           </div>
         </div>
       </template>
 
+      <!-- DASHBOARD / SELEÇÃO DE TABELA -->
       <template x-if="!mostrarBusca && abaAtiva==='dados' && !tabelaSelecionada">
         <div class="flex-1 overflow-auto min-h-0 p-6 space-y-6">
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-4" x-show="dashboard">
-            <div class="bg-white border rounded p-4"><p class="text-xs text-gray-500">Total de tabelas</p><p class="text-2xl font-bold" x-text="formatarNumero(dashboard?.estatisticas?.total_tabelas)"></p></div>
-            <div class="bg-white border rounded p-4"><p class="text-xs text-gray-500">Total de registros</p><p class="text-2xl font-bold" x-text="formatarNumero(dashboard?.estatisticas?.total_registros)"></p></div>
-            <div class="bg-white border rounded p-4"><p class="text-xs text-gray-500">Tamanho total (MB)</p><p class="text-2xl font-bold" x-text="formatarNumero(dashboard?.estatisticas?.tamanho_total_mb)"></p></div>
+            <div class="bg-white border rounded p-4"><p class="text-xs text-gray-500">Total de tabelas</p><p class="text-2xl font-bold" x-text="formatarNumero(dashboard?.estatisticas?.total_tabelas || 0)"></p></div>
+            <div class="bg-white border rounded p-4"><p class="text-xs text-gray-500">Total de registros</p><p class="text-2xl font-bold" x-text="formatarNumero(dashboard?.estatisticas?.total_registros || 0)"></p></div>
+            <div class="bg-white border rounded p-4"><p class="text-xs text-gray-500">Tamanho total (MB)</p><p class="text-2xl font-bold" x-text="formatarNumero(dashboard?.estatisticas?.tamanho_total_mb || 0)"></p></div>
           </div>
 
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -195,81 +273,72 @@
               <h3 class="font-semibold mb-2">🔎 Busca em destaque</h3>
               <p class="text-sm text-gray-600 mb-2">Sugestões rápidas:</p>
               <div class="flex flex-wrap gap-2">
-                <button @click="termoBusca='ATIVO'; buscarGlobal()" class="px-2 py-1 bg-gray-100 rounded text-sm">ATIVO</button>
-                <button @click="termoBusca='publicação'; buscarGlobal()" class="px-2 py-1 bg-gray-100 rounded text-sm">publicação</button>
-                <button @click="termoBusca='2024'; buscarGlobal()" class="px-2 py-1 bg-gray-100 rounded text-sm">2024</button>
+                <button @click="termoBusca='ATIVO'; buscarGlobal()" class="px-2 py-1 bg-gray-100 rounded text-sm hover:bg-gray-200">ATIVO</button>
+                <button @click="termoBusca='publicação'; buscarGlobal()" class="px-2 py-1 bg-gray-100 rounded text-sm hover:bg-gray-200">publicação</button>
+                <button @click="termoBusca='2024'; buscarGlobal()" class="px-2 py-1 bg-gray-100 rounded text-sm hover:bg-gray-200">2024</button>
               </div>
             </div>
           </div>
         </div>
       </template>
 
-      <template x-if="!mostrarBusca && abaAtiva==='sql'">
-        <div class="flex flex-col h-full min-h-0">
-          <div class="p-4 pb-3 border-b bg-white shrink-0">
-            <h2 class="font-semibold text-lg">Resultado SQL</h2>
-          </div>
-          <div class="flex-1 min-h-0 flex flex-col p-4 space-y-2">
-            <template x-if="sqlCarregando"><div class="h-16 bg-gray-200 rounded animate-pulse"></div></template>
-            <template x-if="!sqlCarregando && sqlResultado">
-              <div class="flex flex-col flex-1 min-h-0 space-y-2">
-                <p class="text-sm text-gray-500 shrink-0" x-text="`${formatarNumero(sqlResultado.total)} linha(s) retornada(s)`"></p>
-                <div class="flex-1 min-h-0 overflow-auto border rounded">
-                  <table class="min-w-max text-sm">
-                    <thead class="bg-gray-100 sticky top-0 z-20"><tr><template x-for="col in sqlResultado.colunas" :key="col"><th class="px-3 py-2 text-left" x-text="traduzirColuna(col)"></th></template></tr></thead>
-                    <tbody>
-                      <template x-for="(linha, idx) in sqlLinhasPaginadas" :key="idx">
-                        <tr :class="idx%2===0 ? 'bg-white' : 'bg-gray-50'"><template x-for="col in sqlResultado.colunas" :key="col"><td class="px-3 py-1.5 max-w-xs truncate" :title="exibirValor(sqlTabelaContexto, col, linha[col])" x-text="exibirValor(sqlTabelaContexto, col, linha[col])"></td></template></tr>
-                      </template>
-                    </tbody>
-                  </table>
-                </div>
-                <div class="bg-white border-t px-4 py-2 flex items-center justify-between gap-2 text-sm shrink-0 sticky bottom-0 z-10">
-                  <span class="text-gray-600">Página <strong x-text="sqlPagina"></strong> de <strong x-text="sqlTotalPaginas"></strong></span>
-                  <div class="flex items-center gap-2">
-                    <button @click="irPaginaSql(-1)" :disabled="sqlPagina<=1" class="px-3 py-1 border rounded disabled:opacity-40">◀ Anterior</button>
-                    <button @click="irPaginaSql(1)" :disabled="sqlPagina>=sqlTotalPaginas" class="px-3 py-1 border rounded disabled:opacity-40">Próxima ▶</button>
-                  </div>
-                </div>
-              </div>
-            </template>
-          </div>
-        </div>
-      </template>
-
+      <!-- DADOS DA TABELA SELECIONADA -->
       <template x-if="!mostrarBusca && abaAtiva==='dados' && tabelaSelecionada">
         <div class="flex flex-col h-full min-h-0">
-          <div class="bg-white border-b px-4 py-2 flex flex-wrap items-center gap-2 shrink-0">
-            <h2 class="font-bold text-primary text-base">📋 <span x-text="tabelaSelecionada"></span></h2>
-            <span class="text-gray-400 text-sm" x-text="'(' + formatarNumero(totalRegistros) + ' registros)'"></span>
-            <span class="text-gray-400 text-xs">· página <strong x-text="pagina"></strong> de <strong x-text="formatarNumero(totalPaginas)"></strong></span>
-
-            <template x-for="(filtro, col) in filtrosAtivos" :key="col">
-              <span class="inline-flex items-center gap-1 bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full"><span x-text="col + ': ' + filtro.valor"></span><button @click="removerFiltro(col)" class="ml-1 hover:text-red-600">✕</button></span>
-            </template>
-            <button x-show="Object.keys(filtrosAtivos).length > 0" @click="limparFiltros()" class="text-xs text-red-500 hover:underline">Limpar filtros</button>
-
-            <div class="relative ml-2">
-              <button @click="popoverColunasAberto = !popoverColunasAberto" class="text-sm border rounded px-2 py-1 hover:bg-gray-50">🎛️ Colunas</button>
-              <div x-show="popoverColunasAberto" @click.outside="popoverColunasAberto=false" class="absolute z-40 mt-1 bg-white border rounded shadow p-3 w-72 max-h-72 overflow-auto">
-                <template x-for="col in colunas" :key="'colvis-'+col.nome">
-                  <label class="flex items-center gap-2 text-sm py-1"><input type="checkbox" :checked="colunasVisiveis[col.nome] !== false" @change="alternarColunaVisivel(col.nome)" /><span x-text="col.nomeTraduzido || col.nome"></span></label>
-                </template>
+          <!-- Cabeçalho da tabela -->
+          <div class="bg-white border-b p-3 shrink-0 space-y-2">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <h2 class="text-lg font-bold" x-text="tabelaSelecionada"></h2>
+              <div class="flex gap-1">
+                <button @click="alternarMostrarLabels()" :class="mostrarLabels ? 'bg-blue-100 text-primary' : 'bg-gray-100 text-gray-600'" class="px-2 py-1 rounded text-xs font-semibold">🏷️ Labels</button>
+                <button @click="popoverColunasAberto = !popoverColunasAberto" class="bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded text-xs font-semibold">👁️ Colunas</button>
+                <a :href="urlExportar('csv')" class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs font-semibold">📥 CSV</a>
+                <a :href="urlExportar('excel')" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs font-semibold">📊 Excel</a>
               </div>
             </div>
 
-            <button @click="alternarMostrarLabels()" class="text-sm border rounded px-2 py-1 hover:bg-gray-50" :aria-label="mostrarLabels ? 'Mostrar apenas IDs' : 'Mostrar nomes das referências'" :title="mostrarLabels ? 'Clique para mostrar apenas IDs' : 'Clique para mostrar nomes'" x-text="mostrarLabels ? '🏷️ Mostrar IDs' : '🏷️ Mostrar nomes'"></button>
+            <!-- Popover de colunas -->
+            <template x-if="popoverColunasAberto">
+              <div class="bg-gray-50 border rounded p-2 space-y-1 max-h-40 overflow-auto">
+                <template x-for="col in colunas" :key="col.nome">
+                  <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-gray-100 p-1 rounded">
+                    <input type="checkbox" :checked="colunasVisiveis[col.nome] !== false" @change="alternarColunaVisivel(col.nome)" class="w-4 h-4" />
+                    <span x-text="col.nomeTraduzido || col.nome"></span>
+                  </label>
+                </template>
+              </div>
+            </template>
 
-            <div class="ml-auto flex gap-2">
-              <a :href="urlExportar('csv')" class="inline-flex items-center gap-1 bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded-lg text-sm font-semibold">📥 CSV</a>
-              <a :href="urlExportar('xlsx')" class="inline-flex items-center gap-1 bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold">📥 Excel</a>
-            </div>
+            <!-- Filtros -->
+            <template x-if="Object.keys(filtrosAtivos).length > 0">
+              <div class="text-xs space-y-1">
+                <p class="font-semibold text-gray-700">Filtros ativos:</p>
+                <div class="flex flex-wrap gap-2">
+                  <template x-for="coluna in Object.keys(filtrosAtivos)" :key="coluna">
+                    <span class="bg-blue-100 text-primary px-2 py-1 rounded text-xs flex items-center gap-2">
+                      <span x-text="coluna + ': ' + filtrosAtivos[coluna].valor"></span>
+                      <button @click="removerFiltro(coluna)" class="hover:text-red-600">✕</button>
+                    </span>
+                  </template>
+                  <button @click="limparFiltros()" class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs hover:bg-red-200">Limpar filtros</button>
+                </div>
+              </div>
+            </template>
           </div>
 
-          <div class="flex-1 overflow-auto min-h-0">
-            <template x-if="carregandoDados"><div class="p-4 space-y-2"><div class="h-8 bg-gray-200 rounded animate-pulse w-full"></div><template x-for="i in 10"><div class="h-7 bg-gray-100 rounded animate-pulse w-full"></div></template></div></template>
-            <template x-if="!carregandoDados && linhas.length > 0">
-              <table class="min-w-max text-sm border-collapse">
+          <!-- Tabela de dados -->
+          <template x-if="carregandoDados">
+            <div class="p-4 space-y-2">
+              <div class="h-8 bg-gray-200 rounded animate-pulse w-full"></div>
+              <template x-for="i in 10">
+                <div class="h-7 bg-gray-100 rounded animate-pulse w-full"></div>
+              </template>
+            </div>
+          </template>
+
+          <template x-if="!carregandoDados && linhas.length > 0">
+            <div class="flex-1 overflow-auto min-h-0">
+              <table class="min-w-max text-sm border-collapse w-full">
                 <thead class="bg-gray-100 sticky top-0 z-20 shadow-sm">
                   <tr>
                     <template x-for="col in colunasExibidas" :key="col.nome">
@@ -280,121 +349,198 @@
                             <span x-show="ordenarColuna === col.nome && direcaoOrdem === 'asc'">▲</span>
                             <span x-show="ordenarColuna === col.nome && direcaoOrdem === 'desc'">▼</span>
                           </button>
-                          <div class="relative">
-                            <button @click.stop="abrirFiltro(col.nome)" :class="filtrosAtivos[col.nome] ? 'text-primary' : 'text-gray-300 opacity-0 group-hover:opacity-100'" class="hover:text-primary transition text-xs px-0.5" title="Filtrar">🔽</button>
-                            <div x-show="filtroAberto === col.nome" @click.outside="filtroAberto = null" class="absolute left-0 top-7 z-50 bg-white border rounded-lg shadow-xl p-3 w-60">
-                              <p class="text-xs font-semibold text-gray-500 mb-2" x-text="'Filtrar: ' + (col.nomeTraduzido || col.nome)"></p>
-                              <select x-model="filtroTemp.op" class="w-full border rounded px-2 py-1 text-sm mb-2">
-                                <option value="contem">Contém</option><option value="igual">É igual a</option><option value="diferente">É diferente de</option><option value="comeca_com">Começa com</option><option value="maior">Maior que</option><option value="menor">Menor que</option>
+                          <button @click="abrirFiltro(col.nome)" class="text-gray-400 hover:text-primary text-lg leading-none" :class="filtrosAtivos[col.nome] ? 'text-primary' : ''">⊙</button>
+                          <button @click="abrirStatsColuna(col.nome)" class="text-gray-400 hover:text-primary text-lg leading-none">≡</button>
+                        </div>
+                        <!-- Dropdown de filtro -->
+                        <template x-if="filtroAberto === col.nome">
+                          <div class="absolute mt-1 bg-white border rounded shadow-lg p-2 z-30 w-60">
+                            <p class="text-xs font-semibold text-gray-600 mb-1">Filtrar por <span x-text="col.nome"></span></p>
+                            <div class="flex gap-1 mb-2">
+                              <select x-model="filtroTemp.op" class="text-xs border rounded px-2 py-1 flex-1">
+                                <option value="contem">Contém</option>
+                                <option value="igual">Igual a</option>
+                                <option value="comeca">Começa com</option>
+                                <option value="termina">Termina com</option>
                               </select>
-                              <input type="text" x-model="filtroTemp.valor" @keyup.enter="aplicarFiltro(col.nome)" class="w-full border rounded px-2 py-1 text-sm mb-2" />
-                              <div class="flex gap-2"><button @click="aplicarFiltro(col.nome)" class="flex-1 bg-primary text-white rounded px-2 py-1 text-xs">Aplicar</button><button @click="filtroAberto = null" class="flex-1 border rounded px-2 py-1 text-xs">Cancelar</button></div>
+                            </div>
+                            <input type="text" x-model="filtroTemp.valor" placeholder="Valor..." class="text-xs w-full border rounded px-2 py-1 mb-2" @keyup.enter="aplicarFiltro(col.nome)" />
+                            <div class="flex gap-1">
+                              <button @click="aplicarFiltro(col.nome)" class="flex-1 text-xs bg-blue-600 text-white rounded px-2 py-1 hover:bg-blue-700">Filtrar</button>
+                              <button @click="filtroAberto = null" class="flex-1 text-xs bg-gray-200 rounded px-2 py-1 hover:bg-gray-300">Cancelar</button>
                             </div>
                           </div>
-
-                          <div class="relative">
-                            <button @click.stop="abrirStatsColuna(col.nome)" class="text-xs text-gray-400 hover:text-primary" title="Estatísticas">📊</button>
-                            <div x-show="statsAbertoColuna === col.nome" @click.outside="statsAbertoColuna=null" class="absolute left-0 top-7 z-50 bg-white border rounded-lg shadow-xl p-3 w-72 text-xs space-y-1">
-                              <template x-if="carregandoStats"><p>Carregando estatísticas...</p></template>
-                              <template x-if="!carregandoStats && statsColuna">
-                                <div>
-                                  <p>Não nulos: <strong x-text="formatarNumero(statsColuna.nao_nulos)"></strong></p>
-                                  <p>Distintos: <strong x-text="formatarNumero(statsColuna.distintos)"></strong></p>
-                                  <p>Mínimo: <strong x-text="statsColuna.minimo ?? '—'"></strong></p>
-                                  <p>Máximo: <strong x-text="statsColuna.maximo ?? '—'"></strong></p>
-                                  <p x-show="statsColuna.amostrado" class="text-amber-600">(Amostrado por volume alto)</p>
-                                  <p class="font-semibold mt-1">Top 5:</p>
-                                  <template x-for="item in statsColuna.top_5" :key="item.valor + '-' + item.quantidade"><p class="truncate" x-text="`${item.valor} (${item.quantidade})`"></p></template>
+                        </template>
+                        <!-- Stats -->
+                        <template x-if="statsAbertoColuna === col.nome && statsColuna">
+                          <div class="absolute mt-1 bg-white border rounded shadow-lg p-3 z-30 w-80 max-h-80 overflow-auto">
+                            <p class="text-xs font-bold text-gray-700 mb-2">Estatísticas: <span x-text="col.nome"></span></p>
+                            <div class="space-y-1 text-xs">
+                              <p><strong>Tipo:</strong> <span x-text="statsColuna.tipo || '?'"></span></p>
+                              <p><strong>Não-nulos:</strong> <span x-text="formatarNumero(statsColuna.nao_nulos || 0)"></span></p>
+                              <p><strong>Nulos:</strong> <span x-text="formatarNumero(statsColuna.nulos || 0)"></span></p>
+                              <p><strong>Únicos:</strong> <span x-text="formatarNumero(statsColuna.unicos || 0)"></span></p>
+                              <template x-if="statsColuna.minimo !== null">
+                                <p><strong>Mín/Máx:</strong> <span x-text="statsColuna.minimo + ' / ' + statsColuna.maximo"></span></p>
+                              </template>
+                              <template x-if="statsColuna.valores_top">
+                                <div class="mt-2 border-t pt-2">
+                                  <p class="font-bold mb-1">Top valores:</p>
+                                  <ul class="space-y-0.5">
+                                    <template x-for="(v, i) in statsColuna.valores_top" :key="i">
+                                      <li class="truncate" x-text="v"></li>
+                                    </template>
+                                  </ul>
                                 </div>
                               </template>
                             </div>
+                            <button @click="statsAbertoColuna = null" class="mt-2 w-full text-xs bg-gray-200 rounded px-2 py-1">Fechar</button>
                           </div>
-                        </div>
-                        <div class="text-[11px] text-gray-400" x-text="col.tipo"></div>
+                        </template>
                       </th>
                     </template>
+                    <th class="px-2 py-2 text-left text-xs text-gray-400 w-12">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <template x-for="(linha, idx) in linhas" :key="idx">
-                    <tr :class="idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'" class="hover:bg-blue-50 transition cursor-pointer" @click="abrirDetalheIndice(idx)">
+                  <template x-for="(linha, indice) in linhas" :key="indice">
+                    <tr :class="indice % 2 === 0 ? 'bg-white' : 'bg-gray-50'" class="hover:bg-blue-50">
                       <template x-for="col in colunasExibidas" :key="col.nome">
-                        <td class="px-3 py-1.5 text-gray-700 max-w-xs truncate border-b border-gray-100" :title="exibirValor(tabelaSelecionada, col.nome, linha[col.nome])">
-                          <template x-if="ehFkValido(col.nome, linha[col.nome])">
-                            <span>
-                              <button @click="abrirFk($event, tabelaSelecionada, col.nome, linha[col.nome])" class="text-primary underline" :title="`${col.nome} → ${fkAtualOuInferida(col.nome)?.tabela_referenciada}.${fkAtualOuInferida(col.nome)?.coluna_referenciada}`" x-text="exibirComLabel(tabelaSelecionada, col.nome, linha[col.nome])"></button>
-                              <template x-if="mostrarLabels && descricaoHumana(tabelaSelecionada, col.nome, linha[col.nome])">
-                                <span class="text-gray-400 text-xs ml-1" x-text="'(' + linha[col.nome] + ')'"></span>
-                              </template>
-                            </span>
-                          </template>
-                          <template x-if="!ehFkValido(col.nome, linha[col.nome])"><span x-text="exibirValor(tabelaSelecionada, col.nome, linha[col.nome])"></span></template>
+                        <td class="px-3 py-1.5 max-w-xs" :class="ehFkValido(col.nome, linha[col.nome]) ? 'cursor-pointer hover:bg-blue-200' : ''" @click="if(ehFkValido(col.nome, linha[col.nome])) abrirFk($event, tabelaSelecionada, col.nome, linha[col.nome])">
+                          <div :title="exibirValor(tabelaSelecionada, col.nome, linha[col.nome])">
+                            <span x-text="exibirComLabel(tabelaSelecionada, col.nome, linha[col.nome])"></span>
+                            <span x-show="ehFkValido(col.nome, linha[col.nome])" class="text-primary text-lg leading-none"> ⧉</span>
+                          </div>
                         </td>
                       </template>
+                      <td class="px-2 py-1.5">
+                        <button @click="abrirDetalheIndice(indice)" class="bg-primary text-white rounded px-2 py-1 text-xs hover:bg-blue-700">👁️</button>
+                      </td>
                     </tr>
                   </template>
                 </tbody>
               </table>
-            </template>
+            </div>
+          </template>
 
-            <template x-if="!carregandoDados && linhas.length === 0"><div class="flex flex-col items-center justify-center h-full py-16 text-gray-400"><div class="text-5xl mb-3">🗃️</div><p class="text-lg">Nenhum registro encontrado.</p></div></template>
-          </div>
+          <template x-if="!carregandoDados && linhas.length === 0">
+            <div class="p-6 text-center text-gray-500">
+              <p>Nenhum dado para exibir.</p>
+              <template x-if="Object.keys(filtrosAtivos).length > 0">
+                <button @click="limparFiltros()" class="mt-2 bg-blue-600 text-white px-3 py-1 rounded text-sm">Limpar filtros</button>
+              </template>
+            </div>
+          </template>
 
-          <div class="bg-white border-t px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-sm sticky bottom-0 z-10">
-            <div class="flex items-center gap-2"><span class="text-gray-500">Mostrar</span><select x-model.number="porPagina" @change="pagina = 1; carregarDados()" class="border rounded px-2 py-1 text-sm"><option value="25">25</option><option value="50">50</option><option value="100">100</option><option value="200">200</option><option value="500">500</option></select><span class="text-gray-500">por página</span></div>
-            <div class="flex items-center gap-2"><button @click="irPagina(pagina - 1)" :disabled="pagina <= 1" class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-40">◀ Anterior</button><span class="text-gray-600">Página <strong x-text="formatarNumero(pagina)"></strong> de <strong x-text="formatarNumero(totalPaginas)"></strong></span><button @click="irPagina(pagina + 1)" :disabled="pagina >= totalPaginas" class="px-3 py-1 border rounded hover:bg-gray-100 disabled:opacity-40">Próxima ▶</button></div>
+          <!-- Paginação fixa no fundo -->
+          <div class="bg-white border-t px-4 py-2 flex flex-wrap items-center justify-center gap-2 shrink-0">
+            <button @click="irPagina(1)" :disabled="pagina <= 1" class="bg-gray-200 hover:bg-gray-300 disabled:opacity-50 px-2 py-1 rounded text-xs">⊲⊲ Primeira</button>
+            <button @click="irPagina(pagina - 1)" :disabled="pagina <= 1" class="bg-gray-200 hover:bg-gray-300 disabled:opacity-50 px-2 py-1 rounded text-xs">⊲ Anterior</button>
+            <input type="number" x-model.number="pagina" @change="irPagina(pagina)" min="1" :max="totalPaginas" class="border rounded px-2 py-1 text-xs w-16" />
+            <span class="text-xs text-gray-600" x-text="`de ${totalPaginas}`"></span>
+            <button @click="irPagina(pagina + 1)" :disabled="pagina >= totalPaginas" class="bg-gray-200 hover:bg-gray-300 disabled:opacity-50 px-2 py-1 rounded text-xs">Próxima ⊳</button>
+            <button @click="irPagina(totalPaginas)" :disabled="pagina >= totalPaginas" class="bg-gray-200 hover:bg-gray-300 disabled:opacity-50 px-2 py-1 rounded text-xs">Última ⊳⊳</button>
+            <span class="text-xs text-gray-600 ml-auto" x-text="`${formatarNumero(totalRegistros)} registros no total`"></span>
           </div>
         </div>
       </template>
-    </main>
-  </div>
 
-  <div x-show="detalheAberto" x-transition class="fixed inset-0 bg-black/40 z-50 flex justify-end" @click.self="fecharDetalhe()">
-    <div class="w-full max-w-2xl h-full bg-white shadow-xl flex flex-col">
-      <div class="p-4 border-b flex items-center gap-2">
-        <h3 class="font-semibold text-lg">Detalhe do registro</h3>
-        <span class="text-sm text-gray-500" x-text="detalheTabela"></span>
-        <div class="ml-auto flex gap-2">
-          <button @click="navegarDetalhe(-1)" class="px-2 py-1 border rounded">←</button>
-          <button @click="navegarDetalhe(1)" class="px-2 py-1 border rounded">→</button>
-          <button @click="fecharDetalhe()" class="px-2 py-1 border rounded">Fechar</button>
-        </div>
-      </div>
-      <div class="p-4 overflow-auto space-y-3" x-ref="modalDetalhe">
-        <template x-for="campo in detalheCampos" :key="campo.nome">
-          <div class="border rounded p-3">
-            <div class="flex items-center gap-2 mb-2">
-              <p class="text-sm font-semibold text-gray-700" x-text="traduzirColuna(campo.nome)"></p>
-              <template x-if="fkDeTabela(detalheTabela, campo.nome) || fkInferidaDeTabela(detalheTabela, campo.nome)">
-                <span>
-                  <button @click="abrirFk($event, detalheTabela, campo.nome, campo.valor)" class="text-xs text-primary underline" :title="`${campo.nome} → ${(fkDeTabela(detalheTabela, campo.nome) || fkInferidaDeTabela(detalheTabela, campo.nome))?.tabela_referenciada}.${(fkDeTabela(detalheTabela, campo.nome) || fkInferidaDeTabela(detalheTabela, campo.nome))?.coluna_referenciada}`">Abrir referência</button>
-                  <template x-if="mostrarLabels && labelParaValor((fkDeTabela(detalheTabela, campo.nome) || fkInferidaDeTabela(detalheTabela, campo.nome))?.tabela_referenciada, campo.valor)">
-                    <span class="text-xs text-gray-500 ml-1" x-text="'→ ' + labelParaValor((fkDeTabela(detalheTabela, campo.nome) || fkInferidaDeTabela(detalheTabela, campo.nome))?.tabela_referenciada, campo.valor)"></span>
-                  </template>
-                </span>
+      <!-- RESULTADOS SQL -->
+      <template x-if="!mostrarBusca && abaAtiva==='sql'">
+        <div class="flex flex-col h-full min-h-0">
+          <template x-if="sqlCarregando">
+            <div class="p-4 space-y-2">
+              <div class="h-8 bg-gray-200 rounded animate-pulse w-full"></div>
+              <template x-for="i in 10">
+                <div class="h-7 bg-gray-100 rounded animate-pulse w-full"></div>
               </template>
-              <button @click="copiarValor(campo.valor)" class="ml-auto text-xs border rounded px-2 py-1">Copiar valor</button>
+            </div>
+          </template>
+
+          <template x-if="!sqlCarregando && sqlResultado">
+            <div class="flex-1 overflow-auto min-h-0">
+              <template x-if="sqlResultado.linhas && sqlResultado.linhas.length > 0">
+                <table class="min-w-max text-sm border-collapse">
+                  <thead class="bg-gray-100 sticky top-0 z-20">
+                    <tr>
+                      <template x-for="col in sqlResultado.colunas || []" :key="col">
+                        <th class="px-3 py-2 text-left font-semibold text-gray-600 whitespace-nowrap border-b border-gray-200" x-text="col"></th>
+                      </template>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <template x-for="(linha, idx) in sqlLinhasPaginadas" :key="idx">
+                      <tr :class="idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
+                        <template x-for="col in sqlResultado.colunas || []" :key="col">
+                          <td class="px-3 py-1.5 max-w-xs overflow-auto" :title="valorTexto(linha[col])" x-text="valorFormatado(linha[col])"></td>
+                        </template>
+                      </tr>
+                    </template>
+                  </tbody>
+                </table>
+              </template>
+              <template x-if="!sqlResultado.linhas || sqlResultado.linhas.length === 0">
+                <p class="p-4 text-gray-500">Nenhum resultado retornado.</p>
+              </template>
             </div>
 
-            <template x-if="ehUrl(valorTexto(campo.valor))">
-              <a :href="valorTexto(campo.valor)" target="_blank" rel="noopener" class="text-primary underline break-all" x-text="valorTexto(campo.valor)"></a>
-            </template>
-            <template x-if="!ehUrl(valorTexto(campo.valor))">
-              <pre class="bg-gray-50 rounded p-2 text-xs overflow-auto"><code :class="classeCodigo(campo.valor)" x-text="valorDetalhe(detalheTabela, campo.nome, campo.valor)"></code></pre>
+            <div class="bg-white border-t px-4 py-2 flex flex-wrap items-center justify-center gap-2 shrink-0">
+              <button @click="irPaginaSql(-Math.floor(sqlTotalPaginas))" :disabled="sqlPagina <= 1" class="bg-gray-200 hover:bg-gray-300 disabled:opacity-50 px-2 py-1 rounded text-xs">⊲⊲</button>
+              <button @click="irPaginaSql(-1)" :disabled="sqlPagina <= 1" class="bg-gray-200 hover:bg-gray-300 disabled:opacity-50 px-2 py-1 rounded text-xs">⊲</button>
+              <span class="text-xs text-gray-600" x-text="`Página ${sqlPagina} de ${sqlTotalPaginas}`"></span>
+              <button @click="irPaginaSql(1)" :disabled="sqlPagina >= sqlTotalPaginas" class="bg-gray-200 hover:bg-gray-300 disabled:opacity-50 px-2 py-1 rounded text-xs">⊳</button>
+              <button @click="irPaginaSql(Math.floor(sqlTotalPaginas))" :disabled="sqlPagina >= sqlTotalPaginas" class="bg-gray-200 hover:bg-gray-300 disabled:opacity-50 px-2 py-1 rounded text-xs">⊳⊳</button>
+            </div>
+          </template>
+        </div>
+      </template>
+    </main>
+
+    <!-- MODAL DE DETALHE -->
+    <template x-if="detalheAberto">
+      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-96 overflow-auto">
+          <div class="sticky top-0 bg-gradient-to-r from-primary to-blue-700 text-white px-6 py-3 flex items-center justify-between">
+            <div>
+              <p class="text-xs opacity-80" x-text="detalheTabela"></p>
+              <h3 class="text-lg font-bold">Detalhes do Registro</h3>
+            </div>
+            <div class="flex gap-2">
+              <button @click="navegarDetalhe(-1)" :disabled="detalheIndiceContexto <= 0" class="px-2 py-1 bg-white bg-opacity-20 hover:bg-opacity-40 rounded text-sm disabled:opacity-40">← Anterior</button>
+              <button @click="navegarDetalhe(1)" :disabled="detalheIndiceContexto >= detalheLinhasContexto.length - 1" class="px-2 py-1 bg-white bg-opacity-20 hover:bg-opacity-40 rounded text-sm disabled:opacity-40">Próximo →</button>
+              <button @click="fecharDetalhe()" class="px-2 py-1 bg-white bg-opacity-20 hover:bg-opacity-40 rounded text-sm">✕</button>
+            </div>
+          </div>
+
+          <div class="p-6 space-y-4 max-h-80 overflow-auto">
+            <template x-for="campo in detalheCampos" :key="campo.nome">
+              <div class="space-y-1">
+                <p class="text-xs font-bold text-gray-600 uppercase" x-text="traduzirColuna(campo.nome)"></p>
+                <template x-if="ehJson(valorTexto(campo.valor))">
+                  <pre class="bg-gray-100 p-2 rounded text-xs overflow-auto max-h-32" x-text="valorFormatado(campo.valor)"></pre>
+                </template>
+                <template x-if="ehUrl(valorTexto(campo.valor))">
+                  <a :href="valorTexto(campo.valor)" target="_blank" class="text-blue-600 hover:underline text-sm break-all" x-text="valorTexto(campo.valor)"></a>
+                </template>
+                <template x-if="!ehJson(valorTexto(campo.valor)) && !ehUrl(valorTexto(campo.valor))">
+                  <p class="text-sm break-words" x-text="valorFormatado(campo.valor)"></p>
+                </template>
+              </div>
             </template>
           </div>
-        </template>
+        </div>
       </div>
-    </div>
-  </div>
+    </template>
 
-  <div x-show="mensagemErro" x-transition class="fixed bottom-4 right-4 bg-red-600 text-white px-4 py-3 rounded-lg shadow-lg z-50 max-w-sm flex items-start gap-2">
-    <span class="text-xl">⚠️</span>
-    <div><p class="font-semibold text-sm">Ocorreu um erro</p><p class="text-xs mt-0.5" x-text="mensagemErro"></p></div>
-    <button @click="mensagemErro = null" class="ml-2 text-red-200 hover:text-white">✕</button>
+    <!-- MENSAGEM DE ERRO -->
+    <template x-if="mensagemErro">
+      <div class="fixed bottom-4 right-4 bg-red-500 text-white rounded-lg shadow-lg px-4 py-3 max-w-sm">
+        <p class="text-sm" x-text="mensagemErro"></p>
+      </div>
+    </template>
   </div>
-
 </div>
+
 <script src="/static/app.js"></script>
 </body>
 </html>
