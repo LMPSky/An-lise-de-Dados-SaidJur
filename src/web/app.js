@@ -2,7 +2,7 @@
  * Lógica principal do Visualizador de Dados SaidJur
  * Usa Alpine.js para reatividade sem build step.
  * 
- * ✅ COM TRADUÇÕES DE COLUNAS
+ * ✅ COM TRADUÇÕES DE COLUNAS (COMPLETAS)
  * ✅ COM SCROLL/PAGINAÇÃO FIXOS NO TOPO
  * ✅ COM FORMATAÇÃO MELHORADA
  */
@@ -34,8 +34,12 @@ const TRADUCOES_COLUNAS = {
   'user_id': 'ID do Usuário',
   'lawsuit_id': 'ID do Processo',
   'hearing_id': 'ID da Audiência',
+  'hearingcontrol_id': 'ID Controle Audiência',
   'from_automatic_prazoid': 'ID do Prazo Automático',
   'fromhearingcontrolid': 'ID do Controle de Audiência',
+  'prazoid': 'ID Prazo',
+  'expedientfileid': 'ID Arquivo Expediente',
+  'remote': 'Remoto',
   
   // Status e tipos
   'status': 'Status',
@@ -53,8 +57,11 @@ const TRADUCOES_COLUNAS = {
   'code': 'Código',
   'number': 'Número',
   'value': 'Valor',
+  'amount': 'Valor',
   'filename': 'Nome do Arquivo',
   'lawsuitnumber': 'Número do Processo',
+  'location': 'Localização',
+  'judgement': 'Sentença',
   
   // Campos jurídicos
   'lawsuit': 'Processo',
@@ -65,10 +72,12 @@ const TRADUCOES_COLUNAS = {
   'vara': 'Vara',
   'court': 'Tribunal',
   'city': 'Cidade',
+  'state': 'Estado',
   'paper': 'Papel',
   'link': 'Link',
   'observations': 'Observações',
   'observations_userid': 'Usuário das Observações',
+  'obs': 'Observação',
   
   // Campos específicos
   'agreement_viable': 'Acordo Viável',
@@ -119,6 +128,9 @@ const TRADUCOES_COLUNAS = {
   'archived': 'Arquivado',
   'visible': 'Visível',
   'enabled': 'Habilitado',
+  'canceled': 'Cancelado',
+  'rescheduled': 'Reagendado',
+  'sinedie': 'Sem Hora Marcada',
   
   // Comunicação
   'email': 'E-mail',
@@ -126,6 +138,8 @@ const TRADUCOES_COLUNAS = {
   'message': 'Mensagem',
   'subject': 'Assunto',
   'content': 'Conteúdo',
+  'text': 'Texto',
+  'recipienttype': 'Tipo de Destinatário',
   
   // Adicionais
   'url': 'URL',
@@ -134,6 +148,8 @@ const TRADUCOES_COLUNAS = {
   'comments': 'Comentários',
   'notes': 'Notas',
   'details': 'Detalhes',
+  'reason': 'Motivo',
+  'active': 'Ativo',
 };
 
 /**
@@ -346,19 +362,28 @@ function app() {
      * ✅ NOVO: Configura scroll fixo para paginação
      */
     configurarScrollFixo() {
+      // Usar requestAnimationFrame para melhor performance
+      let ticking = false;
+      
       window.addEventListener('scroll', () => {
-        const pagination = document.querySelector('.pagination, .pagination-container');
-        if (pagination) {
-          if (window.scrollY > 60) {
-            pagination.style.position = 'fixed';
-            pagination.style.top = '60px';
-            pagination.style.zIndex = '99';
-            pagination.style.width = '100%';
-            pagination.style.left = '0';
-          } else {
-            pagination.style.position = 'sticky';
-            pagination.style.top = '60px';
-          }
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            const paginacao = document.querySelector('.bg-white.border-t.px-4.py-2.flex.flex-wrap');
+            if (paginacao) {
+              if (window.scrollY > 100) {
+                paginacao.style.position = 'fixed';
+                paginacao.style.bottom = '0';
+                paginacao.style.left = '0';
+                paginacao.style.right = '0';
+                paginacao.style.zIndex = '50';
+                paginacao.style.width = '100%';
+              } else {
+                paginacao.style.position = 'relative';
+              }
+            }
+            ticking = false;
+          });
+          ticking = true;
         }
       });
     },
