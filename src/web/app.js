@@ -1,7 +1,181 @@
 /**
  * Lógica principal do Visualizador de Dados SaidJur
  * Usa Alpine.js para reatividade sem build step.
+ * 
+ * ✅ COM TRADUÇÕES DE COLUNAS
+ * ✅ COM SCROLL/PAGINAÇÃO FIXOS NO TOPO
+ * ✅ COM FORMATAÇÃO MELHORADA
  */
+
+// ──────────────────────────────────────────────────────────────────────────
+// TRADUÇÃO DE NOMES DE COLUNAS
+// ──────────────────────────────────────────────────────────────────────────
+
+const TRADUCOES_COLUNAS = {
+  // Campos de data/hora
+  'created_at': 'Data de Criação',
+  'updated_at': 'Data de Atualização',
+  'deleted_at': 'Data de Exclusão',
+  'inserted_at': 'Data de Inserção',
+  'timestamp': 'Data/Hora',
+  'date_inserted': 'Data de Inserção',
+  'date': 'Data',
+  'datemoved': 'Data de Movimentação',
+  'processing_date': 'Data de Processamento',
+  'effectivedate': 'Data Efetiva',
+  'instructionsdate': 'Data das Instruções',
+  'instructionsinsertdate': 'Data de Inserção das Instruções',
+  'instructionstimestamp': 'Timestamp das Instruções',
+  'naf_userid_date': 'Data do Usuário NAF',
+  'updated_at_userid': 'Usuário da Atualização',
+  
+  // IDs
+  'id': 'ID',
+  'user_id': 'ID do Usuário',
+  'lawsuit_id': 'ID do Processo',
+  'hearing_id': 'ID da Audiência',
+  'from_automatic_prazoid': 'ID do Prazo Automático',
+  'fromhearingcontrolid': 'ID do Controle de Audiência',
+  
+  // Status e tipos
+  'status': 'Status',
+  'type': 'Tipo',
+  'nature': 'Natureza',
+  'phase': 'Fase',
+  'result': 'Resultado',
+  'aut_event': 'Evento Automático',
+  'hearing': 'Audiência',
+  'from_lawsuit': 'Originário de Processo',
+  
+  // Nomes descritivos
+  'name': 'Nome',
+  'description': 'Descrição',
+  'code': 'Código',
+  'number': 'Número',
+  'value': 'Valor',
+  'filename': 'Nome do Arquivo',
+  'lawsuitnumber': 'Número do Processo',
+  
+  // Campos jurídicos
+  'lawsuit': 'Processo',
+  'plaintiff': 'Autor',
+  'defendant': 'Réu',
+  'lawyer': 'Advogado',
+  'judge': 'Juiz',
+  'vara': 'Vara',
+  'court': 'Tribunal',
+  'city': 'Cidade',
+  'paper': 'Papel',
+  'link': 'Link',
+  'observations': 'Observações',
+  'observations_userid': 'Usuário das Observações',
+  
+  // Campos específicos
+  'agreement_viable': 'Acordo Viável',
+  'markup_necessary': 'Markup Necessário',
+  'markup_approved': 'Markup Aprovado',
+  'pericia': 'Perícia',
+  'pericia_result': 'Resultado da Perícia',
+  'prazo': 'Prazo',
+  'publication': 'Publicação',
+  'expedient': 'Expediente',
+  'expedientfile': 'Arquivo de Expediente',
+  'expedientfileobs': 'Observação de Arquivo de Expediente',
+  'expedientprotocoldate': 'Data do Protocolo de Expediente',
+  'instructions': 'Instruções',
+  'instructions_resp': 'Responsável das Instruções',
+  'instructions_respfinish': 'Conclusão Responsável Instruções',
+  'instructions_sent': 'Instruções Enviadas',
+  'instructionsstatus': 'Status das Instruções',
+  'instructionstimestamp_userid': 'Usuário do Timestamp Instruções',
+  'containsprazo': 'Contém Prazo',
+  'noprazoemailsent01': 'Email Sem Prazo Enviado',
+  'revised': 'Revisado',
+  'sent': 'Enviado',
+  'naf': 'NAF',
+  'naf_userid': 'Usuário NAF',
+  'analise_prov': 'Análise Provisória',
+  'analise_prov_hearingid': 'ID Audiência Análise Provisória',
+  'acomp_encerramento': 'Acompanhamento Encerramento',
+  'sentence': 'Sentença',
+  'objecttype': 'Tipo de Objeto',
+  'exprovas': 'Exceção Provas',
+  'cumsen': 'Cumprimento Sentença',
+  'exccj': 'Exceção CCJ',
+  'acum': 'Acumulação',
+  'exfis': 'Exceção Fiscal',
+  'extiex': 'Exceção TIEX',
+  'cartprecciv': 'Cartório Precedência Civil',
+  'disconsider': 'Desconsiderar',
+  'deleted': 'Excluído',
+  'deleted_at_userid': 'Usuário da Exclusão',
+  'user_changed_lawsuit': 'Processo Alterado por Usuário',
+  'av_clientid': 'ID Cliente Avaliação',
+  'includeexpedient': 'Incluir Expediente',
+  'cpfl_spreadsheet_import': 'Importação Planilha CPFL',
+  
+  // Booleanos
+  'active': 'Ativo',
+  'archived': 'Arquivado',
+  'visible': 'Visível',
+  'enabled': 'Habilitado',
+  
+  // Comunicação
+  'email': 'E-mail',
+  'phone': 'Telefone',
+  'message': 'Mensagem',
+  'subject': 'Assunto',
+  'content': 'Conteúdo',
+  
+  // Adicionais
+  'url': 'URL',
+  'path': 'Caminho',
+  'reference': 'Referência',
+  'comments': 'Comentários',
+  'notes': 'Notas',
+  'details': 'Detalhes',
+};
+
+/**
+ * Traduz nome da coluna para português
+ */
+function traduzirNomeColuna(nomeColuna) {
+  if (!nomeColuna) return nomeColuna;
+  
+  // Tradução direta
+  if (TRADUCOES_COLUNAS[nomeColuna]) {
+    return TRADUCOES_COLUNAS[nomeColuna];
+  }
+  
+  // Tentar traduzir partes (para nomes compostos)
+  const partes = nomeColuna.toLowerCase().split('_');
+  const partesTraduzidas = [];
+  
+  for (const parte of partes) {
+    if (TRADUCOES_COLUNAS[parte]) {
+      partesTraduzidas.push(TRADUCOES_COLUNAS[parte]);
+    } else {
+      partesTraduzidas.push(parte.charAt(0).toUpperCase() + parte.slice(1).toLowerCase());
+    }
+  }
+  
+  return partesTraduzidas.join(' ');
+}
+
+/**
+ * Formata nome removendo underscores e capitalizando
+ */
+function formatarNome(nome) {
+  return nome
+    .replace(/_/g, ' ')
+    .split(' ')
+    .map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase())
+    .join(' ');
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// APP PRINCIPAL
+// ──────────────────────────────────────────────────────────────────────────
 
 function app() {
   return {
@@ -24,6 +198,7 @@ function app() {
 
     // ── Dados da tabela ───────────────────────────────────────────
     colunas: [],
+    colunasOriginais: [], // ✅ NOVO: guardar nomes originais
     linhas: [],
     totalRegistros: 0,
     pagina: 1,
@@ -125,13 +300,67 @@ function app() {
       return Math.max(1, Math.ceil(total / this.sqlPorPagina));
     },
 
+    // ──────────────────────────────────────────────────────────────
+    // ✅ NOVAS FUNÇÕES DE TRADUÇÃO
+    // ──────────────────────────────────────────────────────────────
+
+    /**
+     * Traduz nome de coluna original para português
+     */
+    traduzirColuna(nomeOriginal) {
+      return traduzirNomeColuna(nomeOriginal);
+    },
+
+    /**
+     * Obtém nome traduzido de uma coluna pelo índice
+     */
+    obterNomeColunaTraduzido(indice) {
+      if (!this.colunasOriginais || !this.colunasOriginais[indice]) return '?';
+      return this.traduzirColuna(this.colunasOriginais[indice].nome);
+    },
+
+    /**
+     * Converte array de colunas com tradução
+     */
+    traduzirListaColunas(colunas) {
+      return colunas.map(col => ({
+        ...col,
+        nomeTraduzido: this.traduzirColuna(col.nome || col),
+      }));
+    },
+
     // ── Inicialização ─────────────────────────────────────────────
 
     async iniciar() {
       this.carregarPreferenciasLocal();
       this.sqlHistorico = this.lerJsonLocal('saidjur_sql_historico', []);
+      
+      // ✅ Fixar paginação no topo durante scroll
+      this.configurarScrollFixo();
+      
       await Promise.all([this.carregarTabelas(), this.carregarDashboard(), this.carregarDicionarios()]);
       window.addEventListener('keydown', (event) => this.atalhosTeclado(event));
+    },
+
+    /**
+     * ✅ NOVO: Configura scroll fixo para paginação
+     */
+    configurarScrollFixo() {
+      window.addEventListener('scroll', () => {
+        const pagination = document.querySelector('.pagination, .pagination-container');
+        if (pagination) {
+          if (window.scrollY > 60) {
+            pagination.style.position = 'fixed';
+            pagination.style.top = '60px';
+            pagination.style.zIndex = '99';
+            pagination.style.width = '100%';
+            pagination.style.left = '0';
+          } else {
+            pagination.style.position = 'sticky';
+            pagination.style.top = '60px';
+          }
+        }
+      });
     },
 
     // ── Persistência local ───────────────────────────────────────
@@ -237,6 +466,7 @@ function app() {
       this.statsAbertoColuna = null;
       this.linhas = [];
       this.colunas = [];
+      this.colunasOriginais = []; // ✅ NOVO
       this.totalRegistros = 0;
 
       await Promise.all([
@@ -252,7 +482,12 @@ function app() {
       try {
         const res = await fetch(`/api/tabelas/${encodeURIComponent(nome)}/colunas`);
         if (!res.ok) throw new Error(await res.text());
-        this.colunas = await res.json();
+        const colunasCarregadas = await res.json();
+        
+        // ✅ NOVO: guardar nomes originais e traduzir
+        this.colunasOriginais = colunasCarregadas;
+        this.colunas = this.traduzirListaColunas(colunasCarregadas);
+        
         this.aplicarPreferenciasColunas(nome);
       } catch {
         this.exibirErro('Não foi possível carregar as colunas desta tabela.');
@@ -262,7 +497,7 @@ function app() {
     aplicarPreferenciasColunas(nomeTabela) {
       const salva = this.lerJsonLocal(this.chaveColunasTabela(nomeTabela), null);
       const novo = {};
-      const nomesColunas = this.colunas.map(c => c.nome);
+      const nomesColunas = this.colunasOriginais.map(c => c.nome);
       for (const col of nomesColunas) {
         novo[col] = salva && Object.prototype.hasOwnProperty.call(salva, col) ? salva[col] : true;
       }
@@ -344,7 +579,6 @@ function app() {
       if (!tabela || !linhas?.length) return;
       await this.garantirMetadadosTabela(tabela);
 
-      // Coletar todas as FKs (declaradas + inferidas)
       const todasFks = {
         ...(this.fksPorTabela[tabela] || {}),
         ...(this.fksInferidas[tabela] || {}),
@@ -509,6 +743,8 @@ function app() {
       if (nova < 1 || nova > this.totalPaginas) return;
       this.pagina = nova;
       this.carregarDados();
+      // ✅ Scroll para topo após mudar página
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     },
 
     // ── Ordenação ─────────────────────────────────────────────────
@@ -687,7 +923,7 @@ function app() {
       this.abrirDetalheRegistro({
         tabela: this.tabelaSelecionada,
         registro: this.linhas[indice],
-        colunas: this.colunas,
+        colunas: this.colunasOriginais,
         contextoLinhas: this.linhas,
         indice,
       });
@@ -776,7 +1012,6 @@ function app() {
 
     ehData(texto) {
       if (!texto) return false;
-      // 10 dígitos: timestamp Unix em segundos; 13 dígitos: milissegundos.
       if (/^\d{4}-\d{2}-\d{2}/.test(texto) || /^\d{10,13}$/.test(texto)) return !Number.isNaN(new Date(texto).getTime());
       return false;
     },
@@ -846,8 +1081,6 @@ function app() {
     },
 
     extrairTabelaPrincipalSql(query) {
-      // Heurística best-effort para SELECTs simples; joins/CTEs complexos podem não
-      // fornecer contexto suficiente para tradução automática de códigos.
       const match = query.match(/\bfrom\s+(?:[`"]?[a-zA-Z0-9_]+[`"]?\.)?[`"]?([a-zA-Z0-9_]+)[`"]?/i);
       return match ? match[1] : null;
     },
@@ -856,6 +1089,7 @@ function app() {
       const nova = this.sqlPagina + delta;
       if (nova < 1 || nova > this.sqlTotalPaginas) return;
       this.sqlPagina = nova;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     },
 
     // ── Exportação ────────────────────────────────────────────────
