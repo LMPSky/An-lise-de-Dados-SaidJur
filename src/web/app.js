@@ -2,7 +2,7 @@
  * Lógica principal do Visualizador de Dados SaidJur
  * Usa Alpine.js para reatividade sem build step.
  * 
- * ✅ COM TRADUÇÕES DE COLUNAS (COMPLETAS)
+ * ✅ COM TRADUÇÕES DE COLUNAS (carregadas do backend via /api/traducoes/colunas)
  * ✅ COM SCROLL/PAGINAÇÃO FIXOS NO TOPO
  * ✅ COM EXPORTAÇÃO DE RESULTADOS DE BUSCA
  * ✅ COM FORMATAÇÃO MELHORADA
@@ -10,148 +10,12 @@
 
 // ──────────────────────────────────────────────────────────────────────────
 // TRADUÇÃO DE NOMES DE COLUNAS
+// As traduções são carregadas do endpoint GET /api/traducoes/colunas durante
+// a inicialização do app. Este módulo NÃO mantém uma cópia local do dicionário
+// — a fonte canônica é src/traducoes_colunas.py no backend.
 // ──────────────────────────────────────────────────────────────────────────
 
-const TRADUCOES_COLUNAS = {
-  // Campos de data/hora
-  'created_at': 'Data de Criação',
-  'updated_at': 'Data de Atualização',
-  'deleted_at': 'Data de Exclusão',
-  'inserted_at': 'Data de Inserção',
-  'timestamp': 'Data/Hora',
-  'date_inserted': 'Data de Inserção',
-  'date': 'Data',
-  'datemoved': 'Data de Movimentação',
-  'processing_date': 'Data de Processamento',
-  'effectivedate': 'Data Efetiva',
-  'instructionsdate': 'Data das Instruções',
-  'instructionsinsertdate': 'Data de Inserção das Instruções',
-  'instructionstimestamp': 'Timestamp das Instruções',
-  'naf_userid_date': 'Data do Usuário NAF',
-  'updated_at_userid': 'Usuário da Atualização',
-  
-  // IDs
-  'id': 'ID',
-  'user_id': 'ID do Usuário',
-  'lawsuit_id': 'ID do Processo',
-  'hearing_id': 'ID da Audiência',
-  'hearingcontrol_id': 'ID Controle Audiência',
-  'from_automatic_prazoid': 'ID do Prazo Automático',
-  'fromhearingcontrolid': 'ID do Controle de Audiência',
-  'prazoid': 'ID Prazo',
-  'expedientfileid': 'ID Arquivo Expediente',
-  'remote': 'Remoto',
-  
-  // Status e tipos
-  'status': 'Status',
-  'type': 'Tipo',
-  'nature': 'Natureza',
-  'phase': 'Fase',
-  'result': 'Resultado',
-  'aut_event': 'Evento Automático',
-  'hearing': 'Audiência',
-  'from_lawsuit': 'Originário de Processo',
-  
-  // Nomes descritivos
-  'name': 'Nome',
-  'description': 'Descrição',
-  'code': 'Código',
-  'number': 'Número',
-  'value': 'Valor',
-  'amount': 'Valor',
-  'filename': 'Nome do Arquivo',
-  'lawsuitnumber': 'Número do Processo',
-  'location': 'Localização',
-  'judgement': 'Sentença',
-  
-  // Campos jurídicos
-  'lawsuit': 'Processo',
-  'plaintiff': 'Autor',
-  'defendant': 'Réu',
-  'lawyer': 'Advogado',
-  'judge': 'Juiz',
-  'vara': 'Vara',
-  'court': 'Tribunal',
-  'city': 'Cidade',
-  'state': 'Estado',
-  'paper': 'Papel',
-  'link': 'Link',
-  'observations': 'Observações',
-  'observations_userid': 'Usuário das Observações',
-  'obs': 'Observação',
-  
-  // Campos específicos
-  'agreement_viable': 'Acordo Viável',
-  'markup_necessary': 'Markup Necessário',
-  'markup_approved': 'Markup Aprovado',
-  'pericia': 'Perícia',
-  'pericia_result': 'Resultado da Perícia',
-  'prazo': 'Prazo',
-  'publication': 'Publicação',
-  'expedient': 'Expediente',
-  'expedientfile': 'Arquivo de Expediente',
-  'expedientfileobs': 'Observação de Arquivo de Expediente',
-  'expedientprotocoldate': 'Data do Protocolo de Expediente',
-  'instructions': 'Instruções',
-  'instructions_resp': 'Responsável das Instruções',
-  'instructions_respfinish': 'Conclusão Responsável Instruções',
-  'instructions_sent': 'Instruções Enviadas',
-  'instructionsstatus': 'Status das Instruções',
-  'instructionstimestamp_userid': 'Usuário do Timestamp Instruções',
-  'containsprazo': 'Contém Prazo',
-  'noprazoemailsent01': 'Email Sem Prazo Enviado',
-  'revised': 'Revisado',
-  'sent': 'Enviado',
-  'naf': 'NAF',
-  'naf_userid': 'Usuário NAF',
-  'analise_prov': 'Análise Provisória',
-  'analise_prov_hearingid': 'ID Audiência Análise Provisória',
-  'acomp_encerramento': 'Acompanhamento Encerramento',
-  'sentence': 'Sentença',
-  'objecttype': 'Tipo de Objeto',
-  'exprovas': 'Exceção Provas',
-  'cumsen': 'Cumprimento Sentença',
-  'exccj': 'Exceção CCJ',
-  'acum': 'Acumulação',
-  'exfis': 'Exceção Fiscal',
-  'extiex': 'Exceção TIEX',
-  'cartprecciv': 'Cartório Precedência Civil',
-  'disconsider': 'Desconsiderar',
-  'deleted': 'Excluído',
-  'deleted_at_userid': 'Usuário da Exclusão',
-  'user_changed_lawsuit': 'Processo Alterado por Usuário',
-  'av_clientid': 'ID Cliente Avaliação',
-  'includeexpedient': 'Incluir Expediente',
-  'cpfl_spreadsheet_import': 'Importação Planilha CPFL',
-  
-  // Booleanos
-  'active': 'Ativo',
-  'archived': 'Arquivado',
-  'visible': 'Visível',
-  'enabled': 'Habilitado',
-  'canceled': 'Cancelado',
-  'rescheduled': 'Reagendado',
-  'sinedie': 'Sem Hora Marcada',
-  
-  // Comunicação
-  'email': 'E-mail',
-  'phone': 'Telefone',
-  'message': 'Mensagem',
-  'subject': 'Assunto',
-  'content': 'Conteúdo',
-  'text': 'Texto',
-  'recipienttype': 'Tipo de Destinatário',
-  
-  // Adicionais
-  'url': 'URL',
-  'path': 'Caminho',
-  'reference': 'Referência',
-  'comments': 'Comentários',
-  'notes': 'Notas',
-  'details': 'Detalhes',
-  'reason': 'Motivo',
-  'active': 'Ativo',
-};
+let _traducoesColunas = {};
 
 /**
  * Traduz nome da coluna para português
@@ -160,8 +24,8 @@ function traduzirNomeColuna(nomeColuna) {
   if (!nomeColuna) return nomeColuna;
   
   // Tradução direta
-  if (TRADUCOES_COLUNAS[nomeColuna]) {
-    return TRADUCOES_COLUNAS[nomeColuna];
+  if (_traducoesColunas[nomeColuna]) {
+    return _traducoesColunas[nomeColuna];
   }
   
   // Tentar traduzir partes (para nomes compostos)
@@ -169,8 +33,8 @@ function traduzirNomeColuna(nomeColuna) {
   const partesTraduzidas = [];
   
   for (const parte of partes) {
-    if (TRADUCOES_COLUNAS[parte]) {
-      partesTraduzidas.push(TRADUCOES_COLUNAS[parte]);
+    if (_traducoesColunas[parte]) {
+      partesTraduzidas.push(_traducoesColunas[parte]);
     } else {
       partesTraduzidas.push(parte.charAt(0).toUpperCase() + parte.slice(1).toLowerCase());
     }
@@ -382,7 +246,7 @@ function app() {
       // ✅ Fixar paginação no topo durante scroll
       this.configurarScrollFixo();
       
-      await Promise.all([this.carregarTabelas(), this.carregarDashboard(), this.carregarDicionarios()]);
+      await Promise.all([this.carregarTraducoes(), this.carregarTabelas(), this.carregarDashboard(), this.carregarDicionarios()]);
       window.addEventListener('keydown', (event) => this.atalhosTeclado(event));
     },
 
@@ -500,6 +364,18 @@ function app() {
         this.dicionarios = await res.json();
       } catch {
         this.dicionarios = {};
+      }
+    },
+
+    async carregarTraducoes() {
+      try {
+        const res = await fetch('/api/traducoes/colunas');
+        if (!res.ok) throw new Error(await res.text());
+        const dados = await res.json();
+        // Atualiza o dicionário global usado por traduzirNomeColuna()
+        Object.assign(_traducoesColunas, dados);
+      } catch {
+        // Falha silenciosa: colunas serão exibidas com capitalização automática
       }
     },
 

@@ -328,6 +328,42 @@ class TestRotaRaiz:
         assert resp.status_code in (200, 404)
 
 
+class TestRotaTraducoes:
+    def test_retorna_dicionario_de_traducoes(self, client: TestClient) -> None:
+        resp = client.get("/api/traducoes/colunas")
+        assert resp.status_code == 200
+        dados = resp.json()
+        assert isinstance(dados, dict)
+        assert len(dados) > 0
+
+    def test_contem_traducoes_essenciais(self, client: TestClient) -> None:
+        resp = client.get("/api/traducoes/colunas")
+        dados = resp.json()
+        assert dados.get("created_at") == "Data de Criação"
+        assert dados.get("updated_at") == "Data de Atualização"
+        assert dados.get("name") == "Nome"
+        assert dados.get("plaintiff") == "Autor"
+        assert dados.get("defendant") == "Réu"
+        assert dados.get("lawyer") == "Advogado"
+
+    def test_contem_traducoes_consolidadas(self, client: TestClient) -> None:
+        """Entradas únicas de cada fonte anterior devem estar presentes."""
+        resp = client.get("/api/traducoes/colunas")
+        dados = resp.json()
+        # Da app.js
+        assert dados.get("canceled") == "Cancelado"
+        assert dados.get("rescheduled") == "Reagendado"
+        assert dados.get("reason") == "Motivo"
+        # Da traducoes_nomes_colunas.py raiz
+        assert dados.get("person_id") == "ID da Pessoa"
+        assert dados.get("userid") == "ID do Usuário"
+        assert dados.get("total") == "Total"
+        assert dados.get("file") == "Arquivo"
+        # Novos termos do domínio jurídico
+        assert dados.get("oab") == "OAB"
+        assert dados.get("empstatus") == "Status do Funcionário"
+
+
 class TestMiddlewareGlobal:
     def test_middleware_loga_excecao_nao_tratada(self, caplog: pytest.LogCaptureFixture) -> None:
         from src.api.main import app

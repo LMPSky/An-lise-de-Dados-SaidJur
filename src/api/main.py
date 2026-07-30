@@ -26,6 +26,7 @@ from src.api.routes_sql import router as router_sql
 from src.api.routes_stats import router as router_stats
 from src.api.routes_labels import router as router_labels
 from src.api.routes_dicionarios import router as router_dicionarios
+from src.api.routes_traducoes import router as router_traducoes
 
 # ── Logging ──────────────────────────────────────────────────────────────────
 
@@ -132,6 +133,7 @@ app.include_router(router_sql, prefix="/api")
 app.include_router(router_stats, prefix="/api")
 app.include_router(router_labels, prefix="/api")
 app.include_router(router_dicionarios, prefix="/api")
+app.include_router(router_traducoes, prefix="/api")
 
 # ── Arquivos estáticos (frontend) ────────────────────────────────────────────
 
