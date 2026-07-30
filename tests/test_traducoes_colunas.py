@@ -103,3 +103,13 @@ def test_traducao_relacional_via_entidade_nova() -> None:
     assert traduzir_nome_coluna("task_id") == "ID da Tarefa"
     # 'business' adicionado ao dict -> 'business_id' deve ser gerado automaticamente
     assert traduzir_nome_coluna("business_id") == "ID do Negócio"
+
+
+def test_traducoes_campos_jqcalendar_e_lawsuitdifflevel() -> None:
+    """Verifica colunas residuais de alta confiança identificadas no relatório."""
+    assert traduzir_nome_coluna("StartTime") == "Hora de Início"
+    assert traduzir_nome_coluna("EndTime") == "Hora de Término"
+    assert traduzir_nome_coluna("IsAllDayEvent") == "Evento de Dia Inteiro"
+    assert traduzir_nome_coluna("Color") == "Cor"
+    assert traduzir_nome_coluna("RecurringRule") == "Regra de Recorrência"
+    assert TRADUCOES_COLUNAS["lawsuitdifflevel"] == "Nível Diferenciado do Processo"

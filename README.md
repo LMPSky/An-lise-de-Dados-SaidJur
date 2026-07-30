@@ -141,8 +141,7 @@ Os filtros aplicados são respeitados na exportação.
 ### 🌐 Traduzindo códigos e ENUMs
 Algumas colunas podem guardar códigos curtos, como `nature: "p"` ou campos
 numéricos binários (`0` / `1`). Para exibir nomes mais legíveis, copie o
-arquivo `dicionarios.example.yaml` para `dicionarios.yaml` na raiz do projeto e
-edite os significados:
+arquivo `dicionarios.yaml` na raiz do projeto e edite os significados:
 
 ```yaml
 publicationxml:
@@ -166,7 +165,12 @@ O script usa `src.config.CONFIG` para conectar ao banco em modo **somente
 leitura** e gera `relatorio_auditoria_traducoes.yaml` na raiz do projeto com os
 itens pendentes por tabela/coluna (nomes de coluna parciais/não traduzidos e
 pendências de ENUM/códigos). Use esse relatório para complementar manualmente
-`src/traducoes_colunas.py` e `dicionario.yaml`.
+`src/traducoes_colunas.py` e `dicionarios.yaml`.
+
+Para tabelas colossais (por exemplo, `publicationxml`, com milhões de linhas),
+o script pode registrar apenas a auditoria dos nomes de coluna e pular a
+amostragem de valores de ENUM. Isso é esperado quando a coleta de valores tende
+a estourar timeout mesmo com amostragem limitada.
 
 ## 🧹 Ocultando colunas vazias automaticamente
 

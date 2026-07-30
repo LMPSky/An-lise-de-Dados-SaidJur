@@ -7,9 +7,12 @@ from unittest.mock import MagicMock, call, patch
 import pymysql
 
 from auditar_traducoes import (
+    LIMITE_LINHAS_TABELA_COLOSSAL,
     _eh_erro_de_conexao,
+    _definir_estrategia_amostragem_enum,
     _garantir_conexao_viva,
     avaliar_pendencias_enum,
+    auditar_traducoes,
     classificar_traducao_coluna,
     traducao_parece_ingles,
     traducao_pendente_placeholder,
@@ -129,3 +132,36 @@ def test_classificar_coluna_com_novas_traducoes() -> None:
     assert classificar_traducao_coluna("task") == "traduzido_corretamente"
     assert classificar_traducao_coluna("activity") == "traduzido_corretamente"
     assert classificar_traducao_coluna("hearingtype") == "traduzido_corretamente"
+
+
+def test_define_estrategia_para_tabela_colossal() -> None:
+    estrategia = _definir_estrategia_amostragem_enum(LIMITE_LINHAS_TABELA_COLOSSAL + 1)
+
+    assert estrategia["tabela_grande"] is True
+    assert estrategia["pular_enum"] is True
+    assert estrategia["limite_subselecao"] == 5_000
+
+
+def test_auditoria_pula_enum_para_tabela_colossal() -> None:
+    conn_mock = MagicMock()
+
+    with (
+        patch("auditar_traducoes._conectar_mysql", return_value=conn_mock),
+        patch("auditar_traducoes._garantir_conexao_viva", return_value=conn_mock),
+        patch("auditar_traducoes._coletar_tabelas", return_value=["publicationxml"]),
+        patch(
+            "auditar_traducoes._linhas_estimadas_tabela",
+            return_value=LIMITE_LINHAS_TABELA_COLOSSAL + 1,
+        ),
+        patch("auditar_traducoes._coletar_colunas", return_value=[("status", "varchar")]),
+        patch("auditar_traducoes._coletar_amostra_valores") as mock_amostra,
+    ):
+        relatorio = auditar_traducoes()
+
+    mock_amostra.assert_not_called()
+    assert relatorio["resumo"]["tabelas_colossais_enum_pulado"] == 1
+    assert relatorio["pendencias"]["publicationxml"]["enum_auditoria_pulada"] == {
+        "motivo": "amostragem_enum_pulada_por_tamanho_da_tabela",
+        "linhas_estimadas": LIMITE_LINHAS_TABELA_COLOSSAL + 1,
+        "limiar_linhas": LIMITE_LINHAS_TABELA_COLOSSAL,
+    }
