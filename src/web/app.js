@@ -17,24 +17,87 @@
 
 let _traducoesColunas = {};
 
+const SUBSTANTIVOS_MASCULINOS_EM_A = new Set([
+  'mapa',
+  'prazo',
+  'problema',
+  'programa',
+  'sistema',
+  'tema',
+]);
+
+function normalizarPalavra(texto) {
+  return texto
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+}
+
+function artigoParaId(traducaoBase) {
+  const primeiraPalavra = traducaoBase.split(' ')[0];
+  const palavraNormalizada = normalizarPalavra(primeiraPalavra);
+
+  if (
+    palavraNormalizada.endsWith('agem') ||
+    palavraNormalizada.endsWith('cao') ||
+    palavraNormalizada.endsWith('dade') ||
+    palavraNormalizada.endsWith('gem') ||
+    palavraNormalizada.endsWith('ice') ||
+    palavraNormalizada.endsWith('sao')
+  ) {
+    return 'da';
+  }
+
+  if (
+    palavraNormalizada.endsWith('a') &&
+    !SUBSTANTIVOS_MASCULINOS_EM_A.has(palavraNormalizada)
+  ) {
+    return 'da';
+  }
+
+  return 'do';
+}
+
+function traduzirColunaRelacional(nomeColuna) {
+  if (!nomeColuna.endsWith('_id')) {
+    return null;
+  }
+
+  const entidade = nomeColuna.slice(0, -3);
+  const traducaoEntidade = _traducoesColunas[entidade];
+  if (!traducaoEntidade) {
+    return null;
+  }
+
+  return `ID ${artigoParaId(traducaoEntidade)} ${traducaoEntidade}`;
+}
+
 /**
  * Traduz nome da coluna para português
  */
 function traduzirNomeColuna(nomeColuna) {
   if (!nomeColuna) return nomeColuna;
+  const nomeNormalizado = nomeColuna.toLowerCase();
   
   // Tradução direta
-  if (_traducoesColunas[nomeColuna]) {
-    return _traducoesColunas[nomeColuna];
+  if (_traducoesColunas[nomeNormalizado]) {
+    return _traducoesColunas[nomeNormalizado];
+  }
+
+  const traducaoRelacional = traduzirColunaRelacional(nomeNormalizado);
+  if (traducaoRelacional) {
+    return traducaoRelacional;
   }
   
   // Tentar traduzir partes (para nomes compostos)
-  const partes = nomeColuna.toLowerCase().split('_');
+  const partes = nomeNormalizado.split('_');
   const partesTraduzidas = [];
   
   for (const parte of partes) {
     if (_traducoesColunas[parte]) {
       partesTraduzidas.push(_traducoesColunas[parte]);
+    } else if (parte === 'id') {
+      partesTraduzidas.push('ID');
     } else {
       partesTraduzidas.push(parte.charAt(0).toUpperCase() + parte.slice(1).toLowerCase());
     }
