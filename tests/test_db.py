@@ -141,6 +141,68 @@ class TestFksInferidas:
         assert "paid" not in colunas
 
 
+class TestFksInferidasExtendidas:
+    """Testes para os mapeamentos estendidos de FK inferida (domínio jurídico brasileiro)."""
+
+    @pytest.fixture
+    def engine_legal(self) -> Engine:
+        """Engine com tabelas do domínio jurídico para testar mapeamentos adicionais."""
+        import src.db as db_module
+        db_module._CACHE_COLUNA_LABEL.clear()
+        db_module._CACHE_FKS_INFERIDAS.clear()
+
+        engine = create_engine("sqlite:///:memory:")
+        with engine.connect() as conn:
+            conn.execute(text("PRAGMA foreign_keys = ON"))
+            # tabela com numero como label (processos brasileiros)
+            conn.execute(text("""
+                CREATE TABLE lawsuits (
+                    id      INTEGER PRIMARY KEY,
+                    numero  TEXT NOT NULL
+                )
+            """))
+            # tabela cliente referenciada pela tabela de processos do cliente
+            conn.execute(text("""
+                CREATE TABLE clientes (
+                    id   INTEGER PRIMARY KEY,
+                    nome TEXT NOT NULL
+                )
+            """))
+            # tabela com FK para clientes (mapeamento inglês→português)
+            conn.execute(text("""
+                CREATE TABLE processos_cliente (
+                    id        INTEGER PRIMARY KEY,
+                    client_id INTEGER,
+                    lawsuit_id INTEGER
+                )
+            """))
+            conn.execute(text("INSERT INTO lawsuits VALUES (1, '0001234-00.2023.8.26.0100')"))
+            conn.execute(text("INSERT INTO clientes VALUES (1, 'João Silva')"))
+            conn.execute(text("INSERT INTO processos_cliente VALUES (1, 1, 1)"))
+            conn.commit()
+        return engine
+
+    def test_encontra_numero_como_label(self, engine_legal: Engine) -> None:
+        """'numero' deve ser reconhecida como coluna de label em tabelas de processos."""
+        assert coluna_label(engine_legal, "lawsuits") == "numero"
+
+    def test_detecta_client_id_com_mapeamento_portugues(self, engine_legal: Engine) -> None:
+        """client_id deve ser mapeado para a tabela 'clientes' (português)."""
+        resultado = fks_inferidas(engine_legal, "processos_cliente")
+        colunas = [r["coluna"] for r in resultado]
+        assert "client_id" in colunas
+        ref = next(r for r in resultado if r["coluna"] == "client_id")
+        assert ref["tabela_referenciada"] == "clientes"
+
+    def test_detecta_lawsuit_id_com_mapeamento_portugues(self, engine_legal: Engine) -> None:
+        """lawsuit_id deve ser mapeado para 'lawsuits' (nome original) ou 'processos'."""
+        resultado = fks_inferidas(engine_legal, "processos_cliente")
+        colunas = [r["coluna"] for r in resultado]
+        assert "lawsuit_id" in colunas
+        ref = next(r for r in resultado if r["coluna"] == "lawsuit_id")
+        assert ref["tabela_referenciada"] == "lawsuits"
+
+
 
     """Testes para tabelas_validas e tabelas_existentes."""
 

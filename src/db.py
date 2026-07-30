@@ -39,6 +39,8 @@ _CANDIDATAS_LABEL = (
     "name", "nome", "descricao", "description", "title",
     "titulo", "label", "display_name", "displayname",
     "razao_social", "fantasia",
+    # Campos comuns em bancos jurídicos brasileiros
+    "numero", "number", "lawsuitnumber",
 )
 
 # Tipos numéricos reconhecidos para heurística de FK inferida
@@ -306,6 +308,21 @@ def _candidatos_para(coluna: str) -> list[str]:
         base.replace("cities", "cidades"),
         base.replace("type", "tipo"),
         base.replace("types", "tipos"),
+        # Mapeamentos inglês → português para o domínio jurídico brasileiro
+        base.replace("client", "cliente"),
+        base.replace("clients", "clientes"),
+        base.replace("person", "pessoa"),
+        base.replace("persons", "pessoas"),
+        base.replace("employee", "funcionario"),
+        base.replace("employees", "funcionarios"),
+        base.replace("lawsuit", "processo"),
+        base.replace("lawsuits", "processos"),
+        base.replace("hearing", "audiencia"),
+        base.replace("hearings", "audiencias"),
+        base.replace("lawyer", "advogado"),
+        base.replace("lawyers", "advogados"),
+        base.replace("court", "tribunal"),
+        base.replace("courts", "tribunais"),
     ]
     # deduplicate preservando ordem
     seen: set[str] = set()

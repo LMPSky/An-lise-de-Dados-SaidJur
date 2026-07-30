@@ -1,5 +1,13 @@
 """
-Traduz nomes de colunas (remover underscore, deixar em português).
+DEPRECATED — Este arquivo é um protótipo legado e não deve mais ser usado.
+
+A fonte canônica de tradução de nomes de colunas é:
+    src/traducoes_colunas.py
+
+O frontend consome as traduções via:
+    GET /api/traducoes/colunas
+
+Não adicione novas traduções aqui. Use src/traducoes_colunas.py.
 """
 
 # Mapeamento manual de tradução de nomes de colunas
