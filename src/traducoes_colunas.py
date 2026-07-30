@@ -6,6 +6,10 @@ Fonte canônica única — usada pelo backend (FastAPI) e exposta via
 NÃO duplique este dicionário em outros arquivos.
 """
 
+from __future__ import annotations
+
+import unicodedata
+
 TRADUCOES_COLUNAS = {
     # ── Campos de data/hora ───────────────────────────────────────────────────
     'created_at': 'Data de Criação',
@@ -24,6 +28,8 @@ TRADUCOES_COLUNAS = {
     'instructionstimestamp': 'Timestamp das Instruções',
     'instructionsinsertdate_userid': 'Usuário da Inserção das Instruções',
     'naf_userid_date': 'Data do Usuário NAF',
+    'created_at_userid': 'Usuário da Criação',
+    'createdat_userid': 'Usuário da Criação',
     'updated_at_userid': 'Usuário da Atualização',
     'protocoldate': 'Data do Protocolo',
     'startdate': 'Data de Início',
@@ -82,7 +88,10 @@ TRADUCOES_COLUNAS = {
     'lawsuitnumber': 'Número do Processo',
     'location': 'Localização',
     'information': 'Informação',
+    'search': 'Busca',
+    'term': 'Termo',
     'search_term': 'Termo de Busca',
+    'search_term_id': 'ID do Termo de Busca',
     'sigla': 'Sigla',
     'rate': 'Taxa',
     'paymentlimit': 'Limite de Pagamento',
@@ -140,6 +149,7 @@ TRADUCOES_COLUNAS = {
     'user_updated': 'Usuário Atualizador',
     'what_lawsuits': 'Quais Processos',
     'publication': 'Publicação',
+    'publication_id': 'ID da Publicação',
     'expedient': 'Expediente',
     'expedientfile': 'Arquivo de Expediente',
     'expedientfileobs': 'Observação de Arquivo de Expediente',
@@ -241,23 +251,77 @@ TRADUCOES_COLUNAS = {
 }
 
 
+_SUBSTANTIVOS_MASCULINOS_EM_A = {
+    'mapa',
+    'prazo',
+    'problema',
+    'programa',
+    'sistema',
+    'tema',
+}
+
+
+def _normalizar_palavra(texto: str) -> str:
+    return ''.join(
+        char
+        for char in unicodedata.normalize('NFD', texto.lower())
+        if unicodedata.category(char) != 'Mn'
+    )
+
+
+def _artigo_para_id(traducao_base: str) -> str:
+    primeira_palavra = traducao_base.split()[0]
+    palavra_normalizada = _normalizar_palavra(primeira_palavra)
+
+    if palavra_normalizada.endswith(('agem', 'cao', 'dade', 'gem', 'ice', 'sao')):
+        return 'da'
+
+    if (
+        palavra_normalizada.endswith('a')
+        and palavra_normalizada not in _SUBSTANTIVOS_MASCULINOS_EM_A
+    ):
+        return 'da'
+
+    return 'do'
+
+
+def _traduzir_coluna_relacional(nome_coluna: str) -> str | None:
+    if not nome_coluna.endswith('_id'):
+        return None
+
+    entidade = nome_coluna[:-3]
+    traducao_entidade = TRADUCOES_COLUNAS.get(entidade)
+    if not traducao_entidade:
+        return None
+
+    return f"ID {_artigo_para_id(traducao_entidade)} {traducao_entidade}"
+
+
 def traduzir_nome_coluna(nome_coluna):
     """Traduz nome da coluna para português."""
     if not nome_coluna:
         return nome_coluna
-    
+
+    nome_coluna = nome_coluna.lower()
+
     # Tradução direta
     if nome_coluna in TRADUCOES_COLUNAS:
         return TRADUCOES_COLUNAS[nome_coluna]
-    
+
+    traducao_relacional = _traduzir_coluna_relacional(nome_coluna)
+    if traducao_relacional:
+        return traducao_relacional
+
     # Tentar traduzir partes
-    partes = nome_coluna.lower().split('_')
+    partes = nome_coluna.split('_')
     partes_traduzidas = []
-    
+
     for parte in partes:
         if parte in TRADUCOES_COLUNAS:
             partes_traduzidas.append(TRADUCOES_COLUNAS[parte])
+        elif parte == 'id':
+            partes_traduzidas.append('ID')
         else:
             partes_traduzidas.append(parte.capitalize())
-    
+
     return ' '.join(partes_traduzidas)
