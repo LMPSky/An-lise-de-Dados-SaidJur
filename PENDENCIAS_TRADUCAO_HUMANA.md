@@ -9,12 +9,13 @@ Fonte: `relatorio_auditoria_traducoes.yaml`
 
 | Categoria | Automático (esta tarefa) | Pendente (revisão humana) | Total |
 |-----------|--------------------------|--------------------------|-------|
-| Nomes de coluna | 1 674 | 13 | 1 687 |
-| Valores de ENUM/código | 116 | 94 | 210 |
-| **Total** | **1 790** | **107** | **1 897** |
+| Nomes de coluna | 7 | 6 | 13 |
+| Valores de ENUM/código | 96 | 120 | 216 |
+| **Total** | **103** | **126** | **229** |
 
-> **99,2% das colunas** e **55,2% dos valores ENUM** foram traduzidos automaticamente.  
-> Os itens abaixo requerem decisão de um especialista no domínio jurídico/financeiro do SaidJur.
+> Nesta rodada foram resolvidos automaticamente os campos do `jqcalendar`,
+> `lawsuitdifflevel` e os casos inequívocos de ENUM/flags binárias.  
+> Os itens abaixo continuam exigindo validação humana para evitar traduções erradas.
 
 ---
 
@@ -24,233 +25,125 @@ Fonte: `relatorio_auditoria_traducoes.yaml`
 
 | Coluna | Tradução atual (fallback) | Motivo da pendência |
 |--------|--------------------------|---------------------|
-| `lft` | Lft | Coluna de estrutura de árvore MPTT (Nested Sets). Significado interno do motor de persistência; não faz sentido expor para o usuário. |
-| `rgt` | Rgt | Idem — right boundary da árvore MPTT. |
+| `lft` | Lft | Coluna técnica de estrutura Nested Sets / MPTT. Pode não fazer sentido expor ao usuário final. |
+| `rgt` | Rgt | Idem — limite direito da árvore. |
 
-**Sugestão não confirmada:** ocultar essas colunas na interface (não traduzir, filtrar na exposição via API).
-
----
-
-### 1.2 Campos de calendário externo — tabela `jqcalendar`
-
-Estes campos usam nomenclatura original da biblioteca jqCalendar (camelCase em inglês). São colunas de integração com sistema externo.
-
-| Coluna | Tradução atual (fallback) | Sugestão não confirmada |
-|--------|--------------------------|------------------------|
-| `StartTime` | Starttime | "Hora de Início" |
-| `EndTime` | Endtime | "Hora de Término" |
-| `IsAllDayEvent` | Isalldayevent | "Evento de Dia Inteiro" |
-| `Color` | Color | "Cor" |
-| `RecurringRule` | Recurringrule | "Regra de Recorrência" |
-
-**Ação recomendada:** confirmar se esses campos são exibidos ao usuário final ou apenas usados internamente pela integração do calendário.
+**Sugestão:** confirmar se esses campos devem ser ocultados da interface em vez de traduzidos.
 
 ---
 
-### 1.3 Abreviações internas sem correspondência clara
+### 1.2 Abreviações internas sem contexto suficiente
 
 | Tabela | Coluna | Tradução atual (fallback) | Contexto / Motivo da pendência |
 |--------|--------|--------------------------|-------------------------------|
-| `lawsuits` | `nd` | Nd | Sigla desconhecida no contexto de processos judiciais. Possível: "Número do Documento"? "Não Definido"? |
-| `lawsuits_log` | `nd` | Nd | Idem (tabela de log de processos). |
-| `pedidos2lawsuit` | `ias` | Ias | Sigla desconhecida no contexto de pedidos vinculados a processos. |
-| `prazos` | `adm` | ADM | Ambíguo: "Administrativo"? "ADM (sigla interna)"? |
-
----
-
-### 1.4 Colunas com nome igual ao da tabela
-
-| Tabela | Coluna | Motivo da pendência |
-|--------|--------|---------------------|
-| `lawsuits` | `lawsuitdifflevel` | Coluna tem o mesmo nome que outra tabela (`lawsuitdifflevel`). Pode ser uma FK ou campo denormalizado. |
-| `lawsuits_log` | `lawsuitdifflevel` | Idem. |
-
-**Sugestão não confirmada:** "Nível Diferenciado do Processo" — mas confirmar se é FK ou valor.
+| `lawsuits` | `nd` | Nd | Sigla ambígua no contexto de processos. |
+| `lawsuits_log` | `nd` | Nd | Mesmo caso da tabela principal. |
+| `pedidos2lawsuit` | `ias` | Ias | Abreviação interna sem semântica confiável no relatório. |
+| `prazos` | `adm` | Adm | Pode significar "Administrativo" ou outra convenção interna. |
 
 ---
 
 ## 2. Valores de ENUM/código pendentes
 
-### 2.1 Tabela `accounts` — códigos contábeis
+### 2.1 Códigos contábeis — tabela `accounts`
 
-Esses valores são usados em campos de classificação de contas (`code`, `type`, `nature`) e representam categorias contábeis. Precisam de validação por profissional contábil.
-
-**`accounts.code`** — valores encontrados: `ativo`, `pass`, `desp`, `rec`, `pl`, `CONT`
-
-| Valor | Sugestão não confirmada |
-|-------|------------------------|
-| `ativo` | Ativo (já em português) |
-| `pass` | Passivo |
-| `desp` | Despesa |
-| `rec` | Receita |
-| `pl` | Patrimônio Líquido |
-| `CONT` | Contabilidade / Conta |
-
-**`accounts.type`** — valores encontrados: `a`, `d`, `p`, `pl`, `r`
-
-| Valor | Sugestão não confirmada |
-|-------|------------------------|
-| `a` | Ativo |
-| `d` | Despesa |
-| `p` | Passivo / Provisão |
-| `pl` | Patrimônio Líquido |
-| `r` | Receita |
-
+**`accounts.code`** — valores encontrados: `ativo`, `pass`, `desp`, `rec`, `pl`, `CONT`  
+**`accounts.type`** — valores encontrados: `a`, `d`, `p`, `pl`, `r`  
 **`accounts.nature`** — valores encontrados: `a`, `p`, `d`, `r`, `pl`
 
-Mesmos valores de `accounts.type`. Provável mesma semântica.
+Apesar de parecerem siglas contábeis conhecidas, esses códigos afetam
+classificações financeiras e devem ser confirmados com a regra de negócio do SaidJur.
 
 ---
 
-### 2.2 Tabela `clientsystem2lawsuit` — fases e status do sistema do cliente
+### 2.2 Tipos curtos com significado ainda ambíguo
 
-Valores numéricos sem rótulos conhecidos. Dependem da configuração específica do cliente.
-
-**`clientsystem2lawsuit.phase`** — valores encontrados: `1`, `2`, `3`, `4`, `5`
-
-Sugestão: consultar a tabela `clientsystem` para ver os nomes das fases.
-
-**`clientsystem2lawsuit.status`** — valores encontrados: `1`, `2`, `3`, `4`, `5`
-
-Idem.
-
----
-
-### 2.3 Tabela `expedients` — tipo de expediente
-
-**`expedients.type`** — valores encontrados: `p`, `l`
-
-| Valor | Sugestão não confirmada |
-|-------|------------------------|
-| `p` | Protocolo |
-| `l` | Levantamento |
+| Tabela | Coluna | Valores pendentes | Observação |
+|--------|--------|-------------------|------------|
+| `activitynature` | `type` | `con`, `com` | Podem representar categorias internas de atividade. |
+| `automaticprazos_lawsuits` | `type_days` | `b`, `n` | Provável distinção entre dias úteis/corridos, mas sem confirmação. |
+| `claims` | `lawsuittype` | `j` | Código isolado, sem legenda confiável. |
+| `expedients` | `type` | `p`, `l` | Prováveis tipos operacionais, mas sem confirmação documental. |
+| `lawsuitdocs` | `processtype` | `j` | Mesmo padrão ambíguo de tipo de processo. |
+| `lawsuits` | `type` | `j` | Idem. |
+| `lawsuits_log` | `type` | `j` | Idem. |
+| `otherdocs` | `processtype` | `j` | Idem. |
+| `projecteventtypes` | `type` | `con` | Sigla curta sem contexto suficiente. |
+| `projects` | `type` | `con` | Mesmo código da tabela de tipos de projeto. |
+| `timesheet_tasks` | `type` | `i` | Código unitário sem legenda confiável. |
 
 ---
 
-### 2.4 Tabela `final_payments` — tipo de pagamento final
+### 2.3 Status/fases numéricos dependentes de configuração do sistema
 
-**`final_payments.payment_type`** — valores encontrados: `1`, `2`, `3`
-
-Valores numéricos sem rótulos. Sugestão: cruzar com a tabela de tipos de pagamento do sistema.
-
----
-
-### 2.5 Tabelas `hearingcontrol` e `hearings_log` — status de audiência
-
-**`hearingcontrol.hearingstatus`** e **`hearings_log.hearingstatus`** — valores encontrados: `0`, `1`, `2`
-
-| Valor | Sugestão não confirmada |
-|-------|------------------------|
-| `0` | Agendada |
-| `1` | Realizada |
-| `2` | Cancelada |
-
-Confirmar com a equipe de negócio qual é a semântica exata.
-
----
-
-### 2.6 Tabela `lawsuitdocs` — fase do documento
-
-**`lawsuitdocs.phase`** — valores encontrados: `0`, `1`, `2`, `3`, `5`
-
-Valores numéricos de fase. Checar se há uma tabela de referência de fases de documentos.
+| Tabela | Coluna | Valores pendentes | Motivo da pendência |
+|--------|--------|-------------------|---------------------|
+| `clientsystem2lawsuit` | `phase` | `1`, `2`, `3`, `4`, `5` | IDs/configuração do sistema do cliente. |
+| `clientsystem2lawsuit` | `status` | `1`, `2`, `3`, `4`, `5` | Mesmo caso acima. |
+| `final_payments` | `payment_type` | `1`, `2`, `3` | Referência a tipo de pagamento final. |
+| `hearingcontrol` | `hearingstatus` | `0`, `1`, `2` | Estados de audiência sem legenda oficial no relatório. |
+| `hearings_log` | `hearingstatus` | `0`, `1`, `2` | Mesmo caso acima. |
+| `lawsuitdocs` | `phase` | `0`, `1`, `2`, `3`, `5` | Fases numéricas do fluxo documental. |
+| `lawsuitdocsmetadata` | `prazophase` | `1` | Fase de prazo sem legenda confirmada. |
+| `lawsuits` | `finalpayment_type` | `1`, `2`, `3` | Tipo de pagamento final. |
+| `lawsuits_log` | `finalpayment_type` | `1`, `2`, `3` | Mesmo caso acima. |
+| `paymentguarantee2lawsuit` | `nature` | `1`, `2`, `3` | Natureza de garantia dependente de tabela/regra de referência. |
+| `paymentguarantee2lawsuit` | `type_old` | `1`–`12`, `14`, `16`–`19` | Códigos legados sem legenda textual. |
+| `prazo2publication` | `pzphase` | `1`, `2`, `3`, `4` | Fases de prazo. |
+| `prazos_log` | `pzphase` | `1`, `2`, `3`, `4` | Mesmo caso acima. |
+| `tasks2publication` | `status` | `0`, `1`, `2` | Status com três estados, sem documentação no relatório. |
+| `varas` | `code` | `4`, `5`, `8` | Código numérico de vara, parece identificador e não rótulo. |
 
 ---
 
-### 2.7 Tabela `lawsuitdocsmetadata` — campos de status
+### 2.4 Códigos jurídicos/comerciais que ainda precisam de validação
 
-| Coluna | Valor | Sugestão não confirmada |
-|--------|-------|------------------------|
-| `prazophase` | `1` | Fase 1 do prazo |
-| `pjestatus` | `0` | Inativo no PJe |
-| `docstatus` | `1` | Ativo / Concluído |
-
----
-
-### 2.8 Tabelas `lawsuits` e `lawsuits_log` — tipo de contrato e tipo de pagamento final
-
-**`lawsuits.contract_type`** e **`lawsuits_log.contract_type`** — valores encontrados: `es`, `co`, `ctrl`, `es2`
-
-| Valor | Sugestão não confirmada |
-|-------|------------------------|
-| `es` | Êxito Simples |
-| `co` | Condicionado |
-| `ctrl` | Controlado |
-| `es2` | Êxito Simples 2 |
-
-**`lawsuits.finalpayment_type`** e **`lawsuits_log.finalpayment_type`** — valores encontrados: `1`, `2`, `3`
-
-Sem rótulos conhecidos. Verificar junto à equipe financeira do SaidJur.
+| Tabela | Coluna | Valores pendentes | Observação |
+|--------|--------|-------------------|------------|
+| `lawsuits` | `contract_type` | `es`, `co`, `ctrl`, `es2` | Padrão comercial/jurídico ainda sem confirmação oficial. |
+| `lawsuits_log` | `contract_type` | `es`, `co`, `ctrl`, `es2` | Mesmo caso acima. |
+| `person2lawsuit` | `link_type` | `t`, `s`, `u` | Códigos muito curtos para traduzir sem contexto adicional. |
+| `person2lawsuit` | `persontype` | `p`, `d`, `c` | Papel da pessoa no processo ainda precisa de confirmação. |
+| `prazo2publication` | `finishtype` | `p` | Os valores `n`, `f` e `pje` já eram conhecidos; `p` continua ambíguo. |
+| `prazos_log` | `finishtype` | `p` | Mesmo caso acima. |
 
 ---
 
-### 2.9 Tabela `paymentguarantee2lawsuit` — natureza e tipo antigo
+### 2.5 Casos binários ainda parcialmente vistos no relatório
 
-**`paymentguarantee2lawsuit.nature`** — valores encontrados: `1`, `2`, `3`
-
-| Valor | Sugestão não confirmada |
-|-------|------------------------|
-| `1` | Garantia Real |
-| `2` | Garantia Fidejussória |
-| `3` | Garantia Mista |
-
-**`paymentguarantee2lawsuit.type_old`** — valores encontrados: `1`–`12`, `14`, `16`–`19`
-
-Muitos códigos numéricos. Há provável tabela de referência de tipos de garantia.
-
----
-
-### 2.10 Tabela `person2lawsuit` — tipo de pessoa e tipo de vínculo
-
-**`person2lawsuit.persontype`** — valores encontrados: `p`, `d`, `c`
-
-| Valor | Sugestão não confirmada |
-|-------|------------------------|
-| `p` | Autor (Plaintiff) |
-| `d` | Réu (Defendant) |
-| `c` | Terceiro / Corresponsável |
-
-**`person2lawsuit.link_type`** — valores encontrados: `t`, `s`, `u`
-
-| Valor | Sugestão não confirmada |
-|-------|------------------------|
-| `t` | Técnico |
-| `s` | Solidário |
-| `u` | Único |
+| Tabela | Coluna | Valores pendentes | Observação |
+|--------|--------|-------------------|------------|
+| `automaticprazos_lawsuits` | `lawsuit_phase` | `0` | Valor isolado sem legenda. |
+| `automaticprazos_lawsuits` | `status` | `0` | Só um dos lados do binário apareceu na amostra. |
+| `deniedprazo_reasons` | `status` | `0`, `1` | Pode ser ativo/inativo, mas não há confirmação funcional. |
+| `pedidos2lawsuit` | `status` | `1` | Apenas um valor observado. |
+| `projectevents` | `status` | `0` | Apenas um valor observado. |
+| `projects` | `status` | `0` | Apenas um valor observado. |
+| `returned_prazo_reasons` | `status` | `1` | Apenas um valor observado. |
+| `timesheet_tasks` | `status` | `0` | Apenas um valor observado. |
 
 ---
 
-### 2.11 Tabelas `prazo2publication` e `prazos_log` — fase e tipo de conclusão
+## 3. Tabela colossal `publicationxml`
 
-**`prazo2publication.pzphase`** e **`prazos_log.pzphase`** — valores encontrados: `1`, `2`, `3`, `4`
+A tabela `publicationxml` continua sendo um caso especial: ela tem volume
+muito alto e segue sujeita a timeout ao tentar amostrar valores textuais.
 
-Já traduzidos genericamente como "Fase 1–4" em `dicionarios.yaml`. Confirmar se há rótulos específicos (ex.: "Cadastrado", "Em Análise", "Concluído", "Arquivado").
+Nesta rodada, a decisão foi:
 
-**`prazo2publication.finishtype`** e **`prazos_log.finishtype`** — valor pendente: `p`
-
-Os outros valores (`n`=Normal, `f`=Fatal, `pje`=PJe) já foram traduzidos. O significado de `p` não é claro neste contexto. Sugestão não confirmada: "Por Prazo" ou "Publicação".
-
----
-
-### 2.12 Tabela `varas` — código da vara
-
-**`varas.code`** — valores encontrados: `4`, `5`, `8`
-
-São códigos numéricos de identificação de varas. Não representam texto legível — provavelmente IDs de referência. Sugestão: verificar se faz sentido traduzir ou apenas exibir o número.
+1. **Manter a auditoria dos nomes de coluna** normalmente.
+2. **Pular a auditoria de ENUM** quando a tabela ultrapassar o limiar de
+   tabela colossal configurado no script.
+3. **Registrar explicitamente no relatório** que a amostragem de ENUM foi
+   pulada por tamanho, em vez de deixar a tabela falhar com erro de conexão.
 
 ---
 
-## 3. Próximos passos
+## 4. Próximos passos
 
-1. **Campos técnicos** (`lft`, `rgt`): Verificar se são exibidos ao usuário — se não, excluir da lista de tradução.
-2. **jqcalendar**: Confirmar se os campos são exibidos ao usuário final ou apenas usados internamente.
-3. **Códigos contábeis** (`accounts.code/type/nature`): Consultar profissional contábil ou documentação do Plano de Contas do sistema.
-4. **Fases/status numéricos** (`clientsystem2lawsuit`, `lawsuitdocs`, `hearingcontrol`): Consultar documentação de regras de negócio ou a equipe de desenvolvimento.
-5. **Tipo de contrato** (`es`, `co`, `ctrl`, `es2`): Confirmar com equipe comercial/jurídica do SaidJur.
-6. **Garantias de pagamento** (`paymentguarantee2lawsuit`): Consultar tabela de referência de tipos de garantia.
-7. **Vínculos de pessoa** (`person2lawsuit`): Confirmar semântica de `p`, `d`, `c` (persontype) e `t`, `s`, `u` (link_type).
-8. **Fase do prazo** (`prazos_log.finishtype: p`): Confirmar se é "Por Prazo", "Publicação" ou outro.
-
-Após confirmação, adicionar as traduções em:
-- `src/traducoes_colunas.py` — para nomes de coluna
-- `dicionarios.yaml` — para valores de ENUM/código
+1. Confirmar com a equipe funcional se `lft`/`rgt` devem ser ocultados.
+2. Levantar o significado interno de `nd`, `ias` e `adm`.
+3. Consultar tabelas de referência/configuração para fases e status numéricos.
+4. Validar com o time jurídico/comercial os códigos de `contract_type`,
+   `person2lawsuit.*` e `finishtype = p`.
+5. Após validação, complementar `src/traducoes_colunas.py` e `dicionarios.yaml`.

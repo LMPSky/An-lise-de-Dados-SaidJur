@@ -1,0 +1,138 @@
+activitynature:
+  nature:
+    Reunião no nosso Escritório: "Reunião no nosso Escritório"
+    Telefonema: "Telefonema"
+    E-mail: "E-mail"
+    Almoço/jantar: "Almoço/jantar"
+    Redação da proposta: "Redação da proposta"
+    Visita ao cliente: "Visita ao cliente"
+    Relatório: "Relatório"
+    Levantamento de informações: "Levantamento de informações"
+    Pesquisa: "Pesquisa"
+    Tratamento de dados: "Tratamento de dados"
+    Análise de dados: "Análise de dados"
+    Identificação de dados de clientes: "Identificação de dados de clientes"
+    Ata de reunião: "Ata de reunião"
+    Identificação de influenciadores: "Identificação de influenciadores"
+    Estudo de concorrentes: "Estudo de concorrentes"
+    Levantamento das necessidade e prioridades de clientes: "Levantamento das necessidade e prioridades de clientes"
+    Redação de proposta de negócio: "Redação de proposta de negócio"
+    Revisão de proposta de negócio: "Revisão de proposta de negócio"
+    Redação do contrato de prestação de serviço: "Redação do contrato de prestação de serviço"
+    Revisão do contrato de prestação de serviços: "Revisão do contrato de prestação de serviços"
+automaticprazos_lawsuits:
+  hearing_type:
+    all: "Todas"
+chatmessages:
+  recipienttype:
+    s: "Selecionado"
+    all: "Todos"
+  status:
+    "0": "Inativo"
+    "1": "Ativo"
+employees:
+  empstatus:
+    "0": "Inativo"
+    "1": "Ativo"
+expedientfilemetadata:
+  status:
+    "0": "Inativo"
+    "1": "Ativo"
+jurify_api_log_salvarprocessos:
+  type:
+    insert: "Inserção"
+    update: "Atualização"
+lawsuit_pendencias_control:
+  status:
+    "0": "Inativo"
+    "1": "Ativo"
+lawsuitdocsmetadata:
+  pjestatus:
+    "0": "Inativo no PJe"
+  docstatus:
+    "1": "Ativo"
+lawsuits:
+  status:
+    "0": "Inativo"
+    "1": "Ativo"
+lawsuits_log:
+  status:
+    "0": "Inativo"
+    "1": "Ativo"
+paymentguarantee2lawsuit:
+  containstypefile:
+    "0": "Não"
+    "1": "Sim"
+  status:
+    "0": "Inativo"
+    "1": "Ativo"
+paymenttype:
+  code:
+    Bol: "Boleto"
+    chq: "Cheque"
+    dda: "Débito Direto Autorizado (DDA)"
+    deb: "Débito"
+    dep: "Depósito"
+    din: "Dinheiro"
+persons:
+  persontype:
+    n: "Pessoa Física"
+    l: "Pessoa Jurídica"
+  personstatus:
+    "0": "Inativo"
+    "1": "Ativo"
+print_reports:
+  nature:
+    lawsuits: "Processos"
+    hearing: "Audiência"
+projectactivityprazos:
+  status:
+    "0": "Inativo"
+    "1": "Ativo"
+returned_prazo_reasons:
+  status:
+    "1": "Ativo"
+sent_hearing_emails:
+  type:
+    lawyer: "Advogado"
+users:
+  status:
+    "0": "Inativo"
+    "1": "Ativo"
+usertasks:
+  read_opnature:
+    "0": "Não"
+    "1": "Sim"
+  write_opnature:
+    "0": "Não"
+    "1": "Sim"
+  read_paytype:
+    "0": "Não"
+    "1": "Sim"
+  write_paytype:
+    "0": "Não"
+    "1": "Sim"
+  toggle_code_red:
+    "0": "Não"
+    "1": "Sim"
+  type_client:
+    "0": "Não"
+    "1": "Sim"
+  type_supplier:
+    "0": "Não"
+    "1": "Sim"
+  type_employee:
+    "0": "Não"
+    "1": "Sim"
+  type_plaintiff:
+    "0": "Não"
+    "1": "Sim"
+  type_defendant:
+    "0": "Não"
+    "1": "Sim"
+  type_witness:
+    "0": "Não"
+    "1": "Sim"
+  type_otherlaw:
+    "0": "Não"
+    "1": "Sim"

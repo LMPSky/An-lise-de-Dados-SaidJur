@@ -23,8 +23,15 @@ MAX_VALORES_ENUM = 20
 # Acima deste número de linhas estimadas, a amostragem de valores distintos
 # passa a usar uma subseleção limitada em vez de escanear a tabela inteira.
 LIMITE_LINHAS_TABELA_GRANDE = 500_000
+# Para tabelas colossais, mesmo a subseleção pode estourar timeout se a coluna
+# auditada não tiver índice útil. Nesses casos, auditamos apenas nomes de
+# coluna e registramos explicitamente no relatório que os ENUMs foram pulados.
+LIMITE_LINHAS_TABELA_COLOSSAL = 5_000_000
 # Quantas linhas ler (no máximo) ao amostrar colunas de tabelas grandes.
 LIMITE_SUBSELECAO_TABELA_GRANDE = 50_000
+# Quantas linhas ler (no máximo) ao amostrar tabelas muito grandes, mas ainda
+# abaixo do limiar em que a auditoria de ENUM passa a ser pulada.
+LIMITE_SUBSELECAO_TABELA_COLOSSAL = 5_000
 # Timeout de leitura (segundos) para conexões usadas neste script de auditoria.
 # Maior que o timeout padrão da aplicação web (60s), pois tabelas grandes
 # podem demorar mais para responder a um DISTINCT sem índice.
@@ -235,6 +242,7 @@ def _coletar_amostra_valores(
     coluna: str,
     *,
     tabela_grande: bool,
+    limite_subselecao: int | None = None,
 ) -> list[str]:
     """Coleta uma amostra de valores distintos de uma coluna.
 
@@ -247,11 +255,12 @@ def _coletar_amostra_valores(
     coluna_sql = _identificador(coluna)
 
     if tabela_grande:
+        limite = limite_subselecao or LIMITE_SUBSELECAO_TABELA_GRANDE
         sql = (
             f"SELECT DISTINCT {coluna_sql} FROM ("
             f"SELECT {coluna_sql} FROM {tabela_sql} "
             f"WHERE {coluna_sql} IS NOT NULL "
-            f"LIMIT {LIMITE_SUBSELECAO_TABELA_GRANDE}"
+            f"LIMIT {limite}"
             f") AS amostra "
             f"LIMIT {LIMITE_AMOSTRA_ENUM}"
         )
@@ -282,6 +291,27 @@ def _coluna_candidata_enum(coluna: str, tipo_dado: str) -> bool:
     nome = coluna.lower()
     chaves = ("type", "tipo", "status", "nature", "natureza", "code", "codigo", "phase", "fase")
     return any(chave in nome for chave in chaves)
+
+
+def _definir_estrategia_amostragem_enum(linhas_estimadas: int) -> dict[str, int | bool]:
+    """Define como a auditoria de ENUM deve tratar a tabela atual."""
+    if linhas_estimadas > LIMITE_LINHAS_TABELA_COLOSSAL:
+        return {
+            "tabela_grande": True,
+            "pular_enum": True,
+            "limite_subselecao": LIMITE_SUBSELECAO_TABELA_COLOSSAL,
+        }
+    if linhas_estimadas > LIMITE_LINHAS_TABELA_GRANDE:
+        return {
+            "tabela_grande": True,
+            "pular_enum": False,
+            "limite_subselecao": LIMITE_SUBSELECAO_TABELA_GRANDE,
+        }
+    return {
+        "tabela_grande": False,
+        "pular_enum": False,
+        "limite_subselecao": 0,
+    }
 
 
 def _conectar_mysql() -> pymysql.connections.Connection:
@@ -344,6 +374,7 @@ def auditar_traducoes() -> dict[str, Any]:
         "valores_enum_possivelmente_ingles": 0,
         "tabelas_com_erro": 0,
         "tabelas_grandes_amostragem_reduzida": 0,
+        "tabelas_colossais_enum_pulado": 0,
     }
 
     relatorio: dict[str, Any] = {
@@ -377,12 +408,27 @@ def auditar_traducoes() -> dict[str, Any]:
                     conn = _garantir_conexao_viva(conn)
 
                     linhas_estimadas = _linhas_estimadas_tabela(conn, schema, tabela)
-                    tabela_grande = linhas_estimadas > LIMITE_LINHAS_TABELA_GRANDE
+                    estrategia_amostragem = _definir_estrategia_amostragem_enum(linhas_estimadas)
+                    tabela_grande = bool(estrategia_amostragem["tabela_grande"])
+                    pular_enum = bool(estrategia_amostragem["pular_enum"])
+                    limite_subselecao = int(estrategia_amostragem["limite_subselecao"])
+                    observacao_enum_pulada: dict[str, Any] | None = None
                     if tabela_grande:
                         resumo["tabelas_grandes_amostragem_reduzida"] += 1
                         print(
                             f"   ℹ️  Tabela grande (~{linhas_estimadas:,} linhas): "
                             f"usando amostragem limitada."
+                        )
+                    if pular_enum:
+                        resumo["tabelas_colossais_enum_pulado"] += 1
+                        observacao_enum_pulada = {
+                            "motivo": "amostragem_enum_pulada_por_tamanho_da_tabela",
+                            "linhas_estimadas": linhas_estimadas,
+                            "limiar_linhas": LIMITE_LINHAS_TABELA_COLOSSAL,
+                        }
+                        print(
+                            f"   ℹ️  Tabela colossal (~{linhas_estimadas:,} linhas): "
+                            "auditando apenas nomes de coluna."
                         )
 
                     colunas = _coletar_colunas(conn, schema, tabela)
@@ -409,12 +455,16 @@ def auditar_traducoes() -> dict[str, Any]:
                                 }
                             )
 
-                        if not _coluna_candidata_enum(coluna, tipo_dado):
+                        if pular_enum or not _coluna_candidata_enum(coluna, tipo_dado):
                             continue
 
                         try:
                             valores_amostra = _coletar_amostra_valores(
-                                conn, tabela, coluna, tabela_grande=tabela_grande
+                                conn,
+                                tabela,
+                                coluna,
+                                tabela_grande=tabela_grande,
+                                limite_subselecao=limite_subselecao if tabela_grande else None,
                             )
                         except Exception as exc_amostra:
                             if _eh_erro_de_conexao(exc_amostra):
@@ -458,12 +508,16 @@ def auditar_traducoes() -> dict[str, Any]:
                             }
                         )
 
-                    if pendencias_coluna or pendencias_enum:
+                    if pendencias_coluna or pendencias_enum or observacao_enum_pulada:
                         relatorio["pendencias"][tabela] = {}
                         if pendencias_coluna:
                             relatorio["pendencias"][tabela]["colunas"] = pendencias_coluna
                         if pendencias_enum:
                             relatorio["pendencias"][tabela]["enums"] = pendencias_enum
+                        if observacao_enum_pulada:
+                            relatorio["pendencias"][tabela]["enum_auditoria_pulada"] = (
+                                observacao_enum_pulada
+                            )
 
                     sucesso = True
 
@@ -519,6 +573,7 @@ def imprimir_resumo(relatorio: dict[str, Any]) -> None:
     print(f"📚 Valores ENUM sem dicionário: {resumo['valores_enum_sem_dicionario']}")
     print(f"🌐 Valores ENUM possivelmente em inglês: {resumo['valores_enum_possivelmente_ingles']}")
     print(f"🐘 Tabelas grandes com amostragem reduzida: {resumo['tabelas_grandes_amostragem_reduzida']}")
+    print(f"⏭️  Tabelas colossais com ENUM pulado: {resumo['tabelas_colossais_enum_pulado']}")
     print(f"⚠️  Tabelas com erro: {resumo['tabelas_com_erro']}")
     print(f"📝 Relatório detalhado: {ARQUIVO_RELATORIO}")
 

@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
+import yaml
 
 import src.dicionarios as dicionarios_module
 
@@ -80,3 +81,13 @@ def test_rota_api_dicionarios_retorna_conteudo(arquivos_dicionario: tuple[Path, 
     assert resp_tudo.json()["publicationxml"]["nature"]["p"] == "Publicação"
     assert resp_coluna.status_code == 200
     assert resp_coluna.json() == {"p": "Publicação"}
+
+
+def test_dicionarios_runtime_versionado_contem_traducoes_de_alta_confianca() -> None:
+    caminho = Path(__file__).resolve().parent.parent / "dicionarios.yaml"
+    dados = yaml.safe_load(caminho.read_text(encoding="utf-8"))
+
+    assert dados["chatmessages"]["recipienttype"]["all"] == "Todos"
+    assert dados["paymenttype"]["code"]["dda"] == "Débito Direto Autorizado (DDA)"
+    assert dados["persons"]["persontype"]["n"] == "Pessoa Física"
+    assert dados["usertasks"]["write_paytype"]["1"] == "Sim"

@@ -18,7 +18,6 @@ env/
 
 # Configuração local (contém senhas)
 config.yaml
-dicionarios.yaml
 
 # Dados e logs
 dados/*.sql
