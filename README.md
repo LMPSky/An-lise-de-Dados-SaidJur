@@ -154,6 +154,20 @@ publicationxml:
 Ao recarregar a página, o visualizador relê o arquivo automaticamente. Não é
 necessário reiniciar o servidor.
 
+### 🧾 Auditoria completa de traduções (MySQL real)
+Para mapear colunas/valores ainda pendentes de tradução no banco real, execute
+localmente (ex.: `D:\SaidJur`), com o MySQL já configurado no `config.yaml`:
+
+```bash
+python auditar_traducoes.py
+```
+
+O script usa `src.config.CONFIG` para conectar ao banco em modo **somente
+leitura** e gera `relatorio_auditoria_traducoes.yaml` na raiz do projeto com os
+itens pendentes por tabela/coluna (nomes de coluna parciais/não traduzidos e
+pendências de ENUM/códigos). Use esse relatório para complementar manualmente
+`src/traducoes_colunas.py` e `dicionario.yaml`.
+
 ## 🧹 Ocultando colunas vazias automaticamente
 
 Por padrão, o visualizador **remove automaticamente colunas que só têm valores NULL ou vazios**.
