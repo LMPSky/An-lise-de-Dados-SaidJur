@@ -20,10 +20,10 @@
   </script>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
-<div x-data="app()" x-init="iniciar()" class="flex flex-col min-h-screen">
+<div x-data="app()" x-init="iniciar()" class="flex flex-col min-h-screen" :class="modoAvancado ? 'modo-avancado' : 'modo-simples'">
 
   <header class="bg-primary shadow-md sticky top-0 z-40">
-    <div class="max-w-screen-2xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center gap-3">
+    <div class="max-w-screen-2xl mx-auto px-4 py-3 flex flex-col lg:flex-row items-center gap-3">
       <div class="flex items-center gap-2 shrink-0">
         <span class="text-2xl">📊</span>
         <h1 class="text-white font-bold text-lg leading-tight">
@@ -32,13 +32,30 @@
         </h1>
       </div>
 
-      <div class="flex-1 w-full max-w-2xl">
+      <div class="flex-1 w-full max-w-3xl">
         <form @submit.prevent="buscarGlobal()" class="flex gap-2">
-          <input type="search" x-model="termoBusca" placeholder="🔍 Pesquisar em todo o banco de dados..." class="w-full px-4 py-2 rounded-lg border-0 shadow text-gray-800 focus:ring-2 focus:ring-blue-400 focus:outline-none" />
-          <button type="submit" :disabled="buscandoGlobal" class="bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded-lg font-semibold shadow transition disabled:opacity-60">Buscar</button>
-          <button type="button" x-show="buscandoGlobal" @click="cancelarBuscaGlobal()" class="bg-red-500 hover:bg-red-400 text-white px-3 py-2 rounded-lg text-sm">Cancelar</button>
+          <input
+            type="search"
+            x-model="termoBusca"
+            :placeholder="modoAvancado ? '🔍 Pesquisar em todo o banco de dados...' : 'Digite o nome do cliente ou número do processo que você procura'"
+            class="w-full rounded-xl border-0 shadow text-gray-800 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            :class="modoAvancado ? 'px-4 py-2 text-base' : 'px-5 py-4 text-lg'"
+          />
+          <button type="submit" :disabled="buscandoGlobal" class="bg-blue-500 hover:bg-blue-400 text-white rounded-xl font-semibold shadow transition disabled:opacity-60" :class="modoAvancado ? 'px-4 py-2' : 'px-6 py-4 text-base min-w-32'">Buscar</button>
+          <button type="button" x-show="buscandoGlobal" @click="cancelarBuscaGlobal()" class="bg-red-500 hover:bg-red-400 text-white px-3 py-2 rounded-xl text-sm">Cancelar</button>
         </form>
       </div>
+
+      <button
+        type="button"
+        @click="alternarModoAvancado()"
+        class="modo-toggle shrink-0"
+        :class="modoAvancado ? 'modo-toggle-ativo' : 'modo-toggle-inativo'"
+        :aria-pressed="modoAvancado.toString()"
+      >
+        <span class="font-semibold">⚙️ Modo Avançado</span>
+        <span class="modo-toggle-status" x-text="modoAvancado ? 'Ligado' : 'Desligado'"></span>
+      </button>
     </div>
   </header>
 
@@ -46,10 +63,10 @@
     <aside class="w-80 shrink-0 bg-white border-r border-gray-200 flex flex-col overflow-hidden">
       <div class="p-3 border-b space-y-2">
         <div class="flex gap-2">
-          <button @click="abaAtiva='dados'" class="px-3 py-1.5 rounded text-sm font-semibold" :class="abaAtiva==='dados' ? 'bg-blue-100 text-primary' : 'bg-gray-100 text-gray-600'">📋 Dados</button>
-          <button @click="abaAtiva='sql'" class="px-3 py-1.5 rounded text-sm font-semibold" :class="abaAtiva==='sql' ? 'bg-blue-100 text-primary' : 'bg-gray-100 text-gray-600'">💻 SQL</button>
+          <button @click="abaAtiva='dados'" class="px-3 py-1.5 rounded font-semibold" :class="[abaAtiva==='dados' ? 'bg-blue-100 text-primary' : 'bg-gray-100 text-gray-600', modoAvancado ? 'text-sm' : 'text-base py-2']">📋 Dados</button>
+          <button x-show="modoAvancado" @click="abaAtiva='sql'" class="px-3 py-1.5 rounded text-sm font-semibold" :class="abaAtiva==='sql' ? 'bg-blue-100 text-primary' : 'bg-gray-100 text-gray-600'">💻 SQL</button>
         </div>
-        <input type="search" x-model="filtroTabela" placeholder="🔎 Filtrar tabelas..." class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+        <input type="search" x-model="filtroTabela" :placeholder="modoAvancado ? '🔎 Filtrar tabelas...' : '🔎 Procurar uma área ou tabela...'" class="w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none" :class="modoAvancado ? 'px-3 py-2 text-sm' : 'px-4 py-3 text-base'" />
       </div>
 
       <div class="overflow-y-auto flex-1 py-1" x-show="abaAtiva==='dados'">
@@ -58,8 +75,8 @@
             <p class="px-3 py-1 text-xs font-bold text-amber-600">⭐ Favoritos</p>
             <template x-for="tabela in tabelasFavoritas" :key="'fav-'+tabela.nome">
               <div class="flex items-center px-2">
-                <button @click="selecionarTabela(tabela.nome)" class="flex-1 text-left px-2 py-1.5 text-sm hover:bg-blue-50 rounded" :class="tabelaSelecionada===tabela.nome ? 'bg-blue-50 text-primary font-semibold' : ''">
-                  <span x-text="tabela.nome"></span>
+                <button @click="selecionarTabela(tabela.nome)" class="flex-1 text-left hover:bg-blue-50 rounded" :class="[tabelaSelecionada===tabela.nome ? 'bg-blue-50 text-primary font-semibold' : '', modoAvancado ? 'px-2 py-1.5 text-sm' : 'px-3 py-2.5 text-base']">
+                  <span x-text="exibirNomeTabela(tabela.nome)"></span>
                 </button>
                 <button @click.stop="alternarFavorito(tabela.nome)" class="text-amber-500">★</button>
               </div>
@@ -71,12 +88,12 @@
           <div class="mb-2">
             <p class="px-3 py-1 text-xs font-bold text-indigo-600">🕒 Recentes</p>
             <template x-for="tabela in tabelasRecentes" :key="'rec-'+tabela.nome">
-              <button @click="selecionarTabela(tabela.nome)" class="w-full text-left px-4 py-1.5 text-sm hover:bg-blue-50" x-text="tabela.nome"></button>
+              <button @click="selecionarTabela(tabela.nome)" class="w-full text-left hover:bg-blue-50" :class="modoAvancado ? 'px-4 py-1.5 text-sm' : 'px-4 py-2.5 text-base'" x-text="exibirNomeTabela(tabela.nome)"></button>
             </template>
           </div>
         </template>
 
-        <p class="px-3 py-1 text-xs font-bold text-gray-500">📚 Todas as tabelas</p>
+        <p class="px-3 py-1 text-xs font-bold text-gray-500" x-text="modoAvancado ? '📚 Todas as tabelas' : '📚 Áreas disponíveis'"></p>
         <template x-if="carregandoTabelas">
           <div class="px-4 py-2 space-y-2"><template x-for="i in 8"><div class="h-8 bg-gray-200 rounded animate-pulse"></div></template></div>
         </template>
@@ -85,9 +102,9 @@
           <ul>
             <template x-for="tabela in tabelasFiltradas" :key="tabela.nome">
               <li class="flex items-center px-2">
-                <button @click="selecionarTabela(tabela.nome)" class="flex-1 text-left px-2 py-2 text-sm hover:bg-blue-50 transition border-l-4" :class="tabelaSelecionada===tabela.nome ? 'border-primary bg-blue-50 text-primary font-semibold' : 'border-transparent'">
-                  <span x-text="tabela.nome"></span>
-                  <span class="text-xs text-gray-400 block" x-text="formatarNumero(tabela.linhas_aprox) + ' registros · ' + tabela.tamanho_mb + ' MB'"></span>
+                <button @click="selecionarTabela(tabela.nome)" class="flex-1 text-left hover:bg-blue-50 transition border-l-4 rounded-r-lg" :class="[tabelaSelecionada===tabela.nome ? 'border-primary bg-blue-50 text-primary font-semibold' : 'border-transparent', modoAvancado ? 'px-2 py-2 text-sm' : 'px-3 py-3 text-base']">
+                  <span x-text="exibirNomeTabela(tabela.nome)"></span>
+                  <span class="block" :class="modoAvancado ? 'text-xs text-gray-400' : 'text-sm text-gray-500'" x-text="modoAvancado ? (formatarNumero(tabela.linhas_aprox) + ' registros · ' + tabela.tamanho_mb + ' MB') : (formatarNumero(tabela.linhas_aprox) + ' registros')"></span>
                 </button>
                 <button @click.stop="alternarFavorito(tabela.nome)" class="px-1 text-lg" :class="ehFavorito(tabela.nome) ? 'text-amber-500' : 'text-gray-300 hover:text-amber-500'">★</button>
               </li>
@@ -163,7 +180,7 @@
                           class="flex items-center gap-1 bg-amber-500 hover:bg-amber-600 disabled:bg-gray-400 text-white px-3 py-1.5 rounded text-xs font-semibold shadow transition">
                           <span x-show="!exportandoBusca">📊</span>
                           <span x-show="exportandoBusca" class="animate-spin">⏳</span>
-                          <span x-text="tabelaItem + ' (Excel)'"></span>
+                          <span x-text="exibirNomeTabela(tabelaItem) + ' (Excel)'"></span>
                         </button>
                         <button 
                           @click="exportarResultadosBusca('csv', tabelaItem)" 
@@ -171,7 +188,7 @@
                           class="flex items-center gap-1 bg-cyan-600 hover:bg-cyan-700 disabled:bg-gray-400 text-white px-3 py-1.5 rounded text-xs font-semibold shadow transition">
                           <span x-show="!exportandoBusca">📄</span>
                           <span x-show="exportandoBusca" class="animate-spin">⏳</span>
-                          <span x-text="tabelaItem + ' (CSV)'"></span>
+                          <span x-text="exibirNomeTabela(tabelaItem) + ' (CSV)'"></span>
                         </button>
                       </div>
                     </template>
@@ -213,12 +230,12 @@
               <template x-for="grupo in resultadosBusca" :key="grupo.tabela + grupo.coluna + Math.random()">
                 <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
                   <div class="px-4 py-2 bg-gray-50 border-b flex items-center gap-2">
-                    <span class="font-semibold text-primary" x-text="grupo.tabela"></span>
+                    <span class="font-semibold text-primary" x-text="exibirNomeTabela(grupo.tabela)"></span>
                     <span class="text-gray-400">→</span>
-                    <span class="font-medium text-gray-700" x-text="grupo.coluna"></span>
+                    <span class="font-medium text-gray-700" x-text="exibirNomeCampo(grupo.coluna)"></span>
                     <span class="ml-auto text-xs text-gray-400" x-text="grupo.registros.length + ' resultado(s)'"></span>
                   </div>
-                  <div class="overflow-x-auto max-h-64">
+                  <div class="overflow-x-auto max-h-64" x-show="modoAvancado">
                     <table class="min-w-max text-sm">
                       <thead class="bg-gray-100 sticky top-0">
                         <tr>
@@ -238,6 +255,35 @@
                       </tbody>
                     </table>
                   </div>
+                  <div class="p-4 space-y-3" x-show="!modoAvancado">
+                    <template x-for="(linha, idx) in grupo.registros" :key="idx">
+                      <article class="simple-card">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                          <p class="text-sm font-semibold text-gray-500">Registro <span x-text="idx + 1"></span></p>
+                          <button
+                            @click="abrirDetalheRegistro({ tabela: grupo.tabela, registro: linha, colunas: Object.keys(linha).map(nome => ({ nome })), contextoLinhas: grupo.registros, indice: idx })"
+                            class="bg-primary text-white rounded-lg px-3 py-2 text-sm font-semibold hover:bg-blue-700"
+                          >
+                            Ver detalhes
+                          </button>
+                        </div>
+                        <dl class="simple-fields-grid">
+                          <template x-for="campo in camposRegistroSimples(linha)" :key="campo.nome">
+                            <div class="simple-field">
+                              <dt class="simple-field-label" x-text="traduzirColuna(campo.nome)"></dt>
+                              <dd
+                                class="simple-field-value"
+                                :class="ehFkValidoNaTabela(grupo.tabela, campo.nome, campo.valor) ? 'simple-field-link' : ''"
+                                :title="exibirValor(grupo.tabela, campo.nome, campo.valor)"
+                                @click="if(ehFkValidoNaTabela(grupo.tabela, campo.nome, campo.valor)) abrirFk($event, grupo.tabela, campo.nome, campo.valor)"
+                                x-text="exibirComLabel(grupo.tabela, campo.nome, campo.valor)"
+                              ></dd>
+                            </div>
+                          </template>
+                        </dl>
+                      </article>
+                    </template>
+                  </div>
                 </div>
               </template>
               <template x-if="!buscandoGlobal && !buscaCancelada && resultadosBusca.length===0">
@@ -251,34 +297,64 @@
       <!-- DASHBOARD / SELEÇÃO DE TABELA -->
       <template x-if="!mostrarBusca && abaAtiva==='dados' && !tabelaSelecionada">
         <div class="flex-1 overflow-auto min-h-0 p-6 space-y-6">
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-4" x-show="dashboard">
-            <div class="bg-white border rounded p-4"><p class="text-xs text-gray-500">Total de tabelas</p><p class="text-2xl font-bold" x-text="formatarNumero(dashboard?.estatisticas?.total_tabelas || 0)"></p></div>
-            <div class="bg-white border rounded p-4"><p class="text-xs text-gray-500">Total de registros</p><p class="text-2xl font-bold" x-text="formatarNumero(dashboard?.estatisticas?.total_registros || 0)"></p></div>
-            <div class="bg-white border rounded p-4"><p class="text-xs text-gray-500">Tamanho total (MB)</p><p class="text-2xl font-bold" x-text="formatarNumero(dashboard?.estatisticas?.tamanho_total_mb || 0)"></p></div>
-          </div>
+          <template x-if="modoAvancado">
+            <div class="space-y-6">
+              <div class="grid grid-cols-1 lg:grid-cols-3 gap-4" x-show="dashboard">
+                <div class="bg-white border rounded p-4"><p class="text-xs text-gray-500">Total de tabelas</p><p class="text-2xl font-bold" x-text="formatarNumero(dashboard?.estatisticas?.total_tabelas || 0)"></p></div>
+                <div class="bg-white border rounded p-4"><p class="text-xs text-gray-500">Total de registros</p><p class="text-2xl font-bold" x-text="formatarNumero(dashboard?.estatisticas?.total_registros || 0)"></p></div>
+                <div class="bg-white border rounded p-4"><p class="text-xs text-gray-500">Tamanho total (MB)</p><p class="text-2xl font-bold" x-text="formatarNumero(dashboard?.estatisticas?.tamanho_total_mb || 0)"></p></div>
+              </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div class="bg-white border rounded p-4">
-              <h3 class="font-semibold mb-2">📊 10 maiores tabelas</h3>
-              <div class="space-y-2" x-show="dashboard?.maiores_tabelas?.length">
-                <template x-for="t in dashboard?.maiores_tabelas || []" :key="t.nome">
-                  <button @click="selecionarTabela(t.nome)" class="w-full text-left px-3 py-2 rounded hover:bg-blue-50 border text-sm flex justify-between">
-                    <span x-text="t.nome"></span><span class="text-gray-500" x-text="formatarNumero(t.linhas_aprox)"></span>
-                  </button>
-                </template>
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="bg-white border rounded p-4">
+                  <h3 class="font-semibold mb-2">📊 10 maiores tabelas</h3>
+                  <div class="space-y-2" x-show="dashboard?.maiores_tabelas?.length">
+                    <template x-for="t in dashboard?.maiores_tabelas || []" :key="t.nome">
+                      <button @click="selecionarTabela(t.nome)" class="w-full text-left px-3 py-2 rounded hover:bg-blue-50 border text-sm flex justify-between">
+                        <span x-text="t.nome"></span><span class="text-gray-500" x-text="formatarNumero(t.linhas_aprox)"></span>
+                      </button>
+                    </template>
+                  </div>
+                </div>
+
+                <div class="bg-white border rounded p-4">
+                  <h3 class="font-semibold mb-2">🔎 Busca em destaque</h3>
+                  <p class="text-sm text-gray-600 mb-2">Sugestões rápidas:</p>
+                  <div class="flex flex-wrap gap-2">
+                    <button @click="termoBusca='ATIVO'; buscarGlobal()" class="px-2 py-1 bg-gray-100 rounded text-sm hover:bg-gray-200">ATIVO</button>
+                    <button @click="termoBusca='publicação'; buscarGlobal()" class="px-2 py-1 bg-gray-100 rounded text-sm hover:bg-gray-200">publicação</button>
+                    <button @click="termoBusca='2024'; buscarGlobal()" class="px-2 py-1 bg-gray-100 rounded text-sm hover:bg-gray-200">2024</button>
+                  </div>
+                </div>
               </div>
             </div>
+          </template>
 
-            <div class="bg-white border rounded p-4">
-              <h3 class="font-semibold mb-2">🔎 Busca em destaque</h3>
-              <p class="text-sm text-gray-600 mb-2">Sugestões rápidas:</p>
-              <div class="flex flex-wrap gap-2">
-                <button @click="termoBusca='ATIVO'; buscarGlobal()" class="px-2 py-1 bg-gray-100 rounded text-sm hover:bg-gray-200">ATIVO</button>
-                <button @click="termoBusca='publicação'; buscarGlobal()" class="px-2 py-1 bg-gray-100 rounded text-sm hover:bg-gray-200">publicação</button>
-                <button @click="termoBusca='2024'; buscarGlobal()" class="px-2 py-1 bg-gray-100 rounded text-sm hover:bg-gray-200">2024</button>
+          <template x-if="!modoAvancado">
+            <div class="simple-search-panel">
+              <div class="max-w-3xl mx-auto text-center space-y-6">
+                <div class="space-y-3">
+                  <span class="inline-flex items-center gap-2 bg-blue-50 text-primary px-4 py-2 rounded-full font-semibold text-sm">🔎 Busca rápida</span>
+                  <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Encontre um cliente, processo ou informação antiga sem usar comandos técnicos</h2>
+                  <p class="text-lg text-gray-600">Digite o nome do cliente, o número do processo ou uma palavra importante para localizar os registros.</p>
+                </div>
+
+                <form @submit.prevent="buscarGlobal()" class="bg-white border border-blue-100 shadow-lg rounded-3xl p-4 md:p-5 flex flex-col md:flex-row gap-3">
+                  <input type="search" x-model="termoBusca" placeholder="Digite o nome do cliente ou número do processo que você procura" class="flex-1 px-5 py-4 text-lg border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+                  <button type="submit" :disabled="buscandoGlobal" class="bg-primary hover:bg-blue-700 text-white px-6 py-4 rounded-2xl text-lg font-semibold shadow disabled:opacity-60">Buscar agora</button>
+                </form>
+
+                <div class="bg-white border rounded-2xl p-5 text-left">
+                  <h3 class="text-lg font-semibold text-gray-900 mb-3">Sugestões de pesquisa</h3>
+                  <div class="flex flex-wrap gap-3">
+                    <button @click="termoBusca='Sila do Brasil'; buscarGlobal()" class="simple-chip">Sila do Brasil</button>
+                    <button @click="termoBusca='ATIVO'; buscarGlobal()" class="simple-chip">ATIVO</button>
+                    <button @click="termoBusca='2024'; buscarGlobal()" class="simple-chip">2024</button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          </template>
         </div>
       </template>
 
@@ -288,17 +364,20 @@
           <!-- Cabeçalho da tabela -->
           <div class="bg-white border-b p-3 shrink-0 space-y-2">
             <div class="flex items-center justify-between flex-wrap gap-2">
-              <h2 class="text-lg font-bold" x-text="tabelaSelecionada"></h2>
+              <div>
+                <h2 class="text-lg font-bold" x-text="exibirNomeTabela(tabelaSelecionada)"></h2>
+                <p x-show="!modoAvancado" class="text-sm text-gray-500">Use os botões abaixo para exportar ou abrir os detalhes do registro.</p>
+              </div>
               <div class="flex gap-1">
-                <button @click="alternarMostrarLabels()" :class="mostrarLabels ? 'bg-blue-100 text-primary' : 'bg-gray-100 text-gray-600'" class="px-2 py-1 rounded text-xs font-semibold">🏷️ Labels</button>
-                <button @click="popoverColunasAberto = !popoverColunasAberto" class="bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded text-xs font-semibold">👁️ Colunas</button>
-                <a :href="urlExportar('csv')" class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs font-semibold">📥 CSV</a>
-                <a :href="urlExportar('excel')" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs font-semibold">📊 Excel</a>
+                <button x-show="modoAvancado" @click="alternarMostrarLabels()" :class="mostrarLabels ? 'bg-blue-100 text-primary' : 'bg-gray-100 text-gray-600'" class="px-2 py-1 rounded text-xs font-semibold">🏷️ Labels</button>
+                <button x-show="modoAvancado" @click="popoverColunasAberto = !popoverColunasAberto" class="bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded text-xs font-semibold">👁️ Colunas</button>
+                <a :href="urlExportar('csv')" class="bg-green-600 hover:bg-green-700 text-white rounded font-semibold" :class="modoAvancado ? 'px-2 py-1 text-xs' : 'px-4 py-2 text-sm'">📥 CSV</a>
+                <a :href="urlExportar('excel')" class="bg-blue-600 hover:bg-blue-700 text-white rounded font-semibold" :class="modoAvancado ? 'px-2 py-1 text-xs' : 'px-4 py-2 text-sm'">📊 Excel</a>
               </div>
             </div>
 
             <!-- Popover de colunas -->
-            <template x-if="popoverColunasAberto">
+            <template x-if="modoAvancado && popoverColunasAberto">
               <div class="bg-gray-50 border rounded p-2 space-y-1 max-h-40 overflow-auto">
                 <template x-for="col in colunas" :key="col.nome">
                   <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-gray-100 p-1 rounded">
@@ -338,7 +417,7 @@
 
           <template x-if="!carregandoDados && linhas.length > 0">
             <div class="flex-1 overflow-auto min-h-0">
-              <table class="min-w-max text-sm border-collapse w-full">
+              <table x-show="modoAvancado" class="min-w-max text-sm border-collapse w-full">
                 <thead class="bg-gray-100 sticky top-0 z-20 shadow-sm">
                   <tr>
                     <template x-for="col in colunasExibidas" :key="col.nome">
@@ -420,6 +499,32 @@
                   </template>
                 </tbody>
               </table>
+
+              <div x-show="!modoAvancado" class="p-4 space-y-4">
+                <template x-for="(linha, indice) in linhas" :key="indice">
+                  <article class="simple-card">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                      <p class="text-base font-semibold text-gray-700">Registro <span x-text="((pagina - 1) * porPagina) + indice + 1"></span></p>
+                      <button @click="abrirDetalheIndice(indice)" class="bg-primary text-white rounded-xl px-4 py-2 text-sm font-semibold hover:bg-blue-700">👁️ Ver detalhes</button>
+                    </div>
+
+                    <dl class="simple-fields-grid">
+                      <template x-for="campo in camposRegistroSimples(linha, colunasExibidas.map(col => col.nome))" :key="campo.nome">
+                        <div class="simple-field">
+                          <dt class="simple-field-label" x-text="traduzirColuna(campo.nome)"></dt>
+                          <dd
+                            class="simple-field-value"
+                            :class="ehFkValidoNaTabela(tabelaSelecionada, campo.nome, campo.valor) ? 'simple-field-link' : ''"
+                            :title="exibirValor(tabelaSelecionada, campo.nome, campo.valor)"
+                            @click="if(ehFkValidoNaTabela(tabelaSelecionada, campo.nome, campo.valor)) abrirFk($event, tabelaSelecionada, campo.nome, campo.valor)"
+                            x-text="exibirComLabel(tabelaSelecionada, campo.nome, campo.valor)"
+                          ></dd>
+                        </div>
+                      </template>
+                    </dl>
+                  </article>
+                </template>
+              </div>
             </div>
           </template>
 

@@ -234,6 +234,7 @@ function app() {
     labels: {},
     dicionarios: {},
     mostrarLabels: true,
+    modoAvancado: false,
 
     // ── Colunas visíveis ─────────────────────────────────────────
     colunasVisiveis: {},
@@ -329,6 +330,31 @@ function app() {
       return traduzirNomeColuna(nomeOriginal);
     },
 
+    exibirNomeTabela(nomeTabela) {
+      if (!nomeTabela) return '';
+      return this.modoAvancado ? nomeTabela : formatarNome(nomeTabela);
+    },
+
+    exibirNomeCampo(nomeCampo) {
+      if (!nomeCampo) return '';
+      return this.modoAvancado ? nomeCampo : this.traduzirColuna(nomeCampo);
+    },
+
+    camposRegistroSimples(registro, ordem = null) {
+      if (!registro) return [];
+      const campos = (ordem || Object.keys(registro))
+        .filter(nome => Object.prototype.hasOwnProperty.call(registro, nome))
+        .map(nome => ({ nome, valor: registro[nome] }))
+        .filter(campo => campo.valor !== null && campo.valor !== undefined && campo.valor !== '');
+
+      if (campos.length > 0) return campos;
+
+      return (ordem || Object.keys(registro))
+        .filter(nome => Object.prototype.hasOwnProperty.call(registro, nome))
+        .slice(0, 1)
+        .map(nome => ({ nome, valor: registro[nome] }));
+    },
+
     /**
      * Obtém nome traduzido de uma coluna pelo índice
      */
@@ -409,6 +435,20 @@ function app() {
       this.favoritos = this.lerJsonLocal('saidjur_favoritos', []);
       this.recentes = this.lerJsonLocal('saidjur_recentes', []);
       this.mostrarLabels = this.lerJsonLocal('saidjur_mostrar_labels', true);
+      this.modoAvancado = this.lerJsonLocal('saidjur_modo_avancado', false);
+    },
+
+    alternarModoAvancado() {
+      this.modoAvancado = !this.modoAvancado;
+      this.salvarJsonLocal('saidjur_modo_avancado', this.modoAvancado);
+
+      if (!this.modoAvancado) {
+        if (this.abaAtiva === 'sql') this.abaAtiva = 'dados';
+        this.popoverColunasAberto = false;
+        this.filtroAberto = null;
+        this.statsAbertoColuna = null;
+        this.statsColuna = null;
+      }
     },
 
     salvarFavoritos() {
@@ -686,6 +726,15 @@ function app() {
 
     ehFkValido(coluna, valor) {
       return Boolean(this.fkAtualOuInferida(coluna) && valor !== null && valor !== undefined && valor !== '');
+    },
+
+    ehFkValidoNaTabela(nomeTabela, coluna, valor) {
+      return Boolean(
+        (this.fkDeTabela(nomeTabela, coluna) || this.fkInferidaDeTabela(nomeTabela, coluna))
+        && valor !== null
+        && valor !== undefined
+        && valor !== ''
+      );
     },
 
     async abrirFk(event, tabelaOrigem, colunaOrigem, valor) {

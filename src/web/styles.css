@@ -6,6 +6,110 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+.modo-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 9999px;
+  padding: 10px 14px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.modo-toggle-inativo {
+  background: rgba(30, 64, 175, 0.45);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modo-toggle-ativo {
+  background: white;
+  color: #1d4ed8;
+}
+
+.modo-toggle-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 74px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.modo-toggle-ativo .modo-toggle-status {
+  background: #dbeafe;
+}
+
+.simple-search-panel {
+  min-height: calc(100vh - 220px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.simple-chip {
+  padding: 10px 16px;
+  border-radius: 9999px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.simple-chip:hover {
+  background: #dbeafe;
+}
+
+.simple-card {
+  background: white;
+  border: 1px solid #dbe3f0;
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.simple-fields-grid {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.simple-field {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: #f8fafc;
+}
+
+.simple-field-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #475569;
+  margin-bottom: 6px;
+}
+
+.simple-field-value {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #0f172a;
+  word-break: break-word;
+}
+
+.simple-field-link {
+  color: #1d4ed8;
+  cursor: pointer;
+}
+
+.modo-simples aside,
+.modo-simples main {
+  font-size: 16px;
+}
+
 table td, table th {
   white-space: nowrap;
   overflow: hidden;

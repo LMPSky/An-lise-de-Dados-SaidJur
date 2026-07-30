@@ -166,7 +166,7 @@ async def exportar_tabela(
             if formato.lower() == "csv":
                 # Exportar como CSV
                 output = io.StringIO()
-                writer = csv.writer(output, delimiter=",", quoting=csv.QUOTE_ALL, encoding='utf-8')
+                writer = csv.writer(output, delimiter=",", quoting=csv.QUOTE_ALL)
                 
                 # Cabeçalho
                 writer.writerow(colunas)

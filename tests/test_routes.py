@@ -180,6 +180,17 @@ def client(monkeypatch: pytest.MonkeyPatch) -> Generator[TestClient, None, None]
 
 
 class TestRotaTabelas:
+    def test_raiz_carrega_interface_com_modo_simples(self, client: TestClient) -> None:
+        resp_html = client.get("/")
+        assert resp_html.status_code == 200
+        assert "Modo Avançado" in resp_html.text
+        assert "Digite o nome do cliente ou número do processo que você procura" in resp_html.text
+        assert "Buscar agora" in resp_html.text
+
+        resp_js = client.get("/static/app.js")
+        assert resp_js.status_code == 200
+        assert "saidjur_modo_avancado" in resp_js.text
+
     def test_lista_tabelas_status_200(self, client: TestClient) -> None:
         resp = client.get("/api/tabelas")
         assert resp.status_code == 200
