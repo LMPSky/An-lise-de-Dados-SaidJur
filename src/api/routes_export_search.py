@@ -11,6 +11,11 @@ from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 import csv
 
+from src.traducoes_colunas import (
+    traduzir_nome_coluna,
+    traduzir_nome_tabela_exportacao,
+)
+
 logger = logging.getLogger("saidjur.export_search")
 
 router = APIRouter(tags=["Exportação"])
@@ -107,7 +112,9 @@ def _exportar_csv_busca(
     
     # Cabeçalho com tabelas
     tabelas = list(dados_por_tabela.keys())
-    writer.writerow(["Tabela"] + tabelas)
+    writer.writerow(
+        ["Tabela"] + [traduzir_nome_tabela_exportacao(tabela) for tabela in tabelas]
+    )
     
     # Para cada linha, mostrar um registro de cada tabela
     max_registros = max(len(regs) for regs in dados_por_tabela.values()) if dados_por_tabela else 0
@@ -150,7 +157,7 @@ def _exportar_excel_busca(
             continue
         
         # Criar nova aba (limitado a 31 caracteres no Excel)
-        nome_aba = tabela[:31]
+        nome_aba = traduzir_nome_tabela_exportacao(tabela)[:31]
         ws = wb.create_sheet(title=nome_aba)
         
         # Extrair colunas do primeiro registro
@@ -163,7 +170,7 @@ def _exportar_excel_busca(
             
             for col_idx, col_nome in enumerate(colunas, 1):
                 cell = ws.cell(row=1, column=col_idx)
-                cell.value = col_nome
+                cell.value = traduzir_nome_coluna(col_nome)
                 cell.fill = header_fill
                 cell.font = header_font
                 cell.alignment = Alignment(horizontal="center", vertical="center")
@@ -180,7 +187,7 @@ def _exportar_excel_busca(
             
             # Ajustar largura das colunas
             for col_idx, col_nome in enumerate(colunas, 1):
-                max_length = len(str(col_nome))
+                max_length = len(traduzir_nome_coluna(col_nome))
                 for row in ws.iter_rows(min_col=col_idx, max_col=col_idx, min_row=2, max_row=ws.max_row):
                     for cell in row:
                         if cell.value:

@@ -19,7 +19,11 @@ from datetime import datetime
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
-from src.traducoes_colunas import TRADUCOES_COLUNAS, traduzir_nome_coluna
+from src.traducoes_colunas import (
+    TRADUCOES_COLUNAS,
+    traduzir_nome_coluna,
+    traduzir_nome_tabela_exportacao,
+)
 
 router = APIRouter(tags=["exportar-busca"])
 
@@ -91,7 +95,7 @@ def criar_workbook_excel(resultados: List[Dict]) -> io.BytesIO:
         if not registros:
             continue
         
-        ws = wb.create_sheet(title=tabela[:31])
+        ws = wb.create_sheet(title=traduzir_nome_tabela_exportacao(tabela)[:31])
         
         # Cabeçalho
         colunas = list(registros[0].keys())
@@ -148,15 +152,15 @@ def criar_csv_consolidado(resultados: List[Dict]) -> io.BytesIO:
     
     # Cria CSV
     texto = io.StringIO()
-    writer = csv.DictWriter(texto, fieldnames=colunas_ordenadas)
-    writer.writeheader()
+    writer = csv.writer(texto)
+    writer.writerow([traduzir_nome_coluna(coluna) for coluna in colunas_ordenadas])
     
     for resultado in resultados:
         tabela = resultado.get('tabela', 'Dados')
         for registro in resultado.get('registros', []):
             linha = {'tabela': tabela}
             linha.update(registro)
-            writer.writerow(linha)
+            writer.writerow([linha.get(coluna, '') for coluna in colunas_ordenadas])
     
     # Salva com BOM UTF-8
     conteudo = texto.getvalue()

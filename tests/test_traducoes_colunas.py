@@ -1,4 +1,8 @@
-from src.traducoes_colunas import TRADUCOES_COLUNAS, traduzir_nome_coluna
+from src.traducoes_colunas import (
+    TRADUCOES_COLUNAS,
+    traduzir_nome_coluna,
+    traduzir_nome_tabela_exportacao,
+)
 
 
 def test_traduz_campos_reportados_com_entradas_especificas() -> None:
@@ -113,3 +117,42 @@ def test_traducoes_campos_jqcalendar_e_lawsuitdifflevel() -> None:
     assert traduzir_nome_coluna("Color") == "Cor"
     assert traduzir_nome_coluna("RecurringRule") == "Regra de Recorrência"
     assert TRADUCOES_COLUNAS["lawsuitdifflevel"] == "Nível Diferenciado do Processo"
+
+
+def test_traducoes_relatorio_sila_do_brasil() -> None:
+    """Verifica as traduções prioritárias do relatório apresentado ao cliente."""
+    assert TRADUCOES_COLUNAS["client_id"] == "ID do Cliente"
+    assert TRADUCOES_COLUNAS["search_term"] == "Termo de Busca"
+    assert TRADUCOES_COLUNAS["created_at"] == "Data de Criação"
+    assert TRADUCOES_COLUNAS["created_at_userid"] == "Usuário da Criação"
+    assert TRADUCOES_COLUNAS["claim_id"] == "ID do Pedido"
+    assert TRADUCOES_COLUNAS["claim_text"] == "Texto do Pedido"
+    assert TRADUCOES_COLUNAS["details"] == "Detalhes"
+    assert TRADUCOES_COLUNAS["pedido_id"] == "ID do Pedido"
+    assert TRADUCOES_COLUNAS["amount"] == "Valor"
+    assert TRADUCOES_COLUNAS["instance01"] == "1ª Instância"
+    assert TRADUCOES_COLUNAS["instance01_amount"] == "Valor na 1ª Instância"
+    assert TRADUCOES_COLUNAS["instance02"] == "2ª Instância"
+    assert TRADUCOES_COLUNAS["instance02_amount"] == "Valor na 2ª Instância"
+    assert TRADUCOES_COLUNAS["instancesup"] == "Instância Superior"
+    assert TRADUCOES_COLUNAS["instancesup_amount"] == "Valor na Instância Superior"
+    assert TRADUCOES_COLUNAS["instanceextra"] == "Instância Extra"
+    assert TRADUCOES_COLUNAS["instanceextra_amount"] == "Valor na Instância Extra"
+    assert TRADUCOES_COLUNAS["loss_diagnosis"] == "Diagnóstico de Perda"
+    assert TRADUCOES_COLUNAS["amountpaid"] == "Valor Pago"
+    assert TRADUCOES_COLUNAS["agent"] == "Agente"
+    assert TRADUCOES_COLUNAS["status"] == "Status"
+    assert TRADUCOES_COLUNAS["publication_id"] == "ID da Publicação"
+    assert TRADUCOES_COLUNAS["jurify_pub_id"] == "ID da Publicação Jurify"
+    assert TRADUCOES_COLUNAS["jurify_pasta"] == "Pasta Jurify"
+    assert TRADUCOES_COLUNAS["pub_classification"] == "Classificação da Publicação"
+    assert TRADUCOES_COLUNAS["pub_classification_id"] == "ID da Classificação da Publicação"
+    assert TRADUCOES_COLUNAS["source_api"] == "API de Origem"
+    assert traduzir_nome_coluna("ias") == "Ias"
+
+
+def test_traduz_nomes_de_abas_prioritarias_da_exportacao() -> None:
+    """Verifica os nomes amigáveis de abas usados no Excel exportado."""
+    assert traduzir_nome_tabela_exportacao("client_publication_search_terms") == "Termos de Busca do Cliente"
+    assert traduzir_nome_tabela_exportacao("pedidos2lawsuit") == "Pedidos do Processo"
+    assert traduzir_nome_tabela_exportacao("publicationxml_extra") == "Extras da Publicação XML"

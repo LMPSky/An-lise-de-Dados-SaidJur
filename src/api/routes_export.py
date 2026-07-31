@@ -13,6 +13,11 @@ import json
 from sqlalchemy import select, and_, text, MetaData, Table
 from sqlalchemy.orm import Session
 
+from src.traducoes_colunas import (
+    traduzir_nome_coluna,
+    traduzir_nome_tabela_exportacao,
+)
+
 logger = logging.getLogger("saidjur.routes_export")
 
 router = APIRouter(tags=["Exportação"])
@@ -169,7 +174,7 @@ async def exportar_tabela(
                 writer = csv.writer(output, delimiter=",", quoting=csv.QUOTE_ALL)
                 
                 # Cabeçalho
-                writer.writerow(colunas)
+                writer.writerow([traduzir_nome_coluna(coluna) for coluna in colunas])
                 
                 # Dados com tradução
                 for row in resultado:
@@ -207,7 +212,7 @@ async def exportar_tabela(
                 # Criar workbook
                 wb = openpyxl.Workbook()
                 ws = wb.active
-                ws.title = tabela[:31]  # Excel limita nome de sheet a 31 caracteres
+                ws.title = traduzir_nome_tabela_exportacao(tabela)[:31]
                 
                 # Cabeçalho com estilo
                 header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
@@ -215,7 +220,7 @@ async def exportar_tabela(
                 
                 for col_idx, col_nome in enumerate(colunas, 1):
                     cell = ws.cell(row=1, column=col_idx)
-                    cell.value = col_nome
+                    cell.value = traduzir_nome_coluna(col_nome)
                     cell.fill = header_fill
                     cell.font = header_font
                     cell.alignment = Alignment(horizontal="center", vertical="center")
@@ -238,7 +243,7 @@ async def exportar_tabela(
                 
                 # Ajustar largura das colunas
                 for col_idx, col_nome in enumerate(colunas, 1):
-                    max_length = len(col_nome)
+                    max_length = len(traduzir_nome_coluna(col_nome))
                     for row in ws.iter_rows(min_col=col_idx, max_col=col_idx):
                         for cell in row:
                             if cell.value:

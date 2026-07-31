@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import csv
+import io
 import json
 import logging
 from typing import Any, Generator
 
+import openpyxl
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, text
@@ -275,6 +278,87 @@ class TestRotaExportar:
         resp = client.get("/api/exportar/clientes?formato=csv")
         assert resp.status_code == 200
         assert "text/csv" in resp.headers.get("content-type", "")
+
+    def test_exportar_csv_traduz_cabecalhos(self, client: TestClient) -> None:
+        resp = client.get("/api/exportar/processos?formato=csv")
+
+        assert resp.status_code == 200
+
+        linhas = list(csv.reader(io.StringIO(resp.text)))
+        assert linhas[0] == ["ID", "Número", "Status", "Descrição"]
+
+    def test_exportacao_busca_excel_traduz_abas_e_colunas(self) -> None:
+        from src.api.routes_export_search import _exportar_excel_busca
+
+        conteudo = _exportar_excel_busca(
+            {
+                "client_publication_search_terms": [
+                    {
+                        "id": 1,
+                        "client_id": 2,
+                        "search_term": "Sila do Brasil",
+                        "created_at": "2026-07-31 10:00:00",
+                        "created_at_userid": 7,
+                    }
+                ],
+                "pedidos2lawsuit": [
+                    {
+                        "id": 1,
+                        "lawsuit_id": 99,
+                        "claim_text": "Pedido de indenização",
+                        "instance01_amount": 1000,
+                        "instance02": "Recurso",
+                        "ias": "A1",
+                    }
+                ],
+                "publicationxml_extra": [
+                    {
+                        "publication_id": 10,
+                        "jurify_pub_id": 20,
+                        "jurify_pasta": "Jurify/2026",
+                        "pub_classification": "Urgente",
+                        "pub_classification_id": 5,
+                        "source_api": "jurify",
+                    }
+                ],
+            },
+            {},
+        )
+
+        workbook = openpyxl.load_workbook(io.BytesIO(conteudo))
+
+        assert "Termos de Busca do Cliente" in workbook.sheetnames
+        assert "Pedidos do Processo" in workbook.sheetnames
+        assert "Extras da Publicação XML" in workbook.sheetnames
+
+        aba_termos = workbook["Termos de Busca do Cliente"]
+        assert [aba_termos.cell(row=1, column=col).value for col in range(1, 6)] == [
+            "ID",
+            "ID do Cliente",
+            "Termo de Busca",
+            "Data de Criação",
+            "Usuário da Criação",
+        ]
+
+        aba_pedidos = workbook["Pedidos do Processo"]
+        assert [aba_pedidos.cell(row=1, column=col).value for col in range(1, 7)] == [
+            "ID",
+            "ID do Processo",
+            "Texto do Pedido",
+            "Valor na 1ª Instância",
+            "2ª Instância",
+            "Ias",
+        ]
+
+        aba_publicacao = workbook["Extras da Publicação XML"]
+        assert [aba_publicacao.cell(row=1, column=col).value for col in range(1, 7)] == [
+            "ID da Publicação",
+            "ID da Publicação Jurify",
+            "Pasta Jurify",
+            "Classificação da Publicação",
+            "ID da Classificação da Publicação",
+            "API de Origem",
+        ]
 
 
 class TestRotasNovas:

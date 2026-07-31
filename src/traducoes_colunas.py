@@ -266,7 +266,7 @@ TRADUCOES_COLUNAS = {
     'protocolmetadata_id': 'ID dos Metadados do Protocolo',
     'protocolrequesttimelimit_id': 'ID do Prazo de Solicitação de Protocolo',
     'pub_class_id': 'ID da Classe de Publicação',
-    'pub_classification_id': 'ID da Classificação de Publicação',
+    'pub_classification_id': 'ID da Classificação da Publicação',
     'pub_text_search_term_id': 'ID do Termo de Busca de Texto da Publicação',
     'publicationid': 'ID da Publicação',
     'publicationxml_id': 'ID do XML da Publicação',
@@ -377,7 +377,7 @@ TRADUCOES_COLUNAS = {
     'lawsuitphase': 'Fase do Processo',
     'pjestatus': 'Status no PJe',
     'pubtype': 'Tipo de Publicação',
-    'pub_classification': 'Classificação de Publicação',
+    'pub_classification': 'Classificação da Publicação',
     'close_reason': 'Motivo de Encerramento',
     'cancel_reason': 'Motivo de Cancelamento',
     'reject_reason': 'Motivo de Rejeição',
@@ -401,8 +401,10 @@ TRADUCOES_COLUNAS = {
     # ── Nomes descritivos ─────────────────────────────────────────────────────
     'name': 'Nome',
     'description': 'Descrição',
+    'descricao': 'Descrição',
     'code': 'Código',
     'number': 'Número',
+    'numero': 'Número',
     'value': 'Valor',
     'amount': 'Valor',
     'total': 'Total',
@@ -467,8 +469,8 @@ TRADUCOES_COLUNAS = {
     'impact': 'Impacto',
     'inscricao': 'Inscrição',
     'instance': 'Instância',
-    'instance01': 'Instância 01',
-    'instance02': 'Instância 02',
+    'instance01': '1ª Instância',
+    'instance02': '2ª Instância',
     'instancia': 'Instância',
     'instanceextra': 'Instância Extra',
     'instancesup': 'Instância Superior',
@@ -581,10 +583,10 @@ TRADUCOES_COLUNAS = {
     'impugnation': 'Impugnação',
     'impugnation_result': 'Resultado da Impugnação',
     'individual_lawsuit': 'Processo Individual',
-    'instance01_amount': 'Valor da Instância 01',
-    'instance02_amount': 'Valor da Instância 02',
-    'instanceextra_amount': 'Valor da Instância Extra',
-    'instancesup_amount': 'Valor da Instância Superior',
+    'instance01_amount': 'Valor na 1ª Instância',
+    'instance02_amount': 'Valor na 2ª Instância',
+    'instanceextra_amount': 'Valor na Instância Extra',
+    'instancesup_amount': 'Valor na Instância Superior',
     'jurify_pasta': 'Pasta Jurify',
     'lawsuit_object': 'Objeto do Processo',
     'levantamento': 'Levantamento',
@@ -1393,6 +1395,13 @@ TRADUCOES_COLUNAS = {
 }
 
 
+TRADUCOES_TABELAS_EXPORTACAO = {
+    'client_publication_search_terms': 'Termos de Busca do Cliente',
+    'pedidos2lawsuit': 'Pedidos do Processo',
+    'publicationxml_extra': 'Extras da Publicação XML',
+}
+
+
 _SUBSTANTIVOS_MASCULINOS_EM_A = {
     'mapa',
     'prazo',
@@ -1437,6 +1446,14 @@ def _traduzir_coluna_relacional(nome_coluna: str) -> str | None:
         return None
 
     return f"ID {_artigo_para_id(traducao_entidade)} {traducao_entidade}"
+
+
+def traduzir_nome_tabela_exportacao(nome_tabela: str) -> str:
+    """Traduz o nome técnico de uma tabela para exibição na exportação."""
+    if not nome_tabela:
+        return nome_tabela
+
+    return TRADUCOES_TABELAS_EXPORTACAO.get(nome_tabela.lower(), nome_tabela)
 
 
 def traduzir_nome_coluna(nome_coluna):
