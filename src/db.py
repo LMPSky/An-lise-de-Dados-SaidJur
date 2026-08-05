@@ -323,6 +323,7 @@ def _candidatos_para(coluna: str) -> list[str]:
         base.replace("lawyers", "advogados"),
         base.replace("court", "tribunal"),
         base.replace("courts", "tribunais"),
+        "processos" if base == "lawsuit" else "",
     ]
     # deduplicate preservando ordem
     seen: set[str] = set()
