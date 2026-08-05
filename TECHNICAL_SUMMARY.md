@@ -13,10 +13,28 @@
 
 - Cobertura dedicada inicial da visão simplificada:
   - `lawsuits` → **Processos**
-  - `publicationxml` / `publicationxml_extra` → **Publicações**
+  - `publicationxml` / `publicationxml_extra` → **Publicações** (inclui campo `pub_classification` como "Classificação" e `classification` como coluna separada)
   - `hearingcontrol` → **Audiências**
   - `pedidos2lawsuit` → **Pedidos e Andamentos**
   - `clients` / `persons` → apoio de labels e consolidação
+  - `client_publication_search_terms` → **Termos de Busca** (nova aba: cliente, termo de busca, data de cadastro; `created_at_userid` excluído por ser puramente técnico)
+
+- Aba **Resumo/Capa** enriquecida com:
+  - Contagem por assunto de negócio (ex: "Total de processos: 3")
+  - Termos de busca associados ao cliente (quando `client_publication_search_terms` estiver nos dados)
+  - Período coberto pelos dados (data mais antiga a mais recente)
+
+- Decisões de inclusão/exclusão por campo:
+  | Campo | Tabela | Decisão | Motivo |
+  |---|---|---|---|
+  | `pub_classification` | `publicationxml_extra` | ✅ Incluído como "Classificação" | Relevante para advogados entenderem a urgência/tipo da publicação |
+  | `summary` / `content` | `publicationxml_extra` | ✅ Incluído como "Resumo" | Conteúdo da publicação |
+  | `jurify_pub_id`, `jurify_pasta` | `publicationxml_extra` | ❌ Excluído | Identificadores de sistema de integração, sem valor para leigos |
+  | `source_api` | `publicationxml_extra` | ❌ Excluído | Técnico de integração |
+  | `publication_id`, `search_term_id` | `publicationxml_extra` | ❌ Excluído | IDs internos de FK, sem valor direto |
+  | `search_term` | `client_publication_search_terms` | ✅ Incluído como "Termo de Busca" | Mostra quais palavras geraram os resultados |
+  | `created_at` | `client_publication_search_terms` | ✅ Incluído como "Cadastrado em" | Data útil para contexto |
+  | `created_at_userid` | `client_publication_search_terms` | ❌ Excluído | ID de usuário técnico sem resolução amigável |
 
 - Tabelas fora dessa cobertura continuam disponíveis normalmente na exportação técnica e são listadas no resumo como pendência para expansão futura da UX simplificada.
 

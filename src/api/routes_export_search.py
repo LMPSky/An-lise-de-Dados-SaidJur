@@ -31,6 +31,7 @@ _TABELAS_VISUALIZACAO_SIMPLES = {
     "pedidos2lawsuit": "Pedidos e Andamentos",
     "clients": "Clientes",
     "persons": "Partes",
+    "client_publication_search_terms": "Termos de Busca",
 }
 
 _ROTULOS_SIMPLES = {
@@ -82,6 +83,10 @@ _ROTULOS_SIMPLES = {
         "instance": "Instância",
         "progress": "Andamento",
         "text": "Texto",
+    },
+    "client_publication_search_terms": {
+        "search_term": "Termo de Busca",
+        "created_at": "Cadastrado em",
     },
 }
 
@@ -162,7 +167,8 @@ def _montar_registro_simplificado(tabela: str, registro: dict[str, Any]) -> dict
             "Cliente": _coluna_valor_mais_relevante(registro, ["client_id", "client_name", "cliente"]),
             "Processo": _coluna_valor_mais_relevante(registro, ["lawsuit_id", "numero", "lawsuitnumber", "processo"]),
             "Data": _coluna_valor_mais_relevante(registro, ["publication_date", "date", "created_at"]),
-            "Situação": _coluna_valor_mais_relevante(registro, ["status", "pub_classification", "classification"]),
+            "Classificação": _coluna_valor_mais_relevante(registro, ["pub_classification", "classification"]),
+            "Situação": _coluna_valor_mais_relevante(registro, ["status"]),
             "Resumo": _coluna_valor_mais_relevante(registro, ["summary", "publication", "content", "texto"]),
         }
     elif tabela == "hearingcontrol":
@@ -181,6 +187,12 @@ def _montar_registro_simplificado(tabela: str, registro: dict[str, Any]) -> dict
             "Pedido": _coluna_valor_mais_relevante(registro, ["claim_text", "request_text", "pedido", "description"]),
             "Andamento": _coluna_valor_mais_relevante(registro, ["progress_text", "status", "instance02", "instance01"]),
             "Valor": _coluna_valor_mais_relevante(registro, ["instance01_amount", "amount", "value"]),
+        }
+    elif tabela == "client_publication_search_terms":
+        simplificado = {
+            "Cliente": _coluna_valor_mais_relevante(registro, ["client_id", "client_name", "cliente"]),
+            "Termo de Busca": _coluna_valor_mais_relevante(registro, ["search_term", "term", "termo"]),
+            "Cadastrado em": _coluna_valor_mais_relevante(registro, ["created_at", "date"]),
         }
     else:
         simplificado = {}
@@ -207,6 +219,9 @@ def montar_relatorio_simplificado(
     tabelas_cobertas: set[str] = set()
     total_registros = 0
 
+    # Coletar datas para o período coberto
+    todas_datas: list[str] = []
+
     for tabela, registros in dados_por_tabela.items():
         assunto = _TABELAS_VISUALIZACAO_SIMPLES.get(tabela)
         if not assunto:
@@ -217,14 +232,54 @@ def montar_relatorio_simplificado(
             if linha:
                 consolidado[assunto].append(linha)
                 total_registros += 1
+            # Coletar datas dos dados originais para período coberto
+            for campo_data in ("date", "created_at", "publication_date", "hearing_date", "scheduled_at"):
+                valor_data = registro.get(campo_data)
+                if valor_data and not _eh_texto_vazio(valor_data):
+                    todas_datas.append(str(valor_data))
 
     nao_cobertas = sorted(t for t in dados_por_tabela.keys() if t not in tabelas_cobertas)
-    resumo = [
+
+    # Termos de busca cadastrados por cliente
+    termos_cadastrados: list[str] = []
+    for registro in dados_por_tabela.get("client_publication_search_terms", []):
+        termo = registro.get("search_term") or registro.get("term") or registro.get("termo")
+        if termo and not _eh_texto_vazio(termo):
+            termos_cadastrados.append(str(termo))
+
+    # Período coberto — normaliza para os primeiros 10 caracteres (YYYY-MM-DD) antes de ordenar
+    periodo_str = ""
+    if todas_datas:
+        datas_normalizadas = sorted(str(d)[:10] for d in todas_datas if len(str(d)) >= 10)
+        if datas_normalizadas:
+            periodo_str = f"{datas_normalizadas[0]} a {datas_normalizadas[-1]}"
+
+    # Contagens por assunto
+    contagens_por_assunto = {assunto: len(registros) for assunto, registros in consolidado.items()}
+
+    resumo: list[dict] = [
         {"Informação": "Busca realizada", "Detalhe": termo_busca or "Busca sem termo informado"},
         {"Informação": "O que este relatório mostra", "Detalhe": "Informações principais sobre processos, publicações, audiências e pedidos."},
-        {"Informação": "Total de registros simplificados", "Detalhe": total_registros},
-        {"Informação": "Assuntos incluídos", "Detalhe": ", ".join(consolidado.keys()) or "Nenhum assunto compatível encontrado"},
+        {"Informação": "Total de registros", "Detalhe": total_registros},
     ]
+
+    for assunto, qtd in contagens_por_assunto.items():
+        resumo.append({"Informação": f"Total de {assunto.lower()}", "Detalhe": qtd})
+
+    if termos_cadastrados:
+        resumo.append({
+            "Informação": "Termos de busca associados",
+            "Detalhe": ", ".join(sorted(set(termos_cadastrados))),
+        })
+
+    if periodo_str:
+        resumo.append({"Informação": "Período coberto pelos dados", "Detalhe": periodo_str})
+
+    resumo.append({
+        "Informação": "Assuntos incluídos",
+        "Detalhe": ", ".join(consolidado.keys()) or "Nenhum assunto compatível encontrado",
+    })
+
     if nao_cobertas:
         resumo.append(
             {

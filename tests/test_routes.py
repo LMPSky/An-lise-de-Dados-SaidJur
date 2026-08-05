@@ -392,8 +392,93 @@ class TestExportacaoBusca:
         assert "ID" not in cabecalhos_pedidos
         assert linha_pedidos["Pedido"] == "Pedido de tutela de urgência"
 
+        # Publicações: verifica que classificação aparece como coluna própria
+        publicacoes = workbook["Publicações"]
+        cabecalhos_pub = [publicacoes.cell(row=1, column=i).value for i in range(1, publicacoes.max_column + 1)]
+        assert "Classificação" in cabecalhos_pub
+        assert "Resumo" in cabecalhos_pub
 
-class TestRotaDados:
+    def test_exporta_busca_excel_simplificado_com_termos_de_busca(self, client: TestClient) -> None:
+        """Aba 'Termos de Busca' deve aparecer quando há dados de client_publication_search_terms."""
+        payload = {
+            "termo": "Sila do Brasil",
+            "dados": [
+                {
+                    "tabela": "client_publication_search_terms",
+                    "coluna": "search_term",
+                    "registros": [
+                        {
+                            "id": 1,
+                            "client_id": 5,
+                            "search_term": "Sila do Brasil",
+                            "created_at": "2024-03-10 08:00:00",
+                        },
+                        {
+                            "id": 2,
+                            "client_id": 5,
+                            "search_term": "Sila Brasil LTDA",
+                            "created_at": "2024-04-01 09:30:00",
+                        },
+                    ],
+                },
+            ],
+        }
+        resp = client.post("/api/exportar/busca?formato=excel&modo=simplificado", json=payload)
+        assert resp.status_code == 200
+        workbook = openpyxl.load_workbook(io.BytesIO(resp.content))
+        assert "Termos de Busca" in workbook.sheetnames
+
+        termos = workbook["Termos de Busca"]
+        cabecalhos = [termos.cell(row=1, column=i).value for i in range(1, termos.max_column + 1)]
+        assert any("Termo" in (c or "") for c in cabecalhos)
+        assert any("Cadastrado" in (c or "") for c in cabecalhos)
+        # IDs técnicos não devem aparecer
+        assert not any("_id" in (c or "").lower() for c in cabecalhos)
+
+    def test_resumo_enriquecido_com_contagens_e_termos(self, client: TestClient) -> None:
+        """O resumo deve conter contagens por assunto e termos de busca associados."""
+        payload = {
+            "termo": "Sila do Brasil",
+            "dados": [
+                {
+                    "tabela": "lawsuits",
+                    "coluna": "numero",
+                    "registros": [
+                        {"id": 1, "numero": "0001-01.2024.8.26.0100", "status": "Ativo"},
+                        {"id": 2, "numero": "0002-01.2024.8.26.0100", "status": "Encerrado"},
+                    ],
+                },
+                {
+                    "tabela": "client_publication_search_terms",
+                    "coluna": "search_term",
+                    "registros": [
+                        {
+                            "id": 1,
+                            "client_id": 5,
+                            "search_term": "Sila do Brasil",
+                            "created_at": "2024-03-10",
+                        },
+                    ],
+                },
+            ],
+        }
+        resp = client.post("/api/exportar/busca?formato=excel&modo=simplificado", json=payload)
+        assert resp.status_code == 200
+        workbook = openpyxl.load_workbook(io.BytesIO(resp.content))
+        resumo = workbook["Resumo"]
+
+        # Coletar todas as linhas do resumo
+        linhas_resumo = {}
+        for row in resumo.iter_rows(min_row=2, values_only=True):
+            if row[0]:
+                linhas_resumo[row[0]] = row[1]
+
+        assert "Total de processos" in linhas_resumo
+        assert int(linhas_resumo["Total de processos"]) == 2
+        assert "Termos de busca associados" in linhas_resumo
+        assert "Sila do Brasil" in str(linhas_resumo["Termos de busca associados"])
+
+
     def test_linhas_status_200(self, client: TestClient) -> None:
         resp = client.get("/api/tabelas/clientes/linhas")
         assert resp.status_code == 200
