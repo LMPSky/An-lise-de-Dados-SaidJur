@@ -142,13 +142,13 @@ Os filtros aplicados são respeitados na exportação.
 Na tela de busca global agora existem **duas opções diferentes**:
 
 - **Relatório Simplificado**: pensado para advogados e usuários leigos. Gera um Excel com:
-  - aba inicial **Resumo**
-  - abas por assunto de negócio, como **Processos**, **Publicações**, **Audiências** e **Pedidos e Andamentos**
-  - apenas campos mais fáceis de entender, como cliente, processo, parte, data, situação, valor e texto principal
+  - aba inicial **Resumo** com contagens por assunto (ex: "Total de processos: 3"), termos de busca associados ao cliente e período coberto pelos dados
+  - abas por assunto de negócio: **Processos**, **Publicações** (com campo "Classificação" de `publicationxml_extra`), **Audiências**, **Pedidos e Andamentos** e **Termos de Busca** (quando `client_publication_search_terms` estiver nos resultados)
+  - apenas campos com significado direto para leigos; IDs técnicos, identificadores de integração e campos de log são omitidos
 - **Exportação Completa/Técnica**: mantém o formato anterior, com uma aba por tabela técnica para uso da equipe de TI
 
-Nesta primeira versão da visualização simplificada, a cobertura dedicada prioriza:
-`lawsuits`, `publicationxml`, `publicationxml_extra`, `hearingcontrol`, `pedidos2lawsuit`, `clients` e `persons`.
+Cobertura do Relatório Simplificado:
+`lawsuits`, `publicationxml`, `publicationxml_extra` (classificação incluída), `hearingcontrol`, `pedidos2lawsuit`, `clients`, `persons` e `client_publication_search_terms` (termos de busca).
 
 Se a busca encontrar outras tabelas, elas continuam disponíveis na exportação técnica e também aparecem na aba de resumo como próximas candidatas para simplificação futura.
 
