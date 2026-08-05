@@ -138,6 +138,20 @@ Clique no ícone **🔽** ao lado do nome da coluna para abrir o menu de filtro:
 Clique em **📥 Exportar Excel** ou **📥 Exportar CSV** no topo direito da tabela.
 Os filtros aplicados são respeitados na exportação.
 
+### 🧾 Relatório Simplificado para apresentação
+Na tela de busca global agora existem **duas opções diferentes**:
+
+- **Relatório Simplificado**: pensado para advogados e usuários leigos. Gera um Excel com:
+  - aba inicial **Resumo**
+  - abas por assunto de negócio, como **Processos**, **Publicações**, **Audiências** e **Pedidos e Andamentos**
+  - apenas campos mais fáceis de entender, como cliente, processo, parte, data, situação, valor e texto principal
+- **Exportação Completa/Técnica**: mantém o formato anterior, com uma aba por tabela técnica para uso da equipe de TI
+
+Nesta primeira versão da visualização simplificada, a cobertura dedicada prioriza:
+`lawsuits`, `publicationxml`, `publicationxml_extra`, `hearingcontrol`, `pedidos2lawsuit`, `clients` e `persons`.
+
+Se a busca encontrar outras tabelas, elas continuam disponíveis na exportação técnica e também aparecem na aba de resumo como próximas candidatas para simplificação futura.
+
 ### 🌐 Traduzindo códigos e ENUMs
 Algumas colunas podem guardar códigos curtos, como `nature: "p"` ou campos
 numéricos binários (`0` / `1`). Para exibir nomes mais legíveis, copie o
