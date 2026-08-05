@@ -131,8 +131,9 @@ def _eh_texto_vazio(valor: Any) -> bool:
 def _rotulo_simples_para_coluna(tabela: str, coluna: str) -> str | None:
     """Tenta gerar um cabeçalho amigável por heurística."""
     coluna_lower = coluna.lower()
+    tokens = set(coluna_lower.split("_"))
     for trecho, rotulo in _ROTULOS_SIMPLES.get(tabela, {}).items():
-        if trecho in coluna_lower:
+        if trecho == coluna_lower or trecho in tokens:
             return rotulo
     return None
 

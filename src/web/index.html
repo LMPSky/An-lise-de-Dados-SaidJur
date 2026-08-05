@@ -267,7 +267,7 @@
               </template>
               <template x-if="modoAvancado">
                 <div class="space-y-4">
-                  <template x-for="grupo in resultadosBusca" :key="grupo.tabela + grupo.coluna + Math.random()">
+                  <template x-for="grupo in resultadosBusca" :key="grupo.tabela + grupo.coluna">
                     <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
                       <div class="px-4 py-2 bg-gray-50 border-b flex items-center gap-2">
                         <span class="font-semibold text-primary" x-text="exibirNomeTabela(grupo.tabela)"></span>
