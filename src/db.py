@@ -316,8 +316,6 @@ def _candidatos_para(coluna: str) -> list[str]:
         base.replace("employee", "funcionario"),
         base.replace("employees", "funcionarios"),
         base.replace("lawsuit", "processo"),
-        base.replace("lawsuit", "processos"),
-        base.replace("lawsuits", "processo"),
         base.replace("lawsuits", "processos"),
         base.replace("hearing", "audiencia"),
         base.replace("hearings", "audiencias"),
@@ -325,6 +323,7 @@ def _candidatos_para(coluna: str) -> list[str]:
         base.replace("lawyers", "advogados"),
         base.replace("court", "tribunal"),
         base.replace("courts", "tribunais"),
+        "processos" if base == "lawsuit" else "",
     ]
     # deduplicate preservando ordem
     seen: set[str] = set()
