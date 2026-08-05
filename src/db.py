@@ -316,6 +316,8 @@ def _candidatos_para(coluna: str) -> list[str]:
         base.replace("employee", "funcionario"),
         base.replace("employees", "funcionarios"),
         base.replace("lawsuit", "processo"),
+        base.replace("lawsuit", "processos"),
+        base.replace("lawsuits", "processo"),
         base.replace("lawsuits", "processos"),
         base.replace("hearing", "audiencia"),
         base.replace("hearings", "audiencias"),

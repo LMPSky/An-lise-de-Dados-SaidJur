@@ -5,12 +5,14 @@ from __future__ import annotations
 import io
 import json
 import logging
+from collections import defaultdict
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 import csv
 
+from src.db import fks_inferidas, listar_chaves_estrangeiras, resolver_labels
 from src.traducoes_colunas import (
     traduzir_nome_coluna,
     traduzir_nome_tabela_exportacao,
@@ -25,23 +27,15 @@ def _traduzir_valor_coluna(
     valor: Any,
     tabela: str,
     coluna: str,
-    dicionarios: dict,
-) -> str:
-    """Traduz um valor usando o dicionário."""
+    dicionarios: dict[str, Any] | None = None,
+) -> Any:
+    """Traduz um valor usando o dicionário já carregado na aplicação."""
     if valor is None:
-        return ""
-    
-    valor_str = str(valor)
-    
-    # Procurar no dicionário
-    if tabela in dicionarios:
-        tabela_dict = dicionarios[tabela]
-        if coluna in tabela_dict:
-            coluna_dict = tabela_dict[coluna]
-            if valor_str in coluna_dict:
-                return coluna_dict[valor_str]
-    
-    return valor_str
+        return None
+
+    dicionarios = dicionarios or {}
+    traducao = dicionarios.get(tabela, {}).get(coluna, {}).get(str(valor))
+    return traducao if traducao is not None else valor
 
 
 def _serializar_valor(valor: Any) -> str:
@@ -53,6 +47,84 @@ def _serializar_valor(valor: Any) -> str:
     if isinstance(valor, bool):
         return "Sim" if valor else "Não"
     return str(valor)
+
+
+def _formatar_label_fk(label: str, valor_original: Any) -> str:
+    """Formata label de FK mantendo o ID visível para rastreabilidade."""
+    valor_str = _serializar_valor(valor_original)
+    return f"{label} ({valor_str})" if label != valor_str else valor_str
+
+
+def _mapear_fks_para_exportacao(engine, tabela: str) -> dict[str, str]:
+    """Retorna mapa coluna FK → tabela referenciada para exportação."""
+    fks = listar_chaves_estrangeiras(engine, tabela) + fks_inferidas(engine, tabela)
+    mapeamento: dict[str, str] = {}
+    for fk in fks:
+        coluna = fk.get("coluna")
+        tabela_ref = fk.get("tabela_referenciada")
+        if coluna and tabela_ref and coluna not in mapeamento:
+            mapeamento[coluna] = tabela_ref
+    return mapeamento
+
+
+def _resolver_fks_dados_busca(engine, dados_por_tabela: dict[str, list[dict]]) -> dict[tuple[str, str], dict[str, str]]:
+    """Resolve em lote os labels de FKs presentes nos dados exportados."""
+    pedidos: dict[str, set[str]] = defaultdict(set)
+    mapeamentos: dict[tuple[str, str], str] = {}
+
+    for tabela, registros in dados_por_tabela.items():
+        mapa_fks = _mapear_fks_para_exportacao(engine, tabela)
+        if not mapa_fks:
+            continue
+
+        for coluna, tabela_ref in mapa_fks.items():
+            for registro in registros:
+                valor = registro.get(coluna)
+                if valor in (None, ""):
+                    continue
+                valor_str = str(valor)
+                if not valor_str.strip():
+                    continue
+                pedidos[tabela_ref].add(valor_str)
+                mapeamentos[(tabela, coluna)] = tabela_ref
+
+    resolucoes = [
+        {"tabela": tabela_ref, "coluna_chave": "id", "ids": sorted(ids)}
+        for tabela_ref, ids in pedidos.items()
+        if ids
+    ]
+    if not resolucoes:
+        return {}
+
+    labels = resolver_labels(engine, resolucoes)
+    return {chave: labels.get(tabela_ref, {}) for chave, tabela_ref in mapeamentos.items()}
+
+
+def _normalizar_dados_para_exportacao(
+    engine,
+    dados_por_tabela: dict[str, list[dict]],
+    dicionarios: dict[str, Any] | None = None,
+) -> dict[str, list[dict]]:
+    """Aplica traduções de dicionário e resolução de FK aos dados da exportação."""
+    labels_fk = _resolver_fks_dados_busca(engine, dados_por_tabela)
+    normalizados: dict[str, list[dict]] = {}
+
+    for tabela, registros in dados_por_tabela.items():
+        registros_normalizados: list[dict] = []
+        for registro in registros:
+            novo_registro: dict[str, Any] = {}
+            for coluna, valor in registro.items():
+                label_fk = labels_fk.get((tabela, coluna), {}).get(str(valor))
+                if label_fk:
+                    novo_registro[coluna] = _formatar_label_fk(label_fk, valor)
+                    continue
+
+                traducao = _traduzir_valor_coluna(valor, tabela, coluna, dicionarios)
+                novo_registro[coluna] = traducao
+            registros_normalizados.append(novo_registro)
+        normalizados[tabela] = registros_normalizados
+
+    return normalizados
 
 
 def _extrair_dados_busca(dados_json: str) -> dict[str, list[dict]]:
@@ -104,7 +176,7 @@ def _extrair_dados_busca(dados_json: str) -> dict[str, list[dict]]:
 
 def _exportar_csv_busca(
     dados_por_tabela: dict[str, list[dict]],
-    dicionarios: dict,
+    dicionarios: dict[str, Any] | None = None,
 ) -> str:
     """Exporta resultados de busca como CSV com uma tabela por linha."""
     output = io.StringIO()
@@ -137,7 +209,7 @@ def _exportar_csv_busca(
 
 def _exportar_excel_busca(
     dados_por_tabela: dict[str, list[dict]],
-    dicionarios: dict,
+    dicionarios: dict[str, Any] | None = None,
 ) -> bytes:
     """Exporta resultados de busca como Excel com uma aba por tabela."""
     try:
@@ -240,8 +312,9 @@ async def exportar_resultado_busca(
         raise HTTPException(status_code=400, detail=f"Body JSON inválido: {str(e)}")
     
     dados_json = json.dumps(body.get("dados", []))
-    dicionarios = getattr(request.app.state, 'dicionarios', {})
-    
+    engine = request.app.state.engine
+    dicionarios = getattr(request.app.state, "dicionarios", {})
+
     # Extrair dados por tabela
     dados_por_tabela = _extrair_dados_busca(dados_json)
     
@@ -253,11 +326,13 @@ async def exportar_resultado_busca(
     
     if not dados_por_tabela:
         raise HTTPException(status_code=400, detail="Nenhum dado para exportar")
-    
+
+    dados_por_tabela = _normalizar_dados_para_exportacao(engine, dados_por_tabela, dicionarios)
+
     try:
         if formato.lower() == "csv":
             # Exportar como CSV
-            conteudo = _exportar_csv_busca(dados_por_tabela, dicionarios)
+            conteudo = _exportar_csv_busca(dados_por_tabela)
             nome_arquivo = f"busca_saidjur.csv"
             
             return StreamingResponse(
@@ -268,7 +343,7 @@ async def exportar_resultado_busca(
         
         else:  # excel
             # Exportar como Excel
-            conteudo = _exportar_excel_busca(dados_por_tabela, dicionarios)
+            conteudo = _exportar_excel_busca(dados_por_tabela)
             nome_arquivo = f"busca_saidjur.xlsx"
             
             return StreamingResponse(

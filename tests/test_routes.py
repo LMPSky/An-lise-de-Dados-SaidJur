@@ -55,7 +55,14 @@ def _criar_engine_sqlite() -> Engine:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 userid INTEGER NOT NULL,
                 perfil TEXT,
+                confirmado INTEGER,
                 FOREIGN KEY(userid) REFERENCES users(id)
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE pedidos2lawsuit (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                lawsuit_id INTEGER
             )
         """))
         conn.execute(text("""
@@ -70,7 +77,7 @@ def _criar_engine_sqlite() -> Engine:
             ('0002345-00.2023.8', 'concluído', 'Divórcio consensual')
         """))
         conn.execute(text("INSERT INTO users (nome) VALUES ('Ana'), ('Bruno')"))
-        conn.execute(text("INSERT INTO busunitaccess (userid, perfil) VALUES (1, 'admin'), (2, 'leitura')"))
+        conn.execute(text("INSERT INTO busunitaccess (userid, perfil, confirmado) VALUES (1, 'admin', 0), (2, 'leitura', 1)"))
         conn.commit()
     return engine
 
@@ -149,6 +156,7 @@ def client(monkeypatch: pytest.MonkeyPatch) -> Generator[TestClient, None, None]
     import src.api.routes_data as rt_data
     import src.api.routes_search as rt_search
     import src.api.routes_export as rt_export
+    import src.api.routes_export_search as rt_export_search
     import src.api.routes_stats as rt_stats
     import src.db as db_module
 
@@ -161,7 +169,7 @@ def client(monkeypatch: pytest.MonkeyPatch) -> Generator[TestClient, None, None]
     monkeypatch.setattr(db_module, "colunas_texto", _colunas_texto_sqlite)
     monkeypatch.setattr(db_module, "listar_chaves_estrangeiras", _listar_fks_sqlite)
 
-    for modulo in [rt_tables, rt_data, rt_search, rt_export, rt_stats]:
+    for modulo in [rt_tables, rt_data, rt_search, rt_export, rt_export_search, rt_stats]:
         if hasattr(modulo, "listar_tabelas"):
             monkeypatch.setattr(modulo, "listar_tabelas", _listar_tabelas_sqlite)
         if hasattr(modulo, "listar_colunas"):
@@ -177,6 +185,7 @@ def client(monkeypatch: pytest.MonkeyPatch) -> Generator[TestClient, None, None]
 
     from src.api.main import app
     app.state.engine = engine
+    app.state.dicionarios = {"busunitaccess": {"confirmado": {"0": "Não", "1": "Sim"}}}
 
     with TestClient(app, raise_server_exceptions=True) as c:
         yield c
@@ -243,6 +252,64 @@ class TestRotaTabelas:
         assert resp.status_code == 503
         assert "Não foi possível conectar ao banco de dados" in resp.json()["detail"]
         assert "Falha ao listar tabelas" in caplog.text
+
+
+class TestExportacaoBusca:
+    def test_exporta_busca_csv_com_fk_resolvida_e_booleano_traduzido(self, client: TestClient) -> None:
+        payload = {
+            "dados": [
+                {
+                    "tabela": "busunitaccess",
+                    "coluna": "userid",
+                    "registros": [
+                        {"id": 1, "userid": 1, "perfil": "admin", "confirmado": 0},
+                        {"id": 2, "userid": 2, "perfil": "leitura", "confirmado": 1},
+                    ],
+                },
+                {
+                    "tabela": "pedidos2lawsuit",
+                    "coluna": "lawsuit_id",
+                    "registros": [
+                        {"id": 1, "lawsuit_id": 1},
+                    ],
+                },
+            ]
+        }
+
+        resp = client.post("/api/exportar/busca?formato=csv", json=payload)
+
+        assert resp.status_code == 200
+        texto = resp.text
+        assert 'Ana (1)' in texto
+        assert 'Bruno (2)' in texto
+        assert 'Ação de cobrança (1)' in texto
+        assert 'Não' in texto
+        assert 'Sim' in texto
+
+    def test_exporta_busca_excel_com_fk_resolvida_e_booleano_traduzido(self, client: TestClient) -> None:
+        payload = {
+            "dados": [
+                {
+                    "tabela": "busunitaccess",
+                    "coluna": "userid",
+                    "registros": [
+                        {"id": 1, "userid": 1, "perfil": "admin", "confirmado": 0},
+                    ],
+                }
+            ]
+        }
+
+        resp = client.post("/api/exportar/busca?formato=excel", json=payload)
+
+        assert resp.status_code == 200
+        wb = openpyxl.load_workbook(io.BytesIO(resp.content))
+        ws = wb[wb.sheetnames[0]]
+        headers = [ws.cell(row=1, column=i).value for i in range(1, ws.max_column + 1)]
+        valores = [ws.cell(row=2, column=i).value for i in range(1, ws.max_column + 1)]
+        linha = dict(zip(headers, valores))
+
+        assert linha['ID do Usuário'] == 'Ana (1)'
+        assert linha['Confirmado'] == 'Não'
 
 
 class TestRotaDados:
