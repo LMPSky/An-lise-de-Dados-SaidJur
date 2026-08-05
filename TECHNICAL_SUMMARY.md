@@ -2,6 +2,24 @@
 
 ## 📝 Mudanças Realizadas
 
+### 0. **Novo modo de exportação simplificado**
+
+- A rota `POST /api/exportar/busca` agora aceita `modo=simplificado` além do modo técnico padrão.
+- O modo simplificado:
+  - preserva a exportação técnica atual sem alteração de comportamento
+  - monta visões por assunto de negócio em vez de expor uma aba por tabela técnica
+  - cria uma aba inicial **Resumo** com linguagem simples
+  - reaproveita os dados já normalizados por traduções de colunas, dicionários e resolução de FKs
+
+- Cobertura dedicada inicial da visão simplificada:
+  - `lawsuits` → **Processos**
+  - `publicationxml` / `publicationxml_extra` → **Publicações**
+  - `hearingcontrol` → **Audiências**
+  - `pedidos2lawsuit` → **Pedidos e Andamentos**
+  - `clients` / `persons` → apoio de labels e consolidação
+
+- Tabelas fora dessa cobertura continuam disponíveis normalmente na exportação técnica e são listadas no resumo como pendência para expansão futura da UX simplificada.
+
 ### 1. **Backend - Rotas de Exportação** (`src/api/routes_export_search.py`)
 
 #### Funcionalidades Implementadas:

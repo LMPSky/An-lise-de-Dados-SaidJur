@@ -5,6 +5,7 @@ from __future__ import annotations
 import io
 import json
 import logging
+import re
 from collections import defaultdict
 from typing import Any
 
@@ -21,6 +22,74 @@ from src.traducoes_colunas import (
 logger = logging.getLogger("saidjur.export_search")
 
 router = APIRouter(tags=["Exportação"])
+
+_TABELAS_VISUALIZACAO_SIMPLES = {
+    "lawsuits": "Processos",
+    "publicationxml": "Publicações",
+    "publicationxml_extra": "Publicações",
+    "hearingcontrol": "Audiências",
+    "pedidos2lawsuit": "Pedidos e Andamentos",
+    "clients": "Clientes",
+    "persons": "Partes",
+}
+
+_ROTULOS_SIMPLES = {
+    "clients": {
+        "name": "Cliente",
+        "nome": "Cliente",
+    },
+    "persons": {
+        "name": "Parte",
+        "nome": "Parte",
+    },
+    "lawsuits": {
+        "numero": "Processo",
+        "lawsuitnumber": "Processo",
+        "status": "Situação",
+        "instance": "Instância",
+        "amount": "Valor",
+        "value": "Valor",
+        "description": "Descrição",
+        "subject": "Assunto",
+        "type": "Tipo",
+    },
+    "publicationxml": {
+        "date": "Data",
+        "publication": "Publicação",
+        "summary": "Resumo",
+        "content": "Texto",
+        "type": "Tipo",
+        "status": "Situação",
+    },
+    "publicationxml_extra": {
+        "classification": "Classificação",
+        "summary": "Resumo",
+        "content": "Texto",
+    },
+    "hearingcontrol": {
+        "date": "Data",
+        "type": "Tipo de Audiência",
+        "status": "Situação",
+        "room": "Local",
+        "description": "Descrição",
+    },
+    "pedidos2lawsuit": {
+        "claim": "Pedido",
+        "request": "Pedido",
+        "status": "Situação",
+        "date": "Data",
+        "amount": "Valor",
+        "instance": "Instância",
+        "progress": "Andamento",
+        "text": "Texto",
+    },
+}
+
+_COLUNAS_TECNICAS_REGEX = (
+    r"(^id$|_id$|^fk_|^id_|created_at|updated_at|deleted_at|inserted_at|"
+    r"created_by|updated_by|userid|user_id|log_|config|setting|token|hash|password|"
+    r"checksum|uuid|guid|version|sort_order|ordem|ativo$|enabled$)"
+)
 
 
 def _traduzir_valor_coluna(
@@ -47,6 +116,124 @@ def _serializar_valor(valor: Any) -> str:
     if isinstance(valor, bool):
         return "Sim" if valor else "Não"
     return str(valor)
+
+
+def _eh_coluna_tecnica(nome_coluna: str) -> bool:
+    """Indica se a coluna é técnica demais para o relatório simplificado."""
+    return bool(re.search(_COLUNAS_TECNICAS_REGEX, nome_coluna.lower()))
+
+
+def _eh_texto_vazio(valor: Any) -> bool:
+    """Retorna True quando o valor é vazio para a visão simplificada."""
+    return valor is None or str(valor).strip() == ""
+
+
+def _rotulo_simples_para_coluna(tabela: str, coluna: str) -> str | None:
+    """Tenta gerar um cabeçalho amigável por heurística."""
+    coluna_lower = coluna.lower()
+    tokens = set(coluna_lower.split("_"))
+    for trecho, rotulo in _ROTULOS_SIMPLES.get(tabela, {}).items():
+        if trecho == coluna_lower or trecho in tokens:
+            return rotulo
+    return None
+
+
+def _coluna_valor_mais_relevante(registro: dict[str, Any], candidatos: list[str]) -> Any:
+    """Retorna o primeiro valor não vazio encontrado entre colunas candidatas."""
+    for nome in candidatos:
+        if nome in registro and not _eh_texto_vazio(registro[nome]):
+            return registro[nome]
+    return None
+
+
+def _montar_registro_simplificado(tabela: str, registro: dict[str, Any]) -> dict[str, Any]:
+    """Converte um registro técnico em um registro amigável para leigos."""
+    if tabela == "lawsuits":
+        simplificado = {
+            "Cliente": _coluna_valor_mais_relevante(registro, ["client_id", "client_name", "cliente", "nome_cliente"]),
+            "Processo": _coluna_valor_mais_relevante(registro, ["numero", "lawsuitnumber", "cnj", "number"]),
+            "Parte": _coluna_valor_mais_relevante(registro, ["person_id", "person_name", "parte", "nome_parte"]),
+            "Situação": _coluna_valor_mais_relevante(registro, ["status", "situation", "phase"]),
+            "Valor": _coluna_valor_mais_relevante(registro, ["amount", "value", "valor_causa", "instance01_amount", "total_amount"]),
+            "Descrição": _coluna_valor_mais_relevante(registro, ["description", "subject", "resumo", "summary"]),
+        }
+    elif tabela in {"publicationxml", "publicationxml_extra"}:
+        simplificado = {
+            "Cliente": _coluna_valor_mais_relevante(registro, ["client_id", "client_name", "cliente"]),
+            "Processo": _coluna_valor_mais_relevante(registro, ["lawsuit_id", "numero", "lawsuitnumber", "processo"]),
+            "Data": _coluna_valor_mais_relevante(registro, ["publication_date", "date", "created_at"]),
+            "Situação": _coluna_valor_mais_relevante(registro, ["status", "pub_classification", "classification"]),
+            "Resumo": _coluna_valor_mais_relevante(registro, ["summary", "publication", "content", "texto"]),
+        }
+    elif tabela == "hearingcontrol":
+        simplificado = {
+            "Cliente": _coluna_valor_mais_relevante(registro, ["client_id", "client_name", "cliente"]),
+            "Processo": _coluna_valor_mais_relevante(registro, ["lawsuit_id", "numero", "lawsuitnumber"]),
+            "Parte": _coluna_valor_mais_relevante(registro, ["person_id", "person_name"]),
+            "Data": _coluna_valor_mais_relevante(registro, ["hearing_date", "date", "scheduled_at"]),
+            "Tipo de Audiência": _coluna_valor_mais_relevante(registro, ["hearing_type_id", "type", "hearing_type"]),
+            "Situação": _coluna_valor_mais_relevante(registro, ["status", "situation"]),
+        }
+    elif tabela == "pedidos2lawsuit":
+        simplificado = {
+            "Cliente": _coluna_valor_mais_relevante(registro, ["client_id", "client_name", "cliente"]),
+            "Processo": _coluna_valor_mais_relevante(registro, ["lawsuit_id", "numero", "lawsuitnumber"]),
+            "Pedido": _coluna_valor_mais_relevante(registro, ["claim_text", "request_text", "pedido", "description"]),
+            "Andamento": _coluna_valor_mais_relevante(registro, ["progress_text", "status", "instance02", "instance01"]),
+            "Valor": _coluna_valor_mais_relevante(registro, ["instance01_amount", "amount", "value"]),
+        }
+    else:
+        simplificado = {}
+
+    if simplificado:
+        return {chave: valor for chave, valor in simplificado.items() if not _eh_texto_vazio(valor)}
+
+    fallback: dict[str, Any] = {}
+    for coluna, valor in registro.items():
+        if _eh_texto_vazio(valor) or _eh_coluna_tecnica(coluna):
+            continue
+        rotulo = _rotulo_simples_para_coluna(tabela, coluna) or traduzir_nome_coluna(coluna)
+        if rotulo not in fallback:
+            fallback[rotulo] = valor
+    return fallback
+
+
+def montar_relatorio_simplificado(
+    dados_por_tabela: dict[str, list[dict]],
+    termo_busca: str = "",
+) -> dict[str, list[dict]]:
+    """Monta visões consolidadas e amigáveis por assunto de negócio."""
+    consolidado: dict[str, list[dict]] = defaultdict(list)
+    tabelas_cobertas: set[str] = set()
+    total_registros = 0
+
+    for tabela, registros in dados_por_tabela.items():
+        assunto = _TABELAS_VISUALIZACAO_SIMPLES.get(tabela)
+        if not assunto:
+            continue
+        tabelas_cobertas.add(tabela)
+        for registro in registros:
+            linha = _montar_registro_simplificado(tabela, registro)
+            if linha:
+                consolidado[assunto].append(linha)
+                total_registros += 1
+
+    nao_cobertas = sorted(t for t in dados_por_tabela.keys() if t not in tabelas_cobertas)
+    resumo = [
+        {"Informação": "Busca realizada", "Detalhe": termo_busca or "Busca sem termo informado"},
+        {"Informação": "O que este relatório mostra", "Detalhe": "Informações principais sobre processos, publicações, audiências e pedidos."},
+        {"Informação": "Total de registros simplificados", "Detalhe": total_registros},
+        {"Informação": "Assuntos incluídos", "Detalhe": ", ".join(consolidado.keys()) or "Nenhum assunto compatível encontrado"},
+    ]
+    if nao_cobertas:
+        resumo.append(
+            {
+                "Informação": "Tabelas ainda não simplificadas",
+                "Detalhe": ", ".join(nao_cobertas),
+            }
+        )
+
+    return {"Resumo": resumo, **consolidado}
 
 
 def _formatar_label_fk(label: str, valor_original: Any) -> str:
@@ -276,11 +463,21 @@ def _exportar_excel_busca(
     return output.getvalue()
 
 
+def _exportar_excel_busca_simplificada(
+    dados_por_tabela: dict[str, list[dict]],
+    termo_busca: str = "",
+) -> bytes:
+    """Exporta resultados em formato simplificado por assunto de negócio."""
+    visoes = montar_relatorio_simplificado(dados_por_tabela, termo_busca=termo_busca)
+    return _exportar_excel_busca(visoes)
+
+
 @router.post("/exportar/busca")
 async def exportar_resultado_busca(
     request: Request,
-    formato: str = Query("excel", regex="^(csv|excel)$", description="Formato: 'csv' ou 'excel'"),
+    formato: str = Query("excel", pattern="^(csv|excel)$", description="Formato: 'csv' ou 'excel'"),
     tabela: str | None = Query(None, description="Exportar apenas uma tabela específica (opcional)"),
+    modo: str = Query("tecnico", pattern="^(tecnico|simplificado)$", description="Modo da exportação"),
 ) -> StreamingResponse:
     """
     Exporta resultados de busca em Excel (múltiplas abas) ou CSV.
@@ -312,6 +509,7 @@ async def exportar_resultado_busca(
         raise HTTPException(status_code=400, detail=f"Body JSON inválido: {str(e)}")
     
     dados_json = json.dumps(body.get("dados", []))
+    termo_busca = body.get("termo", "")
     engine = request.app.state.engine
     dicionarios = getattr(request.app.state, "dicionarios", {})
 
@@ -343,8 +541,12 @@ async def exportar_resultado_busca(
         
         else:  # excel
             # Exportar como Excel
-            conteudo = _exportar_excel_busca(dados_por_tabela)
-            nome_arquivo = f"busca_saidjur.xlsx"
+            if modo == "simplificado":
+                conteudo = _exportar_excel_busca_simplificada(dados_por_tabela, termo_busca=termo_busca)
+                nome_arquivo = "relatorio_simplificado_saidjur.xlsx"
+            else:
+                conteudo = _exportar_excel_busca(dados_por_tabela)
+                nome_arquivo = "busca_saidjur.xlsx"
             
             return StreamingResponse(
                 iter([conteudo]),

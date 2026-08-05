@@ -311,6 +311,87 @@ class TestExportacaoBusca:
         assert linha['ID do Usuário'] == 'Ana (1)'
         assert linha['Confirmado'] == 'Não'
 
+    def test_exporta_busca_excel_simplificado_com_resumo_e_abas_de_negocio(self, client: TestClient) -> None:
+        payload = {
+            "termo": "Sila do Brasil",
+            "dados": [
+                {
+                    "tabela": "lawsuits",
+                    "coluna": "numero",
+                    "registros": [
+                        {
+                            "id": 10,
+                            "client_id": 1,
+                            "numero": "0001234-55.2024.8.26.0100",
+                            "status": "Ativo",
+                            "amount": "15000.50",
+                            "created_at_userid": 7,
+                        }
+                    ],
+                },
+                {
+                    "tabela": "pedidos2lawsuit",
+                    "coluna": "claim_text",
+                    "registros": [
+                        {
+                            "id": 99,
+                            "lawsuit_id": 10,
+                            "client_id": 1,
+                            "claim_text": "Pedido de tutela de urgência",
+                            "instance01_amount": "5000.00",
+                            "log_inserted_at": "2026-08-01 10:00:00",
+                        }
+                    ],
+                },
+                {
+                    "tabela": "publicationxml_extra",
+                    "coluna": "summary",
+                    "registros": [
+                        {
+                            "publication_id": 5,
+                            "client_id": 1,
+                            "lawsuit_id": 10,
+                            "summary": "Publicação com prazo de manifestação",
+                            "pub_classification": "Urgente",
+                        }
+                    ],
+                },
+            ],
+        }
+
+        resp = client.post("/api/exportar/busca?formato=excel&modo=simplificado", json=payload)
+
+        assert resp.status_code == 200
+        workbook = openpyxl.load_workbook(io.BytesIO(resp.content))
+        assert workbook.sheetnames[0] == "Resumo"
+        assert "Processos" in workbook.sheetnames
+        assert "Pedidos e Andamentos" in workbook.sheetnames
+        assert "Publicações" in workbook.sheetnames
+
+        resumo = workbook["Resumo"]
+        assert resumo["A2"].value == "Busca realizada"
+        assert resumo["B2"].value == "Sila do Brasil"
+
+        processos = workbook["Processos"]
+        cabecalhos = [processos.cell(row=1, column=i).value for i in range(1, processos.max_column + 1)]
+        valores = [processos.cell(row=2, column=i).value for i in range(1, processos.max_column + 1)]
+        linha = dict(zip(cabecalhos, valores))
+        assert "Cliente" in cabecalhos
+        assert "Processo" in cabecalhos
+        assert "Situação" in cabecalhos
+        assert "ID" not in cabecalhos
+        assert linha["Processo"] == "0001234-55.2024.8.26.0100"
+        assert linha["Situação"] == "Ativo"
+
+        pedidos = workbook["Pedidos e Andamentos"]
+        cabecalhos_pedidos = [pedidos.cell(row=1, column=i).value for i in range(1, pedidos.max_column + 1)]
+        valores_pedidos = [pedidos.cell(row=2, column=i).value for i in range(1, pedidos.max_column + 1)]
+        linha_pedidos = dict(zip(cabecalhos_pedidos, valores_pedidos))
+        assert "Pedido" in cabecalhos_pedidos
+        assert "Valor" in cabecalhos_pedidos
+        assert "ID" not in cabecalhos_pedidos
+        assert linha_pedidos["Pedido"] == "Pedido de tutela de urgência"
+
 
 class TestRotaDados:
     def test_linhas_status_200(self, client: TestClient) -> None:

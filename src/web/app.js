@@ -176,6 +176,7 @@ function app() {
     termoBusca: '',
     termoBuscaAtiva: '',
     resultadosBusca: [],
+    resultadosBuscaSimplificados: {},
     buscandoGlobal: false,
     mostrarBusca: false,
     buscaCancelada: false,
@@ -280,6 +281,65 @@ function app() {
         .filter(nome => Object.prototype.hasOwnProperty.call(registro, nome))
         .slice(0, 1)
         .map(nome => ({ nome, valor: registro[nome] }));
+    },
+
+    simplificarResultadosBusca() {
+      const grupos = {
+        'Processos': [],
+        'Publicações': [],
+        'Audiências': [],
+        'Pedidos e Andamentos': [],
+      };
+
+      const primeiraLinha = (registro, chaves) => {
+        for (const chave of chaves) {
+          const valor = registro?.[chave];
+          if (valor !== null && valor !== undefined && String(valor).trim() !== '') return valor;
+        }
+        return null;
+      };
+
+      for (const grupo of this.resultadosBusca) {
+        for (const registro of grupo.registros || []) {
+          if (grupo.tabela === 'lawsuits') {
+            grupos['Processos'].push({
+              'Cliente': primeiraLinha(registro, ['client_id', 'client_name', 'cliente']),
+              'Processo': primeiraLinha(registro, ['numero', 'lawsuitnumber', 'cnj', 'number']),
+              'Parte': primeiraLinha(registro, ['person_id', 'person_name', 'parte']),
+              'Situação': primeiraLinha(registro, ['status', 'situation', 'phase']),
+              'Valor': primeiraLinha(registro, ['amount', 'value', 'valor_causa', 'instance01_amount']),
+            });
+          } else if (['publicationxml', 'publicationxml_extra'].includes(grupo.tabela)) {
+            grupos['Publicações'].push({
+              'Cliente': primeiraLinha(registro, ['client_id', 'client_name', 'cliente']),
+              'Processo': primeiraLinha(registro, ['lawsuit_id', 'numero', 'lawsuitnumber', 'processo']),
+              'Data': primeiraLinha(registro, ['publication_date', 'date', 'created_at']),
+              'Situação': primeiraLinha(registro, ['status', 'pub_classification', 'classification']),
+              'Resumo': primeiraLinha(registro, ['summary', 'publication', 'content', 'texto']),
+            });
+          } else if (grupo.tabela === 'hearingcontrol') {
+            grupos['Audiências'].push({
+              'Cliente': primeiraLinha(registro, ['client_id', 'client_name', 'cliente']),
+              'Processo': primeiraLinha(registro, ['lawsuit_id', 'numero', 'lawsuitnumber']),
+              'Data': primeiraLinha(registro, ['hearing_date', 'date', 'scheduled_at']),
+              'Tipo de Audiência': primeiraLinha(registro, ['hearing_type_id', 'type', 'hearing_type']),
+              'Situação': primeiraLinha(registro, ['status', 'situation']),
+            });
+          } else if (grupo.tabela === 'pedidos2lawsuit') {
+            grupos['Pedidos e Andamentos'].push({
+              'Cliente': primeiraLinha(registro, ['client_id', 'client_name', 'cliente']),
+              'Processo': primeiraLinha(registro, ['lawsuit_id', 'numero', 'lawsuitnumber']),
+              'Pedido': primeiraLinha(registro, ['claim_text', 'request_text', 'pedido', 'description']),
+              'Andamento': primeiraLinha(registro, ['progress_text', 'status', 'instance02', 'instance01']),
+              'Valor': primeiraLinha(registro, ['instance01_amount', 'amount', 'value']),
+            });
+          }
+        }
+      }
+
+      this.resultadosBuscaSimplificados = Object.fromEntries(
+        Object.entries(grupos).filter(([, itens]) => itens.length > 0)
+      );
     },
 
     /**
@@ -837,6 +897,7 @@ function app() {
       this.buscandoGlobal = true;
       this.buscaCancelada = false;
       this.resultadosBusca = [];
+      this.resultadosBuscaSimplificados = {};
       this.buscaProgresso = { processadas: 0, total: 0, encontrados: 0 };
       this.buscaController = new AbortController();
 
@@ -883,6 +944,7 @@ function app() {
             const linhas_tabela = this.resultadosBusca.filter(r => r.tabela === nomeTabela);
             await this.carregarLabelsParaLinhas(nomeTabela, linhas_tabela);
           }
+          this.simplificarResultadosBusca();
         }
       } catch (e) {
         if (e.name !== 'AbortError') {
@@ -898,6 +960,7 @@ function app() {
       this.mostrarBusca = false;
       this.termoBusca = '';
       this.resultadosBusca = [];
+      this.resultadosBuscaSimplificados = {};
       this.buscaProgresso = { processadas: 0, total: 0, encontrados: 0 };
       this.buscaCancelada = false;
     },
@@ -912,7 +975,7 @@ function app() {
     /**
      * Exporta resultados de busca em Excel ou CSV
      */
-    async exportarResultadosBusca(formato = 'excel', tabela = null) {
+    async exportarResultadosBusca(formato = 'excel', tabela = null, modo = 'tecnico') {
       if (this.resultadosBusca.length === 0) {
         this.exibirErro('Nenhum resultado para exportar');
         return;
@@ -921,7 +984,7 @@ function app() {
       this.exportandoBusca = true;
 
       try {
-        const params = new URLSearchParams({ formato });
+        const params = new URLSearchParams({ formato, modo });
         if (tabela) {
           params.set('tabela', tabela);
         }
@@ -929,7 +992,7 @@ function app() {
         const res = await fetch('/api/exportar/busca?' + params, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ dados: this.resultadosBusca }),
+          body: JSON.stringify({ dados: this.resultadosBusca, termo: this.termoBuscaAtiva }),
         });
 
         if (!res.ok) {
