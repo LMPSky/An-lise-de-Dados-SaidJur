@@ -69,16 +69,25 @@ def _revisar_interativo(relatorio: dict[str, Any]) -> list[dict[str, Any]]:
             decisao = "pular"
             traducao_final = None
         else:
-            resposta = input("Aplicar? [s/n/e] ").strip().lower()
-            if resposta == "s":
-                decisao = "aplicar"
-                traducao_final = traducao_sugerida
-            elif resposta == "e":
-                decisao = "aplicar"
-                traducao_final = input("Informe a tradução final: ").strip()
-            else:
-                decisao = "pular"
-                traducao_final = None
+            while True:
+                resposta = input("Aplicar? [s/n/e] ").strip().lower()
+                if resposta == "s":
+                    decisao = "aplicar"
+                    traducao_final = traducao_sugerida
+                    break
+                if resposta == "e":
+                    decisao = "aplicar"
+                    traducao_editada = input("Informe a tradução final: ").strip()
+                    if not traducao_editada:
+                        print("Tradução vazia não é válida. Informe um texto ou escolha 'n'.")
+                        continue
+                    traducao_final = traducao_editada
+                    break
+                if resposta == "n":
+                    decisao = "pular"
+                    traducao_final = None
+                    break
+                print("Resposta inválida. Use 's' (sim), 'n' (não) ou 'e' (editar).")
 
         decisoes.append(
             {

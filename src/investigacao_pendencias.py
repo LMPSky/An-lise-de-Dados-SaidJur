@@ -238,6 +238,9 @@ def _analisar_pistas(
             "pistas": [],
         }
 
+    # Alta confiança só quando o indício textual é único e consistente em
+    # múltiplas linhas. Se houver mais de um valor distinto para a mesma pista,
+    # a sugestão automática é descartada por ambiguidade.
     for pista in pistas:
         if pista["valores_distintos"] == 1 and pista["ocorrencias_total"] >= 2:
             unico = pista["valores_frequentes"][0]["valor"]
@@ -247,6 +250,22 @@ def _analisar_pistas(
                 "justificativa": (
                     f"Coluna '{pista['coluna']}' apresentou valor único e consistente "
                     f"em múltiplas linhas para o código '{pendencia.valor}'."
+                ),
+                "pistas": pistas,
+            }
+
+    for pista in pistas:
+        # "pista_unica" só é usada quando existe apenas um indício textual
+        # disponível. Se houver múltiplos valores distintos nas pistas, não há
+        # confiança suficiente para sugerir tradução automática.
+        if pista["valores_distintos"] == 1 and pista["ocorrencias_total"] == 1:
+            unico = pista["valores_frequentes"][0]["valor"]
+            return {
+                "status": "pista_unica",
+                "traducao_sugerida": unico,
+                "justificativa": (
+                    f"Há apenas uma linha de exemplo com pista na coluna '{pista['coluna']}'. "
+                    "Sugestão útil para revisão, mas sem confiança alta."
                 ),
                 "pistas": pistas,
             }
@@ -267,12 +286,15 @@ def investigar_pendencias(
     limite_linhas: int = 5,
 ) -> dict[str, Any]:
     """Investiga pendências de código/ENUM consultando exemplos reais no banco."""
+    limite_linhas = max(2, int(limite_linhas))
     investigacoes: list[dict[str, Any]] = []
 
     for pendencia in pendencias:
         try:
             colunas = executar_com_retry_db(
-                lambda: listar_colunas_tabela(engine, pendencia.tabela),
+                lambda tabela=pendencia.tabela, engine_ref=engine: listar_colunas_tabela(
+                    engine_ref, tabela
+                ),
                 descricao=f"Listar colunas de {pendencia.tabela}",
             )
             colunas_pista = selecionar_colunas_pista(colunas, pendencia.coluna)
@@ -335,6 +357,7 @@ def investigar_pendencias(
     resumo = {
         "total_pendencias": len(investigacoes),
         "alta_confianca": sum(1 for i in investigacoes if i["sugestao"]["status"] == "alta_confianca"),
+        "pista_unica": sum(1 for i in investigacoes if i["sugestao"]["status"] == "pista_unica"),
         "sem_pista_encontrada": sum(
             1 for i in investigacoes if i["sugestao"]["status"] == "sem_pista_encontrada"
         ),

@@ -200,6 +200,7 @@ banco (somente leitura) e gera `relatorio_investigacao_pendencias.yaml` com:
 - colunas vizinhas candidatas a pista textual (ex.: nome/descrição)
 - linhas de exemplo relevantes
 - sugestão de tradução em **alta confiança** quando houver padrão consistente
+- sugestão com **pista única (baixa confiança)** quando só existir uma linha útil
 - marcação explícita de **sem pista encontrada** quando não houver evidência clara
 
 Parâmetros úteis:

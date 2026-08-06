@@ -134,6 +134,26 @@ def test_investigar_pendencias_marca_sem_pista_quando_nao_ha_coluna_textual() ->
     assert item["sugestao"]["status"] == "sem_pista_encontrada"
 
 
+def test_investigar_pendencias_marca_pista_unica_quando_ha_apenas_uma_linha_util() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE paymenttype (
+                id INTEGER PRIMARY KEY,
+                code TEXT,
+                name TEXT
+            )
+        """))
+        conn.execute(text("INSERT INTO paymenttype (id, code, name) VALUES (1, 'dda', 'Débito Direto')"))
+        conn.commit()
+
+    relatorio = investigar_pendencias(engine, [PendenciaEnum("paymenttype", "code", "dda")])
+
+    assert relatorio["resumo"]["pista_unica"] == 1
+    item = relatorio["investigacoes"][0]
+    assert item["sugestao"]["status"] == "pista_unica"
+    assert item["sugestao"]["traducao_sugerida"] == "Débito Direto"
+
 
 def test_aplicar_decisoes_em_dicionario_aplica_somente_aprovadas() -> None:
     dicionarios = {"paymenttype": {"code": {"deb": "Débito"}}}

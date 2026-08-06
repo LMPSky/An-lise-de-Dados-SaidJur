@@ -32,7 +32,7 @@ def _parser() -> argparse.ArgumentParser:
         "--limite-linhas",
         type=int,
         default=5,
-        help="Quantidade máxima de linhas de exemplo por pendência",
+        help="Quantidade máxima de linhas de exemplo por pendência (mínimo efetivo: 2)",
     )
     return parser
 
@@ -47,13 +47,14 @@ def main() -> None:
     relatorio = executar_investigacao(
         caminho_relatorio_auditoria=args.relatorio_auditoria,
         caminho_saida=args.saida,
-        limite_linhas=max(1, args.limite_linhas),
+        limite_linhas=max(2, args.limite_linhas),
     )
 
     resumo = relatorio["resumo"]
     print("\n✅ Investigação concluída")
     print(f"🧩 Pendências investigadas: {resumo['total_pendencias']}")
     print(f"🎯 Sugestões de alta confiança: {resumo['alta_confianca']}")
+    print(f"🟡 Sugestões com pista única (baixa confiança): {resumo['pista_unica']}")
     print(f"❓ Sem pista clara: {resumo['sem_pista_encontrada']}")
     print(f"📭 Sem registros: {resumo['sem_registros']}")
     print(f"⚠️  Erros: {resumo['erros']}")
