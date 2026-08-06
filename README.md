@@ -186,6 +186,47 @@ o script pode registrar apenas a auditoria dos nomes de coluna e pular a
 amostragem de valores de ENUM. Isso é esperado quando a coleta de valores tende
 a estourar timeout mesmo com amostragem limitada.
 
+### 🕵️ Investigação assistida de pendências ambíguas (ENUM/códigos)
+Depois da auditoria, use a investigação assistida para reduzir o trabalho manual
+de descobrir o significado real dos códigos curtos/ambíguos no banco real:
+
+```bash
+python investigar_pendencias.py
+```
+
+Esse script lê `relatorio_auditoria_traducoes.yaml`, consulta exemplos reais no
+banco (somente leitura) e gera `relatorio_investigacao_pendencias.yaml` com:
+- tabela/coluna/valor pendente
+- colunas vizinhas candidatas a pista textual (ex.: nome/descrição)
+- linhas de exemplo relevantes
+- sugestão de tradução em **alta confiança** quando houver padrão consistente
+- marcação explícita de **sem pista encontrada** quando não houver evidência clara
+
+Parâmetros úteis:
+
+```bash
+python investigar_pendencias.py --relatorio-auditoria relatorio_auditoria_traducoes.yaml --saida relatorio_investigacao_pendencias.yaml --limite-linhas 5
+```
+
+### ✅ Aplicação assistida das sugestões no `dicionarios.yaml`
+Para revisar e aplicar sugestões aprovadas sem editar YAML manualmente:
+
+```bash
+python aplicar_sugestoes_investigacao.py
+```
+
+Modo não-interativo (gerar decisões, revisar arquivo e aplicar depois):
+
+```bash
+python aplicar_sugestoes_investigacao.py --gerar-template-decisoes decisoes_investigacao.yaml
+python aplicar_sugestoes_investigacao.py --aplicar-decisoes decisoes_investigacao.yaml --dry-run
+python aplicar_sugestoes_investigacao.py --aplicar-decisoes decisoes_investigacao.yaml
+```
+
+> Observação: o fluxo é separado de propósito. A investigação **não altera**
+> `dicionarios.yaml` automaticamente; ela apenas sugere. A decisão final continua
+> sendo revisada por humano.
+
 ## 🧹 Ocultando colunas vazias automaticamente
 
 Por padrão, o visualizador **remove automaticamente colunas que só têm valores NULL ou vazios**.
