@@ -199,9 +199,14 @@ banco (somente leitura) e gera `relatorio_investigacao_pendencias.yaml` com:
 - tabela/coluna/valor pendente
 - colunas vizinhas candidatas a pista textual (ex.: nome/descrição)
 - linhas de exemplo relevantes
-- sugestão de tradução em **alta confiança** quando houver padrão consistente
-- sugestão com **pista única (baixa confiança)** quando só existir uma linha útil
+- sugestão de tradução em **alta confiança** quando houver padrão consistente *em coluna com nome semanticamente relacionado* (ex: `name`, `desc`, `title`) — pista forte
+- sugestão com **pista única (baixa confiança / pista fraca)** quando a coluna-pista for booleana (`0`/`1`) ou sem nome semântico relacionado; o `aplicar_sugestoes_investigacao.py` exibe um aviso nesse caso
 - marcação explícita de **sem pista encontrada** quando não houver evidência clara
+
+> **Nota sobre pistas fortes vs fracas**: uma coluna booleana com valor `0` constante em
+> 5/5 linhas de amostra *não* revela o significado do código investigado — é apenas o padrão
+> de qualquer tabela com muitos campos opcionais zerados. Somente colunas com nome sugestivo
+> (ex: `typename`, `descricao`, `hearing_title`) e valor textual variável são evidência confiável.
 
 Parâmetros úteis:
 

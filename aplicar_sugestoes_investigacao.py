@@ -64,6 +64,15 @@ def _revisar_interativo(relatorio: dict[str, Any]) -> list[dict[str, Any]]:
         print(f"Sugestão: {traducao_sugerida!r}")
         print(f"Justificativa: {sugestao.get('justificativa')}")
 
+        if status == "pista_unica":
+            print(
+                "\n⚠️  ATENÇÃO — Pista fraca: esta sugestão veio de uma coluna booleana ou sem "
+                "relação semântica clara com o código investigado. Confirme manualmente o "
+                "significado do código antes de aplicar. Diferença entre pistas:\n"
+                "  • Pista FORTE: coluna com nome sugestivo (name, desc, title…) + valor textual variável.\n"
+                "  • Pista FRACA: coluna booleana (0/1) ou nome técnico — valor constante não indica significado."
+            )
+
         if not traducao_sugerida:
             print("Sem sugestão aplicável. Marcando como pular.")
             decisao = "pular"
