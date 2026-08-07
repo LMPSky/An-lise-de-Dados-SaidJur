@@ -25,20 +25,9 @@ from src.traducoes_colunas import (
     traduzir_nome_coluna,
     traduzir_nome_tabela_exportacao,
 )
+from src.api.routes_export_search import _eh_data_zero as _eh_data_zero_export
 
 router = APIRouter(tags=["exportar-busca"])
-
-# Padrão de datas/horas "zeradas" do MySQL (valor sentinela para data não definida)
-_REGEX_DATA_ZERO_EXPORT = re.compile(
-    r"^0{4}-0{2}-0{2}([ T]0{2}:0{2}(:\d{2})?)?$|^0{2}:0{2}(:\d{2})?$"
-)
-
-
-def _eh_data_zero_export(valor: Any) -> bool:
-    """Retorna True para valores sentinela de data/hora zerada do MySQL."""
-    if valor is None:
-        return False
-    return bool(_REGEX_DATA_ZERO_EXPORT.match(str(valor).strip()))
 
 
 def traduzir_coluna(nome_coluna: str) -> str:
