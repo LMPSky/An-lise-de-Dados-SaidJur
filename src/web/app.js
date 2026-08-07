@@ -1125,6 +1125,7 @@ function app() {
       if (typeof valor === 'number') return String(valor);
 
       const texto = String(valor);
+      if (this.ehDataZero(texto)) return '—';
       if (this.ehData(texto)) return this.formatarData(texto);
 
       if (this.ehJson(texto)) {
@@ -1155,8 +1156,16 @@ function app() {
       return /^https?:\/\//i.test((texto || '').trim());
     },
 
+    ehDataZero(texto) {
+      if (!texto) return false;
+      // Detecta valor sentinela de data/hora zerada do MySQL
+      return /^0{4}-0{2}-0{2}([ T]0{2}:0{2}(:\d{2})?)?$/.test(texto.trim())
+        || /^0{2}:0{2}(:\d{2})?$/.test(texto.trim());
+    },
+
     ehData(texto) {
       if (!texto) return false;
+      if (this.ehDataZero(texto)) return false;
       if (/^\d{4}-\d{2}-\d{2}/.test(texto) || /^\d{10,13}$/.test(texto)) return !Number.isNaN(new Date(texto).getTime());
       return false;
     },

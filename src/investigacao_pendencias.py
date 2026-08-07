@@ -67,6 +67,56 @@ def _tipo_textual(tipo: str) -> bool:
 
 
 
+def parsear_colunas_diretas(specs: list[str]) -> list[PendenciaEnum]:
+    """Converte especificações ``tabela.coluna`` (ou ``tabela.coluna:valor``) em PendenciaEnum.
+
+    Formato aceito:
+    - ``tabela.coluna`` — investiga todos os valores pendentes (usa valor sentinela ``*``).
+    - ``tabela.coluna:valor`` — investiga apenas o valor informado.
+
+    Exemplo::
+
+        parsear_colunas_diretas([
+            "hearingcontrol.hearingtype:11",
+            "pedidos2lawsuit.status:6",
+            "hearingcontrol.needwitness",
+        ])
+    """
+    resultado: list[PendenciaEnum] = []
+    for spec in specs:
+        spec = spec.strip()
+        if not spec:
+            continue
+        # Separa "valor" do restante, se houver ":"
+        if ":" in spec:
+            parte_tabela_coluna, valor = spec.rsplit(":", 1)
+        else:
+            parte_tabela_coluna, valor = spec, "*"
+
+        if "." not in parte_tabela_coluna:
+            raise ValueError(
+                f"Especificação inválida: '{spec}'. Use o formato 'tabela.coluna' ou 'tabela.coluna:valor'."
+            )
+        tabela, coluna = parte_tabela_coluna.split(".", 1)
+        tabela = tabela.strip()
+        coluna = coluna.strip()
+        valor = valor.strip()
+
+        if not tabela or not coluna:
+            raise ValueError(f"Especificação inválida: '{spec}'. Tabela e coluna não podem ser vazias.")
+
+        resultado.append(
+            PendenciaEnum(
+                tabela=tabela,
+                coluna=coluna,
+                valor=valor,
+                motivo="investigacao_direta",
+            )
+        )
+    return resultado
+
+
+
 def carregar_pendencias_enum(caminho_relatorio: str | Path) -> list[PendenciaEnum]:
     """Carrega pendências ENUM/código do relatório YAML de auditoria."""
     caminho = Path(caminho_relatorio)
@@ -455,13 +505,39 @@ def executar_investigacao(
     caminho_saida: str | Path = ARQUIVO_RELATORIO_INVESTIGACAO_PADRAO,
     *,
     limite_linhas: int = 5,
+    colunas_diretas: list[str] | None = None,
 ) -> dict[str, Any]:
-    """Fluxo completo de investigação via banco real configurado em src.config."""
-    pendencias = carregar_pendencias_enum(caminho_relatorio_auditoria)
+    """Fluxo completo de investigação via banco real configurado em src.config.
+
+    Parâmetros
+    ----------
+    caminho_relatorio_auditoria:
+        Arquivo YAML de auditoria (ignorado quando ``colunas_diretas`` é fornecido).
+    caminho_saida:
+        Arquivo YAML de saída.
+    limite_linhas:
+        Máximo de linhas de exemplo por pendência.
+    colunas_diretas:
+        Quando informada, ignora o relatório de auditoria e investiga apenas as
+        especificações fornecidas no formato ``"tabela.coluna"`` ou
+        ``"tabela.coluna:valor"``.  Exemplo::
+
+            executar_investigacao(colunas_diretas=[
+                "hearingcontrol.hearingtype:11",
+                "pedidos2lawsuit.status:6",
+            ])
+    """
+    if colunas_diretas:
+        pendencias = parsear_colunas_diretas(colunas_diretas)
+        fonte = "colunas_diretas:" + ",".join(colunas_diretas)
+    else:
+        pendencias = carregar_pendencias_enum(caminho_relatorio_auditoria)
+        fonte = str(caminho_relatorio_auditoria)
+
     engine = criar_engine()
     try:
         relatorio = investigar_pendencias(engine, pendencias, limite_linhas=limite_linhas)
-        relatorio["fonte_pendencias"] = str(caminho_relatorio_auditoria)
+        relatorio["fonte_pendencias"] = fonte
         salvar_yaml(relatorio, caminho_saida)
         return relatorio
     finally:

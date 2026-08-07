@@ -1,7 +1,52 @@
 # Pendências de Tradução — Revisão Humana Necessária
 
 Gerado em: 2026-07-30  
+Atualizado em: 2026-08-07 (Rodada 2 — investigação direcionada de ENUMs observados na prática)  
 Fonte: `relatorio_auditoria_traducoes.yaml`
+
+---
+
+## Atualizações da Rodada 2 (2026-08-07)
+
+### Traduções aplicadas automaticamente (alta confiança)
+
+As seguintes traduções booleanas foram adicionadas a `dicionarios.yaml` para a tabela
+`hearingcontrol`, uma vez que colunas com nomes como `needwitness`, `needinterpreter`,
+`needexpert`, `needother` e `hearingfile` são inequivocamente booleanas
+(`0` = Não, `1` = Sim):
+
+| Tabela | Coluna | Valor | Tradução aplicada |
+|--------|--------|-------|-------------------|
+| `hearingcontrol` | `needwitness` | `0` | Não |
+| `hearingcontrol` | `needwitness` | `1` | Sim |
+| `hearingcontrol` | `needinterpreter` | `0` | Não |
+| `hearingcontrol` | `needinterpreter` | `1` | Sim |
+| `hearingcontrol` | `needexpert` | `0` | Não |
+| `hearingcontrol` | `needexpert` | `1` | Sim |
+| `hearingcontrol` | `needother` | `0` | Não |
+| `hearingcontrol` | `needother` | `1` | Sim |
+| `hearingcontrol` | `hearingfile` | `0` | Não |
+| `hearingcontrol` | `hearingfile` | `1` | Sim |
+
+> **Como investigar valores adicionais de forma direcionada:**
+> ```bash
+> python investigar_pendencias.py --colunas hearingcontrol.hearingtype:11 pedidos2lawsuit.status:6
+> ```
+> O parâmetro `--colunas` permite passar qualquer `tabela.coluna` (ou `tabela.coluna:valor`)
+> sem precisar esperar o relatório de auditoria completo capturar aquele valor específico.
+
+---
+
+### Pendências residuais — necessitam confirmação no banco real
+
+As pendências abaixo foram identificadas na prática pelo usuário (prints de tela),
+mas **não têm tradução suficientemente confiável sem acesso ao banco real**:
+
+| Tabela | Coluna | Valor observado | Contexto / Motivo da pendência |
+|--------|--------|-----------------|-------------------------------|
+| `hearingcontrol` | `hearingtype` | `11` | Tipo de audiência judicial. O significado do código `11` varia entre sistemas jurídicos — rodar `investigar_pendencias.py --colunas hearingcontrol.hearingtype:11` contra o banco real para obter pistas. |
+| `pedidos2lawsuit` | `status` | `6` | Status do pedido/andamento. Outros valores de status já presentes no dicionário não cobrem `6` — investigar com `--colunas pedidos2lawsuit.status:6`. |
+| `hearingcontrol` | coluna "Prazo Incluído" | `2` | Não foi possível mapear o nome exato da coluna. Pode ser `prazotype`, `prazo_included` ou similar. Investigar com `--colunas hearingcontrol.<nome_real_da_coluna>:2`. |
 
 ---
 

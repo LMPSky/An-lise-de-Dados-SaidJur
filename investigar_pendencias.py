@@ -34,6 +34,18 @@ def _parser() -> argparse.ArgumentParser:
         default=5,
         help="Quantidade máxima de linhas de exemplo por pendência (mínimo efetivo: 2)",
     )
+    parser.add_argument(
+        "--colunas",
+        nargs="+",
+        metavar="TABELA.COLUNA[:VALOR]",
+        default=None,
+        help=(
+            "Modo direcionado: investiga apenas as colunas/valores especificados, "
+            "ignorando o relatório de auditoria. "
+            "Formato: 'tabela.coluna' ou 'tabela.coluna:valor'. "
+            "Exemplo: --colunas hearingcontrol.hearingtype:11 pedidos2lawsuit.status:6"
+        ),
+    )
     return parser
 
 
@@ -41,13 +53,18 @@ def _parser() -> argparse.ArgumentParser:
 def main() -> None:
     args = _parser().parse_args()
 
-    print("🔎 Iniciando investigação assistida de pendências...")
+    if args.colunas:
+        print("🔎 Iniciando investigação direcionada das colunas especificadas...")
+        print(f"📌 Colunas: {', '.join(args.colunas)}")
+    else:
+        print("🔎 Iniciando investigação assistida de pendências...")
     print("ℹ️  Modo somente leitura (queries SELECT).")
 
     relatorio = executar_investigacao(
         caminho_relatorio_auditoria=args.relatorio_auditoria,
         caminho_saida=args.saida,
         limite_linhas=max(2, args.limite_linhas),
+        colunas_diretas=args.colunas,
     )
 
     resumo = relatorio["resumo"]

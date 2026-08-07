@@ -10,6 +10,7 @@ Autor: Lucas Paim
 Data: 2026-07-29
 """
 
+import re
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from typing import List, Dict, Any
@@ -24,6 +25,7 @@ from src.traducoes_colunas import (
     traduzir_nome_coluna,
     traduzir_nome_tabela_exportacao,
 )
+from src.api.routes_export_search import _eh_data_zero as _eh_data_zero_export
 
 router = APIRouter(tags=["exportar-busca"])
 
@@ -112,6 +114,9 @@ def criar_workbook_excel(resultados: List[Dict]) -> io.BytesIO:
             for col_idx, col_nome in enumerate(colunas, 1):
                 cell = ws.cell(row=row_idx, column=col_idx)
                 valor = registro.get(col_nome, '')
+                # Normaliza datas zeradas do MySQL para célula vazia
+                if _eh_data_zero_export(valor):
+                    valor = ''
                 cell.value = valor if valor is not None else ''
                 cell.alignment = Alignment(wrap_text=True, vertical="top")
                 cell.border = border
