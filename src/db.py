@@ -41,7 +41,21 @@ _CANDIDATAS_LABEL = (
     "razao_social", "fantasia",
     # Campos comuns em bancos jurídicos brasileiros
     "numero", "number", "lawsuitnumber",
+    # Campos de nome de funcionário/pessoa
+    "empname", "fullname", "full_name", "firstname", "first_name",
+    "lastname", "last_name", "nomeCompleto", "nomecompleto",
 )
+
+# Sobrescritas de coluna de label por tabela específica.
+# Permite contornar casos em que a heurística genérica escolhe uma coluna
+# inadequada (ex: lawsuits tem 'numero' como identificador de negócio, mas a
+# heurística genérica pode preferir outra coluna dependendo da ordem).
+_LABEL_COLUNA_POR_TABELA: dict[str, str] = {
+    # Número do processo judicial é o identificador natural de lawsuits
+    "lawsuits": "lawsuitnumber",
+    # Para funcionários, o campo de nome varia entre sistemas; 'name' é o
+    # candidato mais comum, mantido via heurística genérica.
+}
 
 # Tipos numéricos reconhecidos para heurística de FK inferida
 _TIPOS_NUMERICOS = frozenset({
@@ -262,8 +276,11 @@ def colunas_texto(
 def coluna_label(engine: Engine, nome_tabela: str) -> str | None:
     """Retorna o nome da coluna mais adequada como label para a tabela dada.
 
-    Tenta as candidatas em ordem de preferência. Resultado em cache permanente.
-    Retorna None se nenhuma candidata existir.
+    Consulta primeiro a tabela de sobrescritas específicas por tabela
+    (_LABEL_COLUNA_POR_TABELA). Caso a tabela não esteja na lista de
+    sobrescritas, ou a coluna preferida não exista na tabela real, cai
+    para a heurística genérica por _CANDIDATAS_LABEL.
+    Resultado em cache permanente. Retorna None se nenhuma candidata existir.
     """
     if nome_tabela in _CACHE_COLUNA_LABEL:
         return _CACHE_COLUNA_LABEL[nome_tabela]
@@ -273,6 +290,12 @@ def coluna_label(engine: Engine, nome_tabela: str) -> str | None:
     except Exception:
         _CACHE_COLUNA_LABEL[nome_tabela] = None
         return None
+
+    # Preferência explícita por tabela — verifica se a coluna de fato existe
+    preferida = _LABEL_COLUNA_POR_TABELA.get(nome_tabela)
+    if preferida and preferida.lower() in cols:
+        _CACHE_COLUNA_LABEL[nome_tabela] = preferida
+        return preferida
 
     for candidata in _CANDIDATAS_LABEL:
         if candidata in cols:

@@ -112,6 +112,23 @@ def _traduzir_valor_coluna(
     return traducao if traducao is not None else valor
 
 
+# Padrão de datas/horas "zeradas" do MySQL (valor sentinela para data não definida)
+_REGEX_DATA_ZERO = re.compile(
+    r"^0{4}-0{2}-0{2}([ T]0{2}:0{2}(:\d{2})?)?$|^0{2}:0{2}(:\d{2})?$"
+)
+
+
+def _eh_data_zero(valor: Any) -> bool:
+    """Retorna True para valores sentinela de data/hora zerada do MySQL.
+
+    Reconhece os formatos: ``0000-00-00``, ``00:00:00``,
+    ``0000-00-00 00:00:00``, ``0000-00-00T00:00`` etc.
+    """
+    if valor is None:
+        return False
+    return bool(_REGEX_DATA_ZERO.match(str(valor).strip()))
+
+
 def _serializar_valor(valor: Any) -> str:
     """Converte valor para string exportável."""
     if valor is None:
@@ -347,7 +364,12 @@ def _normalizar_dados_para_exportacao(
     dados_por_tabela: dict[str, list[dict]],
     dicionarios: dict[str, Any] | None = None,
 ) -> dict[str, list[dict]]:
-    """Aplica traduções de dicionário e resolução de FK aos dados da exportação."""
+    """Aplica traduções de dicionário e resolução de FK aos dados da exportação.
+
+    Valores de data/hora zerados do MySQL (``0000-00-00``, ``00:00:00``,
+    ``0000-00-00 00:00:00``) são normalizados para ``None`` antes de qualquer
+    tradução, sendo exibidos como "—" na serialização final.
+    """
     labels_fk = _resolver_fks_dados_busca(engine, dados_por_tabela)
     normalizados: dict[str, list[dict]] = {}
 
@@ -356,6 +378,11 @@ def _normalizar_dados_para_exportacao(
         for registro in registros:
             novo_registro: dict[str, Any] = {}
             for coluna, valor in registro.items():
+                # Normaliza datas zeradas antes de qualquer outra lógica
+                if _eh_data_zero(valor):
+                    novo_registro[coluna] = None
+                    continue
+
                 label_fk = labels_fk.get((tabela, coluna), {}).get(str(valor))
                 if label_fk:
                     novo_registro[coluna] = _formatar_label_fk(label_fk, valor)

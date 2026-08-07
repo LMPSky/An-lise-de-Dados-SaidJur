@@ -300,3 +300,21 @@ varas:
     '5': Labor Court
     '8': Civil Court
     '4': Federal Court
+hearingcontrol:
+  # Colunas booleanas — 0 = Não, 1 = Sim (alta confiança)
+  needwitness:
+    '0': Não
+    '1': Sim
+  needinterpreter:
+    '0': Não
+    '1': Sim
+  needexpert:
+    '0': Não
+    '1': Sim
+  needother:
+    '0': Não
+    '1': Sim
+  hearingfile:
+    '0': Não
+    '1': Sim
+  # hearingtype e prazo_included permanecem pendentes (ver PENDENCIAS_TRADUCAO_HUMANA.md)

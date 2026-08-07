@@ -374,3 +374,123 @@ class TestConfiguracaoEngine:
 
         assert resultado == "ok"
         assert chamadas["total"] == 2
+
+
+class TestColunaLabelComSobrescritas:
+    """Testes para a preferência explícita por tabela em coluna_label."""
+
+    @pytest.fixture(autouse=True)
+    def limpar_cache(self) -> None:
+        import src.db as db_module
+        db_module._CACHE_COLUNA_LABEL.clear()
+
+    def test_lawsuits_prefere_lawsuitnumber(self) -> None:
+        """lawsuits deve preferir 'lawsuitnumber' independente da ordem de _CANDIDATAS_LABEL."""
+        engine = create_engine("sqlite:///:memory:")
+        with engine.connect() as conn:
+            conn.execute(text("""
+                CREATE TABLE lawsuits (
+                    id            INTEGER PRIMARY KEY,
+                    lawsuitnumber TEXT NOT NULL,
+                    name          TEXT
+                )
+            """))
+            conn.execute(text("INSERT INTO lawsuits VALUES (1, '0001234-00.2023.8', 'Processo X')"))
+            conn.commit()
+        assert coluna_label(engine, "lawsuits") == "lawsuitnumber"
+
+    def test_empname_reconhecida_como_label_de_employees(self) -> None:
+        """Tabela de funcionários com coluna 'empname' deve ter essa coluna como label."""
+        engine = create_engine("sqlite:///:memory:")
+        with engine.connect() as conn:
+            conn.execute(text("""
+                CREATE TABLE employees (
+                    id      INTEGER PRIMARY KEY,
+                    empname TEXT NOT NULL,
+                    status  INTEGER
+                )
+            """))
+            conn.execute(text("INSERT INTO employees VALUES (1, 'João Advogado', 1)"))
+            conn.commit()
+        assert coluna_label(engine, "employees") == "empname"
+
+
+class TestDataZeroNormalizacao:
+    """Testes de normalização de datas zeradas do MySQL na exportação."""
+
+    def test_eh_data_zero_reconhece_data_zerada(self) -> None:
+        from src.api.routes_export_search import _eh_data_zero
+        assert _eh_data_zero("0000-00-00") is True
+        assert _eh_data_zero("00:00:00") is True
+        assert _eh_data_zero("0000-00-00 00:00:00") is True
+        assert _eh_data_zero("0000-00-00T00:00") is True
+
+    def test_eh_data_zero_nao_afeta_datas_validas(self) -> None:
+        from src.api.routes_export_search import _eh_data_zero
+        assert _eh_data_zero("2023-06-15") is False
+        assert _eh_data_zero("14:30:00") is False
+        assert _eh_data_zero("2023-06-15 14:30:00") is False
+        assert _eh_data_zero(None) is False
+        assert _eh_data_zero("") is False
+
+    def test_normalizar_dados_converte_data_zero_para_none(self) -> None:
+        from src.api.routes_export_search import _normalizar_dados_para_exportacao
+        import unittest.mock as mock
+
+        engine = mock.MagicMock()
+        dados = {
+            "hearingcontrol": [
+                {"id": 1, "date": "0000-00-00", "time": "00:00:00", "type": 5},
+                {"id": 2, "date": "2023-06-15", "time": "10:00:00", "type": 3},
+            ]
+        }
+
+        with mock.patch(
+            "src.api.routes_export_search._resolver_fks_dados_busca",
+            return_value={},
+        ):
+            resultado = _normalizar_dados_para_exportacao(engine, dados)
+
+        assert resultado["hearingcontrol"][0]["date"] is None
+        assert resultado["hearingcontrol"][0]["time"] is None
+        assert resultado["hearingcontrol"][1]["date"] == "2023-06-15"
+
+    def test_api_export_eh_data_zero(self) -> None:
+        from src.api_export import _eh_data_zero_export
+        assert _eh_data_zero_export("0000-00-00") is True
+        assert _eh_data_zero_export("2023-01-01") is False
+        assert _eh_data_zero_export(None) is False
+
+
+class TestParsearColunasDiretas:
+    """Testes para parsear_colunas_diretas na investigação direcionada."""
+
+    def test_parseia_tabela_coluna_valor(self) -> None:
+        from src.investigacao_pendencias import parsear_colunas_diretas, PendenciaEnum
+        resultado = parsear_colunas_diretas(["hearingcontrol.hearingtype:11"])
+        assert resultado == [
+            PendenciaEnum("hearingcontrol", "hearingtype", "11", "investigacao_direta")
+        ]
+
+    def test_parseia_sem_valor_usa_coringa(self) -> None:
+        from src.investigacao_pendencias import parsear_colunas_diretas, PendenciaEnum
+        resultado = parsear_colunas_diretas(["hearingcontrol.needwitness"])
+        assert resultado == [
+            PendenciaEnum("hearingcontrol", "needwitness", "*", "investigacao_direta")
+        ]
+
+    def test_parseia_multiplos_specs(self) -> None:
+        from src.investigacao_pendencias import parsear_colunas_diretas
+        resultado = parsear_colunas_diretas([
+            "hearingcontrol.hearingtype:11",
+            "pedidos2lawsuit.status:6",
+        ])
+        assert len(resultado) == 2
+        assert resultado[0].tabela == "hearingcontrol"
+        assert resultado[1].tabela == "pedidos2lawsuit"
+
+    def test_erro_se_sem_ponto(self) -> None:
+        from src.investigacao_pendencias import parsear_colunas_diretas
+        import pytest
+        with pytest.raises(ValueError, match="inválida"):
+            parsear_colunas_diretas(["hearingcontrol:11"])

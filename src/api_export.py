@@ -10,6 +10,7 @@ Autor: Lucas Paim
 Data: 2026-07-29
 """
 
+import re
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from typing import List, Dict, Any
@@ -26,6 +27,18 @@ from src.traducoes_colunas import (
 )
 
 router = APIRouter(tags=["exportar-busca"])
+
+# Padrão de datas/horas "zeradas" do MySQL (valor sentinela para data não definida)
+_REGEX_DATA_ZERO_EXPORT = re.compile(
+    r"^0{4}-0{2}-0{2}([ T]0{2}:0{2}(:\d{2})?)?$|^0{2}:0{2}(:\d{2})?$"
+)
+
+
+def _eh_data_zero_export(valor: Any) -> bool:
+    """Retorna True para valores sentinela de data/hora zerada do MySQL."""
+    if valor is None:
+        return False
+    return bool(_REGEX_DATA_ZERO_EXPORT.match(str(valor).strip()))
 
 
 def traduzir_coluna(nome_coluna: str) -> str:
@@ -112,6 +125,9 @@ def criar_workbook_excel(resultados: List[Dict]) -> io.BytesIO:
             for col_idx, col_nome in enumerate(colunas, 1):
                 cell = ws.cell(row=row_idx, column=col_idx)
                 valor = registro.get(col_nome, '')
+                # Normaliza datas zeradas do MySQL para célula vazia
+                if _eh_data_zero_export(valor):
+                    valor = ''
                 cell.value = valor if valor is not None else ''
                 cell.alignment = Alignment(wrap_text=True, vertical="top")
                 cell.border = border
