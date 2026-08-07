@@ -6,6 +6,7 @@ from collections import Counter
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
+import re
 from typing import Any
 
 from sqlalchemy import inspect, text
@@ -32,6 +33,9 @@ _CHAVES_PISTA = (
     "obs",
     "observacao",
 )
+# Palavras-chave que indicam coluna com nome semanticamente relacionado a
+# rótulos/descrições — usadas para diferenciar "pista forte" de "pista fraca".
+_CHAVES_SEMANTICAS = _CHAVES_PISTA
 
 
 @dataclass(frozen=True)
@@ -210,6 +214,23 @@ def selecionar_colunas_pista(
 
 
 
+def _converter_valor_para_param(valor: str) -> Any:
+    """Converte o valor string para int quando for numérico.
+
+    Isso garante que comparações com colunas inteiras no MySQL e SQLite
+    funcionem corretamente (evita falso negativo por incompatibilidade de tipo).
+    Usa correspondência de padrão estrita para evitar false positives com
+    caracteres Unicode ou strings como '--3'.
+    """
+    if re.fullmatch(r"-?\d+", valor):
+        try:
+            return int(valor)
+        except ValueError:
+            pass
+    return valor
+
+
+
 def _coletar_linhas_exemplo(
     engine: Engine,
     pendencia: PendenciaEnum,
@@ -228,12 +249,40 @@ def _coletar_linhas_exemplo(
         f"LIMIT {int(limite_linhas)}"
     )
 
+    # Converte para int quando numérico para compatibilidade com colunas
+    # inteiras no MySQL, evitando falso negativo por diferença de tipo.
+    param_valor = _converter_valor_para_param(pendencia.valor)
+
     def _executar() -> list[dict[str, Any]]:
         with engine.connect() as conn:
-            res = conn.execute(sql, {"valor": pendencia.valor})
+            res = conn.execute(sql, {"valor": param_valor})
             return [dict(row._mapping) for row in res.fetchall()]
 
     return executar_com_retry_db(_executar, descricao=f"Investigar {pendencia.tabela}.{pendencia.coluna}")
+
+
+
+def _coluna_tem_nome_semantico(nome: str) -> bool:
+    """Retorna True quando o nome da coluna sugere que ela é um rótulo/descrição.
+
+    Colunas com nomes como ``name``, ``descricao``, ``title`` etc. são candidatas
+    a conter texto descritivo do código investigado — são "pistas fortes".
+    Colunas puramente booleanas/numéricas (ex: ``hearingfile``, ``dispensed``)
+    são "pistas fracas" que não indicam o significado semântico do código.
+    """
+    nome_lower = nome.lower()
+    return any(chave in nome_lower for chave in _CHAVES_SEMANTICAS)
+
+
+
+def _pista_e_booleana(valores_frequentes: list[dict[str, Any]]) -> bool:
+    """Retorna True quando todos os valores observados são exclusivamente '0' ou '1'.
+
+    Isso identifica colunas booleanas, que costumam ter valor constante em qualquer
+    amostra pequena e não revelam o significado semântico do código investigado.
+    """
+    vals = {str(item["valor"]).strip() for item in valores_frequentes}
+    return vals.issubset({"0", "1"})
 
 
 
@@ -289,16 +338,23 @@ def _analisar_pistas(
         }
 
     # Alta confiança só quando o indício textual é único e consistente em
-    # múltiplas linhas. Se houver mais de um valor distinto para a mesma pista,
-    # a sugestão automática é descartada por ambiguidade.
+    # múltiplas linhas E a coluna-pista tem nome semanticamente relacionado a
+    # rótulos/descrições (pista forte). Colunas booleanas (valores só 0/1) ou
+    # com nomes puramente técnicos (pista fraca) não são suficientes para alta
+    # confiança, pois qualquer amostra pequena terá valor constante nesses campos.
     for pista in pistas:
-        if pista["valores_distintos"] == 1 and pista["ocorrencias_total"] >= 2:
-            unico = pista["valores_frequentes"][0]["valor"]
+        if pista["valores_distintos"] != 1 or pista["ocorrencias_total"] < 2:
+            continue
+        unico = pista["valores_frequentes"][0]["valor"]
+        tem_nome_semantico = _coluna_tem_nome_semantico(pista["coluna"])
+        e_booleana = _pista_e_booleana(pista["valores_frequentes"])
+        if tem_nome_semantico and not e_booleana:
             return {
                 "status": "alta_confianca",
                 "traducao_sugerida": unico,
                 "justificativa": (
-                    f"Coluna '{pista['coluna']}' apresentou valor único e consistente "
+                    f"Coluna '{pista['coluna']}' (pista forte — nome semântico) "
+                    f"apresentou valor único e consistente "
                     f"em múltiplas linhas para o código '{pendencia.valor}'."
                 ),
                 "pistas": pistas,
@@ -308,14 +364,32 @@ def _analisar_pistas(
         # "pista_unica" só é usada quando existe apenas um indício textual
         # disponível. Se houver múltiplos valores distintos nas pistas, não há
         # confiança suficiente para sugerir tradução automática.
-        if pista["valores_distintos"] == 1 and pista["ocorrencias_total"] == 1:
+        # Pistas fracas (colunas booleanas ou sem nome semântico) com valor único
+        # em múltiplas linhas também caem aqui em vez de alta_confianca.
+        if pista["valores_distintos"] == 1 and pista["ocorrencias_total"] >= 1:
             unico = pista["valores_frequentes"][0]["valor"]
+            e_booleana = _pista_e_booleana(pista["valores_frequentes"])
+            tem_nome_semantico = _coluna_tem_nome_semantico(pista["coluna"])
+            if e_booleana or not tem_nome_semantico:
+                return {
+                    "status": "pista_unica",
+                    "traducao_sugerida": unico,
+                    "justificativa": (
+                        f"Coluna '{pista['coluna']}' (pista fraca — "
+                        + ("coluna booleana" if e_booleana else "nome sem relação semântica")
+                        + f") apresentou valor único '{unico}' nas linhas de exemplo, "
+                        "mas isso não é evidência suficiente do significado do código. "
+                        "Revise manualmente antes de aplicar."
+                    ),
+                    "pistas": pistas,
+                }
             return {
                 "status": "pista_unica",
                 "traducao_sugerida": unico,
                 "justificativa": (
-                    f"Há apenas uma linha de exemplo com pista na coluna '{pista['coluna']}'. "
-                    "Sugestão útil para revisão, mas sem confiança alta."
+                    f"Coluna '{pista['coluna']}' (pista forte) tem apenas uma ocorrência "
+                    f"de exemplo para o código '{pendencia.valor}'. "
+                    "Sugestão útil para revisão, mas sem confiança alta (amostra pequena)."
                 ),
                 "pistas": pistas,
             }

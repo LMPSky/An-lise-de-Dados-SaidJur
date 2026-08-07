@@ -1,8 +1,43 @@
 # Pendências de Tradução — Revisão Humana Necessária
 
 Gerado em: 2026-07-30  
-Atualizado em: 2026-08-07 (Rodada 2 — investigação direcionada de ENUMs observados na prática)  
+Atualizado em: 2026-08-07 (Rodada 3 — correção de bugs na ferramenta de investigação e auditoria de traduções)  
 Fonte: `relatorio_auditoria_traducoes.yaml`
+
+---
+
+## Rodada 3 (2026-08-07) — Correção de bugs e auditoria de falsos positivos
+
+### Bugs corrigidos na ferramenta de investigação (`src/investigacao_pendencias.py`)
+
+Três bugs foram identificados e corrigidos:
+
+1. **Bug 1/2 — Query de amostragem sem conversão de tipo**: a query `WHERE coluna = :valor`
+   usava o valor como string mesmo quando a coluna era inteira, o que causava falso negativo
+   ("sem registros") em MySQL. **Correção**: valores numéricos agora são convertidos para `int`
+   antes de serem passados como parâmetro da query.
+
+2. **Bug 3 — Heurística de alta confiança fraca demais**: a classificação `alta_confianca`
+   disparava para qualquer coluna com valor único e consistente nas linhas de amostra — incluindo
+   colunas booleanas (`0`/`1`) que são constantes por padrão em qualquer amostra pequena.
+   **Correção**: `alta_confianca` agora exige que a coluna-pista tenha nome semanticamente
+   relacionado a rótulos/descrições (ex: `name`, `desc`, `title`). Colunas booleanas ou
+   com nome técnico sem relação semântica são rebaixadas para `pista_unica` com aviso.
+
+### Auditoria de traduções aplicadas via `aplicar_sugestoes_investigacao.py`
+
+A entrada `hearingcontrol.hearingtype: {"11": "0"}` foi sugerida pela ferramenta com
+`alta_confianca` porque a coluna `hearingfile` tinha valor `'0'` constante em 5/5 linhas de
+amostra. Isso é um **falso positivo** — `hearingfile` é uma coluna booleana e o valor `'0'`
+é o padrão de qualquer amostra, sem relação com o significado do código `11`.
+
+> **Nota**: Verificação no repositório confirmou que a entrada
+> `hearingcontrol.hearingtype: {"11": "0"}` **não foi commitada** ao `dicionarios.yaml`
+> — apenas existia localmente no ambiente do usuário. Portanto, não é necessário reverter
+> nenhuma entrada no repositório. O item permanece pendente na seção abaixo.
+
+Com a heurística corrigida, este caso agora seria classificado como `pista_unica` (com aviso
+de pista fraca), em vez de `alta_confianca`, evitando a aprovação automática equivocada.
 
 ---
 
