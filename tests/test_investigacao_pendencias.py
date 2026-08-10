@@ -19,6 +19,7 @@ from src.investigacao_pendencias import (
     _converter_valor_para_param,
     _coluna_tem_nome_semantico,
     _pista_e_booleana,
+    _contar_linhas_com_valor,
 )
 
 
@@ -390,3 +391,97 @@ def test_investigar_pendencias_coluna_semantica_gera_alta_confianca() -> None:
     item = relatorio["investigacoes"][0]
     assert item["sugestao"]["status"] == "alta_confianca"
     assert item["sugestao"]["traducao_sugerida"] == "Instrução"
+
+
+# ---------------------------------------------------------------------------
+# Testes específicos para o falso negativo residual em pedidos2lawsuit.status=6
+# (Parte 0 da rodada 4)
+# ---------------------------------------------------------------------------
+
+def _engine_pedidos2lawsuit_inteiro() -> "Engine":
+    """Engine SQLite com pedidos2lawsuit, status como coluna INTEGER."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE pedidos2lawsuit (
+                id          INTEGER PRIMARY KEY,
+                status      INTEGER,
+                claim_text  TEXT,
+                agent       TEXT
+            )
+        """))
+        conn.execute(text("""
+            INSERT INTO pedidos2lawsuit VALUES
+            (1, 6, 'Pedido de devolução de valores', 'Agência SP'),
+            (2, 1, 'Pedido inicial',                 'Agência RJ'),
+            (3, 6, 'Pedido revisional',               'Agência BH')
+        """))
+        conn.commit()
+    return engine
+
+
+def _engine_pedidos2lawsuit_texto() -> "Engine":
+    """Engine SQLite com pedidos2lawsuit, status como coluna TEXT (armazena '6')."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE pedidos2lawsuit (
+                id          INTEGER PRIMARY KEY,
+                status      TEXT,
+                claim_text  TEXT,
+                agent       TEXT
+            )
+        """))
+        conn.execute(text("""
+            INSERT INTO pedidos2lawsuit VALUES
+            (1, '6', 'Pedido de devolução de valores', 'Agência SP'),
+            (2, '1', 'Pedido inicial',                 'Agência RJ'),
+            (3, '6', 'Pedido revisional',               'Agência BH')
+        """))
+        conn.commit()
+    return engine
+
+
+def test_investigar_pedidos2lawsuit_status6_coluna_inteira_nao_retorna_sem_registros() -> None:
+    """Parte 0: investigação de pedidos2lawsuit.status=6 com coluna INTEGER
+    não deve retornar sem_registros quando a linha existe."""
+    engine = _engine_pedidos2lawsuit_inteiro()
+    pendencias = [PendenciaEnum("pedidos2lawsuit", "status", "6", "investigacao_direta")]
+    relatorio = investigar_pendencias(engine, pendencias, limite_linhas=5)
+
+    item = relatorio["investigacoes"][0]
+    assert item["linhas_exemplo"], "Deve encontrar linhas com status=6 (INTEGER)"
+    assert item["sugestao"]["status"] != "sem_registros", (
+        "sem_registros é falso negativo: a linha existe no banco"
+    )
+
+
+def test_investigar_pedidos2lawsuit_status6_coluna_texto_usa_fallback() -> None:
+    """Parte 0: quando o status é TEXT '6' e a query exata (= int 6) não retorna
+    linhas no SQLite, o fallback CAST deve encontrar as linhas corretamente."""
+    engine = _engine_pedidos2lawsuit_texto()
+    pendencias = [PendenciaEnum("pedidos2lawsuit", "status", "6", "investigacao_direta")]
+    relatorio = investigar_pendencias(engine, pendencias, limite_linhas=5)
+
+    item = relatorio["investigacoes"][0]
+    # O fallback de comparação via CAST deve evitar o falso negativo.
+    assert item["linhas_exemplo"], "Fallback CAST deve encontrar linhas com status='6' (TEXT)"
+    assert item["sugestao"]["status"] != "sem_registros", (
+        "Falso negativo residual: fallback CAST deve detectar as linhas existentes"
+    )
+
+
+def test_contar_linhas_com_valor_retorna_contagem_correta() -> None:
+    """_contar_linhas_com_valor deve retornar o número real de linhas com o valor."""
+    engine = _engine_pedidos2lawsuit_inteiro()
+    pendencia = PendenciaEnum("pedidos2lawsuit", "status", "6")
+    contagem = _contar_linhas_com_valor(engine, pendencia, param_valor=6)
+    assert contagem == 2  # há 2 linhas com status=6 no engine
+
+
+def test_contar_linhas_com_valor_retorna_zero_quando_nao_existe() -> None:
+    """_contar_linhas_com_valor retorna 0 quando nenhuma linha tem o valor."""
+    engine = _engine_pedidos2lawsuit_inteiro()
+    pendencia = PendenciaEnum("pedidos2lawsuit", "status", "99")
+    contagem = _contar_linhas_com_valor(engine, pendencia, param_valor=99)
+    assert contagem == 0

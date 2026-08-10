@@ -348,6 +348,15 @@ def _candidatos_para(coluna: str) -> list[str]:
         base.replace("courts", "tribunais"),
         "processos" if base == "lawsuit" else "",
     ]
+
+    # Colunas de papel/função de usuário que no SaidJur referenciam 'employees':
+    # userid, supervisorid, userchangedid e variações sem prefixo de entidade
+    # podem não gerar 'employees' pela heurística genérica, por isso forçamos
+    # a inclusão quando o base corresponde a esses papéis conhecidos.
+    _BASES_USUARIO = frozenset({"user", "supervisor", "userchanged", "excludente", "criador"})
+    if base in _BASES_USUARIO:
+        candidates.extend(["employees", "employee"])
+
     # deduplicate preservando ordem
     seen: set[str] = set()
     result = []
@@ -361,6 +370,13 @@ def _candidatos_para(coluna: str) -> list[str]:
 # Colunas a ignorar na heurística — palavras comuns que terminam em "id"
 # mas não são FKs (ex: "paid", "said", "valid").
 _COLUNAS_FK_IGNORADAS = frozenset({"paid", "said", "laid", "void", "fluid", "rapid", "valid", "acid"})
+
+# Colunas FK conhecidas que não seguem a convenção de sufixo *id/*_id
+# mas são inequivocamente chaves estrangeiras por convenção do SaidJur.
+# Chave: nome da coluna (lower-case); valor: tabela referenciada esperada.
+_COLUNAS_FK_EXTRAS: dict[str, str] = {
+    "pubtype": "pubtypes",  # Tipo de Publicação — FK sem sufixo _id
+}
 
 
 def fks_inferidas(engine: Engine, nome_tabela: str) -> list[dict[str, str]]:
@@ -398,6 +414,24 @@ def fks_inferidas(engine: Engine, nome_tabela: str) -> list[dict[str, str]]:
             continue
         if tipo_col not in _TIPOS_NUMERICOS:
             continue
+
+        # Verificar primeiro as colunas FK extras (sem sufixo id)
+        nome_col_lower = nome_col.lower()
+        if nome_col_lower in _COLUNAS_FK_EXTRAS:
+            tabela_candidata = _COLUNAS_FK_EXTRAS[nome_col_lower]
+            if tabela_candidata in todas_tabelas:
+                try:
+                    cols_ref = {c["nome"].lower() for c in listar_colunas(engine, tabela_candidata)}
+                except Exception:
+                    cols_ref = set()
+                if "id" in cols_ref:
+                    resultado.append({
+                        "coluna": nome_col,
+                        "tabela_referenciada": tabela_candidata,
+                        "coluna_referenciada": "id",
+                    })
+            continue
+
         # deve terminar em _id, id, _pk ou começar com id_
         if not re.search(r"(_id|id|_pk)$", nome_col, flags=re.IGNORECASE) and \
                 not re.match(r"^id_", nome_col, flags=re.IGNORECASE):

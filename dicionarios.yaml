@@ -38,11 +38,11 @@ automaticprazos_lawsuits:
     '0': a
 chatmessages:
   recipienttype:
-    s: '1'
-    all: Prezados, boa tarde!
+    s: Individual
+    all: Todos
   status:
-    '0': s
-    '1': s
+    '0': Inativo
+    '1': Ativo
 employees:
   empstatus:
     '0': '1'
@@ -134,11 +134,11 @@ paymenttype:
     din: Dinheiro
 persons:
   persontype:
-    n: '0'
-    l: '0'
+    n: Pessoa Física
+    l: Pessoa Jurídica
   personstatus:
     '0': Inativo
-    '1': '0'
+    '1': Ativo
 print_reports:
   nature:
     lawsuits: Processos
@@ -260,30 +260,35 @@ person2lawsuit:
     d: '0'
     c: '0'
 prazo2publication:
-  pzphase:
-    '3': '0'
-    '1': '0'
-    '2': '0'
-    '4': '0'
-  finishtype:
-    p: '0'
+  # pzphase e finishtype: pendentes (ver PENDENCIAS_TRADUCAO_HUMANA.md)
+  # Colunas booleanas — 0 = Não, 1 = Sim
+  canceled:
+    '0': Não
+    '1': Sim
+  denied:
+    '0': Não
+    '1': Sim
+  returned:
+    '0': Não
+    '1': Sim
+  skip_validate:
+    '0': Não
+    '1': Sim
 prazos_log:
-  pzphase:
-    '1': '0'
-    '3': '0'
-    '2': '0'
-    '4': Reagendado para 06/03 tendo em vista que precisamos da copia dos processo
-      e da origem da multa para verificar se iremos pagar ou não as multas. 06/03-
-      Aguardando cópia dos proc. administrativo.
-  status:
-    '1': '0'
-  finishtype:
-    p: '0'
-    pje: '0'
-    n: Reagendado para 06/03 tendo em vista que precisamos da copia dos processo e
-      da origem da multa para verificar se iremos pagar ou não as multas. 06/03- Aguardando
-      cópia dos proc. administrativo.
-    f: '0'
+  # pzphase, finishtype e status: pendentes (ver PENDENCIAS_TRADUCAO_HUMANA.md)
+  # Colunas booleanas — 0 = Não, 1 = Sim
+  canceled:
+    '0': Não
+    '1': Sim
+  denied:
+    '0': Não
+    '1': Sim
+  returned:
+    '0': Não
+    '1': Sim
+  skip_validate:
+    '0': Não
+    '1': Sim
 projects:
   type:
     con: '0'

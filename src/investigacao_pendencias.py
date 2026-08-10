@@ -231,6 +231,33 @@ def _converter_valor_para_param(valor: str) -> Any:
 
 
 
+def _contar_linhas_com_valor(
+    engine: Engine,
+    pendencia: PendenciaEnum,
+    *,
+    param_valor: Any,
+) -> int:
+    """Retorna a contagem de linhas onde coluna = valor na tabela.
+
+    Usado como diagnóstico para distinguir "tabela/coluna sem rows com esse valor"
+    de "query retornou vazio por problema de tipo/nome".  Retorna -1 se a query
+    falhar (erro de SQL ou conexão).
+    """
+    tabela_sql = _identificador(pendencia.tabela, engine.dialect.name)
+    coluna_sql = _identificador(pendencia.coluna, engine.dialect.name)
+    sql = text(
+        f"SELECT COUNT(*) FROM {tabela_sql} WHERE {coluna_sql} = :valor"
+    )
+    try:
+        with engine.connect() as conn:
+            resultado = conn.execute(sql, {"valor": param_valor})
+            row = resultado.fetchone()
+            return int(row[0]) if row else 0
+    except Exception:
+        return -1
+
+
+
 def _coletar_linhas_exemplo(
     engine: Engine,
     pendencia: PendenciaEnum,
@@ -258,7 +285,32 @@ def _coletar_linhas_exemplo(
             res = conn.execute(sql, {"valor": param_valor})
             return [dict(row._mapping) for row in res.fetchall()]
 
-    return executar_com_retry_db(_executar, descricao=f"Investigar {pendencia.tabela}.{pendencia.coluna}")
+    linhas = executar_com_retry_db(_executar, descricao=f"Investigar {pendencia.tabela}.{pendencia.coluna}")
+
+    # Diagnóstico: se a query principal não retornou linhas mas o valor é numérico,
+    # tenta também comparar como string para capturar colunas TEXT que armazenam
+    # inteiros como texto (ex: '6' em vez de 6).  Isso ocorre principalmente em
+    # SQLite onde a comparação de tipo é estrita.
+    if not linhas and isinstance(param_valor, int):
+        sql_str = text(
+            f"SELECT {colunas_sql} "
+            f"FROM {tabela_sql} "
+            f"WHERE CAST({coluna_sql} AS TEXT) = CAST(:valor AS TEXT) "
+            f"LIMIT {int(limite_linhas)}"
+        )
+        try:
+            def _executar_str() -> list[dict[str, Any]]:
+                with engine.connect() as conn:
+                    res = conn.execute(sql_str, {"valor": str(param_valor)})
+                    return [dict(row._mapping) for row in res.fetchall()]
+            linhas = executar_com_retry_db(
+                _executar_str,
+                descricao=f"Investigar (fallback texto) {pendencia.tabela}.{pendencia.coluna}",
+            )
+        except Exception:
+            pass
+
+    return linhas
 
 
 
@@ -448,6 +500,22 @@ def investigar_pendencias(
                 limite_linhas=limite_linhas,
             )
             sugestao = _analisar_pistas(pendencia, linhas, colunas_pista)
+
+            # Diagnóstico adicional: quando sem_registros, verifica via COUNT se
+            # existe alguma linha com esse valor (pode indicar problema de tipo ou
+            # de nome de coluna/tabela que a query de amostra não capturou).
+            if sugestao["status"] == "sem_registros":
+                param_valor = _converter_valor_para_param(pendencia.valor)
+                contagem = _contar_linhas_com_valor(engine, pendencia, param_valor=param_valor)
+                if contagem > 0:
+                    sugestao = dict(sugestao)
+                    sugestao["justificativa"] = (
+                        f"A query de amostragem retornou 0 linhas, mas COUNT(*) encontrou "
+                        f"{contagem} linha(s) com {pendencia.coluna} = {pendencia.valor!r}. "
+                        "Possível incompatibilidade de tipo ou coluna com nome diferente do esperado. "
+                        "Verifique o tipo real da coluna no schema (ex: TEXT vs INT)."
+                    )
+                    sugestao["contagem_real"] = contagem
 
             investigacoes.append(
                 {
