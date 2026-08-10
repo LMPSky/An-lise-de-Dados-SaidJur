@@ -494,3 +494,110 @@ class TestParsearColunasDiretas:
         import pytest
         with pytest.raises(ValueError, match="inválida"):
             parsear_colunas_diretas(["hearingcontrol:11"])
+
+
+# ---------------------------------------------------------------------------
+# Testes para os novos mapeamentos FK de funcionário/supervisor/usuário
+# (Parte A — rodada 4)
+# ---------------------------------------------------------------------------
+
+class TestFksInferidasFuncionarioUsuario:
+    """Testes para resolução de FK de colunas userid/supervisorid → employees."""
+
+    @pytest.fixture
+    def engine_prazo(self) -> Engine:
+        """Engine com tabelas de controle de prazo e employees."""
+        import src.db as db_module
+        db_module._CACHE_COLUNA_LABEL.clear()
+        db_module._CACHE_FKS_INFERIDAS.clear()
+
+        engine = create_engine("sqlite:///:memory:")
+        with engine.connect() as conn:
+            conn.execute(text("""
+                CREATE TABLE employees (
+                    id      INTEGER PRIMARY KEY,
+                    name    TEXT NOT NULL
+                )
+            """))
+            conn.execute(text("""
+                CREATE TABLE prazos_log (
+                    id              INTEGER PRIMARY KEY,
+                    userid          INTEGER,
+                    supervisorid    INTEGER,
+                    userchangedid   INTEGER
+                )
+            """))
+            conn.execute(text("INSERT INTO employees VALUES (1, 'Maria Supervisora'), (2, 'João Usuário')"))
+            conn.execute(text("INSERT INTO prazos_log VALUES (1, 2, 1, 2)"))
+            conn.commit()
+        return engine
+
+    def test_userid_mapeia_para_employees(self, engine_prazo: Engine) -> None:
+        """userid em prazos_log deve ser detectado como FK para employees."""
+        resultado = fks_inferidas(engine_prazo, "prazos_log")
+        colunas = [r["coluna"] for r in resultado]
+        assert "userid" in colunas, (
+            "userid deve ser detectado como FK implícita para employees"
+        )
+        ref = next(r for r in resultado if r["coluna"] == "userid")
+        assert ref["tabela_referenciada"] == "employees"
+
+    def test_supervisorid_mapeia_para_employees(self, engine_prazo: Engine) -> None:
+        """supervisorid em prazos_log deve ser detectado como FK para employees."""
+        resultado = fks_inferidas(engine_prazo, "prazos_log")
+        colunas = [r["coluna"] for r in resultado]
+        assert "supervisorid" in colunas, (
+            "supervisorid deve ser detectado como FK implícita para employees"
+        )
+        ref = next(r for r in resultado if r["coluna"] == "supervisorid")
+        assert ref["tabela_referenciada"] == "employees"
+
+    def test_userchangedid_mapeia_para_employees(self, engine_prazo: Engine) -> None:
+        """userchangedid deve ser detectado como FK para employees."""
+        resultado = fks_inferidas(engine_prazo, "prazos_log")
+        colunas = [r["coluna"] for r in resultado]
+        assert "userchangedid" in colunas, (
+            "userchangedid deve ser detectado como FK implícita para employees"
+        )
+        ref = next(r for r in resultado if r["coluna"] == "userchangedid")
+        assert ref["tabela_referenciada"] == "employees"
+
+
+class TestFksInferidasPubtype:
+    """Testes para resolução de FK de pubtype → pubtypes (sem sufixo _id)."""
+
+    @pytest.fixture
+    def engine_pub(self) -> Engine:
+        """Engine com tabelas de publicação."""
+        import src.db as db_module
+        db_module._CACHE_COLUNA_LABEL.clear()
+        db_module._CACHE_FKS_INFERIDAS.clear()
+
+        engine = create_engine("sqlite:///:memory:")
+        with engine.connect() as conn:
+            conn.execute(text("""
+                CREATE TABLE pubtypes (
+                    id   INTEGER PRIMARY KEY,
+                    name TEXT NOT NULL
+                )
+            """))
+            conn.execute(text("""
+                CREATE TABLE prazos_log (
+                    id      INTEGER PRIMARY KEY,
+                    pubtype INTEGER
+                )
+            """))
+            conn.execute(text("INSERT INTO pubtypes VALUES (58704, 'DJSP - Intimações')"))
+            conn.execute(text("INSERT INTO prazos_log VALUES (1, 58704)"))
+            conn.commit()
+        return engine
+
+    def test_pubtype_mapeia_para_pubtypes(self, engine_pub: Engine) -> None:
+        """pubtype deve ser detectado como FK para pubtypes mesmo sem sufixo _id."""
+        resultado = fks_inferidas(engine_pub, "prazos_log")
+        colunas = [r["coluna"] for r in resultado]
+        assert "pubtype" in colunas, (
+            "pubtype deve ser detectado como FK implícita para pubtypes"
+        )
+        ref = next(r for r in resultado if r["coluna"] == "pubtype")
+        assert ref["tabela_referenciada"] == "pubtypes"
