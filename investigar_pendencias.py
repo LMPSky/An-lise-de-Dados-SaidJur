@@ -56,6 +56,7 @@ def main() -> None:
     if args.colunas:
         print("🔎 Iniciando investigação direcionada das colunas especificadas...")
         print(f"📌 Colunas: {', '.join(args.colunas)}")
+        print(f"📏 Limite de linhas por item: {max(2, args.limite_linhas)}")
     else:
         print("🔎 Iniciando investigação assistida de pendências...")
     print("ℹ️  Modo somente leitura (queries SELECT).")

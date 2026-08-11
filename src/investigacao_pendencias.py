@@ -38,6 +38,12 @@ _CHAVES_PISTA = (
 _CHAVES_SEMANTICAS = _CHAVES_PISTA
 
 _TEXTO_LIVRE_COMPRIMENTO_MIN = 50
+_SUFIXOS_OUTRO_IDIOMA = {
+    "_english": "english",
+    "_en": "en",
+    "_es": "es",
+}
+_SUFIXOS_PORTUGUES = ("_pt", "_br")
 
 
 @dataclass(frozen=True)
@@ -212,7 +218,254 @@ def selecionar_colunas_pista(
         pontuadas.append((-score, distancia, coluna.nome))
 
     pontuadas.sort()
-    return [nome for _, _, nome in pontuadas[:limite]]
+    candidatas = [nome for _, _, nome in pontuadas[:limite]]
+    return _reordenar_colunas_pista_por_idioma(candidatas, [coluna.nome for coluna in colunas])
+
+
+
+def _normalizar_token_schema(valor: str) -> str:
+    """Normaliza nomes de tabela/coluna para comparação heurística."""
+    return re.sub(r"[^a-z0-9]+", "", valor.lower())
+
+
+
+def _coluna_em_outro_idioma(nome: str) -> tuple[str, str] | None:
+    """Retorna (base, idioma) quando a coluna aparenta estar em idioma não-PT."""
+    nome_lower = nome.lower()
+    for sufixo, idioma in _SUFIXOS_OUTRO_IDIOMA.items():
+        if nome_lower.endswith(sufixo) and len(nome_lower) > len(sufixo):
+            return nome_lower[: -len(sufixo)], idioma
+    return None
+
+
+
+def _gerar_colunas_portugues_irmas(nome: str) -> list[str]:
+    """Gera possíveis nomes de coluna irmã em português para uma coluna estrangeira."""
+    info = _coluna_em_outro_idioma(nome)
+    if not info:
+        return []
+    base, _idioma = info
+    candidatas = [base]
+    candidatas.extend(f"{base}{sufixo}" for sufixo in _SUFIXOS_PORTUGUES)
+    if base == "name":
+        candidatas.append("nome")
+    if base == "description":
+        candidatas.append("descricao")
+    if base == "title":
+        candidatas.append("titulo")
+    return candidatas
+
+
+
+def _tem_coluna_irma_portuguesa(nome: str, nomes_disponiveis: list[str]) -> bool:
+    """Indica se existe coluna irmã em português para a pista fornecida."""
+    nomes_normalizados = {item.lower() for item in nomes_disponiveis}
+    return any(candidata.lower() in nomes_normalizados for candidata in _gerar_colunas_portugues_irmas(nome))
+
+
+
+def _reordenar_colunas_pista_por_idioma(candidatas: list[str], nomes_disponiveis: list[str]) -> list[str]:
+    """Prefere colunas em português quando existir coluna irmã em outro idioma."""
+    if not candidatas:
+        return candidatas
+
+    resultado = list(candidatas)
+    nomes_reais = {nome.lower(): nome for nome in nomes_disponiveis}
+    for coluna in list(candidatas):
+        irmas = _gerar_colunas_portugues_irmas(coluna)
+        if not irmas:
+            continue
+        for irma in irmas:
+            irma_real = nomes_reais.get(irma.lower())
+            if irma_real in resultado:
+                idx_coluna = resultado.index(coluna)
+                idx_irma = resultado.index(irma_real)
+                if idx_irma > idx_coluna:
+                    resultado.insert(idx_coluna, resultado.pop(idx_irma))
+                break
+    return resultado
+
+
+
+def _extrair_radicais_coluna(nome_coluna: str) -> list[str]:
+    """Extrai radicais úteis do nome da coluna para buscar tabelas de referência."""
+    nome = nome_coluna.lower()
+    termos: list[str] = []
+
+    def _adicionar(valor: str) -> None:
+        normalizado = _normalizar_token_schema(valor)
+        if len(normalizado) >= 3 and normalizado not in termos:
+            termos.append(normalizado)
+
+    _adicionar(nome)
+    for token in re.split(r"[_\W]+", nome):
+        _adicionar(token)
+
+    for prefixo in ("type_", "tipo_", "status_", "phase_", "fase_", "code_", "codigo_", "id_"):
+        if nome.startswith(prefixo):
+            _adicionar(nome[len(prefixo):])
+    for sufixo in ("_type", "_tipo", "type", "tipo", "_status", "status", "_phase", "phase", "_fase", "fase"):
+        if nome.endswith(sufixo):
+            _adicionar(nome[: -len(sufixo)])
+
+    return termos
+
+
+
+def _pontuar_tabela_referencia(nome_tabela: str, radicais: list[str]) -> int:
+    """Pontua o quão provável uma tabela é ser catálogo do código investigado."""
+    normalizado = _normalizar_token_schema(nome_tabela)
+    score = 0
+    for radical in radicais:
+        if normalizado == radical:
+            score = max(score, 12)
+        if normalizado in {f"{radical}s", f"{radical}es"}:
+            score = max(score, 11)
+        if normalizado.endswith(radical) or normalizado.startswith(radical):
+            score = max(score, 8)
+        if radical in normalizado:
+            score = max(score, 6)
+    return score
+
+
+
+def _selecionar_coluna_codigo_referencia(colunas: list[ColunaTabela], coluna_origem: str) -> str | None:
+    """Escolhe a coluna-código mais provável em uma tabela de catálogo."""
+    radicais = _extrair_radicais_coluna(coluna_origem)
+    candidatos: list[tuple[int, str]] = []
+    for coluna in colunas:
+        nome = coluna.nome.lower()
+        score = 0
+        if nome == coluna_origem.lower():
+            score += 10
+        if nome in {"id", "code", "codigo"}:
+            score += 9
+        if nome.endswith("_id") or nome.endswith("id"):
+            score += 4
+        if nome.endswith("_code") or nome.endswith("code") or "codigo" in nome:
+            score += 4
+        if any(radical and radical in _normalizar_token_schema(nome) for radical in radicais):
+            score += 2
+        if score > 0:
+            candidatos.append((score, coluna.nome))
+    if not candidatos:
+        return None
+    candidatos.sort(key=lambda item: (-item[0], item[1]))
+    return candidatos[0][1]
+
+
+
+def _selecionar_coluna_rotulo_referencia(colunas: list[ColunaTabela]) -> str | None:
+    """Escolhe a coluna de rótulo mais provável em uma tabela de catálogo."""
+    pontuadas: list[tuple[int, str]] = []
+    nomes_disponiveis = [coluna.nome for coluna in colunas]
+    for coluna in colunas:
+        nome = coluna.nome.lower()
+        if not _tipo_textual(coluna.tipo):
+            continue
+        score = 0
+        if any(chave in nome for chave in _CHAVES_PISTA):
+            score += 8
+        if nome in {"name", "nome", "description", "descricao", "title", "titulo", "label"}:
+            score += 3
+        if _tem_coluna_irma_portuguesa(coluna.nome, nomes_disponiveis):
+            score -= 2
+        if score > 0:
+            pontuadas.append((score, coluna.nome))
+    if not pontuadas:
+        return None
+    pontuadas.sort(key=lambda item: (-item[0], item[1]))
+    return _reordenar_colunas_pista_por_idioma([nome for _, nome in pontuadas], nomes_disponiveis)[0]
+
+
+
+def _buscar_em_tabela_referencia(engine: Engine, pendencia: PendenciaEnum) -> dict[str, Any] | None:
+    """Busca tradução em tabela de referência/catálogo detectada via schema."""
+    insp = inspect(engine)
+    radicais = _extrair_radicais_coluna(pendencia.coluna)
+    candidatas: list[tuple[int, str]] = []
+    for tabela in insp.get_table_names():
+        if tabela.lower() == pendencia.tabela.lower():
+            continue
+        score = _pontuar_tabela_referencia(tabela, radicais)
+        if score > 0:
+            candidatas.append((score, tabela))
+
+    candidatas.sort(key=lambda item: (-item[0], item[1]))
+    for _score, tabela_ref in candidatas:
+        colunas_ref = listar_colunas_tabela(engine, tabela_ref)
+        coluna_codigo = _selecionar_coluna_codigo_referencia(colunas_ref, pendencia.coluna)
+        coluna_rotulo = _selecionar_coluna_rotulo_referencia(colunas_ref)
+        if not coluna_codigo or not coluna_rotulo:
+            continue
+
+        tabela_sql = _identificador(tabela_ref, engine.dialect.name)
+        coluna_codigo_sql = _identificador(coluna_codigo, engine.dialect.name)
+        coluna_rotulo_sql = _identificador(coluna_rotulo, engine.dialect.name)
+        sql = text(
+            f"SELECT {coluna_codigo_sql} AS codigo, {coluna_rotulo_sql} AS rotulo "
+            f"FROM {tabela_sql} "
+            f"WHERE CAST({coluna_codigo_sql} AS CHAR) = CAST(:valor AS CHAR) "
+            "LIMIT 5"
+        )
+
+        def _executar() -> list[dict[str, Any]]:
+            with engine.connect() as conn:
+                res = conn.execute(sql, {"valor": str(pendencia.valor)})
+                return [dict(row._mapping) for row in res.fetchall()]
+
+        linhas = executar_com_retry_db(
+            _executar,
+            descricao=f"Investigar catálogo {tabela_ref} para {pendencia.tabela}.{pendencia.coluna}",
+        )
+        rotulos = []
+        for linha in linhas:
+            rotulo = str(linha.get("rotulo", "")).strip()
+            if rotulo:
+                rotulos.append(rotulo)
+        distintos = sorted(set(rotulos))
+        if len(distintos) != 1:
+            continue
+
+        traducao = distintos[0]
+        coluna_outro_idioma = _coluna_em_outro_idioma(coluna_rotulo) is not None
+        justificativa = (
+            f"Tabela de referência '{tabela_ref}' detectada via schema; "
+            f"coluna '{coluna_codigo}' mapeou o código '{pendencia.valor}' "
+            f"para '{traducao}' usando o rótulo '{coluna_rotulo}'."
+        )
+        if coluna_outro_idioma and not _tem_coluna_irma_portuguesa(
+            coluna_rotulo,
+            [coluna.nome for coluna in colunas_ref],
+        ):
+            justificativa += (
+                " A pista veio de coluna em outro idioma; revise/traduza manualmente "
+                "antes de aplicar ao dicionário em português."
+            )
+
+        return {
+            "tabela_referencia": tabela_ref,
+            "coluna_codigo_referencia": coluna_codigo,
+            "coluna_rotulo_referencia": coluna_rotulo,
+            "linhas_referencia": linhas,
+            "sugestao": _enriquecer_sugestao_com_alertas(
+                {
+                    "status": "alta_confianca",
+                    "traducao_sugerida": traducao,
+                    "justificativa": justificativa,
+                    "pistas": [
+                        {
+                            "coluna": f"{tabela_ref}.{coluna_rotulo}",
+                            "valores_frequentes": [{"valor": traducao, "ocorrencias": len(rotulos)}],
+                            "valores_distintos": 1,
+                            "ocorrencias_total": len(rotulos),
+                        }
+                    ],
+                    "fonte": "tabela_referencia",
+                }
+            ),
+        }
+    return None
 
 
 
@@ -372,18 +625,57 @@ def _pista_parece_texto_livre(valor: str) -> bool:
     return False
 
 
+
+def _pista_parece_dado_especifico(valor: str) -> bool:
+    """Heurística para sinalizar nomes curtos que parecem entidade específica."""
+    texto = valor.strip()
+    if not texto or _pista_parece_texto_livre(texto):
+        return False
+
+    palavras = re.findall(r"[A-Za-zÀ-ÿ0-9]+", texto)
+    if len(palavras) < 2:
+        return False
+
+    acronimos = [p for p in palavras if re.fullmatch(r"[A-Z]{2,4}", p)]
+    capitalizadas = [
+        p for p in palavras if re.fullmatch(r"[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ][a-záàâãéêíóôõúç]+", p)
+    ]
+    return len(acronimos) >= 2 and len(acronimos) + len(capitalizadas) == len(palavras)
+
+
+
+def _enriquecer_sugestao_com_alertas(sugestao: dict[str, Any]) -> dict[str, Any]:
+    """Acrescenta alertas não bloqueantes à sugestão."""
+    resultado = dict(sugestao)
+    alertas: list[dict[str, str]] = []
+    traducao = resultado.get("traducao_sugerida")
+    if isinstance(traducao, str) and _pista_parece_dado_especifico(traducao):
+        alertas.append(
+            {
+                "tipo": "possivel_dado_especifico",
+                "mensagem": (
+                    "⚠️ Possível dado específico/sensível — verifique se este valor é "
+                    "uma categoria genérica ou um dado real de caso antes de aplicar."
+                ),
+            }
+        )
+    resultado["alertas"] = alertas
+    return resultado
+
+
+
 def _analisar_pistas(
     pendencia: PendenciaEnum,
     linhas: list[dict[str, Any]],
     colunas_pista: list[str],
 ) -> dict[str, Any]:
     if not linhas:
-        return {
+        return _enriquecer_sugestao_com_alertas({
             "status": "sem_registros",
             "traducao_sugerida": None,
             "justificativa": "Nenhuma linha encontrada para este valor.",
             "pistas": [],
-        }
+        })
 
     pistas: list[dict[str, Any]] = []
     for coluna in colunas_pista:
@@ -416,12 +708,12 @@ def _analisar_pistas(
         )
 
     if not pistas:
-        return {
+        return _enriquecer_sugestao_com_alertas({
             "status": "sem_pista_encontrada",
             "traducao_sugerida": None,
             "justificativa": "Foram encontradas linhas, mas sem pista textual clara.",
             "pistas": [],
-        }
+        })
 
     # Alta confiança só quando o indício textual é único e consistente em
     # múltiplas linhas E a coluna-pista tem nome semanticamente relacionado a
@@ -439,16 +731,25 @@ def _analisar_pistas(
         tem_nome_semantico = _coluna_tem_nome_semantico(pista["coluna"])
         e_booleana = _pista_e_booleana(pista["valores_frequentes"])
         if tem_nome_semantico and not e_booleana:
-            return {
+            justificativa = (
+                f"Coluna '{pista['coluna']}' (pista forte — nome semântico) "
+                f"apresentou valor único e consistente "
+                f"em múltiplas linhas para o código '{pendencia.valor}'."
+            )
+            if _coluna_em_outro_idioma(pista["coluna"]) and not _tem_coluna_irma_portuguesa(
+                pista["coluna"],
+                colunas_pista,
+            ):
+                justificativa += (
+                    " A pista veio de coluna em outro idioma; revise/traduza manualmente "
+                    "antes de aplicar ao dicionário em português."
+                )
+            return _enriquecer_sugestao_com_alertas({
                 "status": "alta_confianca",
                 "traducao_sugerida": unico,
-                "justificativa": (
-                    f"Coluna '{pista['coluna']}' (pista forte — nome semântico) "
-                    f"apresentou valor único e consistente "
-                    f"em múltiplas linhas para o código '{pendencia.valor}'."
-                ),
+                "justificativa": justificativa,
                 "pistas": pistas,
-            }
+            })
 
     for pista in pistas:
         # "pista_unica" só é usada quando existe apenas um indício textual
@@ -464,28 +765,46 @@ def _analisar_pistas(
             e_booleana = _pista_e_booleana(pista["valores_frequentes"])
             tem_nome_semantico = _coluna_tem_nome_semantico(pista["coluna"])
             if e_booleana or not tem_nome_semantico:
-                return {
+                justificativa = (
+                    f"Coluna '{pista['coluna']}' (pista fraca — "
+                    + ("coluna booleana" if e_booleana else "nome sem relação semântica")
+                    + f") apresentou valor único '{unico}' nas linhas de exemplo, "
+                    "mas isso não é evidência suficiente do significado do código. "
+                    "Revise manualmente antes de aplicar."
+                )
+                if _coluna_em_outro_idioma(pista["coluna"]) and not _tem_coluna_irma_portuguesa(
+                    pista["coluna"],
+                    colunas_pista,
+                ):
+                    justificativa += (
+                        " A pista veio de coluna em outro idioma; traduza/valide manualmente "
+                        "antes de aplicar."
+                    )
+                return _enriquecer_sugestao_com_alertas({
                     "status": "pista_unica",
                     "traducao_sugerida": unico,
-                    "justificativa": (
-                        f"Coluna '{pista['coluna']}' (pista fraca — "
-                        + ("coluna booleana" if e_booleana else "nome sem relação semântica")
-                        + f") apresentou valor único '{unico}' nas linhas de exemplo, "
-                        "mas isso não é evidência suficiente do significado do código. "
-                        "Revise manualmente antes de aplicar."
-                    ),
+                    "justificativa": justificativa,
                     "pistas": pistas,
-                }
-            return {
+                })
+            justificativa = (
+                f"Coluna '{pista['coluna']}' (pista forte) tem apenas uma ocorrência "
+                f"de exemplo para o código '{pendencia.valor}'. "
+                "Sugestão útil para revisão, mas sem confiança alta (amostra pequena)."
+            )
+            if _coluna_em_outro_idioma(pista["coluna"]) and not _tem_coluna_irma_portuguesa(
+                pista["coluna"],
+                colunas_pista,
+            ):
+                justificativa += (
+                    " A pista veio de coluna em outro idioma; traduza/valide manualmente "
+                    "antes de aplicar."
+                )
+            return _enriquecer_sugestao_com_alertas({
                 "status": "pista_unica",
                 "traducao_sugerida": unico,
-                "justificativa": (
-                    f"Coluna '{pista['coluna']}' (pista forte) tem apenas uma ocorrência "
-                    f"de exemplo para o código '{pendencia.valor}'. "
-                    "Sugestão útil para revisão, mas sem confiança alta (amostra pequena)."
-                ),
+                "justificativa": justificativa,
                 "pistas": pistas,
-            }
+            })
 
     justificativa_final = "Há pistas textuais, mas sem consistência suficiente para alta confiança."
     if descartou_texto_livre:
@@ -494,12 +813,12 @@ def _analisar_pistas(
             "(conteúdo de registro real) e foram descartadas por segurança."
         )
 
-    return {
+    return _enriquecer_sugestao_com_alertas({
         "status": "sem_pista_encontrada",
         "traducao_sugerida": None,
         "justificativa": justificativa_final,
         "pistas": pistas,
-    }
+    })
 
 
 
@@ -515,6 +834,22 @@ def investigar_pendencias(
 
     for pendencia in pendencias:
         try:
+            lookup = _buscar_em_tabela_referencia(engine, pendencia)
+            if lookup:
+                investigacoes.append(
+                    {
+                        "tabela": pendencia.tabela,
+                        "coluna": pendencia.coluna,
+                        "valor": pendencia.valor,
+                        "motivo_pendencia": pendencia.motivo,
+                        "colunas_pista": [lookup["coluna_rotulo_referencia"]],
+                        "linhas_exemplo": lookup["linhas_referencia"],
+                        "sugestao": lookup["sugestao"],
+                        "tabela_referencia": lookup["tabela_referencia"],
+                    }
+                )
+                continue
+
             colunas = executar_com_retry_db(
                 lambda tabela=pendencia.tabela, engine_ref=engine: listar_colunas_tabela(
                     engine_ref, tabela
@@ -532,10 +867,14 @@ def investigar_pendencias(
                         "colunas_pista": [],
                         "linhas_exemplo": [],
                         "sugestao": {
-                            "status": "sem_pista_encontrada",
-                            "traducao_sugerida": None,
-                            "justificativa": "Nenhuma coluna vizinha candidata a pista foi identificada.",
-                            "pistas": [],
+                            **_enriquecer_sugestao_com_alertas(
+                                {
+                                    "status": "sem_pista_encontrada",
+                                    "traducao_sugerida": None,
+                                    "justificativa": "Nenhuma coluna vizinha candidata a pista foi identificada.",
+                                    "pistas": [],
+                                }
+                            ),
                         },
                     }
                 )
@@ -586,10 +925,14 @@ def investigar_pendencias(
                     "colunas_pista": [],
                     "linhas_exemplo": [],
                     "sugestao": {
-                        "status": "erro",
-                        "traducao_sugerida": None,
-                        "justificativa": f"Falha ao investigar: {exc}",
-                        "pistas": [],
+                        **_enriquecer_sugestao_com_alertas(
+                            {
+                                "status": "erro",
+                                "traducao_sugerida": None,
+                                "justificativa": f"Falha ao investigar: {exc}",
+                                "pistas": [],
+                            }
+                        ),
                     },
                 }
             )

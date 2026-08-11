@@ -16,6 +16,24 @@
   de texto livre longo/específico agora são descartadas para não gerar sugestão
   automática incorreta.
 
+## 🔎 Atualização 2026-08-11 — Aprofundamento da investigação assistida
+
+- A investigação passou a procurar **tabelas de referência/catálogo via schema**
+  antes de depender de pistas textuais da própria tabela. Quando encontra uma
+  tabela compatível (por exemplo, `hearingtypes` com `id` + `name`), usa essa
+  fonte como verdade com prioridade maior.
+- Quando existe coluna irmã em português e em outro idioma no mesmo schema
+  (por exemplo, `name`/`name_pt` junto de `name_en`), a heurística agora
+  **prefere a coluna em português** automaticamente.
+- Se só houver pista em outro idioma, a justificativa da sugestão informa isso
+  explicitamente e recomenda tradução/validação manual antes de aplicar.
+- A revisão interativa de `aplicar_sugestoes_investigacao.py` ganhou um alerta
+  específico para **possível dado específico/sensível**, separado do aviso já
+  existente de pista fraca.
+- O parâmetro `--limite-linhas` foi mantido e documentado também para o modo
+  direcionado `--colunas`, permitindo reinvestigar pendências com amostras
+  maiores (ex.: 50–100 linhas).
+
 ## 📝 Mudanças Realizadas
 
 ### 0. **Novo modo de exportação simplificado**

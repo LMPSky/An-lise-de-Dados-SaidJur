@@ -1,8 +1,44 @@
 # Pendências de Tradução — Revisão Humana Necessária
 
 Gerado em: 2026-07-30  
-Atualizado em: 2026-08-11 (Rodada 5 — auditoria ampla de corrupção em `dicionarios.yaml`)  
+Atualizado em: 2026-08-11 (Rodadas 5 e 6 — auditoria ampla + aprofundamento da investigação)  
 Fonte: `relatorio_auditoria_traducoes.yaml`
+
+---
+
+## Rodada 6 (2026-08-11) — Correções imediatas e salvaguardas adicionais
+
+### 1) Correções imediatas confirmadas
+
+- `varas.code` **permanece corrigido diretamente** no `dicionarios.yaml` com rótulos
+  em português jurídico (`Vara Federal`, `Vara do Trabalho`, `Vara Cível`).
+  Como a correção é segura e consistente com a Rodada 5, esse bloco **não foi
+  reaberto** como pendência.
+- `lawsuits.finalpayment_type['2']` **permanece removido** do dicionário ativo.
+  A sugestão `JAC BH Barão` foi tratada como **possível dado específico/sensível**
+  (nome de agência/unidade/entidade), e não como categoria genérica de domínio.
+
+### 2) Higiene de dados reforçada
+
+Além dos casos já listados na Rodada 5, a sugestão abaixo foi mantida fora do
+dicionário por possível vazamento de dado específico:
+
+- `lawsuits.finalpayment_type['2'] = JAC BH Barão`
+
+O tratamento é o mesmo adotado para os demais casos removidos na Rodada 5:
+esses valores **não devem** entrar em um dicionário versionado sem validação
+humana explícita de que representam uma categoria genérica.
+
+### 3) Salvaguardas novas na investigação assistida
+
+- Busca prioritária de **tabela de referência/catálogo** via schema antes de usar
+  pistas textuais da própria tabela.
+- Preferência automática por **coluna em português** quando existir irmã em outro
+  idioma no mesmo schema (por exemplo, `name`/`name_pt` antes de `name_en`).
+- `--limite-linhas` documentado e coberto por teste também no modo direcionado
+  `--colunas`, para permitir reinvestigação com amostras maiores (ex.: 50–100 linhas).
+- A revisão interativa agora destaca um alerta separado para **possível dado
+  específico/sensível**, distinto do aviso de pista fraca.
 
 ---
 
@@ -339,10 +375,6 @@ classificações financeiras e devem ser confirmados com a regra de negócio do 
 | `prazo2publication` | `pzphase` | `1`, `2`, `3`, `4` | Fases de prazo. |
 | `prazos_log` | `pzphase` | `1`, `2`, `3`, `4` | Mesmo caso acima. |
 | `tasks2publication` | `status` | `0`, `1`, `2` | Status com três estados, sem documentação no relatório. |
-| `varas` | `code` | `4`, `5`, `8` | Código numérico de vara, parece identificador e não rótulo. |
-
----
-
 ### 2.4 Códigos jurídicos/comerciais que ainda precisam de validação
 
 | Tabela | Coluna | Valores pendentes | Observação |
