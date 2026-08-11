@@ -68,32 +68,36 @@ aparência de texto livre longo/específico.
 ### Parte 0 — Diagnóstico do falso negativo em `pedidos2lawsuit.status = 6`
 
 A investigação direcionada continuava retornando `sem_registros` para
-`pedidos2lawsuit.status = 6` mesmo após a PR #23.
+`pedidos2lawsuit.status = 6` mesmo após as correções da PR #23/24.
 
-**Causa provável identificada**: incompatibilidade de tipo entre a comparação
-inteira da query (`WHERE status = 6`) e o tipo real da coluna no MySQL
-(possivelmente `VARCHAR`/`TEXT` armazenando `'6'` como texto). No SQLite,
-`'6' ≠ 6` por definição; no MySQL, a coerção costuma funcionar mas pode
-falhar em codificações ou collations específicas.
+**Causa raiz identificada (PR #25)**: o fallback de comparação via CAST
+introduzido na PR #24 usava `CAST(coluna AS TEXT)`, sintaxe válida apenas
+no SQLite. No MySQL/MariaDB, o tipo de destino `TEXT` não é aceito no `CAST`
+— a sintaxe correta é `CAST(coluna AS CHAR)`. Isso causava um erro de SQL
+no banco real, que era silenciado e mascarado como `sem_registros`, ocultando
+a causa raiz do usuário.
 
-**Correções implementadas**:
-1. **Fallback de comparação via CAST**: se a query com comparação inteira
-   retornar 0 linhas, tenta automaticamente `CAST(coluna AS TEXT) = CAST(:valor AS TEXT)`.
-   Isso cobre o caso em que o valor está armazenado como texto.
-2. **Diagnóstico COUNT**: ao retornar `sem_registros`, a ferramenta agora
-   executa `SELECT COUNT(*)` e, se o count for > 0, inclui na justificativa
-   uma nota explicando a discrepância (possível problema de tipo/nome).
-3. **Testes adicionados** (`tests/test_investigacao_pendencias.py`) para o
-   cenário SQLite in-memory com `pedidos2lawsuit` contendo linha `status = 6`
-   tanto em coluna INTEGER (query direta) quanto em coluna TEXT (fallback CAST).
+**Correções implementadas na PR #25**:
+1. **Sintaxe CAST compatível**: substituído `CAST(... AS TEXT)` por
+   `CAST(... AS CHAR)`, que é válido tanto no MySQL/MariaDB quanto no SQLite.
+2. **Exceções do fallback não são mais mascaradas**: se o fallback de CAST
+   lançar qualquer exceção, ela agora é propagada ao chamador e registrada
+   com `status: erro` (com a mensagem original), em vez de ser silenciada
+   e convertida em `sem_registros`.
+3. **Testes adicionados** (`tests/test_investigacao_pendencias.py`) para
+   verificar que a expressão CAST gerada é válida no dialeto MySQL (via
+   compilação com `sqlalchemy.dialects.mysql`) e que exceções no fallback
+   resultam em `status: erro`, não `sem_registros`.
 
-> **Nota**: se após estas correções `pedidos2lawsuit.status = 6` ainda retornar
-> `sem_registros` no banco real, o problema é provavelmente o nome da coluna
-> ou da tabela no MySQL (case sensitivity no Linux). Verifique com:
-> ```sql
-> SELECT COLUMN_NAME, DATA_TYPE FROM information_schema.COLUMNS
-> WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'pedidos2lawsuit';
+> **Ação necessária**: agora que o bug de sintaxe foi corrigido, **rode a
+> ferramenta novamente** contra o banco real para confirmar se
+> `pedidos2lawsuit.status = 6` é encontrado:
 > ```
+> python investigar_pendencias.py --colunas pedidos2lawsuit.status:6
+> ```
+> Se o resultado ainda for `sem_registros` (sem erro), a linha de fato não
+> existe no banco com esse valor. Se retornar `erro`, verifique a mensagem
+> para diagnóstico adicional.
 
 ### Parte A — FKs de funcionário/supervisor/usuário em tabelas de prazo
 
@@ -237,7 +241,7 @@ mas **não têm tradução suficientemente confiável sem acesso ao banco real**
 | Tabela | Coluna | Valor observado | Contexto / Motivo da pendência |
 |--------|--------|-----------------|-------------------------------|
 | `hearingcontrol` | `hearingtype` | `11` | Tipo de audiência judicial. O significado do código `11` varia entre sistemas jurídicos — rodar `investigar_pendencias.py --colunas hearingcontrol.hearingtype:11` contra o banco real para obter pistas. |
-| `pedidos2lawsuit` | `status` | `6` | Status do pedido/andamento. A ferramenta agora tenta CAST como fallback; se ainda retornar `sem_registros`, verificar o nome e tipo real da coluna no MySQL (ver nota na Rodada 4). |
+| `pedidos2lawsuit` | `status` | `6` | Status do pedido/andamento. O bug de sintaxe `CAST(... AS TEXT)` no fallback (inválido no MySQL) foi corrigido na PR #25 — rode `investigar_pendencias.py --colunas pedidos2lawsuit.status:6` novamente para obter o resultado correto. |
 | `hearingcontrol` | coluna "Prazo Incluído" | `2` | Não foi possível mapear o nome exato da coluna. Pode ser `prazotype`, `prazo_included` ou similar. Investigar com `--colunas hearingcontrol.<nome_real_da_coluna>:2`. |
 | `prazos_log` | `pzphase` | `0`, `3`, `4` | Fase do Prazo — código numérico com mais de 2 valores, não é booleano simples. Investigar com `--colunas prazos_log.pzphase:0 prazos_log.pzphase:3 prazos_log.pzphase:4`. |
 | `prazo2publication` | `pzphase` | `1`, `2`, `3`, `4` | Fase do Prazo (mesmas fases de `prazos_log`). Investigar com `--colunas prazo2publication.pzphase:1`. |

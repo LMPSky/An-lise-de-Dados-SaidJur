@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from unittest.mock import patch
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
@@ -529,3 +530,71 @@ def test_contar_linhas_com_valor_retorna_zero_quando_nao_existe() -> None:
     pendencia = PendenciaEnum("pedidos2lawsuit", "status", "99")
     contagem = _contar_linhas_com_valor(engine, pendencia, param_valor=99)
     assert contagem == 0
+
+
+def test_fallback_cast_nao_usa_text_no_mysql() -> None:
+    """O fallback CAST não deve usar 'CAST(... AS TEXT)'.
+
+    Valida que a expressão gerada pela ferramenta usa CAST(... AS CHAR), que é
+    compatível tanto com MySQL/MariaDB quanto com SQLite.  Verifica inspecionando
+    o SQL textual construído pelo fallback, sem precisar executar contra um banco
+    real ou mocks de dialeto.
+    """
+    import inspect
+    import src.investigacao_pendencias as mod
+
+    # Filtra apenas linhas de código (exclui linhas de comentário puro)
+    linhas_codigo = [
+        linha
+        for linha in inspect.getsource(mod._coletar_linhas_exemplo).splitlines()
+        if not linha.strip().startswith("#")
+    ]
+    codigo_sem_comentarios = "\n".join(linhas_codigo).upper()
+
+    # A sintaxe CAST(... AS TEXT) é inválida no MySQL/MariaDB; não pode aparecer.
+    assert "AS TEXT" not in codigo_sem_comentarios, (
+        "CAST com tipo TEXT encontrado em _coletar_linhas_exemplo (linhas de código). "
+        "Use CAST(... AS CHAR) para compatibilidade com MySQL/MariaDB."
+    )
+    # Deve usar CHAR, aceito tanto no MySQL quanto no SQLite.
+    # O tipo aparece na atribuição da variável _tipo_cast = "CHAR" no código.
+    assert '"CHAR"' in codigo_sem_comentarios or "_TIPO_CAST = \"CHAR\"" in codigo_sem_comentarios, (
+        "Esperado uso de tipo CHAR no fallback de _coletar_linhas_exemplo."
+    )
+
+
+def test_fallback_excecao_resulta_em_status_erro() -> None:
+    """Se o fallback CAST lançar exceção, o resultado deve ser status='erro'.
+
+    Garante que exceções reais de execução (ex: erro de sintaxe SQL no banco)
+    não são silenciadas e mascaradas como 'sem_registros'.
+    """
+    import src.investigacao_pendencias as mod
+
+    # Usa engine com coluna TEXT: a query direta (INTEGER) retorna 0 linhas no
+    # SQLite, acionando o fallback. Patchamos executar_com_retry_db para que a
+    # segunda chamada (fallback) simule um erro de SQL real.
+    engine = _engine_pedidos2lawsuit_texto()
+    pendencia = PendenciaEnum("pedidos2lawsuit", "status", "6", "investigacao_direta")
+
+    chamadas = [0]
+    original_retry = mod.executar_com_retry_db
+
+    def _retry_com_falha_no_fallback(func, **kwargs):
+        chamadas[0] += 1
+        if chamadas[0] == 1:
+            # Primeira chamada: query direta — executa normalmente (devolve [])
+            return original_retry(func, **kwargs)
+        # Segunda chamada: fallback CAST — simula erro de sintaxe SQL no banco
+        raise RuntimeError("Simulated SQL syntax error: CAST type TEXT not supported")
+
+    with patch.object(mod, "executar_com_retry_db", side_effect=_retry_com_falha_no_fallback):
+        relatorio = investigar_pendencias(engine, [pendencia], limite_linhas=1)
+
+    item = relatorio["investigacoes"][0]
+    assert item["sugestao"]["status"] == "erro", (
+        f"Exceção no fallback deve gerar status='erro', obtido: {item['sugestao']['status']!r}"
+    )
+    assert "Simulated SQL syntax error" in item["sugestao"]["justificativa"], (
+        "A mensagem de erro original deve estar preservada na justificativa"
+    )
