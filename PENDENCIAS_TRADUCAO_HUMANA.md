@@ -1,10 +1,67 @@
 # Pendências de Tradução — Revisão Humana Necessária
 
 Gerado em: 2026-07-30  
-Atualizado em: 2026-08-10 (Rodada 4 — falso negativo residual, FKs de funcionário/usuário, booleanos de prazo)  
+Atualizado em: 2026-08-11 (Rodada 5 — auditoria ampla de corrupção em `dicionarios.yaml`)  
 Fonte: `relatorio_auditoria_traducoes.yaml`
 
 ---
+
+## Rodada 5 (2026-08-11) — Limpeza ampla de entradas corrompidas
+
+### 1) Entradas removidas por corrupção clara (código→código / valor sem sentido)
+
+Foram removidos blocos/entradas sem semântica confiável no dicionário atual, incluindo:
+`activitynature.nature`, `automaticprazos_lawsuits.*`, `paymentguarantee2lawsuit.*`,
+`clientsystem2lawsuit.phase/status`, `expedients.type`, `lawsuitdocs.phase/processtype`,
+`otherdocs.processtype`, `person2lawsuit.persontype`, `person2lawsuit.link_type`,
+`projects.type/status`, `timesheet_tasks.status`, `pedidos2lawsuit.status`,
+`lawsuits.type/contract_type`, `lawsuits_log.type/contract_type/finalpayment_type`,
+`lawsuitdocsmetadata.pjestatus/docstatus`, `projectactivityprazos.status`.
+
+Esses casos precisam de confirmação no banco real antes de reintrodução:
+
+```bash
+python investigar_pendencias.py --colunas tabela.coluna
+```
+
+---
+
+### 2) Remoções com destaque de higiene de dados (vazamento de conteúdo específico/sensível)
+
+Foram removidas entradas que continham conteúdo de registro real (não rótulo genérico):
+
+- `users.status` (`ramos01*`)
+- `hearings_log.hearingstatus` (texto completo de audiência com data/hora/local)
+- `tasks2publication.status` (texto de tarefa específica)
+
+Esses dados **não devem** existir em um dicionário genérico versionado.
+Como salvaguarda adicional, a investigação assistida agora descarta pistas com
+aparência de texto livre longo/específico.
+
+---
+
+### 3) Correções diretas de baixo risco (idioma/capitalização e booleanos claros)
+
+- `varas.code`: traduzido para português jurídico (`Vara do Trabalho`, `Vara Cível`, `Vara Federal`).
+- `accounts.code`: normalização de capitalização (`Passivo`, `Despesas`, `Receitas`, `Sistema Auxiliar`).
+- Status booleanos claramente identificáveis corrigidos para `0/1`:
+  - `employees.empstatus`
+  - `lawsuits.status`
+  - `lawsuits_log.status`
+  - `users.status`
+  - campos binários de `usertasks.*` citados na auditoria
+- `sent_hearing_emails.type.lawyer`: ajustado para `Advogado`.
+
+---
+
+### 4) Pendências que continuam dependentes de validação humana
+
+- Reconstrução correta de `activitynature.nature` (estrutura original código→rótulo
+  não é inferível com segurança sem acesso ao banco real).
+- `returned_prazo_reasons.status` continua parcial no dicionário (`'1': Ativo`);
+  o significado de `status=0` deve ser confirmado no banco real antes de incluir.
+- Reintrodução de mapeamentos removidos dos blocos listados na seção 1, com
+  validação por amostragem no ambiente real.
 
 ## Rodada 4 (2026-08-10) — Falso negativo, FKs de prazo e booleanos
 

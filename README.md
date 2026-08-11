@@ -207,6 +207,10 @@ banco (somente leitura) e gera `relatorio_investigacao_pendencias.yaml` com:
 > 5/5 linhas de amostra *não* revela o significado do código investigado — é apenas o padrão
 > de qualquer tabela com muitos campos opcionais zerados. Somente colunas com nome sugestivo
 > (ex: `typename`, `descricao`, `hearing_title`) e valor textual variável são evidência confiável.
+>
+> **Salvaguarda adicional (Rodada 5)**: pistas que parecem **texto livre longo/específico**
+> (por exemplo, frases extensas com data/hora de um caso concreto) são descartadas da sugestão
+> automática para evitar vazamento de conteúdo de registros reais para o `dicionarios.yaml`.
 
 Parâmetros úteis:
 
@@ -232,6 +236,21 @@ python aplicar_sugestoes_investigacao.py --aplicar-decisoes decisoes_investigaca
 > Observação: o fluxo é separado de propósito. A investigação **não altera**
 > `dicionarios.yaml` automaticamente; ela apenas sugere. A decisão final continua
 > sendo revisada por humano.
+
+### 🧽 Auditoria ampla de corrupção em `dicionarios.yaml` (Rodada 5)
+
+Na rodada de 2026-08-11, foi feita uma limpeza ampla para remover mapeamentos
+claramente corrompidos (código→código), entradas com vazamento de conteúdo
+específico de casos reais e traduções em inglês inconsistentes no contexto
+jurídico em português.
+
+Resumo operacional:
+- entradas sem semântica confiável foram removidas e documentadas em
+  `PENDENCIAS_TRADUCAO_HUMANA.md`;
+- traduções óbvias de baixo risco foram corrigidas diretamente (ex.: `varas.code`,
+  capitalização de `accounts.code`);
+- `activitynature.nature` permanece como pendência de reconstrução com validação
+  no banco real.
 
 ## 🧹 Ocultando colunas vazias automaticamente
 

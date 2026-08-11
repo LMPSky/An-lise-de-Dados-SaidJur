@@ -19,6 +19,7 @@ from src.investigacao_pendencias import (
     _converter_valor_para_param,
     _coluna_tem_nome_semantico,
     _pista_e_booleana,
+    _pista_parece_texto_livre,
     _contar_linhas_com_valor,
 )
 
@@ -391,6 +392,49 @@ def test_investigar_pendencias_coluna_semantica_gera_alta_confianca() -> None:
     item = relatorio["investigacoes"][0]
     assert item["sugestao"]["status"] == "alta_confianca"
     assert item["sugestao"]["traducao_sugerida"] == "Instrução"
+
+
+def test_pista_parece_texto_livre_detecta_texto_longo() -> None:
+    """Salvaguarda: textos longos/específicos não podem virar tradução de ENUM."""
+    assert _pista_parece_texto_livre(
+        "Audiência instrução designada para 11/06/2019 14:30 Seção B da 31ª Vara Cível da Capital."
+    ) is True
+
+
+def test_pista_parece_texto_livre_nao_bloqueia_rotulo_curto() -> None:
+    """Rótulos curtos continuam aceitos como pistas válidas."""
+    assert _pista_parece_texto_livre("Instrução") is False
+    assert _pista_parece_texto_livre("Pessoa Jurídica") is False
+
+
+def test_investigar_pendencias_rejeita_texto_livre_mesmo_em_coluna_semantica() -> None:
+    """Mesmo com coluna semântica, texto livre longo deve ser descartado."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE hearings_log (
+                id INTEGER PRIMARY KEY,
+                hearingstatus INTEGER,
+                observation TEXT
+            )
+        """))
+        conn.execute(text("""
+            INSERT INTO hearings_log (id, hearingstatus, observation) VALUES
+            (1, 2, 'Audiência instrução designada para 11/06/2019 14:30 Seção B da 31ª Vara Cível da Capital.'),
+            (2, 2, 'Audiência instrução designada para 11/06/2019 14:30 Seção B da 31ª Vara Cível da Capital.')
+        """))
+        conn.commit()
+
+    relatorio = investigar_pendencias(
+        engine,
+        [PendenciaEnum("hearings_log", "hearingstatus", "2")],
+        limite_linhas=5,
+    )
+
+    item = relatorio["investigacoes"][0]
+    assert item["sugestao"]["status"] == "sem_pista_encontrada"
+    assert item["sugestao"]["traducao_sugerida"] is None
+    assert "descartadas por segurança" in item["sugestao"]["justificativa"]
 
 
 # ---------------------------------------------------------------------------

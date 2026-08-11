@@ -1,5 +1,21 @@
 # 🔧 Resumo Técnico - Exportação de Resultados de Busca
 
+## 🧹 Atualização 2026-08-11 — Auditoria ampla de `dicionarios.yaml`
+
+- Remoção cirúrgica de entradas claramente corrompidas (código→código sem
+  rótulo legível) em múltiplos blocos do dicionário.
+- Remoção de entradas com vazamento de conteúdo específico de registros reais
+  (texto livre longo em campos que deveriam ser ENUM).
+- Correções diretas de baixo risco:
+  - `varas.code` traduzido para português jurídico;
+  - `accounts.code` normalizado para Title Case;
+  - ajustes de status booleanos (`0/1`) quando semanticamente inequívocos.
+- `activitynature.nature` foi removido do dicionário ativo e registrado como
+  pendência de reconstrução com validação no banco real.
+- Salvaguarda adicional em `src/investigacao_pendencias.py`: pistas com aparência
+  de texto livre longo/específico agora são descartadas para não gerar sugestão
+  automática incorreta.
+
 ## 📝 Mudanças Realizadas
 
 ### 0. **Novo modo de exportação simplificado**
