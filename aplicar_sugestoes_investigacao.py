@@ -73,6 +73,10 @@ def _revisar_interativo(relatorio: dict[str, Any]) -> list[dict[str, Any]]:
                 "  • Pista FRACA: coluna booleana (0/1) ou nome técnico — valor constante não indica significado."
             )
 
+        for alerta in sugestao.get("alertas", []):
+            if alerta.get("tipo") == "possivel_dado_especifico":
+                print(f"\n{alerta.get('mensagem')}")
+
         if not traducao_sugerida:
             print("Sem sugestão aplicável. Marcando como pular.")
             decisao = "pular"

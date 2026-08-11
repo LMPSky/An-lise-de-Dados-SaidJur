@@ -13,6 +13,7 @@ from src.investigacao_pendencias import (
     PendenciaEnum,
     aplicar_decisoes_em_dicionario,
     carregar_pendencias_enum,
+    executar_investigacao,
     gerar_template_decisoes,
     investigar_pendencias,
     selecionar_colunas_pista,
@@ -20,6 +21,7 @@ from src.investigacao_pendencias import (
     _converter_valor_para_param,
     _coluna_tem_nome_semantico,
     _pista_e_booleana,
+    _pista_parece_dado_especifico,
     _pista_parece_texto_livre,
     _contar_linhas_com_valor,
 )
@@ -83,6 +85,26 @@ def test_selecionar_colunas_pista_prioriza_nome_e_descricao() -> None:
 
 
 
+def test_selecionar_colunas_pista_prefere_portugues_sobre_name_en() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE varas (
+                id INTEGER PRIMARY KEY,
+                code TEXT,
+                name_en TEXT,
+                name TEXT
+            )
+        """))
+        conn.commit()
+
+    colunas = listar_colunas_tabela(engine, "varas")
+    candidatas = selecionar_colunas_pista(colunas, "code")
+
+    assert candidatas.index("name") < candidatas.index("name_en")
+
+
+
 def _engine_pagamento() -> Engine:
     engine = create_engine("sqlite:///:memory:")
     with engine.connect() as conn:
@@ -117,6 +139,92 @@ def test_investigar_pendencias_gera_sugestao_de_alta_confianca() -> None:
     assert item["sugestao"]["status"] == "alta_confianca"
     assert item["sugestao"]["traducao_sugerida"] == "Boleto"
     assert item["linhas_exemplo"]
+
+
+
+def test_investigar_pendencias_detecta_tabela_referencia_via_schema() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE hearingcontrol (
+                id INTEGER PRIMARY KEY,
+                hearingtype INTEGER,
+                note TEXT
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE hearingtypes (
+                id INTEGER PRIMARY KEY,
+                name TEXT
+            )
+        """))
+        conn.execute(text("""
+            INSERT INTO hearingcontrol (id, hearingtype, note) VALUES
+            (1, 11, 'Linha sem pista forte'),
+            (2, 11, 'Outra linha sem pista forte')
+        """))
+        conn.execute(text("INSERT INTO hearingtypes (id, name) VALUES (11, 'Audiência de Instrução')"))
+        conn.commit()
+
+    relatorio = investigar_pendencias(engine, [PendenciaEnum("hearingcontrol", "hearingtype", "11")])
+
+    item = relatorio["investigacoes"][0]
+    assert item["tabela_referencia"] == "hearingtypes"
+    assert item["sugestao"]["status"] == "alta_confianca"
+    assert item["sugestao"]["traducao_sugerida"] == "Audiência de Instrução"
+    assert "Tabela de referência 'hearingtypes'" in item["sugestao"]["justificativa"]
+
+
+
+def test_investigar_pendencias_prefere_coluna_portugues_sobre_name_en() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE varas (
+                id INTEGER PRIMARY KEY,
+                code TEXT,
+                name_en TEXT,
+                name TEXT
+            )
+        """))
+        conn.execute(text("""
+            INSERT INTO varas (id, code, name_en, name) VALUES
+            (1, '4', 'Federal Court', 'Vara Federal'),
+            (2, '4', 'Federal Court', 'Vara Federal')
+        """))
+        conn.commit()
+
+    relatorio = investigar_pendencias(engine, [PendenciaEnum("varas", "code", "4")])
+
+    item = relatorio["investigacoes"][0]
+    assert item["sugestao"]["status"] == "alta_confianca"
+    assert item["sugestao"]["traducao_sugerida"] == "Vara Federal"
+    assert "outro idioma" not in item["sugestao"]["justificativa"]
+
+
+
+def test_investigar_pendencias_avisa_quando_pista_esta_so_em_outro_idioma() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE courts (
+                id INTEGER PRIMARY KEY,
+                code TEXT,
+                name_en TEXT
+            )
+        """))
+        conn.execute(text("""
+            INSERT INTO courts (id, code, name_en) VALUES
+            (1, '4', 'Federal Court'),
+            (2, '4', 'Federal Court')
+        """))
+        conn.commit()
+
+    relatorio = investigar_pendencias(engine, [PendenciaEnum("courts", "code", "4")])
+
+    item = relatorio["investigacoes"][0]
+    assert item["sugestao"]["status"] == "alta_confianca"
+    assert "outro idioma" in item["sugestao"]["justificativa"]
 
 
 
@@ -408,6 +516,13 @@ def test_pista_parece_texto_livre_nao_bloqueia_rotulo_curto() -> None:
     assert _pista_parece_texto_livre("Pessoa Jurídica") is False
 
 
+
+def test_pista_parece_dado_especifico_distingue_nome_especifico_de_rotulo_generico() -> None:
+    assert _pista_parece_dado_especifico("JAC BH Barão") is True
+    assert _pista_parece_dado_especifico("Ativo") is False
+
+
+
 def test_investigar_pendencias_rejeita_texto_livre_mesmo_em_coluna_semantica() -> None:
     """Mesmo com coluna semântica, texto livre longo deve ser descartado."""
     engine = create_engine("sqlite:///:memory:")
@@ -436,6 +551,41 @@ def test_investigar_pendencias_rejeita_texto_livre_mesmo_em_coluna_semantica() -
     assert item["sugestao"]["status"] == "sem_pista_encontrada"
     assert item["sugestao"]["traducao_sugerida"] is None
     assert "descartadas por segurança" in item["sugestao"]["justificativa"]
+
+
+def test_revisao_interativa_exibe_alerta_de_dado_especifico(capsys) -> None:
+    from aplicar_sugestoes_investigacao import _revisar_interativo
+
+    relatorio = {
+        "investigacoes": [
+            {
+                "tabela": "lawsuits",
+                "coluna": "finalpayment_type",
+                "valor": "2",
+                "sugestao": {
+                    "status": "pista_unica",
+                    "traducao_sugerida": "JAC BH Barão",
+                    "justificativa": "Pista curta encontrada em coluna técnica.",
+                    "alertas": [
+                        {
+                            "tipo": "possivel_dado_especifico",
+                            "mensagem": (
+                                "⚠️ Possível dado específico/sensível — verifique se este valor é "
+                                "uma categoria genérica ou um dado real de caso antes de aplicar."
+                            ),
+                        }
+                    ],
+                },
+            }
+        ]
+    }
+
+    with patch("builtins.input", side_effect=["n"]):
+        decisoes = _revisar_interativo(relatorio)
+
+    saida = capsys.readouterr().out
+    assert "Possível dado específico/sensível" in saida
+    assert decisoes[0]["decisao"] == "pular"
 
 
 # ---------------------------------------------------------------------------
@@ -598,3 +748,38 @@ def test_fallback_excecao_resulta_em_status_erro() -> None:
     assert "Simulated SQL syntax error" in item["sugestao"]["justificativa"], (
         "A mensagem de erro original deve estar preservada na justificativa"
     )
+
+
+def test_executar_investigacao_respeita_limite_linhas_em_colunas_diretas(tmp_path: Path) -> None:
+    import src.investigacao_pendencias as mod
+
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE paymenttype (
+                id INTEGER PRIMARY KEY,
+                code TEXT,
+                name TEXT
+            )
+        """))
+        conn.execute(text("""
+            INSERT INTO paymenttype (id, code, name) VALUES
+            (1, 'Bol', 'Boleto'),
+            (2, 'Bol', 'Boleto'),
+            (3, 'Bol', 'Boleto'),
+            (4, 'Bol', 'Boleto'),
+            (5, 'Bol', 'Boleto')
+        """))
+        conn.commit()
+
+    caminho_saida = tmp_path / "relatorio.yaml"
+    with patch.object(mod, "criar_engine", return_value=engine):
+        relatorio = executar_investigacao(
+            caminho_saida=caminho_saida,
+            limite_linhas=4,
+            colunas_diretas=["paymenttype.code:Bol"],
+        )
+
+    item = relatorio["investigacoes"][0]
+    assert relatorio["fonte_pendencias"] == "colunas_diretas:paymenttype.code:Bol"
+    assert len(item["linhas_exemplo"]) == 4

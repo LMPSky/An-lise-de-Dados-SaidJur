@@ -197,11 +197,15 @@ python investigar_pendencias.py
 Esse script lê `relatorio_auditoria_traducoes.yaml`, consulta exemplos reais no
 banco (somente leitura) e gera `relatorio_investigacao_pendencias.yaml` com:
 - tabela/coluna/valor pendente
+- busca prioritária de **tabelas de referência/catálogo** detectadas via schema
+  (quando houver uma `hearingtypes`, `contracttypes`, etc. compatível com a coluna investigada)
 - colunas vizinhas candidatas a pista textual (ex.: nome/descrição)
 - linhas de exemplo relevantes
 - sugestão de tradução em **alta confiança** quando houver padrão consistente *em coluna com nome semanticamente relacionado* (ex: `name`, `desc`, `title`) — pista forte
 - sugestão com **pista única (baixa confiança / pista fraca)** quando a coluna-pista for booleana (`0`/`1`) ou sem nome semântico relacionado; o `aplicar_sugestoes_investigacao.py` exibe um aviso nesse caso
 - marcação explícita de **sem pista encontrada** quando não houver evidência clara
+- preferência automática por **coluna em português** quando existir uma coluna irmã
+  em outro idioma no mesmo schema (ex.: `name`/`name_pt` antes de `name_en`)
 
 > **Nota sobre pistas fortes vs fracas**: uma coluna booleana com valor `0` constante em
 > 5/5 linhas de amostra *não* revela o significado do código investigado — é apenas o padrão
@@ -211,11 +215,22 @@ banco (somente leitura) e gera `relatorio_investigacao_pendencias.yaml` com:
 > **Salvaguarda adicional (Rodada 5)**: pistas que parecem **texto livre longo/específico**
 > (por exemplo, frases extensas com data/hora de um caso concreto) são descartadas da sugestão
 > automática para evitar vazamento de conteúdo de registros reais para o `dicionarios.yaml`.
+>
+> **Salvaguarda adicional (Rodada 6)**: sugestões curtas que pareçam **nome próprio
+> específico** (por exemplo, `JAC BH Barão`) passam a aparecer com um alerta
+> separado de possível dado específico/sensível na revisão interativa antes da aplicação.
 
 Parâmetros úteis:
 
 ```bash
 python investigar_pendencias.py --relatorio-auditoria relatorio_auditoria_traducoes.yaml --saida relatorio_investigacao_pendencias.yaml --limite-linhas 5
+```
+
+Para reinvestigar itens ambíguos com amostragem maior, o mesmo `--limite-linhas`
+também funciona no modo direcionado `--colunas`:
+
+```bash
+python investigar_pendencias.py --colunas hearingcontrol.hearingtype:11 prazo2publication.pzphase:4 --limite-linhas 50
 ```
 
 ### ✅ Aplicação assistida das sugestões no `dicionarios.yaml`
@@ -236,6 +251,11 @@ python aplicar_sugestoes_investigacao.py --aplicar-decisoes decisoes_investigaca
 > Observação: o fluxo é separado de propósito. A investigação **não altera**
 > `dicionarios.yaml` automaticamente; ela apenas sugere. A decisão final continua
 > sendo revisada por humano.
+>
+> Na revisão interativa, há dois avisos independentes:
+> - **Pista fraca**: a evidência existe, mas não é semanticamente forte;
+> - **Possível dado específico/sensível**: o texto sugerido pode ser nome de caso,
+>   agência, unidade, empresa ou outra entidade real, exigindo validação humana extra.
 
 ### 🧽 Auditoria ampla de corrupção em `dicionarios.yaml` (Rodada 5)
 
@@ -251,6 +271,9 @@ Resumo operacional:
   capitalização de `accounts.code`);
 - `activitynature.nature` permanece como pendência de reconstrução com validação
   no banco real.
+- a investigação assistida passou a priorizar catálogos detectados via schema,
+  preferir pistas em português sobre colunas `_en`/`_english` e destacar
+  possíveis dados específicos/sensíveis antes da aplicação.
 
 ## 🧹 Ocultando colunas vazias automaticamente
 
