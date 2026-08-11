@@ -1,41 +1,5 @@
-activitynature:
-  nature:
-    Reunião no nosso Escritório: Natureza da Atividade
-    Telefonema: Natureza da atividade = Telefonema
-    E-mail: Natureza da atividade = E-mail
-    Almoço/jantar: Natureza da Atividade = Almoço/Jantar
-    Redação da proposta: Natureza da Atividade = Redação da proposta
-    Visita ao cliente: Natureza da Atividade = Visita ao Cliente
-    Relatório: Natureza da Atividade = Relatório
-    Levantamento de informações: Natureza da Atividade = Levantamento de informações
-    Pesquisa: Natureza da Atividade = Pesquisa
-    Tratamento de dados: Natureza da Atividade = Tratamento de dados
-    Análise de dados: Natureza da Atividade - Análise de Dados
-    Identificação de dados de clientes: Natureza da Atividade = Identificação de dados
-      de clientes
-    Ata de reunião: Ata de reunião
-    Identificação de influenciadores: Natureza da Atividade = Identificação de influenciadores
-    Estudo de concorrentes: Natureza da Atividade = Estudo de concorrentes
-    Levantamento das necessidade e prioridades de clientes: Natureza da Atividade
-      = Levantamento das necessidades e prioridades de clientes
-    Redação de proposta de negócio: Natureza da Atividade = Redação de proposta de
-      negócio
-    Revisão de proposta de negócio: Natureza da Atividade = Revisão de proposta de
-      negócio
-    Redação do contrato de prestação de serviço: Natureza da Atividade = Redação do
-      contrato de prestação de serviço
-    Revisão do contrato de prestação de serviços: Natureza da Atividade = Revisão
-      do contrato de prestação de serviços
-automaticprazos_lawsuits:
-  hearing_type:
-    all: '0'
-  lawsuit_phase:
-    '0': all
-  type_days:
-    b: a
-    n: a
-  status:
-    '0': a
+activitynature: {}
+automaticprazos_lawsuits: {}
 chatmessages:
   recipienttype:
     s: Individual
@@ -45,8 +9,8 @@ chatmessages:
     '1': Ativo
 employees:
   empstatus:
-    '0': '1'
-    '1': '0'
+    '0': Inativo
+    '1': Ativo
 expedientfilemetadata:
   status:
     '0': Inativo
@@ -60,70 +24,17 @@ lawsuit_pendencias_control:
     '0': Inativo
     '1': Ativo
 lawsuitdocsmetadata:
-  pjestatus:
-    '0': '1'
-  docstatus:
-    '1': a
   prazophase:
     '1': Juntada de Substabelecimento
 lawsuits:
   status:
-    '0': '1'
-    '1': '0'
-  type:
-    j: '0'
-  contract_type:
-    es: '0'
-    co: '0'
-    ctrl: '0'
-    es2: '0'
-  finalpayment_type:
-    '1': SENTENÇA TOTALMENTE IMPROCEDENTE - RECLAMANTE RECORREU E REVERTEU ALGUNS
-      PONTOS
-    '2': JAC BH BARÃO
+    '0': Inativo
+    '1': Ativo
 lawsuits_log:
   status:
     '0': Inativo
-    '1': '0'
-  type:
-    j: MG
-  contract_type:
-    es: '0'
-    co: '0'
-    ctrl: '0'
-    es2: '0'
-  finalpayment_type:
-    '3': Não recebimento do produto contratado
-    '2': i
-paymentguarantee2lawsuit:
-  containstypefile:
-    '0': '3'
-    '1': '2'
-  status:
-    '0': n
-    '1': n
-  nature:
-    '1': '0'
-    '2': '3'
-    '3': '0'
-  type_old:
-    '1': '2'
-    '2': '0'
-    '3': '2'
-    '4': '1'
-    '5': '1'
-    '6': '1'
-    '7': '1'
-    '8': '1'
-    '9': '2'
-    '10': '2'
-    '11': '2'
-    '12': '1'
-    '14': '1'
-    '16': '2'
-    '17': '2'
-    '18': '2'
-    '19': '2'
+    '1': Ativo
+paymentguarantee2lawsuit: {}
 paymenttype:
   code:
     Bol: Boleto
@@ -143,27 +54,24 @@ print_reports:
   nature:
     lawsuits: Processos
     hearing: Audiência
-projectactivityprazos:
-  status:
-    '0': Tarefa executada entre os dias 23/03 e 26/06
-    '1': '0'
+projectactivityprazos: {}
 returned_prazo_reasons:
   status:
     '1': Ativo
 sent_hearing_emails:
   type:
-    lawyer: '0'
+    lawyer: Advogado
 users:
   status:
-    '0': ramos01*
-    '1': '0'
+    '0': Inativo
+    '1': Ativo
 usertasks:
   read_opnature:
     '0': Não
-    '1': '0'
+    '1': Sim
   write_opnature:
     '0': Não
-    '1': '0'
+    '1': Sim
   read_paytype:
     '0': Não
     '1': Sim
@@ -171,36 +79,36 @@ usertasks:
     '0': Não
     '1': Sim
   toggle_code_red:
-    '0': '1'
-    '1': '0'
+    '0': Não
+    '1': Sim
   type_client:
     '0': Não
-    '1': '0'
+    '1': Sim
   type_supplier:
-    '0': '1'
-    '1': '0'
+    '0': Não
+    '1': Sim
   type_employee:
-    '0': '1'
-    '1': '0'
+    '0': Não
+    '1': Sim
   type_plaintiff:
-    '0': '1'
-    '1': '0'
+    '0': Não
+    '1': Sim
   type_defendant:
-    '0': '1'
-    '1': '0'
+    '0': Não
+    '1': Sim
   type_witness:
-    '0': '1'
-    '1': '0'
+    '0': Não
+    '1': Sim
   type_otherlaw:
     '0': Não
-    '1': '0'
+    '1': Sim
 accounts:
   code:
     ativo: Conta de ativos
-    pass: PASSIVO
-    desp: DESPESAS
-    rec: RECEITAS
-    pl: SISTEMA AUXILIAR
+    pass: Passivo
+    desp: Despesas
+    rec: Receitas
+    pl: Sistema Auxiliar
     CONT: Conta
   type:
     a: Conta de ativos
@@ -214,51 +122,13 @@ accounts:
     d: Conta de despesas
     r: Conta de receita
     pl: Conta sistema auxiliar
-clientsystem2lawsuit:
-  phase:
-    '2': '3'
-    '5': '0'
-    '1': '0'
-    '3': '1'
-    '4': '0'
-  status:
-    '3': '0'
-    '1': '0'
-    '2': '0'
-    '4': '0'
-    '5': '1'
-expedients:
-  type:
-    p: '1'
-    l: '1'
-hearings_log:
-  hearingstatus:
-    '2': Audiência instrução designada para 11/06/2019 14:30 Seção B da 31ª Vara Cível
-      da Capital.
-lawsuitdocs:
-  processtype:
-    j: '0'
-  phase:
-    '0': j
-    '1': '0'
-    '2': '0'
-    '3': '0'
-    '5': '0'
-otherdocs:
-  processtype:
-    j: '0'
-pedidos2lawsuit:
-  status:
-    '1': '6'
-person2lawsuit:
-  link_type:
-    t: p
-    s: p
-    u: p
-  persontype:
-    p: '0'
-    d: '0'
-    c: '0'
+clientsystem2lawsuit: {}
+expedients: {}
+hearings_log: {}
+lawsuitdocs: {}
+otherdocs: {}
+pedidos2lawsuit: {}
+person2lawsuit: {}
 prazo2publication:
   # pzphase e finishtype: pendentes (ver PENDENCIAS_TRADUCAO_HUMANA.md)
   # Colunas booleanas — 0 = Não, 1 = Sim
@@ -289,22 +159,14 @@ prazos_log:
   skip_validate:
     '0': Não
     '1': Sim
-projects:
-  type:
-    con: '0'
-  status:
-    '0': con
-tasks2publication:
-  status:
-    '1': Agendar reunião para dia 09/12/2025 com a testemunha
-timesheet_tasks:
-  status:
-    '0': i
+projects: {}
+tasks2publication: {}
+timesheet_tasks: {}
 varas:
   code:
-    '5': Labor Court
-    '8': Civil Court
-    '4': Federal Court
+    '5': Vara do Trabalho
+    '8': Vara Cível
+    '4': Vara Federal
 hearingcontrol:
   # Colunas booleanas — 0 = Não, 1 = Sim (alta confiança)
   needwitness:

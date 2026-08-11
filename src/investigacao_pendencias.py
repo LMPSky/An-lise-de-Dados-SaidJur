@@ -37,6 +37,8 @@ _CHAVES_PISTA = (
 # rótulos/descrições — usadas para diferenciar "pista forte" de "pista fraca".
 _CHAVES_SEMANTICAS = _CHAVES_PISTA
 
+_TEXTO_LIVRE_COMPRIMENTO_MIN = 50
+
 
 @dataclass(frozen=True)
 class PendenciaEnum:
@@ -337,6 +339,31 @@ def _pista_e_booleana(valores_frequentes: list[dict[str, Any]]) -> bool:
     return vals.issubset({"0", "1"})
 
 
+def _pista_parece_texto_livre(valor: str) -> bool:
+    """Heurística para detectar texto livre longo/específico em pistas.
+
+    Traduções válidas de ENUM tendem a ser rótulos curtos. Conteúdos longos
+    (>=50 caracteres), com muitas palavras ou pontuação de texto corrido
+    normalmente são dados de registros específicos e não devem ser sugeridos
+    automaticamente.
+    """
+    texto = valor.strip()
+    if not texto:
+        return False
+
+    if len(texto) >= _TEXTO_LIVRE_COMPRIMENTO_MIN:
+        return True
+
+    palavras = [p for p in re.split(r"\s+", texto) if p]
+    if len(palavras) >= 10:
+        return True
+
+    pontuacoes = sum(texto.count(p) for p in (".", ";", ":", "!", "?", ","))
+    if pontuacoes >= 2 and len(texto) >= 35 and len(palavras) >= 6:
+        return True
+
+    return False
+
 
 def _analisar_pistas(
     pendencia: PendenciaEnum,
@@ -394,10 +421,14 @@ def _analisar_pistas(
     # rótulos/descrições (pista forte). Colunas booleanas (valores só 0/1) ou
     # com nomes puramente técnicos (pista fraca) não são suficientes para alta
     # confiança, pois qualquer amostra pequena terá valor constante nesses campos.
+    descartou_texto_livre = False
     for pista in pistas:
         if pista["valores_distintos"] != 1 or pista["ocorrencias_total"] < 2:
             continue
         unico = pista["valores_frequentes"][0]["valor"]
+        if _pista_parece_texto_livre(unico):
+            descartou_texto_livre = True
+            continue
         tem_nome_semantico = _coluna_tem_nome_semantico(pista["coluna"])
         e_booleana = _pista_e_booleana(pista["valores_frequentes"])
         if tem_nome_semantico and not e_booleana:
@@ -420,6 +451,9 @@ def _analisar_pistas(
         # em múltiplas linhas também caem aqui em vez de alta_confianca.
         if pista["valores_distintos"] == 1 and pista["ocorrencias_total"] >= 1:
             unico = pista["valores_frequentes"][0]["valor"]
+            if _pista_parece_texto_livre(unico):
+                descartou_texto_livre = True
+                continue
             e_booleana = _pista_e_booleana(pista["valores_frequentes"])
             tem_nome_semantico = _coluna_tem_nome_semantico(pista["coluna"])
             if e_booleana or not tem_nome_semantico:
@@ -446,10 +480,17 @@ def _analisar_pistas(
                 "pistas": pistas,
             }
 
+    justificativa_final = "Há pistas textuais, mas sem consistência suficiente para alta confiança."
+    if descartou_texto_livre:
+        justificativa_final = (
+            "As pistas disponíveis tinham aparência de texto livre específico "
+            "(conteúdo de registro real) e foram descartadas por segurança."
+        )
+
     return {
         "status": "sem_pista_encontrada",
         "traducao_sugerida": None,
-        "justificativa": "Há pistas textuais, mas sem consistência suficiente para alta confiança.",
+        "justificativa": justificativa_final,
         "pistas": pistas,
     }
 
