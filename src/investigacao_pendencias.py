@@ -293,24 +293,31 @@ def _coletar_linhas_exemplo(
     # tenta também comparar como string para capturar colunas TEXT que armazenam
     # inteiros como texto (ex: '6' em vez de 6).  Isso ocorre principalmente em
     # SQLite onde a comparação de tipo é estrita.
+    #
+    # Nota de compatibilidade: usa CAST(... AS CHAR) que é válido tanto no MySQL/
+    # MariaDB quanto no SQLite (onde TEXT, CHAR e VARCHAR são equivalentes).
+    # CAST(... AS TEXT) é aceito apenas pelo SQLite e causa erro de sintaxe no MySQL.
     if not linhas and isinstance(param_valor, int):
+        _tipo_cast = "CHAR"
         sql_str = text(
             f"SELECT {colunas_sql} "
             f"FROM {tabela_sql} "
-            f"WHERE CAST({coluna_sql} AS TEXT) = CAST(:valor AS TEXT) "
+            f"WHERE CAST({coluna_sql} AS {_tipo_cast}) = CAST(:valor AS {_tipo_cast}) "
             f"LIMIT {int(limite_linhas)}"
         )
-        try:
-            def _executar_str() -> list[dict[str, Any]]:
-                with engine.connect() as conn:
-                    res = conn.execute(sql_str, {"valor": str(param_valor)})
-                    return [dict(row._mapping) for row in res.fetchall()]
-            linhas = executar_com_retry_db(
-                _executar_str,
-                descricao=f"Investigar (fallback texto) {pendencia.tabela}.{pendencia.coluna}",
-            )
-        except Exception:
-            pass
+
+        def _executar_str() -> list[dict[str, Any]]:
+            with engine.connect() as conn:
+                res = conn.execute(sql_str, {"valor": str(param_valor)})
+                return [dict(row._mapping) for row in res.fetchall()]
+
+        # Qualquer exceção aqui (ex: erro de sintaxe SQL no banco alvo) é
+        # propagada ao chamador para ser registrada como status "erro" em vez
+        # de ser silenciada e mascarada como "sem_registros".
+        linhas = executar_com_retry_db(
+            _executar_str,
+            descricao=f"Investigar (fallback texto) {pendencia.tabela}.{pendencia.coluna}",
+        )
 
     return linhas
 
