@@ -148,6 +148,9 @@ prazo2publication:
     '1': Sim
   pzphase:
     '1': audiência inicial
+    '2': ENVIAR CTPS P/ ANOTAÇÃO
+    '3': Juntada de preposição e substabelecimento
+    '4': Encerramento
   finishtype:
     p: processo físico
 prazos_log:
@@ -163,6 +166,9 @@ prazos_log:
   skip_validate:
     '0': Não
     '1': Sim
+  pzphase:
+    '3': Juntada de preposição e substabelecimento
+    '4': Encerramento
 projects: {}
 tasks2publication: {}
 timesheet_tasks: {}
@@ -189,3 +195,6 @@ hearingcontrol:
     '1': Sim
   hearingtype:
     '11': Instrução
+  hearingstatus:
+    '2': Audiência instrução designada para 11/06/2019 14:30 Seção B da 31ª Vara Cível
+      da Capital.

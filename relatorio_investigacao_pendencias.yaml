@@ -1,8 +1,8 @@
-gerado_em_utc: '2026-08-11T13:58:01.463530+00:00'
+gerado_em_utc: '2026-08-12T12:41:37.531525+00:00'
 resumo:
   total_pendencias: 31
-  alta_confianca: 2
-  pista_unica: 22
+  alta_confianca: 7
+  pista_unica: 17
   sem_pista_encontrada: 7
   sem_registros: 0
   erros: 0
@@ -724,1799 +724,123 @@ investigacoes:
   valor: '3'
   motivo_pendencia: investigacao_direta
   colunas_pista:
-  - sender_observations
-  - prazoobs
-  - finishdesc
-  - compdeadlineemail01
-  - cpfl_spreadsheet_import
-  - compdeadlineemail02
+  - name
   linhas_exemplo:
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: INTIMAÇÃO PARA PAGAMENTO
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: URGENTE - VERIFICAR PAGAMENTO
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: 'Mastercard pediu para desarquivar e depositar quantia deposita erroneamente
-      para a empresa. ASSUNTO DO E-MAIL: RES: DEPOSITO JUDICIAL - R$ 2.833,72 - 0001637-14.2017.8.13.0596
-      MG. Gabi, me envia petição para protocolo postal.'
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: Encaminhado para Vivan - acompanhamento
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: Encaminhado para Vivan - acompanhamento
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: Encaminhado para Vivan - acompanhamento
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: Encaminhado para Vivan - acompanhamento
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: Encaminhado para Vivan - acompanhamento
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PETICIONAR REQUERENDO CITAÇÃO POR EDITAL? VERIFICAR POSSIBILIDADE
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PETICIONAR REQUERENDO CITAÇÃO POR EDITAL? VERIFICAR POSSIBILIDADE
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PETICIONAR REQUERENDO CITAÇÃO POR EDITAL? VERIFICAR POSSIBILIDADE
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PETICIONAR REQUERENDO CITAÇÃO POR EDITAL? VERIFICAR POSSIBILIDADE
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PETICIONAR REQUERENDO CITAÇÃO POR EDITAL? VERIFICAR POSSIBILIDADE
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PETICIONAR REQUERENDO CITAÇÃO POR EDITAL? VERIFICAR POSSIBILIDADE
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PETICIONAR REQUERENDO CITAÇÃO POR EDITAL? VERIFICAR POSSIBILIDADE
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROSSEGUIR COM A EXECUÇÃO.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROSSEGUIR COM A EXECUÇÃO.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROSSEGUIR COM A EXECUÇÃO.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROSSEGUIR COM A EXECUÇÃO.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROSSEGUIR COM A EXECUÇÃO.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROSSEGUIR COM A EXECUÇÃO.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROSSEGUIR COM A EXECUÇÃO.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROSSEGUIR COM A EXECUÇÃO.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROSSEGUIR COM A EXECUÇÃO.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROSSEGUIR COM A EXECUÇÃO.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROSSEGUIR COM A EXECUÇÃO.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROSSEGUIR COM A EXECUÇÃO.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROSSEGUIR COM A EXECUÇÃO.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROSSEGUIR COM A EXECUÇÃO.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROSSEGUIR COM A EXECUÇÃO.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROSSEGUIR COM A EXECUÇÃO.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROSSEGUIR COM A EXECUÇÃO.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROSSEGUIR COM A EXECUÇÃO.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROSSEGUIR COM A EXECUÇÃO.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROSSEGUIR COM A EXECUÇÃO.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
+  - codigo: 3
+    rotulo: Juntada de preposição e substabelecimento
   sugestao:
-    status: pista_unica
-    traducao_sugerida: '0'
-    justificativa: Coluna 'compdeadlineemail01' (pista fraca — coluna booleana) apresentou
-      valor único '0' nas linhas de exemplo, mas isso não é evidência suficiente do
-      significado do código. Revise manualmente antes de aplicar.
+    status: alta_confianca
+    traducao_sugerida: Juntada de preposição e substabelecimento
+    justificativa: Tabela de referência 'prazotype' detectada via schema; coluna 'id'
+      mapeou o código '3' para 'Juntada de preposição e substabelecimento' usando
+      o rótulo 'name'.
     pistas:
-    - coluna: prazoobs
+    - coluna: prazotype.name
       valores_frequentes:
-      - valor: PROSSEGUIR COM A EXECUÇÃO.
-        ocorrencias: 20
-      - valor: PETICIONAR REQUERENDO CITAÇÃO POR EDITAL? VERIFICAR POSSIBILIDADE
-        ocorrencias: 7
-      - valor: Encaminhado para Vivan - acompanhamento
-        ocorrencias: 5
-      valores_distintos: 6
-      ocorrencias_total: 35
-    - coluna: compdeadlineemail01
-      valores_frequentes:
-      - valor: '0'
-        ocorrencias: 50
+      - valor: Juntada de preposição e substabelecimento
+        ocorrencias: 1
       valores_distintos: 1
-      ocorrencias_total: 50
-    - coluna: cpfl_spreadsheet_import
-      valores_frequentes:
-      - valor: '0'
-        ocorrencias: 50
-      valores_distintos: 1
-      ocorrencias_total: 50
-    - coluna: compdeadlineemail02
-      valores_frequentes:
-      - valor: '0'
-        ocorrencias: 50
-      valores_distintos: 1
-      ocorrencias_total: 50
+      ocorrencias_total: 1
+    fonte: tabela_referencia
     alertas: []
+  tabela_referencia: prazotype
 - tabela: prazos_log
   coluna: pzphase
   valor: '4'
   motivo_pendencia: investigacao_direta
   colunas_pista:
-  - sender_observations
-  - prazoobs
-  - finishdesc
-  - compdeadlineemail01
-  - cpfl_spreadsheet_import
-  - compdeadlineemail02
+  - name
   linhas_exemplo:
-  - sender_observations: null
-    prazoobs: Reagendado para 06/03 tendo em vista que precisamos da copia dos processo
-      e da origem da multa para verificar se iremos pagar ou não as multas. 06/03-
-      Aguardando cópia dos proc. administrativo.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: Reagendado para 06/03 tendo em vista que precisamos da copia dos processo
-      e da origem da multa para verificar se iremos pagar ou não as multas. 06/03-
-      Aguardando cópia dos proc. administrativo.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: Reagendado para 06/03 tendo em vista que precisamos da copia dos processo
-      e da origem da multa para verificar se iremos pagar ou não as multas. 06/03-
-      Aguardando cópia dos proc. administrativo.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: Reagendado para 06/03 tendo em vista que precisamos da copia dos processo
-      e da origem da multa para verificar se iremos pagar ou não as multas. 06/03-
-      Aguardando cópia dos proc. administrativo.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: Reagendado para 06/03 tendo em vista que precisamos da copia dos processo
-      e da origem da multa para verificar se iremos pagar ou não as multas. 06/03-
-      Aguardando cópia dos proc. administrativo.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: Reagendado para 06/03 tendo em vista que precisamos da copia dos processo
-      e da origem da multa para verificar se iremos pagar ou não as multas. 06/03-
-      Aguardando cópia dos proc. administrativo. Géssica Bernardo vai tratar.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: Reagendado para 06/03 tendo em vista que precisamos da copia dos processo
-      e da origem da multa para verificar se iremos pagar ou não as multas. 06/03-
-      Aguardando cópia dos proc. administrativo. Géssica Bernardo vai tratar.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: Reagendado para 06/03 tendo em vista que precisamos da copia dos processo
-      e da origem da multa para verificar se iremos pagar ou não as multas. 06/03-
-      Aguardando cópia dos proc. administrativo. Géssica Bernardo vai tratar.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: Reagendado para 06/03 tendo em vista que precisamos da copia dos processo
-      e da origem da multa para verificar se iremos pagar ou não as multas. 06/03-
-      Aguardando cópia dos proc. administrativo. Géssica Bernardo vai tratar.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: Reagendado para 06/03 tendo em vista que precisamos da copia dos processo
-      e da origem da multa para verificar se iremos pagar ou não as multas. 06/03-
-      Aguardando cópia dos proc. administrativo. Géssica Bernardo vai tratar.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: 'PROCON| Processo administrativo n° 1539/2018 | Prefeitura de UBERABA/PROCON
-      | Precisamos da copia dos processo para verificar o status da demanda. Algo
-      foi pago? Há débitos? '
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: 'PROCON| Processo administrativo n° 1539/2018 | Prefeitura de UBERABA/PROCON
-      | Precisamos da copia dos processo para verificar o status da demanda. Algo
-      foi pago? Há débitos? '
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROCON| Processo administrativo n° 1539/2018 | Prefeitura de UBERABA/PROCON
-      | Precisamos da copia dos processo para verificar o status da demanda. Algo
-      foi pago? Há débitos? | Verificar com Géssica e Larissa
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROCON| Processo administrativo n° 1539/2018 | Prefeitura de UBERABA/PROCON
-      | Precisamos da copia dos processo para verificar o status da demanda. Algo
-      foi pago? Há débitos? | Verificar com Géssica e Larissa
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROCON| Processo administrativo n° 1539/2018 | Prefeitura de UBERABA/PROCON
-      | Precisamos da copia dos processo para verificar o status da demanda. Algo
-      foi pago? Há débitos? | Verificar com Géssica e Larissa
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROCON| Processo administrativo n° 1539/2018 | Prefeitura de UBERABA/PROCON
-      | Precisamos da copia dos processo para verificar o status da demanda. Algo
-      foi pago? Há débitos? | Verificar com Géssica e Larissa
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROCON| Processo administrativo n° 1539/2018 | Prefeitura de UBERABA/PROCON
-      | Precisamos da copia dos processo para verificar o status da demanda. Algo
-      foi pago? Há débitos? | Verificar com Géssica e Larissa
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROCON| Processo administrativo n° 1539/2018 | Prefeitura de UBERABA/PROCON
-      | Precisamos da copia dos processo para verificar o status da demanda. Algo
-      foi pago? Há débitos? | Verificar com Géssica e Larissa
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROCON| Processo administrativo n° 1539/2018 | Prefeitura de UBERABA/PROCON
-      | Precisamos da copia dos processo para verificar o status da demanda. Algo
-      foi pago? Há débitos? | Verificar com Géssica e Larissa
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: 'PROCESSO FÍSICO BAIXADO EM 2018.
-
-      CLIENTE SOLICITOU CÓPIA DOS AUTOS POR E-MAIL.
-
-      EMITIR GUIA DE DESARQUIVAMENTO E PETICIONAR - APÓS ISSO, ACOMPANHAR O DESARQUIVAMENTO
-      E CONTRATAR CORRESPONDENTE PARA RETIRADA DE CÓPIAS.'
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: 'PROCESSO FÍSICO BAIXADO EM 2018.
-
-      CLIENTE SOLICITOU CÓPIA DOS AUTOS POR E-MAIL.
-
-      EMITIR GUIA DE DESARQUIVAMENTO E PETICIONAR - APÓS ISSO, ACOMPANHAR O DESARQUIVAMENTO
-      E CONTRATAR CORRESPONDENTE PARA RETIRADA DE CÓPIAS.'
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: 'PROCESSO FÍSICO BAIXADO EM 2018.
-
-      CLIENTE SOLICITOU CÓPIA DOS AUTOS POR E-MAIL.
-
-      EMITIR GUIA DE DESARQUIVAMENTO E PETICIONAR - APÓS ISSO, ACOMPANHAR O DESARQUIVAMENTO
-      E CONTRATAR CORRESPONDENTE PARA RETIRADA DE CÓPIAS.'
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: '"O autor não possui advogado habilitado nos autos, desta feita, a sentença
-      seguiu por AR e ele ainda não se encontra juntado aos autos. "'
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: '*Pedido de exclusão pendente de análise pelo magistrado (solicitação
-      baseada no pedido do autor para inclusão do banco). Concluso para despacho.
-      Ainda não há sentença.'
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: Pedido de exclusão pendente de análise pelo magistrado (solicitação
-      baseada no pedido do autor para inclusão do banco). Concluso para despacho.
-      Ainda não há sentença.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: Pedido de exclusão pendente de análise pelo magistrado (solicitação
-      baseada no pedido do autor para inclusão do banco). Concluso para despacho.
-      Ainda não há sentença.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: 'STJ desconsiderou o acordo feito e demonstrado. Peticionar na origem
-      assim que remetido. Verificado em 22.09, em 08/10, em 30/10; , saiu do STJ,
-      mas não recepcionado no TJSP ainda. '
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
+  - codigo: 4
+    rotulo: Encerramento
   sugestao:
-    status: pista_unica
-    traducao_sugerida: '0'
-    justificativa: Coluna 'compdeadlineemail01' (pista fraca — coluna booleana) apresentou
-      valor único '0' nas linhas de exemplo, mas isso não é evidência suficiente do
-      significado do código. Revise manualmente antes de aplicar.
+    status: alta_confianca
+    traducao_sugerida: Encerramento
+    justificativa: Tabela de referência 'prazotype' detectada via schema; coluna 'id'
+      mapeou o código '4' para 'Encerramento' usando o rótulo 'name'.
     pistas:
-    - coluna: prazoobs
+    - coluna: prazotype.name
       valores_frequentes:
-      - valor: PROCON| Processo administrativo n° 1539/2018 | Prefeitura de UBERABA/PROCON
-          | Precisamos da copia dos processo para verificar o status da demanda. Algo
-          foi pago? Há débitos? | Verificar com Géssica e Larissa
-        ocorrencias: 7
-      - valor: Reagendado para 06/03 tendo em vista que precisamos da copia dos processo
-          e da origem da multa para verificar se iremos pagar ou não as multas. 06/03-
-          Aguardando cópia dos proc. administrativo.
-        ocorrencias: 5
-      - valor: Reagendado para 06/03 tendo em vista que precisamos da copia dos processo
-          e da origem da multa para verificar se iremos pagar ou não as multas. 06/03-
-          Aguardando cópia dos proc. administrativo. Géssica Bernardo vai tratar.
-        ocorrencias: 5
-      valores_distintos: 9
-      ocorrencias_total: 27
-    - coluna: compdeadlineemail01
-      valores_frequentes:
-      - valor: '0'
-        ocorrencias: 50
+      - valor: Encerramento
+        ocorrencias: 1
       valores_distintos: 1
-      ocorrencias_total: 50
-    - coluna: cpfl_spreadsheet_import
-      valores_frequentes:
-      - valor: '0'
-        ocorrencias: 50
-      valores_distintos: 1
-      ocorrencias_total: 50
-    - coluna: compdeadlineemail02
-      valores_frequentes:
-      - valor: '0'
-        ocorrencias: 50
-      valores_distintos: 1
-      ocorrencias_total: 50
+      ocorrencias_total: 1
+    fonte: tabela_referencia
     alertas: []
+  tabela_referencia: prazotype
 - tabela: prazo2publication
   coluna: pzphase
   valor: '2'
   motivo_pendencia: investigacao_direta
   colunas_pista:
-  - sender_observations
-  - prazoobs
-  - finishdesc
-  - compdeadlineemail01
-  - cpfl_spreadsheet_import
-  - compdeadlineemail02
+  - name
   linhas_exemplo:
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
+  - codigo: 2
+    rotulo: ENVIAR CTPS P/ ANOTAÇÃO
   sugestao:
-    status: pista_unica
-    traducao_sugerida: '0'
-    justificativa: Coluna 'compdeadlineemail01' (pista fraca — coluna booleana) apresentou
-      valor único '0' nas linhas de exemplo, mas isso não é evidência suficiente do
-      significado do código. Revise manualmente antes de aplicar.
+    status: alta_confianca
+    traducao_sugerida: ENVIAR CTPS P/ ANOTAÇÃO
+    justificativa: Tabela de referência 'prazotype' detectada via schema; coluna 'id'
+      mapeou o código '2' para 'ENVIAR CTPS P/ ANOTAÇÃO' usando o rótulo 'name'.
     pistas:
-    - coluna: compdeadlineemail01
+    - coluna: prazotype.name
       valores_frequentes:
-      - valor: '0'
-        ocorrencias: 50
+      - valor: ENVIAR CTPS P/ ANOTAÇÃO
+        ocorrencias: 1
       valores_distintos: 1
-      ocorrencias_total: 50
-    - coluna: cpfl_spreadsheet_import
-      valores_frequentes:
-      - valor: '0'
-        ocorrencias: 50
-      valores_distintos: 1
-      ocorrencias_total: 50
-    - coluna: compdeadlineemail02
-      valores_frequentes:
-      - valor: '0'
-        ocorrencias: 50
-      valores_distintos: 1
-      ocorrencias_total: 50
+      ocorrencias_total: 1
+    fonte: tabela_referencia
     alertas: []
+  tabela_referencia: prazotype
 - tabela: prazo2publication
   coluna: pzphase
   valor: '3'
   motivo_pendencia: investigacao_direta
   colunas_pista:
-  - sender_observations
-  - prazoobs
-  - finishdesc
-  - compdeadlineemail01
-  - cpfl_spreadsheet_import
-  - compdeadlineemail02
+  - name
   linhas_exemplo:
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: Regularização da representante processual e/ou juntada de procuração,
-      substabelecimento, carta de preposição, última alteração do contrato social
-      e quaisquer outros atos constitutivos.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: juntar cópia da petição inicial da testemunha comprovando o pedido de
-      dano moral.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: Juntar substabelecimento
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: Apresentar cálculos manifestando-se acerca dos cálculos já apresentados
-      pelo reclamante, com apontamento das eventuais correções.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: A reclamante entregará via de PPP e cópia de procuração passada pela
-      empresa à pessoa que assinou o PPP, na Secretaria da Vara.
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: PROCESSO FÍSICO
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
+  - codigo: 3
+    rotulo: Juntada de preposição e substabelecimento
   sugestao:
-    status: pista_unica
-    traducao_sugerida: '0'
-    justificativa: Coluna 'compdeadlineemail01' (pista fraca — coluna booleana) apresentou
-      valor único '0' nas linhas de exemplo, mas isso não é evidência suficiente do
-      significado do código. Revise manualmente antes de aplicar.
+    status: alta_confianca
+    traducao_sugerida: Juntada de preposição e substabelecimento
+    justificativa: Tabela de referência 'prazotype' detectada via schema; coluna 'id'
+      mapeou o código '3' para 'Juntada de preposição e substabelecimento' usando
+      o rótulo 'name'.
     pistas:
-    - coluna: prazoobs
+    - coluna: prazotype.name
       valores_frequentes:
-      - valor: Regularização da representante processual e/ou juntada de procuração,
-          substabelecimento, carta de preposição, última alteração do contrato social
-          e quaisquer outros atos constitutivos.
+      - valor: Juntada de preposição e substabelecimento
         ocorrencias: 1
-      - valor: juntar cópia da petição inicial da testemunha comprovando o pedido
-          de dano moral.
-        ocorrencias: 1
-      - valor: Juntar substabelecimento
-        ocorrencias: 1
-      valores_distintos: 6
-      ocorrencias_total: 6
-    - coluna: compdeadlineemail01
-      valores_frequentes:
-      - valor: '0'
-        ocorrencias: 50
       valores_distintos: 1
-      ocorrencias_total: 50
-    - coluna: cpfl_spreadsheet_import
-      valores_frequentes:
-      - valor: '0'
-        ocorrencias: 50
-      valores_distintos: 1
-      ocorrencias_total: 50
-    - coluna: compdeadlineemail02
-      valores_frequentes:
-      - valor: '0'
-        ocorrencias: 50
-      valores_distintos: 1
-      ocorrencias_total: 50
+      ocorrencias_total: 1
+    fonte: tabela_referencia
     alertas: []
+  tabela_referencia: prazotype
 - tabela: prazo2publication
   coluna: pzphase
   valor: '4'
   motivo_pendencia: investigacao_direta
   colunas_pista:
-  - sender_observations
-  - prazoobs
-  - finishdesc
-  - compdeadlineemail01
-  - cpfl_spreadsheet_import
-  - compdeadlineemail02
+  - name
   linhas_exemplo:
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
-  - sender_observations: null
-    prazoobs: null
-    finishdesc: null
-    compdeadlineemail01: '0'
-    cpfl_spreadsheet_import: '0'
-    compdeadlineemail02: '0'
+  - codigo: 4
+    rotulo: Encerramento
   sugestao:
-    status: pista_unica
-    traducao_sugerida: '0'
-    justificativa: Coluna 'compdeadlineemail01' (pista fraca — coluna booleana) apresentou
-      valor único '0' nas linhas de exemplo, mas isso não é evidência suficiente do
-      significado do código. Revise manualmente antes de aplicar.
+    status: alta_confianca
+    traducao_sugerida: Encerramento
+    justificativa: Tabela de referência 'prazotype' detectada via schema; coluna 'id'
+      mapeou o código '4' para 'Encerramento' usando o rótulo 'name'.
     pistas:
-    - coluna: compdeadlineemail01
+    - coluna: prazotype.name
       valores_frequentes:
-      - valor: '0'
-        ocorrencias: 50
+      - valor: Encerramento
+        ocorrencias: 1
       valores_distintos: 1
-      ocorrencias_total: 50
-    - coluna: cpfl_spreadsheet_import
-      valores_frequentes:
-      - valor: '0'
-        ocorrencias: 50
-      valores_distintos: 1
-      ocorrencias_total: 50
-    - coluna: compdeadlineemail02
-      valores_frequentes:
-      - valor: '0'
-        ocorrencias: 50
-      valores_distintos: 1
-      ocorrencias_total: 50
+      ocorrencias_total: 1
+    fonte: tabela_referencia
     alertas: []
+  tabela_referencia: prazotype
 - tabela: hearingcontrol
   coluna: hearingstatus
   valor: '0'
@@ -2841,38 +1165,6 @@ investigacoes:
   motivo_pendencia: investigacao_direta
   colunas_pista:
   - observation
-  linhas_exemplo:
-  - codigo: '1'
-    rotulo: null
-  - codigo: '1'
-    rotulo: null
-  - codigo: '1'
-    rotulo: null
-  - codigo: '1'
-    rotulo: null
-  - codigo: '1'
-    rotulo: null
-  sugestao:
-    status: alta_confianca
-    traducao_sugerida: None
-    justificativa: Tabela de referência 'hearings_log' detectada via schema; coluna
-      'hearingstatus' mapeou o código '1' para 'None' usando o rótulo 'observation'.
-    pistas:
-    - coluna: hearings_log.observation
-      valores_frequentes:
-      - valor: None
-        ocorrencias: 5
-      valores_distintos: 1
-      ocorrencias_total: 5
-    fonte: tabela_referencia
-    alertas: []
-  tabela_referencia: hearings_log
-- tabela: hearingcontrol
-  coluna: hearingstatus
-  valor: '2'
-  motivo_pendencia: investigacao_direta
-  colunas_pista:
-  - observation
   - proof_object
   - subsidy
   - required_todo
@@ -3005,7 +1297,67 @@ investigacoes:
     required_todo: null
     third_party_presence: null
     confession: null
-  - observation: Cancelada
+  - observation: null
+    proof_object: null
+    subsidy: null
+    required_todo: null
+    third_party_presence: null
+    confession: null
+  - observation: null
+    proof_object: null
+    subsidy: null
+    required_todo: null
+    third_party_presence: null
+    confession: null
+  - observation: null
+    proof_object: null
+    subsidy: null
+    required_todo: null
+    third_party_presence: null
+    confession: null
+  - observation: null
+    proof_object: null
+    subsidy: null
+    required_todo: null
+    third_party_presence: null
+    confession: null
+  - observation: null
+    proof_object: null
+    subsidy: null
+    required_todo: null
+    third_party_presence: null
+    confession: null
+  - observation: null
+    proof_object: null
+    subsidy: null
+    required_todo: null
+    third_party_presence: null
+    confession: null
+  - observation: null
+    proof_object: null
+    subsidy: null
+    required_todo: null
+    third_party_presence: null
+    confession: null
+  - observation: null
+    proof_object: null
+    subsidy: null
+    required_todo: null
+    third_party_presence: null
+    confession: null
+  - observation: null
+    proof_object: null
+    subsidy: null
+    required_todo: null
+    third_party_presence: null
+    confession: null
+  - observation: null
+    proof_object: null
+    subsidy: null
+    required_todo: null
+    third_party_presence: null
+    confession: null
+  - observation: null
     proof_object: null
     subsidy: null
     required_todo: null
@@ -3077,13 +1429,6 @@ investigacoes:
     required_todo: null
     third_party_presence: null
     confession: null
-  - observation: Audiência de conciliação (fase de conhecimento) designada (22/07/2020
-      15:00:00 Sala Principal - 5ª Vara do Trabalho de Contagem)
-    proof_object: null
-    subsidy: null
-    required_todo: null
-    third_party_presence: null
-    confession: null
   - observation: null
     proof_object: null
     subsidy: null
@@ -3097,61 +1442,6 @@ investigacoes:
     third_party_presence: null
     confession: null
   - observation: null
-    proof_object: null
-    subsidy: null
-    required_todo: null
-    third_party_presence: null
-    confession: null
-  - observation: Audiência de instrução designada (18/12/2020 11:00 SALA PRINCIPAL
-      - 1ª Vara do Trabalho de Contagem)
-    proof_object: null
-    subsidy: null
-    required_todo: null
-    third_party_presence: null
-    confession: null
-  - observation: null
-    proof_object: null
-    subsidy: null
-    required_todo: null
-    third_party_presence: null
-    confession: null
-  - observation: null
-    proof_object: null
-    subsidy: null
-    required_todo: null
-    third_party_presence: null
-    confession: null
-  - observation: null
-    proof_object: null
-    subsidy: null
-    required_todo: null
-    third_party_presence: null
-    confession: null
-  - observation: null
-    proof_object: null
-    subsidy: null
-    required_todo: null
-    third_party_presence: null
-    confession: null
-  - observation: null
-    proof_object: null
-    subsidy: null
-    required_todo: null
-    third_party_presence: null
-    confession: null
-  - observation: null
-    proof_object: null
-    subsidy: null
-    required_todo: null
-    third_party_presence: null
-    confession: null
-  - observation: null
-    proof_object: null
-    subsidy: null
-    required_todo: null
-    third_party_presence: null
-    confession: null
-  - observation: 'Fazer contra prova período G03 foi excluído na audiência inicial '
     proof_object: null
     subsidy: null
     required_todo: null
@@ -3184,21 +1474,45 @@ investigacoes:
   sugestao:
     status: sem_pista_encontrada
     traducao_sugerida: null
-    justificativa: Há pistas textuais, mas sem consistência suficiente para alta confiança.
-    pistas:
-    - coluna: observation
-      valores_frequentes:
-      - valor: Cancelada
-        ocorrencias: 1
-      - valor: Audiência de conciliação (fase de conhecimento) designada (22/07/2020
-          15:00:00 Sala Principal - 5ª Vara do Trabalho de Contagem)
-        ocorrencias: 1
-      - valor: Audiência de instrução designada (18/12/2020 11:00 SALA PRINCIPAL -
-          1ª Vara do Trabalho de Contagem)
-        ocorrencias: 1
-      valores_distintos: 4
-      ocorrencias_total: 4
+    justificativa: Foram encontradas linhas, mas sem pista textual clara.
+    pistas: []
     alertas: []
+- tabela: hearingcontrol
+  coluna: hearingstatus
+  valor: '2'
+  motivo_pendencia: investigacao_direta
+  colunas_pista:
+  - observation
+  linhas_exemplo:
+  - codigo: '2'
+    rotulo: Audiência instrução designada para 11/06/2019 14:30 Seção B da 31ª Vara
+      Cível da Capital.
+  - codigo: '2'
+    rotulo: null
+  - codigo: '2'
+    rotulo: null
+  - codigo: '2'
+    rotulo: null
+  - codigo: '2'
+    rotulo: null
+  sugestao:
+    status: alta_confianca
+    traducao_sugerida: Audiência instrução designada para 11/06/2019 14:30 Seção B
+      da 31ª Vara Cível da Capital.
+    justificativa: Tabela de referência 'hearings_log' detectada via schema; coluna
+      'hearingstatus' mapeou o código '2' para 'Audiência instrução designada para
+      11/06/2019 14:30 Seção B da 31ª Vara Cível da Capital.' usando o rótulo 'observation'.
+    pistas:
+    - coluna: hearings_log.observation
+      valores_frequentes:
+      - valor: Audiência instrução designada para 11/06/2019 14:30 Seção B da 31ª
+          Vara Cível da Capital.
+        ocorrencias: 1
+      valores_distintos: 1
+      ocorrencias_total: 1
+    fonte: tabela_referencia
+    alertas: []
+  tabela_referencia: hearings_log
 - tabela: lawsuits
   coluna: contract_type
   valor: es
