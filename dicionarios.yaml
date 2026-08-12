@@ -30,6 +30,8 @@ lawsuits:
   status:
     '0': Inativo
     '1': Ativo
+  finalpayment_type:
+    '2': JAC BH BARÃO
 lawsuits_log:
   status:
     '0': Inativo
@@ -105,10 +107,10 @@ usertasks:
 accounts:
   code:
     ativo: Conta de ativos
-    pass: Passivo
-    desp: Despesas
-    rec: Receitas
-    pl: Sistema Auxiliar
+    pass: PASSIVO
+    desp: DESPESAS
+    rec: RECEITAS
+    pl: SISTEMA AUXILIAR
     CONT: Conta
   type:
     a: Conta de ativos
@@ -128,10 +130,10 @@ hearings_log: {}
 lawsuitdocs: {}
 otherdocs: {}
 pedidos2lawsuit: {}
-person2lawsuit: {}
+person2lawsuit:
+  link_type:
+    u: SEM JUSTA CAUSA
 prazo2publication:
-  # pzphase e finishtype: pendentes (ver PENDENCIAS_TRADUCAO_HUMANA.md)
-  # Colunas booleanas — 0 = Não, 1 = Sim
   canceled:
     '0': Não
     '1': Sim
@@ -144,9 +146,11 @@ prazo2publication:
   skip_validate:
     '0': Não
     '1': Sim
+  pzphase:
+    '1': audiência inicial
+  finishtype:
+    p: processo físico
 prazos_log:
-  # pzphase, finishtype e status: pendentes (ver PENDENCIAS_TRADUCAO_HUMANA.md)
-  # Colunas booleanas — 0 = Não, 1 = Sim
   canceled:
     '0': Não
     '1': Sim
@@ -168,7 +172,6 @@ varas:
     '8': Vara Cível
     '4': Vara Federal
 hearingcontrol:
-  # Colunas booleanas — 0 = Não, 1 = Sim (alta confiança)
   needwitness:
     '0': Não
     '1': Sim
@@ -184,4 +187,5 @@ hearingcontrol:
   hearingfile:
     '0': Não
     '1': Sim
-  # hearingtype e prazo_included permanecem pendentes (ver PENDENCIAS_TRADUCAO_HUMANA.md)
+  hearingtype:
+    '11': Instrução
