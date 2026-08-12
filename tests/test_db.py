@@ -601,3 +601,104 @@ class TestFksInferidasPubtype:
         )
         ref = next(r for r in resultado if r["coluna"] == "pubtype")
         assert ref["tabela_referenciada"] == "pubtypes"
+
+
+class TestFksInferidasUsuarioAtualizador:
+    """Testes para resolução de FK de 'updateduserid'/'useratualizadorid' → employees.
+
+    Cobre o caso 'ID do Usuário Atualizador' que aparecia como valor cru em
+    prazos_log/lawsuitdocsmetadata após as correções das PRs #22 e #24.
+    """
+
+    @pytest.fixture
+    def engine_atualizador(self) -> Engine:
+        """Engine com coluna updateduserid em prazos_log."""
+        import src.db as db_module
+        db_module._CACHE_COLUNA_LABEL.clear()
+        db_module._CACHE_FKS_INFERIDAS.clear()
+
+        engine = create_engine("sqlite:///:memory:")
+        with engine.connect() as conn:
+            conn.execute(text("""
+                CREATE TABLE employees (
+                    id   INTEGER PRIMARY KEY,
+                    name TEXT NOT NULL
+                )
+            """))
+            conn.execute(text("""
+                CREATE TABLE prazos_log (
+                    id             INTEGER PRIMARY KEY,
+                    userid         INTEGER,
+                    updateduserid  INTEGER
+                )
+            """))
+            conn.execute(text("INSERT INTO employees VALUES (97, 'Ana Atualizadora')"))
+            conn.execute(text("INSERT INTO prazos_log VALUES (1, 97, 97)"))
+            conn.commit()
+        return engine
+
+    def test_updateduserid_mapeia_para_employees(self, engine_atualizador: Engine) -> None:
+        """updateduserid deve ser detectado como FK para employees."""
+        resultado = fks_inferidas(engine_atualizador, "prazos_log")
+        colunas = [r["coluna"] for r in resultado]
+        assert "updateduserid" in colunas, (
+            "updateduserid deve ser detectado como FK implícita para employees "
+            "(cobre 'ID do Usuário Atualizador')"
+        )
+        ref = next(r for r in resultado if r["coluna"] == "updateduserid")
+        assert ref["tabela_referenciada"] == "employees"
+
+
+class TestFksInferidasTipoPublicacaoVariantes:
+    """Testes para resolução de FK de variantes de nome de coluna para tipo de publicação.
+
+    Cobre casos onde a coluna pode se chamar 'pub_type', 'publicationtype' ou
+    'publication_type' em vez de 'pubtype' que já era coberto pela PR #24.
+    """
+
+    def _engine_com_coluna(self, nome_coluna: str) -> Engine:
+        """Engine genérico com tabela prazo2publication e coluna FK variante."""
+        import src.db as db_module
+        db_module._CACHE_COLUNA_LABEL.clear()
+        db_module._CACHE_FKS_INFERIDAS.clear()
+
+        engine = create_engine("sqlite:///:memory:")
+        with engine.connect() as conn:
+            conn.execute(text("""
+                CREATE TABLE pubtypes (
+                    id   INTEGER PRIMARY KEY,
+                    name TEXT NOT NULL
+                )
+            """))
+            conn.execute(text(f"""
+                CREATE TABLE prazo2publication (
+                    id       INTEGER PRIMARY KEY,
+                    {nome_coluna} INTEGER
+                )
+            """))
+            conn.execute(text("INSERT INTO pubtypes VALUES (58704, 'DJSP - Intimações')"))
+            conn.execute(text(f"INSERT INTO prazo2publication (id, {nome_coluna}) VALUES (1, 58704)"))
+            conn.commit()
+        return engine
+
+    def test_pub_type_mapeia_para_pubtypes(self) -> None:
+        """pub_type (com underscore) deve ser detectado como FK para pubtypes."""
+        engine = self._engine_com_coluna("pub_type")
+        resultado = fks_inferidas(engine, "prazo2publication")
+        colunas = [r["coluna"] for r in resultado]
+        assert "pub_type" in colunas, (
+            "pub_type deve ser detectado como FK implícita para pubtypes"
+        )
+        ref = next(r for r in resultado if r["coluna"] == "pub_type")
+        assert ref["tabela_referenciada"] == "pubtypes"
+
+    def test_publicationtype_mapeia_para_pubtypes(self) -> None:
+        """publicationtype deve ser detectado como FK para pubtypes."""
+        engine = self._engine_com_coluna("publicationtype")
+        resultado = fks_inferidas(engine, "prazo2publication")
+        colunas = [r["coluna"] for r in resultado]
+        assert "publicationtype" in colunas, (
+            "publicationtype deve ser detectado como FK implícita para pubtypes"
+        )
+        ref = next(r for r in resultado if r["coluna"] == "publicationtype")
+        assert ref["tabela_referenciada"] == "pubtypes"

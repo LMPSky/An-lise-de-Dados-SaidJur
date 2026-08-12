@@ -783,3 +783,204 @@ def test_executar_investigacao_respeita_limite_linhas_em_colunas_diretas(tmp_pat
     item = relatorio["investigacoes"][0]
     assert relatorio["fonte_pendencias"] == "colunas_diretas:paymenttype.code:Bol"
     assert len(item["linhas_exemplo"]) == 4
+
+
+# ---------------------------------------------------------------------------
+# Testes Parte 0 — Bug de rótulo nulo em tabela de referência
+# ---------------------------------------------------------------------------
+
+def _engine_tabela_referencia_rotulo_nulo() -> Engine:
+    """Engine com tabela de referência onde o rótulo é NULL para o código investigado."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE hearingstatus (
+                id   INTEGER PRIMARY KEY,
+                observation TEXT
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE hearingcontrol (
+                id           INTEGER PRIMARY KEY,
+                hearingstatus INTEGER
+            )
+        """))
+        # Rótulo NULL para o código investigado (1)
+        conn.execute(text("INSERT INTO hearingstatus (id, observation) VALUES (1, NULL)"))
+        conn.execute(text("INSERT INTO hearingcontrol (id, hearingstatus) VALUES (1, 1)"))
+        conn.commit()
+    return engine
+
+
+def test_rotulo_nulo_nao_gera_alta_confianca() -> None:
+    """Parte 0: rótulo NULL na tabela de referência nunca deve gerar alta_confianca.
+
+    Garante que quando a coluna de rótulo retorna NULL no banco para o código
+    investigado, a ferramenta rejeita a linha e não trata o valor Python None
+    como a string literal 'None'.
+    """
+    engine = _engine_tabela_referencia_rotulo_nulo()
+    pendencias = [PendenciaEnum("hearingcontrol", "hearingstatus", "1", "investigacao_direta")]
+    relatorio = investigar_pendencias(engine, pendencias, limite_linhas=10)
+
+    item = relatorio["investigacoes"][0]
+    sugestao = item["sugestao"]
+
+    # O rótulo NULL não pode ser aceito como tradução válida
+    assert sugestao.get("traducao_sugerida") != "None", (
+        "Rótulo NULL não deve ser convertido para string 'None' e aceito como tradução"
+    )
+    assert sugestao["status"] != "alta_confianca" or sugestao.get("traducao_sugerida") not in (None, "None", ""), (
+        "Status alta_confianca nunca deve ter tradução None/vazia vinda de rótulo nulo"
+    )
+
+
+def test_rotulo_nulo_status_rebaixado() -> None:
+    """Parte 0: quando todas as linhas candidatas têm rótulo nulo, o status deve ser
+    rebaixado (não 'alta_confianca') e a tradução sugerida não deve ser 'None'.
+    """
+    engine = _engine_tabela_referencia_rotulo_nulo()
+    pendencias = [PendenciaEnum("hearingcontrol", "hearingstatus", "1", "investigacao_direta")]
+    relatorio = investigar_pendencias(engine, pendencias, limite_linhas=10)
+
+    item = relatorio["investigacoes"][0]
+    status = item["sugestao"]["status"]
+    traducao = item["sugestao"].get("traducao_sugerida")
+
+    assert status != "alta_confianca" or traducao not in (None, "None"), (
+        f"Tradução inválida '{traducao}' com status '{status}' para rótulo nulo"
+    )
+    # A tradução não deve ser a string literal "None"
+    assert traducao != "None", (
+        "A ferramenta converteu None para string 'None' — bug de rótulo nulo não corrigido"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Testes Parte A — Novos padrões de nome de tabela candidata
+# ---------------------------------------------------------------------------
+
+def _engine_pzphase() -> Engine:
+    """Engine com tabela nomeada 'prazofases' para o campo 'pzphase'."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE prazofases (
+                id    INTEGER PRIMARY KEY,
+                pzphase INTEGER,
+                nome  TEXT NOT NULL
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE prazos_log (
+                id      INTEGER PRIMARY KEY,
+                pzphase INTEGER
+            )
+        """))
+        conn.execute(text("INSERT INTO prazofases (id, pzphase, nome) VALUES (2, 2, 'Aguardando')"))
+        conn.execute(text("INSERT INTO prazos_log (id, pzphase) VALUES (1, 2)"))
+        conn.commit()
+    return engine
+
+
+def test_pzphase_detecta_tabela_prazofases() -> None:
+    """Parte A: coluna 'pzphase' com prefixo 'pz' deve encontrar tabela 'prazofases'.
+
+    Verifica que a expansão do prefixo abreviado 'pz' → 'prazo' permite
+    detectar a tabela de catálogo com nome 'prazofases'.
+    """
+    engine = _engine_pzphase()
+    pendencias = [PendenciaEnum("prazos_log", "pzphase", "2", "investigacao_direta")]
+    relatorio = investigar_pendencias(engine, pendencias, limite_linhas=10)
+
+    item = relatorio["investigacoes"][0]
+    sugestao = item["sugestao"]
+
+    assert sugestao.get("traducao_sugerida") == "Aguardando", (
+        f"Esperava 'Aguardando' via tabela prazofases, obtido: {sugestao!r}"
+    )
+    assert sugestao["status"] == "alta_confianca", (
+        f"Esperava alta_confianca, obtido: {sugestao['status']!r}"
+    )
+
+
+def _engine_contract_type() -> Engine:
+    """Engine com tabela 'tipos_contrato' para o campo 'contract_type'."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE tipos_contrato (
+                id   INTEGER PRIMARY KEY,
+                code TEXT NOT NULL,
+                nome TEXT NOT NULL
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE lawsuits (
+                id            INTEGER PRIMARY KEY,
+                contract_type TEXT
+            )
+        """))
+        conn.execute(text("INSERT INTO tipos_contrato (id, code, nome) VALUES (1, 'es', 'Escritório')"))
+        conn.execute(text("INSERT INTO lawsuits (id, contract_type) VALUES (1, 'es')"))
+        conn.commit()
+    return engine
+
+
+def test_contract_type_detecta_tabela_tipos_contrato() -> None:
+    """Parte A: coluna 'contract_type' deve encontrar tabela 'tipos_contrato'.
+
+    Verifica o padrão de nome de tabela específico do domínio jurídico BR.
+    """
+    engine = _engine_contract_type()
+    pendencias = [PendenciaEnum("lawsuits", "contract_type", "es", "investigacao_direta")]
+    relatorio = investigar_pendencias(engine, pendencias, limite_linhas=10)
+
+    item = relatorio["investigacoes"][0]
+    sugestao = item["sugestao"]
+
+    assert sugestao.get("traducao_sugerida") == "Escritório", (
+        f"Esperava 'Escritório' via tabela tipos_contrato, obtido: {sugestao!r}"
+    )
+
+
+def _engine_publicationtype() -> Engine:
+    """Engine com tabela 'publicationtypes' para o campo 'publicationtype'."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE publicationtypes (
+                id   INTEGER PRIMARY KEY,
+                nome TEXT NOT NULL
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE prazo2publication (
+                id             INTEGER PRIMARY KEY,
+                publicationtype INTEGER
+            )
+        """))
+        conn.execute(text(
+            "INSERT INTO publicationtypes (id, nome) VALUES (58704, 'DJSP - Intimações')"
+        ))
+        conn.execute(text("INSERT INTO prazo2publication (id, publicationtype) VALUES (1, 58704)"))
+        conn.commit()
+    return engine
+
+
+def test_publicationtype_detecta_tabela_publicationtypes() -> None:
+    """Parte A: coluna 'publicationtype' deve encontrar tabela 'publicationtypes'.
+
+    Verifica que o padrão <entidade>type → <entidade>types é coberto pela
+    heurística ampliada de nomes candidatos.
+    """
+    engine = _engine_publicationtype()
+    pendencias = [PendenciaEnum("prazo2publication", "publicationtype", "58704", "investigacao_direta")]
+    relatorio = investigar_pendencias(engine, pendencias, limite_linhas=10)
+
+    item = relatorio["investigacoes"][0]
+    sugestao = item["sugestao"]
+
+    assert sugestao.get("traducao_sugerida") == "DJSP - Intimações", (
+        f"Esperava 'DJSP - Intimações' via tabela publicationtypes, obtido: {sugestao!r}"
+    )
