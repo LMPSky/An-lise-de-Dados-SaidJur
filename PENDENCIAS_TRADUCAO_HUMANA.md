@@ -1,8 +1,88 @@
 # Pendências de Tradução — Revisão Humana Necessária
 
 Gerado em: 2026-07-30  
-Atualizado em: 2026-08-11 (Rodadas 5 e 6 — auditoria ampla + aprofundamento da investigação)  
+Atualizado em: 2026-08-12 (Rodada 7 — correção de bug de rótulo nulo, ampliação de heurísticas)  
 Fonte: `relatorio_auditoria_traducoes.yaml`
+
+---
+
+## Rodada 7 (2026-08-12) — Correção de bug crítico e ampliação de heurísticas
+
+### 1) Bug corrigido — rótulo NULL aceito como tradução de alta confiança
+
+**Causa raiz**: quando a coluna de rótulo de uma tabela de referência retornava
+`NULL` no banco para o código investigado, o código anterior convertia o valor
+Python `None` para a string literal `"None"` (via `str(None)`) e a tratava como
+rótulo válido de alta confiança. Isso levou à entrada incorreta
+`hearingcontrol.hearingstatus: {'1': 'None'}` gerada pela ferramenta.
+
+**Nota para o usuário**: se essa entrada foi aplicada ao `dicionarios.yaml` local,
+ela **deve ser removida manualmente**. Verifique:
+```yaml
+hearingcontrol:
+  hearingstatus:
+    # remover se existir:
+    '1': 'None'
+```
+
+**Correção aplicada** em `src/investigacao_pendencias.py` (função
+`_buscar_em_tabela_referencia`): valores `None` da coluna de rótulo são agora
+rejeitados explicitamente antes de `str()`. Se todas as linhas candidatas tiverem
+rótulo nulo, a tabela candidata é descartada e a busca continua nas demais
+tabelas candidatas.
+
+### 2) Detecção ampliada de tabelas de referência (Parte A)
+
+A heurística de geração de nomes candidatos de tabela de referência foi ampliada
+em `src/investigacao_pendencias.py`:
+
+- **Prefixo `pz` expandido para `prazo`**: colunas como `pzphase` agora geram
+  candidatos como `prazofase`, `prazofases`, `prazo_phase`, etc., cobrindo tabelas
+  com nome completo baseado na entidade "prazo".
+- **Variantes de tipo de contrato**: `contract_type` → `contracttypes`,
+  `contract_types`, `tipos_contrato`, `tipocontrato`.
+- **Variantes de tipo de publicação**: `publicationtype`, `publication_type` →
+  `publicationtypes`, `publication_types`, `tipos_publicacao`.
+- **Variantes de tipo de pessoa/vínculo**: `persontype` → `persontypes`,
+  `tipos_pessoa`; `link_type` → `linktypes`, `link_types`, `tipos_vinculo`.
+- A estrutura `_PREFIXOS_ABREVIADOS` e a lista de sufixos em
+  `_gerar_nomes_candidatos_tabela` são **extensíveis**: adicione novas entradas
+  conforme novos prefixos ou padrões forem identificados no banco.
+
+**Ação necessária**: re-investigar as pendências abaixo com `investigar_pendencias.py`
+para verificar se a ampliação resolve automaticamente a tradução:
+- `prazos_log.pzphase` / `prazo2publication.pzphase`
+- `lawsuits.contract_type`
+- `person2lawsuit.link_type` / `person2lawsuit.persontype`
+
+### 3) FK de "ID do Usuário Atualizador" corrigida (Parte B)
+
+Adicionadas variações de nome de coluna de usuário atualizador à heurística de FK
+em `src/db.py` (`_candidatos_para`). As bases adicionadas ao conjunto `_BASES_USUARIO`
+(sem sufixo `id`, que é removido pela heurística antes da comparação) são:
+- `updateduser`, `updateuser`, `updater`, `updatedby`, `userupdated`,
+  `atualizador`, `useratualiz`, `atualiz`
+
+Colunas como `updateduserid`, `updatedbyid`, `atualizadorid` agora
+resolvem para a tabela `employees`.
+
+**Ação necessária**: verificar visualmente nos relatórios exportados se o campo
+"ID do Usuário Atualizador" em `prazos_log` e `lawsuitdocsmetadata` agora
+exibe o nome do funcionário em vez do ID cru `97`.
+
+### 4) FK de "Tipo de Publicação" com variantes de nome de coluna (Parte B)
+
+Adicionadas à lista `_COLUNAS_FK_EXTRAS` em `src/db.py`:
+- `pub_type`, `publicationtype`, `publication_type` → todos apontam para `pubtypes`.
+
+**Nota**: se `pubtypes` não existir no banco com esse nome exato, o valor cru
+`58704` continuará aparecendo. Nesse caso, verificar o nome real da tabela de
+tipos de publicação com:
+```sql
+SELECT TABLE_NAME FROM information_schema.TABLES
+WHERE TABLE_NAME LIKE '%pub%type%' OR TABLE_NAME LIKE '%publicac%';
+```
+e adicionar o nome real em `_COLUNAS_FK_EXTRAS`.
 
 ---
 

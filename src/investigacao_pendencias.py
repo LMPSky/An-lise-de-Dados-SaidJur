@@ -287,8 +287,44 @@ def _reordenar_colunas_pista_por_idioma(candidatas: list[str], nomes_disponiveis
 
 
 
+# Mapeamentos de prefixos abreviados para formas completas usadas no SaidJur.
+# A chave é o prefixo abreviado; o valor é a expansão semântica equivalente.
+# Estrutura extensível: adicione novas entradas conforme novos prefixos abreviados
+# forem identificados no banco de dados jurídico.
+_PREFIXOS_ABREVIADOS: dict[str, str] = {
+    "pz": "prazo",
+    "pub": "publicacao",
+    "doc": "documento",
+    "emp": "employee",
+    "cli": "cliente",
+    "proc": "processo",
+    "aud": "audiencia",
+}
+
+# Sufixos semânticos que identificam campos de tipo/estado/fase.
+# Usado para remover o sufixo e expor o radical da entidade.
+_SUFIXOS_SEMANTICOS = (
+    "_type", "_tipo", "type", "tipo",
+    "_status", "status",
+    "_phase", "phase", "_fase", "fase",
+    "_nature", "nature", "_natureza", "natureza",
+    "_link", "link", "_kind", "kind",
+)
+
+# Prefixos que identificam campos de tipo/estado/fase.
+_PREFIXOS_SEMANTICOS = (
+    "type_", "tipo_", "status_", "phase_", "fase_", "code_", "codigo_", "id_",
+    "nature_", "natureza_",
+)
+
+
 def _extrair_radicais_coluna(nome_coluna: str) -> list[str]:
-    """Extrai radicais úteis do nome da coluna para buscar tabelas de referência."""
+    """Extrai radicais úteis do nome da coluna para buscar tabelas de referência.
+
+    Inclui expansão de prefixos abreviados do domínio jurídico brasileiro
+    (ex: ``pz`` → ``prazo``) para ampliar a cobertura da busca por tabelas
+    de catálogo com nomes completos.
+    """
     nome = nome_coluna.lower()
     termos: list[str] = []
 
@@ -300,15 +336,111 @@ def _extrair_radicais_coluna(nome_coluna: str) -> list[str]:
     _adicionar(nome)
     for token in re.split(r"[_\W]+", nome):
         _adicionar(token)
+        # Para cada token, verificar se começa com prefixo abreviado
+        for prefixo_abrev, expansao in _PREFIXOS_ABREVIADOS.items():
+            if token.startswith(prefixo_abrev) and len(token) > len(prefixo_abrev):
+                sufixo = token[len(prefixo_abrev):]
+                _adicionar(sufixo)
+                _adicionar(expansao + sufixo)
+                _adicionar(expansao + "_" + sufixo)
 
-    for prefixo in ("type_", "tipo_", "status_", "phase_", "fase_", "code_", "codigo_", "id_"):
+    for prefixo in _PREFIXOS_SEMANTICOS:
         if nome.startswith(prefixo):
             _adicionar(nome[len(prefixo):])
-    for sufixo in ("_type", "_tipo", "type", "tipo", "_status", "status", "_phase", "phase", "_fase", "fase"):
+    for sufixo in _SUFIXOS_SEMANTICOS:
         if nome.endswith(sufixo):
             _adicionar(nome[: -len(sufixo)])
 
+    # Expansão de prefixos abreviados no nome completo
+    for prefixo_abrev, expansao in _PREFIXOS_ABREVIADOS.items():
+        if nome.startswith(prefixo_abrev) and len(nome) > len(prefixo_abrev):
+            parte = nome[len(prefixo_abrev):]
+            _adicionar(parte)
+            _adicionar(expansao)
+            _adicionar(expansao + parte)
+            _adicionar(expansao + "_" + parte)
+
     return termos
+
+
+def _gerar_nomes_candidatos_tabela(
+    nome_tabela_origem: str,
+    nome_coluna: str,
+) -> list[str]:
+    """Gera nomes explícitos de tabela candidata a catálogo para a coluna.
+
+    Complementa a heurística de pontuação com variantes específicas do
+    domínio jurídico brasileiro, cobrindo padrões de nomenclatura como:
+    - prefixo ``pz`` expandido para ``prazo``
+    - combinações do nome da tabela de origem com o nome da coluna
+    - variantes de tipo/contrato/fase em português e inglês
+
+    A lista ``_VARIANTES_SUFIXO_TABELA`` é extensível: adicione novas entradas
+    para cobrir novos padrões de nomenclatura identificados no banco.
+    """
+    # Sufixos de tabela de catálogo comuns (em ordem de prioridade)
+    _VARIANTES_SUFIXO_TABELA: list[str] = [
+        "s", "es", "_ref", "_type", "_types", "_tipo", "_tipos",
+        "_status", "_phase", "_phases", "_fase", "_fases",
+        "types", "tipos", "phases", "fases",
+    ]
+
+    coluna = nome_coluna.lower()
+    tabela_raw = nome_tabela_origem.lower()
+    # Remover no máximo um sufixo 's' ou 'es' (plural) do nome da tabela de origem
+    # para obter a raiz da entidade. Usar removesuffix() (Python 3.9+) em vez de
+    # rstrip() que poderia remover múltiplos caracteres.
+    if tabela_raw.endswith("es"):
+        tabela = tabela_raw.removesuffix("es").rstrip("_")
+    elif tabela_raw.endswith("s"):
+        tabela = tabela_raw.removesuffix("s").rstrip("_")
+    else:
+        tabela = tabela_raw.rstrip("_")
+
+    radicais = _extrair_radicais_coluna(coluna)
+    candidatos: list[str] = []
+
+    seen: set[str] = set()
+
+    def _add(nome: str) -> None:
+        n = nome.strip("_").lower()
+        if n and n not in seen and len(n) >= 3:
+            seen.add(n)
+            candidatos.append(n)
+
+    # Variantes a partir dos radicais com sufixos de tabela de catálogo
+    for radical in radicais:
+        _add(radical)
+        for suf in _VARIANTES_SUFIXO_TABELA:
+            _add(radical + suf)
+        # Combinação tabela_origem + radical
+        _add(tabela + radical)
+        _add(tabela + "_" + radical)
+
+    # Variantes de contrato
+    if "contract" in coluna or "contrat" in coluna:
+        for v in ("contracttypes", "contract_types", "tipos_contrato",
+                  "tipocontrato", "tipos_contratos", "tiposcontrato"):
+            _add(v)
+
+    # Variantes de tipo de publicação
+    if "pub" in coluna or "publicac" in coluna or "publication" in coluna:
+        for v in ("pubtypes", "pub_types", "publicationtypes",
+                  "publication_types", "tipos_publicacao",
+                  "tipospublicacao", "tipopublicacao"):
+            _add(v)
+
+    # Variantes de tipo de pessoa
+    if "person" in coluna or "pessoa" in coluna:
+        for v in ("persontypes", "persontype_ref", "tipos_pessoa", "tipopessoa"):
+            _add(v)
+
+    # Variantes de link/vínculo
+    if "link" in coluna or "vinculo" in coluna:
+        for v in ("linktypes", "link_types", "tipos_vinculo", "tipovinculo"):
+            _add(v)
+
+    return candidatos
 
 
 
@@ -380,11 +512,22 @@ def _selecionar_coluna_rotulo_referencia(colunas: list[ColunaTabela]) -> str | N
 
 
 def _buscar_em_tabela_referencia(engine: Engine, pendencia: PendenciaEnum) -> dict[str, Any] | None:
-    """Busca tradução em tabela de referência/catálogo detectada via schema."""
+    """Busca tradução em tabela de referência/catálogo detectada via schema.
+
+    Combina duas estratégias:
+    1. Pontuação por radical: pontua todas as tabelas do banco pelo grau de
+       similaridade semântica com o nome da coluna investigada.
+    2. Candidatos explícitos: lista de nomes derivados diretamente do nome da
+       coluna e da tabela de origem, cobrindo padrões específicos do domínio
+       jurídico brasileiro (ex: prefixo ``pz``, variantes de contrato/fase).
+    """
     insp = inspect(engine)
+    todas_tabelas = set(insp.get_table_names())
     radicais = _extrair_radicais_coluna(pendencia.coluna)
+
+    # --- Estratégia 1: pontuação por radical ---
     candidatas: list[tuple[int, str]] = []
-    for tabela in insp.get_table_names():
+    for tabela in todas_tabelas:
         if tabela.lower() == pendencia.tabela.lower():
             continue
         score = _pontuar_tabela_referencia(tabela, radicais)
@@ -392,6 +535,17 @@ def _buscar_em_tabela_referencia(engine: Engine, pendencia: PendenciaEnum) -> di
             candidatas.append((score, tabela))
 
     candidatas.sort(key=lambda item: (-item[0], item[1]))
+
+    # --- Estratégia 2: candidatos explícitos por nome ---
+    nomes_explicitos = _gerar_nomes_candidatos_tabela(pendencia.tabela, pendencia.coluna)
+    ja_em_candidatas = {t.lower() for _, t in candidatas}
+    for nome_expl in nomes_explicitos:
+        # Encontrar a tabela real com nome case-insensitive
+        real = next((t for t in todas_tabelas if t.lower() == nome_expl.lower()), None)
+        if real and real.lower() != pendencia.tabela.lower() and real.lower() not in ja_em_candidatas:
+            candidatas.append((5, real))
+            ja_em_candidatas.add(real.lower())
+
     for _score, tabela_ref in candidatas:
         colunas_ref = listar_colunas_tabela(engine, tabela_ref)
         coluna_codigo = _selecionar_coluna_codigo_referencia(colunas_ref, pendencia.coluna)
@@ -420,11 +574,20 @@ def _buscar_em_tabela_referencia(engine: Engine, pendencia: PendenciaEnum) -> di
         )
         rotulos = []
         for linha in linhas:
-            rotulo = str(linha.get("rotulo", "")).strip()
-            if rotulo:
-                rotulos.append(rotulo)
+            valor_rotulo = linha.get("rotulo")
+            # Rejeitar explicitamente valores nulos/vazios: None, string vazia ou
+            # string que, após strip, resulte em "" — nunca converter None para "None".
+            if valor_rotulo is None:
+                continue
+            rotulo = str(valor_rotulo).strip()
+            if not rotulo:
+                continue
+            rotulos.append(rotulo)
         distintos = sorted(set(rotulos))
         if len(distintos) != 1:
+            # Se há linhas mas todos os rótulos eram nulos/vazios, registramos
+            # que a tabela foi encontrada mas não tinha rótulo válido e continuamos
+            # tentando outras candidatas.
             continue
 
         traducao = distintos[0]

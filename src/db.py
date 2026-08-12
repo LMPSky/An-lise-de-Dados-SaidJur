@@ -353,7 +353,12 @@ def _candidatos_para(coluna: str) -> list[str]:
     # userid, supervisorid, userchangedid e variações sem prefixo de entidade
     # podem não gerar 'employees' pela heurística genérica, por isso forçamos
     # a inclusão quando o base corresponde a esses papéis conhecidos.
-    _BASES_USUARIO = frozenset({"user", "supervisor", "userchanged", "excludente", "criador"})
+    # 'updateduser'/'updateuser' cobre "ID do Usuário Atualizador" (ex: updateduserid).
+    _BASES_USUARIO = frozenset({
+        "user", "supervisor", "userchanged", "excludente", "criador",
+        "updateduser", "updateuser", "updater", "updatedby", "userupdated",
+        "atualizador", "useratualiz", "atualiz",
+    })
     if base in _BASES_USUARIO:
         candidates.extend(["employees", "employee"])
 
@@ -374,8 +379,14 @@ _COLUNAS_FK_IGNORADAS = frozenset({"paid", "said", "laid", "void", "fluid", "rap
 # Colunas FK conhecidas que não seguem a convenção de sufixo *id/*_id
 # mas são inequivocamente chaves estrangeiras por convenção do SaidJur.
 # Chave: nome da coluna (lower-case); valor: tabela referenciada esperada.
+# Para "Tipo de Publicação": o nome real da tabela pode variar entre instalações,
+# por isso listamos as variações mais comuns. A primeira que existir no banco
+# será usada (a lógica em fks_inferidas verifica existência antes de usar).
 _COLUNAS_FK_EXTRAS: dict[str, str] = {
-    "pubtype": "pubtypes",  # Tipo de Publicação — FK sem sufixo _id
+    "pubtype": "pubtypes",          # Tipo de Publicação — FK sem sufixo _id
+    "pub_type": "pubtypes",         # variante com underscore
+    "publicationtype": "pubtypes",  # nome mais descritivo
+    "publication_type": "pubtypes", # variante com underscore
 }
 
 
