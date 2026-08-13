@@ -257,6 +257,35 @@ python aplicar_sugestoes_investigacao.py --aplicar-decisoes decisoes_investigaca
 > - **Possível dado específico/sensível**: o texto sugerido pode ser nome de caso,
 >   agência, unidade, empresa ou outra entidade real, exigindo validação humana extra.
 
+### 🏷️ Investigação assistida de nomes de coluna (schema)
+
+Além do fluxo de investigação de ENUMs/códigos, há um fluxo dedicado a **nomes de coluna** (metadado de schema), permitindo auditar e sugerir traduções para colunas sem entrada manual em `TRADUCOES_COLUNAS`.
+
+**Investigar todas as colunas de uma tabela:**
+```bash
+python investigar_colunas.py --tabela prazos_log
+```
+
+**Investigar colunas específicas:**
+```bash
+python investigar_colunas.py --colunas prazos_log.pzphase prazos_log.prazoobs
+```
+
+O script é somente leitura e gera `relatorio_investigacao_colunas.yaml` com:
+- estado de cada coluna (`traduzida_manual` / `traduzida_heuristica` / `nao_traduzida`)
+- pistas coletadas do schema: `COLUMN_COMMENT` do MySQL (alta confiança), tipo de dado, colunas irmãs já traduzidas e referências FK
+- sugestão candidata com nível de confiança claramente indicado
+
+**Aplicar sugestões aprovadas em `src/traducoes_colunas.py`:**
+```bash
+python aplicar_sugestoes_colunas.py
+python aplicar_sugestoes_colunas.py --dry-run   # prévia sem alterar o arquivo
+```
+
+A aplicação é interativa (`s/n/e` por sugestão) e **nunca sobrescreve** traduções manuais já confirmadas em `TRADUCOES_COLUNAS` sem confirmação explícita.
+
+> **Decisão de design:** as novas entradas são inseridas diretamente em `src/traducoes_colunas.py` (a única fonte canônica), em vez de um arquivo de overrides separado, para manter a unicidade da fonte de verdade. O script usa manipulação segura do arquivo Python (sem eval/exec).
+
 ### 🧽 Auditoria ampla de corrupção em `dicionarios.yaml` (Rodada 5)
 
 Na rodada de 2026-08-11, foi feita uma limpeza ampla para remover mapeamentos
