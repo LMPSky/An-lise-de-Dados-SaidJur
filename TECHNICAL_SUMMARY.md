@@ -1,5 +1,34 @@
 # 🔧 Resumo Técnico - Exportação de Resultados de Busca
 
+## 🔧 Atualização 2026-08-13 — Correlação com `prazoobs` e switch de nomes técnicos
+
+### Correlação com coluna de observação textual (`prazoobs`)
+
+- `src/investigacao_pendencias.py` agora detecta automaticamente colunas de
+  observação/texto-livre (`prazoobs`, `obs`, `observacao`, `remarks`, etc.) na
+  tabela investigada.
+- Quando a investigação principal não chega a alta confiança, a distribuição de
+  valores dessas colunas correlacionadas com o código investigado é incluída no
+  relatório (`contexto_obs`) e exibida na revisão interativa.
+- Isso permite inferência manual sem necessidade de consultar o banco diretamente.
+- Constante `_COLUNAS_OBSERVACAO_PADRAO` extensível: adicione novos nomes de
+  colunas de observação conforme forem identificados.
+- Nenhuma tradução automática é gerada a partir do `contexto_obs` — é apenas
+  informativo.
+
+### Switch "🔧 Mostrar nomes técnicos" na interface web
+
+- Novo toggle no **Modo Avançado** da interface web (`src/web/index.html`,
+  `src/web/app.js`).
+- Quando ativado, os cabeçalhos de coluna exibem o nome traduzido em português
+  **seguido do nome técnico real da coluna no banco** entre parênteses
+  (ex: `"Fase do Prazo (pzphase)"`).
+- Aplicado consistentemente em: tabela principal, modal de detalhe, resultados
+  de busca global e console SQL.
+- Persistido em `localStorage` com chave `saidjur_mostrar_nomes_tecnicos`.
+- Independente do switch `🏷️ Labels` (que controla resolução de FK/label vs valor cru).
+- Função `exibirCabecalhoColuna(col)` em `app.js` centraliza a lógica de exibição.
+
 ## 🧹 Atualização 2026-08-11 — Auditoria ampla de `dicionarios.yaml`
 
 - Remoção cirúrgica de entradas claramente corrompidas (código→código sem

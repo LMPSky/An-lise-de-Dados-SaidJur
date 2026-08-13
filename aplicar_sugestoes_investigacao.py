@@ -77,6 +77,16 @@ def _revisar_interativo(relatorio: dict[str, Any]) -> list[dict[str, Any]]:
             if alerta.get("tipo") == "possivel_dado_especifico":
                 print(f"\n{alerta.get('mensagem')}")
 
+        contexto_obs = item.get("contexto_obs")
+        if contexto_obs:
+            print(
+                f"\n📝 Contexto adicional — coluna de observação '{contexto_obs.get('coluna_obs')}' "
+                f"({contexto_obs.get('valores_distintos', 0)} valor(es) distinto(s), "
+                f"{contexto_obs.get('total_ocorrencias', 0)} ocorrência(s) total):"
+            )
+            for amostra in contexto_obs.get("amostras", []):
+                print(f"   [{amostra.get('ocorrencias', 0)}x] {amostra.get('valor', '')!r}")
+
         if not traducao_sugerida:
             print("Sem sugestão aplicável. Marcando como pular.")
             decisao = "pular"
