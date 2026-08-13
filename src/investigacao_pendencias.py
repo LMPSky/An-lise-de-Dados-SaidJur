@@ -38,6 +38,27 @@ _CHAVES_PISTA = (
 _CHAVES_SEMANTICAS = _CHAVES_PISTA
 
 _TEXTO_LIVRE_COMPRIMENTO_MIN = 50
+
+# Nomes de colunas de observação/texto-livre usadas como contexto complementar.
+# Quando a coluna investigada não obtém tradução de alta confiança, a ferramenta
+# agrega os valores dessas colunas correlacionadas para ajudar o usuário a inferir
+# manualmente o significado do código.
+_COLUNAS_OBSERVACAO_PADRAO: tuple[str, ...] = (
+    "prazoobs",
+    "obs",
+    "observacao",
+    "observacoes",
+    "observacoesadv",
+    "remarks",
+    "comentario",
+    "comentarios",
+    "notas",
+    "nota",
+    "descricao",
+    "anotacao",
+    "anotacoes",
+)
+
 _SUFIXOS_OUTRO_IDIOMA = {
     "_english": "english",
     "_en": "en",
@@ -985,6 +1006,94 @@ def _analisar_pistas(
 
 
 
+def _coletar_contexto_coluna_obs(
+    engine: Engine,
+    pendencia: PendenciaEnum,
+    colunas_disponiveis: list[ColunaTabela],
+    *,
+    limite_linhas: int = 20,
+) -> dict[str, Any] | None:
+    """Coleta distribuição de valores de coluna de observação correlacionada.
+
+    Quando a investigação principal não encontra tradução de alta confiança, esta
+    função busca colunas de observação/texto-livre (ex: ``prazoobs``) na mesma
+    tabela e agrega os valores correlacionados com o código investigado.  O
+    resultado é incluído no relatório como contexto adicional para ajudar o
+    usuário a inferir manualmente o significado do código — sem gerar sugestão
+    automática.
+
+    Retorna ``None`` se não houver coluna de observação ou se não houver linhas
+    com valores não-nulos correlacionadas ao código investigado.
+    """
+    nomes_disponiveis = {col.nome.lower() for col in colunas_disponiveis}
+    coluna_obs_nome: str | None = None
+    for candidata in _COLUNAS_OBSERVACAO_PADRAO:
+        if candidata.lower() in nomes_disponiveis:
+            # Recuperar o nome real (com capitalização original)
+            coluna_obs_nome = next(
+                col.nome for col in colunas_disponiveis if col.nome.lower() == candidata.lower()
+            )
+            break
+
+    if not coluna_obs_nome:
+        return None
+
+    tabela_sql = _identificador(pendencia.tabela, engine.dialect.name)
+    coluna_sql = _identificador(pendencia.coluna, engine.dialect.name)
+    coluna_obs_sql = _identificador(coluna_obs_nome, engine.dialect.name)
+    param_valor = _converter_valor_para_param(pendencia.valor)
+
+    # Usa GROUP BY para obter contagens reais diretamente no banco, evitando
+    # que o LIMIT distorça a distribuição de frequência quando há muitas linhas.
+    sql = text(
+        f"SELECT {coluna_obs_sql} AS obs_valor, COUNT(*) AS ocorrencias "
+        f"FROM {tabela_sql} "
+        f"WHERE {coluna_sql} = :valor "
+        f"AND {coluna_obs_sql} IS NOT NULL "
+        f"AND TRIM(CAST({coluna_obs_sql} AS CHAR)) <> '' "
+        f"GROUP BY {coluna_obs_sql} "
+        f"ORDER BY ocorrencias DESC "
+        f"LIMIT {int(limite_linhas)}"
+    )
+
+    def _executar() -> list[dict[str, Any]]:
+        with engine.connect() as conn:
+            res = conn.execute(sql, {"valor": param_valor})
+            return [dict(row._mapping) for row in res.fetchall()]
+
+    try:
+        linhas = executar_com_retry_db(
+            _executar,
+            descricao=f"Contexto obs {pendencia.tabela}.{coluna_obs_nome} para {pendencia.coluna}={pendencia.valor}",
+        )
+    except Exception:
+        return None
+
+    amostras = [
+        {"valor": str(linha.get("obs_valor", "")).strip(), "ocorrencias": int(linha.get("ocorrencias", 1))}
+        for linha in linhas
+        if linha.get("obs_valor") is not None and str(linha.get("obs_valor", "")).strip()
+    ]
+
+    if not amostras:
+        return None
+
+    total_ocorrencias = sum(a["ocorrencias"] for a in amostras)
+    valores_distintos = len(amostras)
+
+    return {
+        "coluna_obs": coluna_obs_nome,
+        "total_ocorrencias": total_ocorrencias,
+        "valores_distintos": valores_distintos,
+        "amostras": amostras[:5],
+        "nota": (
+            "Valores de coluna de observação correlacionados com o código investigado. "
+            "Use como pista manual — não é tradução automática."
+        ),
+    }
+
+
+
 def investigar_pendencias(
     engine: Engine,
     pendencias: list[PendenciaEnum],
@@ -1021,26 +1130,30 @@ def investigar_pendencias(
             )
             colunas_pista = selecionar_colunas_pista(colunas, pendencia.coluna)
             if not colunas_pista:
-                investigacoes.append(
-                    {
-                        "tabela": pendencia.tabela,
-                        "coluna": pendencia.coluna,
-                        "valor": pendencia.valor,
-                        "motivo_pendencia": pendencia.motivo,
-                        "colunas_pista": [],
-                        "linhas_exemplo": [],
-                        "sugestao": {
-                            **_enriquecer_sugestao_com_alertas(
-                                {
-                                    "status": "sem_pista_encontrada",
-                                    "traducao_sugerida": None,
-                                    "justificativa": "Nenhuma coluna vizinha candidata a pista foi identificada.",
-                                    "pistas": [],
-                                }
-                            ),
-                        },
-                    }
+                item_sem_pista: dict[str, Any] = {
+                    "tabela": pendencia.tabela,
+                    "coluna": pendencia.coluna,
+                    "valor": pendencia.valor,
+                    "motivo_pendencia": pendencia.motivo,
+                    "colunas_pista": [],
+                    "linhas_exemplo": [],
+                    "sugestao": {
+                        **_enriquecer_sugestao_com_alertas(
+                            {
+                                "status": "sem_pista_encontrada",
+                                "traducao_sugerida": None,
+                                "justificativa": "Nenhuma coluna vizinha candidata a pista foi identificada.",
+                                "pistas": [],
+                            }
+                        ),
+                    },
+                }
+                contexto_obs = _coletar_contexto_coluna_obs(
+                    engine, pendencia, colunas, limite_linhas=limite_linhas * 4
                 )
+                if contexto_obs is not None:
+                    item_sem_pista["contexto_obs"] = contexto_obs
+                investigacoes.append(item_sem_pista)
                 continue
 
             linhas = _coletar_linhas_exemplo(
@@ -1067,17 +1180,22 @@ def investigar_pendencias(
                     )
                     sugestao["contagem_real"] = contagem
 
-            investigacoes.append(
-                {
-                    "tabela": pendencia.tabela,
-                    "coluna": pendencia.coluna,
-                    "valor": pendencia.valor,
-                    "motivo_pendencia": pendencia.motivo,
-                    "colunas_pista": colunas_pista,
-                    "linhas_exemplo": linhas,
-                    "sugestao": sugestao,
-                }
-            )
+            item: dict[str, Any] = {
+                "tabela": pendencia.tabela,
+                "coluna": pendencia.coluna,
+                "valor": pendencia.valor,
+                "motivo_pendencia": pendencia.motivo,
+                "colunas_pista": colunas_pista,
+                "linhas_exemplo": linhas,
+                "sugestao": sugestao,
+            }
+            if sugestao["status"] != "alta_confianca":
+                contexto_obs = _coletar_contexto_coluna_obs(
+                    engine, pendencia, colunas, limite_linhas=limite_linhas * 4
+                )
+                if contexto_obs is not None:
+                    item["contexto_obs"] = contexto_obs
+            investigacoes.append(item)
         except Exception as exc:
             investigacoes.append(
                 {

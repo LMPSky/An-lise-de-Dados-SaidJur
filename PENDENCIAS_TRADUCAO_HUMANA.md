@@ -1,8 +1,99 @@
 # Pendências de Tradução — Revisão Humana Necessária
 
 Gerado em: 2026-07-30  
-Atualizado em: 2026-08-12 (Rodada 7 — correção de bug de rótulo nulo, ampliação de heurísticas)  
+Atualizado em: 2026-08-13 (Rodada 8 — correlação com `prazoobs`, switch de nomes técnicos)  
 Fonte: `relatorio_auditoria_traducoes.yaml`
+
+---
+
+## Rodada 8 (2026-08-13) — Correlação com `prazoobs` e switch de nomes técnicos
+
+### 1) Nova capacidade: correlação com coluna de observação (`prazoobs`) como contexto complementar
+
+A ferramenta de investigação (`src/investigacao_pendencias.py`) agora inclui
+automaticamente o campo **`contexto_obs`** no relatório YAML e na revisão
+interativa quando:
+- A investigação principal **não** chega a alta confiança para o código investigado; E
+- A tabela investigada contém uma coluna de observação/texto-livre reconhecida
+  (`prazoobs`, `obs`, `observacao`, `observacoes`, `remarks`, `comentario`, etc.).
+
+O `contexto_obs` mostra a distribuição dos valores dessa coluna para as linhas
+onde o código aparece, ajudando o usuário a inferir manualmente o significado sem
+precisar consultar o banco diretamente.
+
+**Exemplo de saída no relatório YAML** para `prazos_log.pzphase = 3`:
+```yaml
+contexto_obs:
+  coluna_obs: prazoobs
+  total_linhas_consultadas: 20
+  valores_distintos: 4
+  amostras:
+    - valor: "Prazo de contestação"
+      ocorrencias: 8
+    - valor: "Resposta ao recurso"
+      ocorrencias: 5
+  nota: "Valores de coluna de observação correlacionados com o código investigado.
+         Use como pista manual — não é tradução automática."
+```
+
+**Exemplo na revisão interativa** (`aplicar_sugestoes_investigacao.py`):
+```
+📝 Contexto adicional — coluna de observação 'prazoobs' (4 valor(es) distinto(s) em 20 linha(s)):
+   [8x] 'Prazo de contestação'
+   [5x] 'Resposta ao recurso'
+```
+
+**Regras de segurança mantidas**:
+- O `contexto_obs` é apenas **informativo** — nunca gera sugestão automática.
+- Nenhuma tradução de baixa confiança é aplicada sem aprovação humana.
+- Se a investigação principal encontrar tabela de referência válida (alta confiança),
+  o `contexto_obs` **não é** adicionado (não é necessário).
+
+### 2) Pendências `pzphase` e `pubtype` — status atualizado
+
+#### `prazos_log.pzphase` e `prazo2publication.pzphase` (Fase do Prazo)
+
+**Status**: pendente — investigação aguarda `prazoobs` como contexto.  
+Execute o comando abaixo para obter o contexto complementar de `prazoobs`:
+
+```powershell
+python investigar_pendencias.py --limite-linhas 50 --colunas `
+  prazos_log.pzphase:0 prazos_log.pzphase:3 prazos_log.pzphase:4 `
+  prazo2publication.pzphase:1 prazo2publication.pzphase:2 prazo2publication.pzphase:3 prazo2publication.pzphase:4
+```
+
+O campo `contexto_obs` no YAML resultante mostrará os textos de observação
+(`prazoobs`) que ocorrem junto a cada fase, o que deve permitir inferência manual.
+
+#### `prazos_log.pubtype` / `prazo2publication.publicationtype` (Tipo de Publicação)
+
+**Status**: pendente — FK para tabela de tipos de publicação não confirmada.  
+O valor `58704` provavelmente é FK para `pubtypes` (ou nome similar). Execute:
+
+```sql
+SELECT TABLE_NAME FROM information_schema.TABLES
+WHERE TABLE_NAME LIKE '%pub%type%' OR TABLE_NAME LIKE '%publicac%';
+```
+
+Se `pubtypes` existir, a ferramenta resolverá automaticamente. Se não, use o
+contexto de `prazoobs` (presente no relatório de investigação) para inferência manual.
+
+### 3) Novo switch de interface "🔧 Mostrar nomes técnicos"
+
+Disponível na interface web no **Modo Avançado** (botão `🔧 Nomes técnicos`
+ao lado de `🏷️ Labels` e `👁️ Colunas`).
+
+**Comportamento**:
+- **Desligado** (padrão): exibe apenas o nome traduzido em português
+  (ex: "Fase do Prazo").
+- **Ligado**: exibe o nome traduzido seguido do nome técnico real da coluna
+  no banco entre parênteses (ex: "Fase do Prazo (pzphase)").
+
+**Onde é aplicado**: cabeçalhos de tabela, modal de detalhe, resultados de busca
+global e console SQL.
+
+**Persistência**: salvo em `localStorage` com chave `saidjur_mostrar_nomes_tecnicos`.
+Independente do switch `🏷️ Labels` (que controla resolução de FK/label vs valor cru).
 
 ---
 

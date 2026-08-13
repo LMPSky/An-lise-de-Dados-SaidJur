@@ -24,6 +24,7 @@ from src.investigacao_pendencias import (
     _pista_parece_dado_especifico,
     _pista_parece_texto_livre,
     _contar_linhas_com_valor,
+    _coletar_contexto_coluna_obs,
 )
 
 
@@ -984,3 +985,113 @@ def test_publicationtype_detecta_tabela_publicationtypes() -> None:
     assert sugestao.get("traducao_sugerida") == "DJSP - Intimações", (
         f"Esperava 'DJSP - Intimações' via tabela publicationtypes, obtido: {sugestao!r}"
     )
+
+
+def test_coletar_contexto_coluna_obs_retorna_distribuicao() -> None:
+    """Verifica que _coletar_contexto_coluna_obs agrega valores de coluna de observação."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE prazos_log (
+                id INTEGER PRIMARY KEY,
+                pzphase INTEGER,
+                prazoobs TEXT
+            )
+        """))
+        conn.execute(text("INSERT INTO prazos_log (pzphase, prazoobs) VALUES (3, 'Prazo de recurso')"))
+        conn.execute(text("INSERT INTO prazos_log (pzphase, prazoobs) VALUES (3, 'Prazo de recurso')"))
+        conn.execute(text("INSERT INTO prazos_log (pzphase, prazoobs) VALUES (3, 'Contestação')"))
+        conn.commit()
+
+    colunas = listar_colunas_tabela(engine, "prazos_log")
+    pendencia = PendenciaEnum("prazos_log", "pzphase", "3", "investigacao_direta")
+    resultado = _coletar_contexto_coluna_obs(engine, pendencia, colunas, limite_linhas=20)
+
+    assert resultado is not None
+    assert resultado["coluna_obs"] == "prazoobs"
+    assert resultado["valores_distintos"] == 2
+    amostras_vals = [a["valor"] for a in resultado["amostras"]]
+    assert "Prazo de recurso" in amostras_vals
+    assert "Contestação" in amostras_vals
+    # Verificar que o valor mais frequente vem primeiro
+    assert resultado["amostras"][0]["valor"] == "Prazo de recurso"
+    assert resultado["amostras"][0]["ocorrencias"] == 2
+
+
+def test_coletar_contexto_coluna_obs_retorna_none_sem_coluna_obs() -> None:
+    """Verifica que _coletar_contexto_coluna_obs retorna None quando não há coluna de observação."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE hearingcontrol (
+                id INTEGER PRIMARY KEY,
+                hearingtype INTEGER,
+                hearingdate TEXT
+            )
+        """))
+        conn.execute(text("INSERT INTO hearingcontrol (hearingtype, hearingdate) VALUES (11, '2024-01-01')"))
+        conn.commit()
+
+    colunas = listar_colunas_tabela(engine, "hearingcontrol")
+    pendencia = PendenciaEnum("hearingcontrol", "hearingtype", "11", "investigacao_direta")
+    resultado = _coletar_contexto_coluna_obs(engine, pendencia, colunas, limite_linhas=20)
+
+    assert resultado is None
+
+
+def test_investigar_pendencias_inclui_contexto_obs_quando_sem_alta_confianca() -> None:
+    """Verifica que investigar_pendencias adiciona contexto_obs quando status != alta_confianca."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE prazos_log (
+                id INTEGER PRIMARY KEY,
+                pzphase INTEGER,
+                prazoobs TEXT
+            )
+        """))
+        # Múltiplos obs distintos → não gera alta_confianca na coluna pista
+        conn.execute(text("INSERT INTO prazos_log (pzphase, prazoobs) VALUES (4, 'Fase de julgamento')"))
+        conn.execute(text("INSERT INTO prazos_log (pzphase, prazoobs) VALUES (4, 'Julgamento por juiz leigo')"))
+        conn.execute(text("INSERT INTO prazos_log (pzphase, prazoobs) VALUES (4, 'Processo em pauta')"))
+        conn.commit()
+
+    pendencias = [PendenciaEnum("prazos_log", "pzphase", "4", "investigacao_direta")]
+    relatorio = investigar_pendencias(engine, pendencias, limite_linhas=10)
+
+    item = relatorio["investigacoes"][0]
+    # Com múltiplas obs distintas, não deve haver alta confiança
+    assert item["sugestao"]["status"] != "alta_confianca"
+    assert "contexto_obs" in item
+    assert item["contexto_obs"]["coluna_obs"] == "prazoobs"
+    amostras_vals = [a["valor"] for a in item["contexto_obs"]["amostras"]]
+    assert "Fase de julgamento" in amostras_vals
+
+
+def test_investigar_pendencias_nao_inclui_contexto_obs_quando_alta_confianca() -> None:
+    """Verifica que contexto_obs não é adicionado quando há tabela de referência (alta confiança)."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE prazos_log (
+                id INTEGER PRIMARY KEY,
+                pzphase INTEGER,
+                prazoobs TEXT
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE pzphases (
+                id INTEGER PRIMARY KEY,
+                nome TEXT
+            )
+        """))
+        conn.execute(text("INSERT INTO pzphases (id, nome) VALUES (4, 'Aguardando julgamento')"))
+        conn.execute(text("INSERT INTO prazos_log (pzphase, prazoobs) VALUES (4, 'Fase de julgamento')"))
+        conn.commit()
+
+    pendencias = [PendenciaEnum("prazos_log", "pzphase", "4", "investigacao_direta")]
+    relatorio = investigar_pendencias(engine, pendencias, limite_linhas=10)
+
+    item = relatorio["investigacoes"][0]
+    assert item["sugestao"]["status"] == "alta_confianca"
+    assert "contexto_obs" not in item

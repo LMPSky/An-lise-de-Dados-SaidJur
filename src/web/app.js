@@ -162,6 +162,7 @@ function app() {
     dicionarios: {},
     mostrarLabels: true,
     modoAvancado: false,
+    mostrarNomesTecnicos: false,
 
     // ── Colunas visíveis ─────────────────────────────────────────
     colunasVisiveis: {},
@@ -265,7 +266,21 @@ function app() {
 
     exibirNomeCampo(nomeCampo) {
       if (!nomeCampo) return '';
-      return this.modoAvancado ? nomeCampo : this.traduzirColuna(nomeCampo);
+      if (this.modoAvancado) return nomeCampo;
+      const traduzido = this.traduzirColuna(nomeCampo);
+      if (this.mostrarNomesTecnicos && traduzido !== nomeCampo) {
+        return `${traduzido} (${nomeCampo})`;
+      }
+      return traduzido;
+    },
+
+    exibirCabecalhoColuna(col) {
+      if (this.modoAvancado) return col.nome;
+      const traduzido = col.nomeTraduzido || col.nome;
+      if (this.mostrarNomesTecnicos && traduzido !== col.nome) {
+        return `${traduzido} (${col.nome})`;
+      }
+      return traduzido;
     },
 
     camposRegistroSimples(registro, ordem = null) {
@@ -423,6 +438,12 @@ function app() {
       this.recentes = this.lerJsonLocal('saidjur_recentes', []);
       this.mostrarLabels = this.lerJsonLocal('saidjur_mostrar_labels', true);
       this.modoAvancado = this.lerJsonLocal('saidjur_modo_avancado', false);
+      this.mostrarNomesTecnicos = this.lerJsonLocal('saidjur_mostrar_nomes_tecnicos', false);
+    },
+
+    alternarNomesTecnicos() {
+      this.mostrarNomesTecnicos = !this.mostrarNomesTecnicos;
+      this.salvarJsonLocal('saidjur_mostrar_nomes_tecnicos', this.mostrarNomesTecnicos);
     },
 
     alternarModoAvancado() {
