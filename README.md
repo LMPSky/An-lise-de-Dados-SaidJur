@@ -304,19 +304,45 @@ Resumo operacional:
   preferir pistas em português sobre colunas `_en`/`_english` e destacar
   possíveis dados específicos/sensíveis antes da aplicação.
 
+## 🃏 Visualização em cards expansíveis
+
+Por padrão, os registros são exibidos como **cards verticais** que podem ser expandidos com um clique. Isso torna a navegação mais amigável do que tabelas densas com rolagem horizontal.
+
+**Como funciona:**
+- Cada card mostra um resumo com 2–3 campos identificadores do registro.
+- Clique no card para **expandir inline** e revelar todos os campos não-nulos em um grid horizontal dentro do próprio fluxo da lista.
+- Múltiplos cards podem estar expandidos ao mesmo tempo — o estado não é um acordeon exclusivo.
+- Campos com valor nulo/vazio são automaticamente ocultados na visualização expandida, mantendo a tela limpa.
+
+**Alternando entre Cards e Tabela:**
+Use o botão **🃏 Cards / 📋 Tabela** que aparece no cabeçalho da tabela selecionada ou nos resultados de busca. A preferência é salva automaticamente no navegador.
+
+- **Cards** (padrão): visualização expansível por registro, com toda a lógica de tradução de colunas, resolução de FKs (labels) e dicionário de ENUM aplicada.
+- **Tabela**: visualização densa tradicional, indicada para usuários avançados e inspeção técnica. O Console SQL sempre usa a visualização em tabela, independente do toggle.
+
+---
+
 ## 🧹 Ocultando colunas vazias automaticamente
 
-Por padrão, o visualizador **remove automaticamente colunas que só têm valores NULL ou vazios**.
-Isso torna a interface muito mais limpa — especialmente útil em buscas ou tabelas com muitos campos opcionais.
+Por padrão, o visualizador **remove automaticamente colunas que só têm valores NULL ou vazios** no contexto exibido (página atual ou resultado de busca). Isso torna a interface muito mais limpa, especialmente em buscas ou tabelas com muitos campos opcionais.
+
+**Escopo da ocultação:** os campos são avaliados por registro individualmente — se um campo específico de um registro é nulo, ele não aparece na visualização expandida daquele card. Isso garante que a ocultação funciona de forma útil na prática, sem exigir varredura de toda a tabela.
 
 **Exemplo:** Se você busca por "Sila do Brasil", o sistema vai:
-- ✅ Mostrar todas as colunas com dados relevantes
-- ❌ Ocultar automaticamente as colunas que só têm `-` ou vazias
+- ✅ Mostrar todos os campos com dados relevantes para cada registro encontrado
+- ❌ Ocultar automaticamente os campos que estão vazios naquele registro específico
 
-Se por algum motivo quiser ver **todas as colunas** (inclusive as vazias), edite `src/web/app.js` e mude:
+---
 
-```javascript
-sem_colunas_vazias: false,  // Mude para false
+## ⚙️ Modo Avançado: comportamento ao reiniciar o servidor
+
+**Decisão de design:** o Modo Avançado sempre começa **desligado** a cada carregamento da página, independente de qualquer preferência salva anteriormente no navegador.
+
+Isso garante comportamento consistente após reinicialização do servidor ou ao abrir uma nova aba: a interface sempre inicia no modo simples, voltado ao usuário não técnico.
+
+**Motivação:** o Modo Avançado exibe nomes técnicos de tabelas/colunas, o Console SQL e recursos de filtro/estatísticas que podem confundir usuários não técnicos. Fazer com que ele sempre inicie desligado evita que um usuário acidentalmente deixe o modo ativado para o próximo usuário em um ambiente compartilhado.
+
+Se você quiser usar o Modo Avançado, basta clicar no botão **⚙️ Modo Avançado** no cabeçalho. Ele permanece ativo enquanto a aba estiver aberta, mas não persiste entre recarregamentos.
 
 ---
 
