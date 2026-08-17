@@ -164,6 +164,13 @@ function app() {
     modoAvancado: false,
     mostrarNomesTecnicos: false,
 
+    // ── Modo de visualização: 'cards' | 'tabela' ─────────────────
+    // Persiste em localStorage; padrão = 'cards'
+    modoVisualizacao: 'cards',
+
+    // ── Cards expansíveis: conjunto de índices expandidos ────────
+    cardsExpandidos: new Set(),
+
     // ── Colunas visíveis ─────────────────────────────────────────
     colunasVisiveis: {},
     popoverColunasAberto: false,
@@ -437,8 +444,13 @@ function app() {
       this.favoritos = this.lerJsonLocal('saidjur_favoritos', []);
       this.recentes = this.lerJsonLocal('saidjur_recentes', []);
       this.mostrarLabels = this.lerJsonLocal('saidjur_mostrar_labels', true);
-      this.modoAvancado = this.lerJsonLocal('saidjur_modo_avancado', false);
+      // Modo Avançado sempre começa desligado a cada carregamento da página.
+      // Decisão de design: não persiste entre sessões — só dura enquanto a
+      // aba estiver aberta. Isso garante comportamento consistente após
+      // reinicialização do servidor. Veja README.md para detalhes.
+      this.modoAvancado = false;
       this.mostrarNomesTecnicos = this.lerJsonLocal('saidjur_mostrar_nomes_tecnicos', false);
+      this.modoVisualizacao = this.lerJsonLocal('saidjur_modo_visualizacao', 'cards');
     },
 
     alternarNomesTecnicos() {
@@ -448,7 +460,7 @@ function app() {
 
     alternarModoAvancado() {
       this.modoAvancado = !this.modoAvancado;
-      this.salvarJsonLocal('saidjur_modo_avancado', this.modoAvancado);
+      // Modo Avançado não é persistido — dura apenas enquanto a aba está aberta.
 
       if (!this.modoAvancado) {
         if (this.abaAtiva === 'sql') this.abaAtiva = 'dados';
@@ -457,6 +469,53 @@ function app() {
         this.statsAbertoColuna = null;
         this.statsColuna = null;
       }
+    },
+
+    alternarModoVisualizacao() {
+      this.modoVisualizacao = this.modoVisualizacao === 'cards' ? 'tabela' : 'cards';
+      this.salvarJsonLocal('saidjur_modo_visualizacao', this.modoVisualizacao);
+      this.cardsExpandidos = new Set();
+    },
+
+    alternarCardExpandido(indice) {
+      const novo = new Set(this.cardsExpandidos);
+      if (novo.has(indice)) {
+        novo.delete(indice);
+      } else {
+        novo.add(indice);
+      }
+      this.cardsExpandidos = novo;
+    },
+
+    cardEstaExpandido(indice) {
+      return this.cardsExpandidos.has(indice);
+    },
+
+    camposCardResumido(linha, colunas) {
+      // Retorna até 3 campos não-nulos mais representativos para o resumo do card.
+      const tudo = (colunas || []).map(c => c.nome || c);
+      const naoNulos = tudo.filter(n => {
+        const v = linha[n];
+        return v !== null && v !== undefined && v !== '';
+      });
+      return naoNulos.slice(0, 3).map(nome => ({ nome, valor: linha[nome] }));
+    },
+
+    camposCardExpandido(linha, colunas) {
+      // Retorna todos os campos não-nulos para o card expandido.
+      // Colunas com todos os valores nulos/vazios são ocultadas automaticamente
+      // — mesma lógica de camposRegistroSimples, aplicada no escopo dos dados
+      // atualmente carregados (página atual).
+      const tudo = (colunas || []).map(c => c.nome || c);
+      const campos = tudo
+        .filter(n => Object.prototype.hasOwnProperty.call(linha, n))
+        .map(nome => ({ nome, valor: linha[nome] }))
+        .filter(campo => campo.valor !== null && campo.valor !== undefined && campo.valor !== '');
+
+      if (campos.length > 0) return campos;
+
+      // Fallback: mesmo que tudo seja nulo, mostra pelo menos 1 campo
+      return tudo.slice(0, 1).map(nome => ({ nome, valor: linha[nome] }));
     },
 
     salvarFavoritos() {
@@ -555,6 +614,7 @@ function app() {
       this.colunas = [];
       this.colunasOriginais = []; // ✅ NOVO
       this.totalRegistros = 0;
+      this.cardsExpandidos = new Set();
 
       await Promise.all([
         this.carregarColunas(nome),
@@ -838,6 +898,7 @@ function app() {
     irPagina(nova) {
       if (nova < 1 || nova > this.totalPaginas) return;
       this.pagina = nova;
+      this.cardsExpandidos = new Set();
       this.carregarDados();
       // ✅ Scroll para topo após mudar página
       window.scrollTo({ top: 0, behavior: 'smooth' });

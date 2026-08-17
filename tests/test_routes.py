@@ -201,7 +201,10 @@ class TestRotaTabelas:
 
         resp_js = client.get("/static/app.js")
         assert resp_js.status_code == 200
-        assert "saidjur_modo_avancado" in resp_js.text
+        # Modo Avançado não persiste entre sessões — sempre inicia desligado.
+        # O localStorage de visualização (cards/tabela) continua sendo salvo.
+        assert "modoAvancado" in resp_js.text
+        assert "saidjur_modo_visualizacao" in resp_js.text
 
     def test_lista_tabelas_status_200(self, client: TestClient) -> None:
         resp = client.get("/api/tabelas")

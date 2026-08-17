@@ -451,3 +451,41 @@ Para dúvidas sobre a implementação:
 **Data de Implementação:** 2026-07-29  
 **Versão:** 1.0.0  
 **Status:** ✅ Completo e Testado
+
+---
+
+## 🃏 Visualização em Cards Expansíveis, Modo Avançado e Ocultação de Nulos (2026-08-17)
+
+### Parte A — Cards expansíveis
+
+**Arquivos alterados:** `src/web/index.html`, `src/web/app.js`
+
+**Decisões de design:**
+- O estado `modoVisualizacao` (`'cards'` | `'tabela'`) controla se os dados são exibidos como cards expansíveis ou como tabela densa. Persiste em `localStorage` via chave `saidjur_modo_visualizacao`.
+- **Múltiplos cards podem estar abertos simultaneamente** (acordeon não exclusivo). Isso foi preferido em relação ao acordeon exclusivo porque o usuário pode querer comparar dois registros lado a lado.
+- Os cards expandidos usam os mesmos pipelines de tradução (`exibirNomeCampo`), labels de FK (`exibirComLabel`) e dicionário de ENUM que já existiam — sem novo código de tradução.
+- O Console SQL **não é afetado** pelo toggle: sempre exibe em tabela.
+- O toggle `🃏 Cards / 📋 Tabela` aparece tanto na toolbar da tabela selecionada quanto no cabeçalho dos resultados de busca (avançado).
+
+**Novos métodos em `app.js`:**
+- `alternarModoVisualizacao()` — alterna entre `cards` e `tabela`, limpa cards expandidos.
+- `alternarCardExpandido(indice)` — expande/recolhe um card pelo índice (ou chave composta na busca).
+- `cardEstaExpandido(indice)` — retorna `true` se o card está expandido.
+- `camposCardResumido(linha, colunas)` — retorna até 3 campos não-nulos para o resumo.
+- `camposCardExpandido(linha, colunas)` — retorna todos os campos não-nulos (ocultação automática de nulos).
+
+### Parte B — Modo Avançado desligado por padrão
+
+**Arquivo alterado:** `src/web/app.js` (`carregarPreferenciasLocal`)
+
+**Decisão tomada:** a abordagem mais simples — **não persistir o estado de `modoAvancado`** entre recarregamentos de página. O valor inicial é sempre `false`, independente do que estiver em `localStorage`.
+
+**Justificativa:** como a ferramenta é local/LAN sem autenticação, qualquer usuário que abra a página verá o modo simples por padrão, o que é o comportamento esperado. O usuário pode ativar o Modo Avançado a qualquer momento — ele persiste enquanto a aba estiver aberta, mas não entre sessões.
+
+### Parte C — Ocultação de colunas/campos nulos
+
+**Confirmação:** a lógica de ocultação já estava implementada em `camposRegistroSimples()` em `app.js` — filtra campos nulos/vazios por registro individual (escopo da linha atual).
+
+**Ajuste:** o mesmo comportamento foi aplicado aos cards expandidos via `camposCardExpandido()`. Campos nulos não poluem a visualização expandida, seja na tabela principal ou nos resultados de busca.
+
+**Escopo:** por registro individual — se um campo específico de um registro é nulo, ele é ocultado naquele card. Isso é mais útil na prática do que verificar se a coluna toda é nula (que raramente acontece em tabelas grandes).

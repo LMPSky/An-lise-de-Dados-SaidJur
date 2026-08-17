@@ -137,7 +137,19 @@
           <div class="p-4 pb-3 space-y-4 bg-gray-50 border-b shrink-0">
             <div class="flex items-center justify-between flex-wrap gap-2">
               <h2 class="text-lg font-semibold">Resultados para "<span class="text-primary" x-text="termoBuscaAtiva"></span>"</h2>
-              <button @click="fecharBusca()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm font-semibold">Fechar busca</button>
+              <div class="flex gap-2">
+                <!-- Toggle Cards / Tabela nos resultados de busca -->
+                <button
+                  x-show="modoAvancado && resultadosBusca.length > 0"
+                  @click="alternarModoVisualizacao()"
+                  :class="modoVisualizacao === 'cards' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-600'"
+                  class="px-3 py-1 rounded text-sm font-semibold"
+                  :title="modoVisualizacao === 'cards' ? 'Alternar para tabela' : 'Alternar para cards'"
+                >
+                  <span x-text="modoVisualizacao === 'cards' ? '🃏 Cards' : '📋 Tabela'"></span>
+                </button>
+                <button @click="fecharBusca()" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm font-semibold">Fechar busca</button>
+              </div>
             </div>
 
             <!-- ✅ BOTÕES DE EXPORTAÇÃO -->
@@ -275,7 +287,8 @@
                         <span class="font-medium text-gray-700" x-text="exibirNomeCampo(grupo.coluna)"></span>
                         <span class="ml-auto text-xs text-gray-400" x-text="grupo.registros.length + ' resultado(s)'"></span>
                       </div>
-                      <div class="overflow-x-auto max-h-64">
+                      <!-- Tabela tradicional -->
+                      <div x-show="modoVisualizacao === 'tabela'" class="overflow-x-auto max-h-64">
                         <table class="min-w-max text-sm">
                           <thead class="bg-gray-100 sticky top-0">
                             <tr>
@@ -294,6 +307,41 @@
                             </template>
                           </tbody>
                         </table>
+                      </div>
+                      <!-- Cards expansíveis -->
+                      <div x-show="modoVisualizacao === 'cards'" class="p-2 space-y-1 max-h-96 overflow-auto">
+                        <template x-for="(linha, idx) in grupo.registros" :key="idx">
+                          <article
+                            class="border rounded-lg bg-white transition-all"
+                            :class="cardEstaExpandido(grupo.tabela + '_' + grupo.coluna + '_' + idx) ? 'border-blue-300' : 'hover:border-blue-200'"
+                          >
+                            <div
+                              class="flex items-center justify-between gap-3 px-3 py-2 cursor-pointer select-none"
+                              @click="alternarCardExpandido(grupo.tabela + '_' + grupo.coluna + '_' + idx)"
+                            >
+                              <div class="flex flex-wrap gap-x-4 gap-y-1 flex-1 min-w-0">
+                                <span class="text-xs font-semibold text-gray-400 shrink-0" x-text="'#' + (idx + 1)"></span>
+                                <template x-for="campo in camposCardResumido(linha, Object.keys(linha).map(n => ({nome: n})))" :key="campo.nome">
+                                  <span class="flex items-center gap-1 min-w-0">
+                                    <span class="text-xs text-gray-500 shrink-0" x-text="exibirNomeCampo(campo.nome) + ':'"></span>
+                                    <span class="text-xs font-semibold truncate max-w-xs" :title="exibirValor(grupo.tabela, campo.nome, campo.valor)" x-text="exibirComLabel(grupo.tabela, campo.nome, campo.valor)"></span>
+                                  </span>
+                                </template>
+                              </div>
+                              <span class="text-gray-400 text-xs shrink-0" x-text="cardEstaExpandido(grupo.tabela + '_' + grupo.coluna + '_' + idx) ? '▲' : '▼'"></span>
+                            </div>
+                            <div x-show="cardEstaExpandido(grupo.tabela + '_' + grupo.coluna + '_' + idx)" class="border-t border-blue-100 px-3 py-2">
+                              <dl class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-1.5 text-xs">
+                                <template x-for="campo in camposCardExpandido(linha, Object.keys(linha).map(n => ({nome: n})))" :key="campo.nome">
+                                  <div class="min-w-0">
+                                    <dt class="font-bold text-gray-500 uppercase tracking-wide truncate" x-text="exibirNomeCampo(campo.nome)"></dt>
+                                    <dd class="mt-0.5 text-gray-900 break-words" :title="exibirValor(grupo.tabela, campo.nome, campo.valor)" x-text="exibirComLabel(grupo.tabela, campo.nome, campo.valor)"></dd>
+                                  </div>
+                                </template>
+                              </dl>
+                            </div>
+                          </article>
+                        </template>
                       </div>
                     </div>
                   </template>
@@ -385,6 +433,10 @@
                 <button x-show="modoAvancado" @click="alternarMostrarLabels()" :class="mostrarLabels ? 'bg-blue-100 text-primary' : 'bg-gray-100 text-gray-600'" class="px-2 py-1 rounded text-xs font-semibold">🏷️ Labels</button>
                 <button x-show="modoAvancado" @click="popoverColunasAberto = !popoverColunasAberto" class="bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded text-xs font-semibold">👁️ Colunas</button>
                 <button x-show="modoAvancado" @click="alternarNomesTecnicos()" :class="mostrarNomesTecnicos ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-600'" class="px-2 py-1 rounded text-xs font-semibold" title="Mostrar nome técnico da coluna no banco">🔧 Nomes técnicos</button>
+                <!-- Toggle Cards / Tabela -->
+                <button @click="alternarModoVisualizacao()" :class="[modoVisualizacao === 'cards' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-600', modoAvancado ? 'text-xs' : 'text-sm']" class="px-2 py-1 rounded font-semibold" :title="modoVisualizacao === 'cards' ? 'Alternar para visualização em tabela' : 'Alternar para visualização em cards'">
+                  <span x-text="modoVisualizacao === 'cards' ? '🃏 Cards' : '📋 Tabela'"></span>
+                </button>
                 <a :href="urlExportar('csv')" class="bg-green-600 hover:bg-green-700 text-white rounded font-semibold" :class="modoAvancado ? 'px-2 py-1 text-xs' : 'px-4 py-2 text-sm'">📥 CSV</a>
                 <a :href="urlExportar('excel')" class="bg-blue-600 hover:bg-blue-700 text-white rounded font-semibold" :class="modoAvancado ? 'px-2 py-1 text-xs' : 'px-4 py-2 text-sm'">📊 Excel</a>
               </div>
@@ -431,7 +483,8 @@
 
           <template x-if="!carregandoDados && linhas.length > 0">
             <div class="flex-1 overflow-auto min-h-0">
-              <table x-show="modoAvancado" class="min-w-max text-sm border-collapse w-full">
+              <!-- Visualização em tabela tradicional (toggle: Tabela) -->
+              <table x-show="modoVisualizacao === 'tabela'" class="min-w-max text-sm border-collapse w-full">
                 <thead class="bg-gray-100 sticky top-0 z-20 shadow-sm">
                   <tr>
                     <template x-for="col in colunasExibidas" :key="col.nome">
@@ -442,8 +495,8 @@
                             <span x-show="ordenarColuna === col.nome && direcaoOrdem === 'asc'">▲</span>
                             <span x-show="ordenarColuna === col.nome && direcaoOrdem === 'desc'">▼</span>
                           </button>
-                          <button @click="abrirFiltro(col.nome)" class="text-gray-400 hover:text-primary text-lg leading-none" :class="filtrosAtivos[col.nome] ? 'text-primary' : ''">⊙</button>
-                          <button @click="abrirStatsColuna(col.nome)" class="text-gray-400 hover:text-primary text-lg leading-none">≡</button>
+                          <button x-show="modoAvancado" @click="abrirFiltro(col.nome)" class="text-gray-400 hover:text-primary text-lg leading-none" :class="filtrosAtivos[col.nome] ? 'text-primary' : ''">⊙</button>
+                          <button x-show="modoAvancado" @click="abrirStatsColuna(col.nome)" class="text-gray-400 hover:text-primary text-lg leading-none">≡</button>
                         </div>
                         <!-- Dropdown de filtro -->
                         <template x-if="filtroAberto === col.nome">
@@ -514,28 +567,55 @@
                 </tbody>
               </table>
 
-              <div x-show="!modoAvancado" class="p-4 space-y-4">
+              <!-- Visualização em cards expansíveis (toggle: Cards, padrão) -->
+              <div x-show="modoVisualizacao === 'cards'" class="p-3 space-y-2">
                 <template x-for="(linha, indice) in linhas" :key="indice">
-                  <article class="simple-card">
-                    <div class="flex flex-wrap items-center justify-between gap-3">
-                      <p class="text-base font-semibold text-gray-700">Registro <span x-text="((pagina - 1) * porPagina) + indice + 1"></span></p>
-                      <button @click="abrirDetalheIndice(indice)" class="bg-primary text-white rounded-xl px-4 py-2 text-sm font-semibold hover:bg-blue-700">👁️ Ver detalhes</button>
+                  <article
+                    class="border rounded-xl bg-white shadow-sm transition-all"
+                    :class="cardEstaExpandido(indice) ? 'border-blue-300 shadow-md' : 'hover:border-blue-200'"
+                  >
+                    <!-- Cabeçalho do card (sempre visível) — clique para expandir/recolher -->
+                    <div
+                      class="flex items-center justify-between gap-3 px-4 py-3 cursor-pointer select-none"
+                      @click="alternarCardExpandido(indice)"
+                      :class="modoAvancado ? 'py-2' : 'py-3'"
+                    >
+                      <div class="flex flex-wrap gap-x-6 gap-y-1 flex-1 min-w-0">
+                        <span class="text-xs font-semibold text-gray-400 shrink-0" x-text="'#' + (((pagina - 1) * porPagina) + indice + 1)"></span>
+                        <template x-for="campo in camposCardResumido(linha, colunasExibidas)" :key="campo.nome">
+                          <span class="flex items-center gap-1 min-w-0">
+                            <span class="text-xs text-gray-500 shrink-0" :class="modoAvancado ? '' : 'font-medium'" x-text="exibirNomeCampo(campo.nome) + ':'"></span>
+                            <span
+                              class="text-sm font-semibold truncate max-w-xs"
+                              :title="exibirValor(tabelaSelecionada, campo.nome, campo.valor)"
+                              x-text="exibirComLabel(tabelaSelecionada, campo.nome, campo.valor)"
+                            ></span>
+                          </span>
+                        </template>
+                      </div>
+                      <span class="text-gray-400 text-sm shrink-0" x-text="cardEstaExpandido(indice) ? '▲' : '▼'"></span>
                     </div>
 
-                    <dl class="simple-fields-grid">
-                      <template x-for="campo in camposRegistroSimples(linha, colunasExibidas.map(col => col.nome))" :key="campo.nome">
-                        <div class="simple-field">
-                          <dt class="simple-field-label" x-text="traduzirColuna(campo.nome)"></dt>
-                          <dd
-                            class="simple-field-value"
-                            :class="ehFkValidoNaTabela(tabelaSelecionada, campo.nome, campo.valor) ? 'simple-field-link' : ''"
-                            :title="exibirValor(tabelaSelecionada, campo.nome, campo.valor)"
-                            @click="if(ehFkValidoNaTabela(tabelaSelecionada, campo.nome, campo.valor)) abrirFk($event, tabelaSelecionada, campo.nome, campo.valor)"
-                            x-text="exibirComLabel(tabelaSelecionada, campo.nome, campo.valor)"
-                          ></dd>
-                        </div>
-                      </template>
-                    </dl>
+                    <!-- Corpo expandido: todos os campos não-nulos em grid horizontal -->
+                    <div
+                      x-show="cardEstaExpandido(indice)"
+                      class="border-t border-blue-100 px-4 py-3"
+                    >
+                      <dl class="grid gap-x-6 gap-y-2" :class="modoAvancado ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 text-sm' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3'">
+                        <template x-for="campo in camposCardExpandido(linha, colunasExibidas)" :key="campo.nome">
+                          <div class="min-w-0">
+                            <dt class="text-xs font-bold text-gray-500 uppercase tracking-wide truncate" x-text="exibirNomeCampo(campo.nome)"></dt>
+                            <dd
+                              class="mt-0.5 break-words"
+                              :class="[ehFkValidoNaTabela(tabelaSelecionada, campo.nome, campo.valor) ? 'text-primary cursor-pointer hover:underline' : 'text-gray-900', modoAvancado ? 'text-xs' : 'text-sm']"
+                              :title="exibirValor(tabelaSelecionada, campo.nome, campo.valor)"
+                              @click="if(ehFkValidoNaTabela(tabelaSelecionada, campo.nome, campo.valor)) abrirFk($event, tabelaSelecionada, campo.nome, campo.valor)"
+                              x-text="exibirComLabel(tabelaSelecionada, campo.nome, campo.valor)"
+                            ></dd>
+                          </div>
+                        </template>
+                      </dl>
+                    </div>
                   </article>
                 </template>
               </div>
