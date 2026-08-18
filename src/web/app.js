@@ -26,6 +26,16 @@ const SUBSTANTIVOS_MASCULINOS_EM_A = new Set([
   'tema',
 ]);
 
+const CANDIDATAS_LABEL_RESUMO = [
+  'name', 'nome', 'descricao', 'description', 'title',
+  'titulo', 'label', 'display_name', 'displayname',
+  'razao_social', 'fantasia', 'numero', 'number',
+  'lawsuitnumber', 'summary', 'publication', 'content',
+  'texto', 'search_term', 'term', 'termo',
+];
+
+const REGEX_COLUNA_TECNICA_RESUMO = /(^id$|_id$|^fk_|^id_|created_at$|updated_at$|deleted_at$|inserted_at$|created_by$|updated_by$|userid$|user_id$|log_|config|setting|token|hash|password|checksum|uuid|guid|version|sort_order$|ordem$)/i;
+
 function normalizarPalavra(texto) {
   return texto
     .toLowerCase()
@@ -295,7 +305,7 @@ function app() {
       const campos = (ordem || Object.keys(registro))
         .filter(nome => Object.prototype.hasOwnProperty.call(registro, nome))
         .map(nome => ({ nome, valor: registro[nome] }))
-        .filter(campo => campo.valor !== null && campo.valor !== undefined && campo.valor !== '');
+        .filter(campo => this.valorTemConteudo(campo.valor));
 
       if (campos.length > 0) return campos;
 
@@ -323,38 +333,49 @@ function app() {
 
       for (const grupo of this.resultadosBusca) {
         for (const registro of grupo.registros || []) {
+          let nomeGrupo = null;
+          let item = null;
+
           if (grupo.tabela === 'lawsuits') {
-            grupos['Processos'].push({
+            nomeGrupo = 'Processos';
+            item = {
               'Cliente': primeiraLinha(registro, ['client_id', 'client_name', 'cliente']),
               'Processo': primeiraLinha(registro, ['numero', 'lawsuitnumber', 'cnj', 'number']),
               'Parte': primeiraLinha(registro, ['person_id', 'person_name', 'parte']),
               'Situação': primeiraLinha(registro, ['status', 'situation', 'phase']),
               'Valor': primeiraLinha(registro, ['amount', 'value', 'valor_causa', 'instance01_amount']),
-            });
+            };
           } else if (['publicationxml', 'publicationxml_extra'].includes(grupo.tabela)) {
-            grupos['Publicações'].push({
+            nomeGrupo = 'Publicações';
+            item = {
               'Cliente': primeiraLinha(registro, ['client_id', 'client_name', 'cliente']),
               'Processo': primeiraLinha(registro, ['lawsuit_id', 'numero', 'lawsuitnumber', 'processo']),
               'Data': primeiraLinha(registro, ['publication_date', 'date', 'created_at']),
               'Situação': primeiraLinha(registro, ['status', 'pub_classification', 'classification']),
               'Resumo': primeiraLinha(registro, ['summary', 'publication', 'content', 'texto']),
-            });
+            };
           } else if (grupo.tabela === 'hearingcontrol') {
-            grupos['Audiências'].push({
+            nomeGrupo = 'Audiências';
+            item = {
               'Cliente': primeiraLinha(registro, ['client_id', 'client_name', 'cliente']),
               'Processo': primeiraLinha(registro, ['lawsuit_id', 'numero', 'lawsuitnumber']),
               'Data': primeiraLinha(registro, ['hearing_date', 'date', 'scheduled_at']),
               'Tipo de Audiência': primeiraLinha(registro, ['hearing_type_id', 'type', 'hearing_type']),
               'Situação': primeiraLinha(registro, ['status', 'situation']),
-            });
+            };
           } else if (grupo.tabela === 'pedidos2lawsuit') {
-            grupos['Pedidos e Andamentos'].push({
+            nomeGrupo = 'Pedidos e Andamentos';
+            item = {
               'Cliente': primeiraLinha(registro, ['client_id', 'client_name', 'cliente']),
               'Processo': primeiraLinha(registro, ['lawsuit_id', 'numero', 'lawsuitnumber']),
               'Pedido': primeiraLinha(registro, ['claim_text', 'request_text', 'pedido', 'description']),
               'Andamento': primeiraLinha(registro, ['progress_text', 'status', 'instance02', 'instance01']),
               'Valor': primeiraLinha(registro, ['instance01_amount', 'amount', 'value']),
-            });
+            };
+          }
+
+          if (nomeGrupo && item) {
+            grupos[nomeGrupo].push(this.garantirResumoSimplesVisivel(item, registro));
           }
         }
       }
@@ -370,6 +391,99 @@ function app() {
     obterNomeColunaTraduzido(indice) {
       if (!this.colunasOriginais || !this.colunasOriginais[indice]) return '?';
       return this.traduzirColuna(this.colunasOriginais[indice].nome);
+    },
+
+    valorTemConteudo(valor) {
+      return valor !== null && valor !== undefined && String(valor).trim() !== '';
+    },
+
+    ehColunaTecnicaResumo(nomeColuna) {
+      return REGEX_COLUNA_TECNICA_RESUMO.test(nomeColuna || '');
+    },
+
+    ordemColunasResumo(colunas, registro) {
+      const nomes = (colunas || Object.keys(registro || {}))
+        .map(col => col?.nome || col)
+        .filter(Boolean);
+      return nomes.filter(nome => Object.prototype.hasOwnProperty.call(registro || {}, nome));
+    },
+
+    colunaLabelResumo(registro, colunas) {
+      const nomesDisponiveis = new Set(this.ordemColunasResumo(colunas, registro).map(nome => nome.toLowerCase()));
+      for (const candidata of CANDIDATAS_LABEL_RESUMO) {
+        if (!nomesDisponiveis.has(candidata)) continue;
+        const nomeReal = this.ordemColunasResumo(colunas, registro).find(nome => nome.toLowerCase() === candidata);
+        if (nomeReal && this.valorTemConteudo(registro?.[nomeReal])) return nomeReal;
+      }
+      return null;
+    },
+
+    colunaIdFallbackResumo(registro, colunas) {
+      for (const col of colunas || []) {
+        if (col?.chave === 'PRI' && this.valorTemConteudo(registro?.[col.nome])) {
+          return col.nome;
+        }
+      }
+
+      for (const nome of ['id', 'codigo', 'code']) {
+        if (this.valorTemConteudo(registro?.[nome])) return nome;
+      }
+
+      return this.ordemColunasResumo(colunas, registro).find(
+        nome => nome.toLowerCase().endsWith('id') && this.valorTemConteudo(registro?.[nome])
+      ) || null;
+    },
+
+    camposResumoGenerico(registro, colunas, limite = 3) {
+      if (!registro) return [];
+
+      const ordem = this.ordemColunasResumo(colunas, registro);
+      const campos = [];
+      const usados = new Set();
+      const nomeLabel = this.colunaLabelResumo(registro, colunas);
+
+      if (nomeLabel) {
+        campos.push({ nome: nomeLabel, valor: registro[nomeLabel] });
+        usados.add(nomeLabel);
+      }
+
+      for (const nome of ordem) {
+        if (campos.length >= limite) break;
+        if (usados.has(nome) || !this.valorTemConteudo(registro[nome])) continue;
+        if (typeof registro[nome] !== 'string') continue;
+        campos.push({ nome, valor: registro[nome] });
+        usados.add(nome);
+      }
+
+      for (const nome of ordem) {
+        if (campos.length >= limite) break;
+        if (usados.has(nome) || !this.valorTemConteudo(registro[nome])) continue;
+        if (this.ehColunaTecnicaResumo(nome)) continue;
+        campos.push({ nome, valor: registro[nome] });
+        usados.add(nome);
+      }
+
+      if (campos.length > 0) return campos;
+
+      const nomeId = this.colunaIdFallbackResumo(registro, colunas);
+      if (nomeId) {
+        return [{ nome: nomeId, rotulo: 'Registro', valor: `#${String(registro[nomeId]).trim()}` }];
+      }
+
+      return [{ nome: 'registro', rotulo: 'Registro', valor: 'Sem identificação visível' }];
+    },
+
+    garantirResumoSimplesVisivel(item, registro) {
+      const preenchidos = Object.fromEntries(
+        Object.entries(item || {}).filter(([, valor]) => this.valorTemConteudo(valor))
+      );
+      if (Object.keys(preenchidos).length > 0) return preenchidos;
+
+      const fallback = {};
+      for (const campo of this.camposResumoGenerico(registro, this.ordemColunasResumo(null, registro), 3)) {
+        fallback[campo.rotulo || this.exibirNomeCampo(campo.nome)] = campo.valor;
+      }
+      return fallback;
     },
 
     /**
@@ -492,13 +606,8 @@ function app() {
     },
 
     camposCardResumido(linha, colunas) {
-      // Retorna até 3 campos não-nulos mais representativos para o resumo do card.
-      const tudo = (colunas || []).map(c => c.nome || c);
-      const naoNulos = tudo.filter(n => {
-        const v = linha[n];
-        return v !== null && v !== undefined && v !== '';
-      });
-      return naoNulos.slice(0, 3).map(nome => ({ nome, valor: linha[nome] }));
+      // Retorna até 3 campos visíveis com fallback em cascata.
+      return this.camposResumoGenerico(linha, colunas, 3);
     },
 
     camposCardExpandido(linha, colunas) {
@@ -510,12 +619,11 @@ function app() {
       const campos = tudo
         .filter(n => Object.prototype.hasOwnProperty.call(linha, n))
         .map(nome => ({ nome, valor: linha[nome] }))
-        .filter(campo => campo.valor !== null && campo.valor !== undefined && campo.valor !== '');
+        .filter(campo => this.valorTemConteudo(campo.valor));
 
       if (campos.length > 0) return campos;
 
-      // Fallback: mesmo que tudo seja nulo, mostra pelo menos 1 campo
-      return tudo.slice(0, 1).map(nome => ({ nome, valor: linha[nome] }));
+      return this.camposResumoGenerico(linha, colunas, 1);
     },
 
     salvarFavoritos() {

@@ -274,7 +274,25 @@ python investigar_colunas.py --colunas prazos_log.pzphase prazos_log.prazoobs
 O script é somente leitura e gera `relatorio_investigacao_colunas.yaml` com:
 - estado de cada coluna (`traduzida_manual` / `traduzida_heuristica` / `nao_traduzida`)
 - pistas coletadas do schema: `COLUMN_COMMENT` do MySQL (alta confiança), tipo de dado, colunas irmãs já traduzidas e referências FK
+- nova classificação `provavel_booleano` quando a coluna tiver tipo compatível e a amostra observada estiver restrita a `0`/`1`/`NULL`
 - sugestão candidata com nível de confiança claramente indicado
+- seção `colunas_booleanas_provaveis` agrupada por tabela para futura revisão/promoção a metadado confirmado
+
+**Investigar booleanos primeiro nas tabelas mais usadas:**
+```bash
+python investigar_colunas.py --tabela lawsuits
+python investigar_colunas.py --tabela persons
+python investigar_colunas.py --tabela hearingcontrol
+python investigar_colunas.py --tabela prazos_log
+python investigar_colunas.py --tabela employees
+python investigar_colunas.py --tabela users
+```
+
+> ⚠️ **Neste ambiente de desenvolvimento/teste os exemplos usam SQLite em memória.**
+> A classificação final de booleanos precisa ser confirmada por você no **MySQL real**
+> rodando o comando acima a partir da **raiz do projeto** (`python investigar_colunas.py ...`).
+> Evite executar `src/investigacao_colunas.py` diretamente, porque o entrypoint
+> suportado/documentado é o script da raiz.
 
 **Aplicar sugestões aprovadas em `src/traducoes_colunas.py`:**
 ```bash
@@ -310,9 +328,11 @@ Por padrão, os registros são exibidos como **cards verticais** que podem ser e
 
 **Como funciona:**
 - Cada card mostra um resumo com 2–3 campos identificadores do registro.
+- O resumo usa fallback em cascata: **label principal da tabela → próximo campo textual preenchido da própria linha → `Registro #ID`**.
 - Clique no card para **expandir inline** e revelar todos os campos não-nulos em um grid horizontal dentro do próprio fluxo da lista.
 - Múltiplos cards podem estar expandidos ao mesmo tempo — o estado não é um acordeon exclusivo.
 - Campos com valor nulo/vazio são automaticamente ocultados na visualização expandida, mantendo a tela limpa.
+- Isso evita cards “em branco” em tabelas de associação ou em linhas cujo campo de destaque veio nulo.
 
 **Alternando entre Cards e Tabela:**
 Use o botão **🃏 Cards / 📋 Tabela** que aparece no cabeçalho da tabela selecionada ou nos resultados de busca. A preferência é salva automaticamente no navegador.
@@ -327,6 +347,10 @@ Use o botão **🃏 Cards / 📋 Tabela** que aparece no cabeçalho da tabela se
 Por padrão, o visualizador **remove automaticamente colunas que só têm valores NULL ou vazios** no contexto exibido (página atual ou resultado de busca). Isso torna a interface muito mais limpa, especialmente em buscas ou tabelas com muitos campos opcionais.
 
 **Escopo da ocultação:** os campos são avaliados por registro individualmente — se um campo específico de um registro é nulo, ele não aparece na visualização expandida daquele card. Isso garante que a ocultação funciona de forma útil na prática, sem exigir varredura de toda a tabela.
+
+**Fallback de segurança:** se todos os campos textuais relevantes estiverem vazios,
+o sistema passa a mostrar um identificador genérico (`Registro #123`) em vez de
+renderizar um card totalmente vazio.
 
 **Exemplo:** Se você busca por "Sila do Brasil", o sistema vai:
 - ✅ Mostrar todos os campos com dados relevantes para cada registro encontrado

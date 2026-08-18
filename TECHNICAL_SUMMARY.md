@@ -1,5 +1,34 @@
 # 🔧 Resumo Técnico - Exportação de Resultados de Busca
 
+## 🔧 Atualização 2026-08-18 — Fallback de cards e investigação de booleanos
+
+### Cards nunca mais vazios
+
+- `src/web/app.js` ganhou uma cascata explícita para resumos de cards:
+  1. coluna principal de label (`name`, `nome`, `summary`, `search_term`, etc.);
+  2. próximo campo textual preenchido na ordem do registro;
+  3. fallback final `Registro #ID`.
+- A lógica foi aplicada tanto à tabela principal quanto aos resultados de busca em
+  cards, incluindo o modo simples (`simplificarResultadosBusca()`).
+- `src/web/index.html` passou a aceitar `campo.rotulo` para exibir o rótulo
+  genérico `"Registro"` quando o fallback final usa o identificador da linha.
+- `src/db.py` agora expõe `resumir_registro_para_card()` como espelho backend da
+  mesma estratégia, facilitando testes e futuras reutilizações.
+
+### Investigação de colunas prováveis booleanas
+
+- `src/investigacao_colunas.py` agora detecta colunas com:
+  - tipo compatível (`TINYINT(1)`, `BOOLEAN`, `BOOL`, `INT`/`TINYINT`/`INTEGER` similares);
+  - valores distintos observados restritos a `0`, `1` e `NULL`.
+- Quando isso ocorre, o item recebe o novo nível `provavel_booleano`, sem gerar
+  tradução textual automática `"Sim"`/`"Não"`.
+- O relatório `relatorio_investigacao_colunas.yaml` ganhou:
+  - `resumo.provavel_booleano`;
+  - seção `colunas_booleanas_provaveis`, agrupada por tabela.
+- O CLI `investigar_colunas.py` agora mostra essa contagem no resumo final.
+- Tabelas prioritárias documentadas para validação no MySQL real:
+  `lawsuits`, `persons`, `hearingcontrol`, `prazos_log`, `employees`, `users`.
+
 ## 🔧 Atualização 2026-08-13 — Correlação com `prazoobs` e switch de nomes técnicos
 
 ### Correlação com coluna de observação textual (`prazoobs`)
@@ -471,8 +500,8 @@ Para dúvidas sobre a implementação:
 - `alternarModoVisualizacao()` — alterna entre `cards` e `tabela`, limpa cards expandidos.
 - `alternarCardExpandido(indice)` — expande/recolhe um card pelo índice (ou chave composta na busca).
 - `cardEstaExpandido(indice)` — retorna `true` se o card está expandido.
-- `camposCardResumido(linha, colunas)` — retorna até 3 campos não-nulos para o resumo.
-- `camposCardExpandido(linha, colunas)` — retorna todos os campos não-nulos (ocultação automática de nulos).
+- `camposCardResumido(linha, colunas)` — retorna até 3 campos com fallback em cascata (label → texto preenchido → `Registro #ID`).
+- `camposCardExpandido(linha, colunas)` — retorna todos os campos não-nulos; se tudo vier vazio, reutiliza o fallback identificador.
 
 ### Parte B — Modo Avançado desligado por padrão
 
