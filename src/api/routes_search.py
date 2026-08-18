@@ -14,7 +14,7 @@ from sqlalchemy import text
 from sqlalchemy.engine import Engine
 
 from src.config import CONFIG
-from src.db import colunas_texto, listar_tabelas
+from src.db import colunas_texto, listar_colunas, listar_tabelas
 
 router = APIRouter(tags=["Busca"])
 logger = logging.getLogger("saidjur.busca")
@@ -40,6 +40,12 @@ def _buscar_em_tabela(
         logger.warning("Erro ao refletir tabela '%s': %s", nome_tabela, exc)
         return resultados
 
+    try:
+        colunas_detalhadas = listar_colunas(engine, nome_tabela)
+    except Exception as exc:
+        logger.warning("Erro ao listar colunas de '%s': %s", nome_tabela, exc)
+        colunas_detalhadas = [{"nome": nome} for nome in colunas]
+
     for coluna in colunas:
         try:
             col = tbl.c[coluna]
@@ -61,7 +67,12 @@ def _buscar_em_tabela(
                 linhas = [dict(zip(chaves, row)) for row in resultado]
                 if linhas:
                     resultados.append(
-                        {"tabela": nome_tabela, "coluna": coluna, "registros": linhas}
+                        {
+                            "tabela": nome_tabela,
+                            "coluna": coluna,
+                            "colunas": colunas_detalhadas,
+                            "registros": linhas,
+                        }
                     )
         except Exception as exc:
             logger.warning("Erro ao buscar em %s.%s: %s", nome_tabela, coluna, exc)

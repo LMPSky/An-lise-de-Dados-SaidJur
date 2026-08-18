@@ -1,5 +1,44 @@
 # 🔧 Resumo Técnico - Exportação de Resultados de Busca
 
+## 🔧 Atualização 2026-08-18 — Busca global com resumo útil e expansão inline
+
+### Busca global agora carrega contexto suficiente para cards completos
+
+- `src/api/routes_search.py` passou a incluir `colunas` em cada grupo retornado por
+  `/api/busca` e `/api/busca/stream`, preservando o contrato anterior (`tabela`,
+  `coluna`, `registros`) e adicionando metadados de schema sem breaking change.
+- Os `registros` continuam sendo a linha completa da tabela; a novidade é que o
+  frontend agora também recebe a ordem/PK das colunas para reaproveitar o mesmo
+  fallback e a mesma expansão inline da tabela principal.
+
+### Resumo dos cards da busca global não promove mais o termo pesquisado
+
+- `src/web/app.js` ganhou `camposResumoBuscaGlobal()`, que ignora a coluna de
+  correspondência (`grupo.coluna`) e campos do tipo `search_term`/`term`/`termo`
+  quando existirem outros dados reais do registro.
+- O termo encontrado não some: ele passa a aparecer em `contextoCorrespondenciaBusca()`
+  como badge auxiliar **Correspondência**, sem ocupar o lugar do resumo principal.
+- `buscarGlobal()` também foi corrigido para resolver labels/FKs usando as linhas
+  reais dos grupos retornados pela busca (`flatMap(grupo.registros)`), e não os
+  próprios objetos de grupo.
+
+### Botão explícito de expansão também no modo simples
+
+- `src/web/index.html` foi ajustado para renderizar botão textual
+  **Expandir detalhes / Ocultar detalhes** nos cards da busca global em **modo
+  simples e avançado**.
+- A expansão inline reutiliza `camposCardExpandido()`, `exibirComLabel()`,
+  resolução de FK, dicionário de ENUM e ocultação de nulos já existentes.
+
+### Testes de regressão
+
+- `tests/test_routes.py` valida que `/api/busca` retorna linha completa e
+  metadados `colunas` necessários para expansão inline.
+- `tests/test_web_app.py` valida que:
+  - `search_term` não vira resumo principal do card;
+  - o modo simples continua exibindo dados reais do registro;
+  - o HTML contém o botão explícito de expansão da busca global.
+
 ## 🔧 Atualização 2026-08-18 — Fallback de cards e investigação de booleanos
 
 ### Cards nunca mais vazios
@@ -495,12 +534,17 @@ Para dúvidas sobre a implementação:
 - Os cards expandidos usam os mesmos pipelines de tradução (`exibirNomeCampo`), labels de FK (`exibirComLabel`) e dicionário de ENUM que já existiam — sem novo código de tradução.
 - O Console SQL **não é afetado** pelo toggle: sempre exibe em tabela.
 - O toggle `🃏 Cards / 📋 Tabela` aparece tanto na toolbar da tabela selecionada quanto no cabeçalho dos resultados de busca (avançado).
+- Na busca global, há agora botão textual explícito de expansão também no modo
+  simples, além do cabeçalho clicável no modo avançado.
 
 **Novos métodos em `app.js`:**
 - `alternarModoVisualizacao()` — alterna entre `cards` e `tabela`, limpa cards expandidos.
 - `alternarCardExpandido(indice)` — expande/recolhe um card pelo índice (ou chave composta na busca).
 - `cardEstaExpandido(indice)` — retorna `true` se o card está expandido.
 - `camposCardResumido(linha, colunas)` — retorna até 3 campos com fallback em cascata (label → texto preenchido → `Registro #ID`).
+- `camposCardBuscaGlobalResumido(grupo, linha)` — aplica o mesmo fallback da
+  tabela principal, mas sem promover a coluna/termo de correspondência como
+  resumo principal quando houver dado real do registro.
 - `camposCardExpandido(linha, colunas)` — retorna todos os campos não-nulos; se tudo vier vazio, reutiliza o fallback identificador.
 
 ### Parte B — Modo Avançado desligado por padrão

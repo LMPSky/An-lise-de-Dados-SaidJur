@@ -375,7 +375,18 @@ function app() {
           }
 
           if (nomeGrupo && item) {
-            grupos[nomeGrupo].push(this.garantirResumoSimplesVisivel(item, registro));
+            const colunas = this.colunasBuscaGrupo(grupo, registro);
+            grupos[nomeGrupo].push({
+              tabela: grupo.tabela,
+              colunaCorrespondencia: grupo.coluna,
+              registro,
+              colunas,
+              resumo: this.garantirResumoSimplesVisivel(item, registro, {
+                grupoBusca: grupo,
+                colunas,
+              }),
+              correspondencia: this.contextoCorrespondenciaBusca(grupo, registro),
+            });
           }
         }
       }
@@ -434,21 +445,80 @@ function app() {
       ) || null;
     },
 
-    camposResumoGenerico(registro, colunas, limite = 3) {
+    colunasBuscaGrupo(grupo, registro = null) {
+      if (grupo?.colunas?.length) return grupo.colunas;
+
+      const nomes = Object.keys(registro || grupo?.registros?.[0] || {});
+      return nomes.map(nome => ({ nome }));
+    },
+
+    colunaEhCorrespondenciaBusca(nomeColuna, valor, termoBusca = null) {
+      const nomeNormalizado = String(nomeColuna || '').trim().toLowerCase();
+      if (!termoBusca || !this.valorTemConteudo(valor)) return false;
+      const valorNormalizado = String(valor).trim().toLowerCase();
+      return valorNormalizado === String(termoBusca).trim().toLowerCase()
+        && /^(search_?term|termo|term)$/.test(nomeNormalizado);
+    },
+
+    camposResumoBuscaGlobal(grupo, registro, limite = 3) {
+      const colunas = this.colunasBuscaGrupo(grupo, registro);
+      const ignorarColunas = new Set();
+      if (grupo?.coluna) ignorarColunas.add(grupo.coluna);
+
+      for (const coluna of colunas) {
+        if (this.colunaEhCorrespondenciaBusca(coluna?.nome, registro?.[coluna?.nome], this.termoBuscaAtiva)) {
+          ignorarColunas.add(coluna.nome);
+        }
+      }
+
+      const semCorrespondencia = this.camposResumoGenerico(registro, colunas, limite, {
+        ignorarColunas,
+        permitirFallback: false,
+      });
+      if (semCorrespondencia.length > 0) return semCorrespondencia;
+
+      return this.camposResumoGenerico(registro, colunas, limite);
+    },
+
+    chaveCardBuscaSimples(assunto, indiceItem, item) {
+      return `busca_simples_${assunto}_${item?.tabela || 'tabela'}_${item?.colunaCorrespondencia || 'coluna'}_${indiceItem}`;
+    },
+
+    chaveCardBuscaAvancada(grupo, indice) {
+      return `busca_avancada_${grupo?.tabela || 'tabela'}_${grupo?.coluna || 'coluna'}_${indice}`;
+    },
+
+    contextoCorrespondenciaBusca(grupo, registro) {
+      if (!grupo?.coluna || !this.valorTemConteudo(registro?.[grupo.coluna])) return null;
+      return {
+        nome: grupo.coluna,
+        rotulo: 'Correspondência',
+        valor: registro[grupo.coluna],
+      };
+    },
+
+    camposResumoGenerico(registro, colunas, limite = 3, opcoes = {}) {
       if (!registro) return [];
 
+      const ignorarColunas = new Set(
+        [...(opcoes?.ignorarColunas || [])]
+          .filter(Boolean)
+          .map(nome => String(nome).toLowerCase())
+      );
+      const permitirFallback = opcoes?.permitirFallback !== false;
       const ordem = this.ordemColunasResumo(colunas, registro);
       const campos = [];
       const usados = new Set();
       const nomeLabel = this.colunaLabelResumo(registro, colunas);
 
-      if (nomeLabel) {
+      if (nomeLabel && !ignorarColunas.has(String(nomeLabel).toLowerCase())) {
         campos.push({ nome: nomeLabel, valor: registro[nomeLabel] });
         usados.add(nomeLabel);
       }
 
       for (const nome of ordem) {
         if (campos.length >= limite) break;
+        if (ignorarColunas.has(String(nome).toLowerCase())) continue;
         if (usados.has(nome) || !this.valorTemConteudo(registro[nome])) continue;
         if (typeof registro[nome] !== 'string') continue;
         campos.push({ nome, valor: registro[nome] });
@@ -457,6 +527,7 @@ function app() {
 
       for (const nome of ordem) {
         if (campos.length >= limite) break;
+        if (ignorarColunas.has(String(nome).toLowerCase())) continue;
         if (usados.has(nome) || !this.valorTemConteudo(registro[nome])) continue;
         if (this.ehColunaTecnicaResumo(nome)) continue;
         campos.push({ nome, valor: registro[nome] });
@@ -464,6 +535,7 @@ function app() {
       }
 
       if (campos.length > 0) return campos;
+      if (!permitirFallback) return [];
 
       const nomeId = this.colunaIdFallbackResumo(registro, colunas);
       if (nomeId) {
@@ -473,14 +545,19 @@ function app() {
       return [{ nome: 'registro', rotulo: 'Registro', valor: 'Sem identificação visível' }];
     },
 
-    garantirResumoSimplesVisivel(item, registro) {
+    garantirResumoSimplesVisivel(item, registro, opcoes = {}) {
       const preenchidos = Object.fromEntries(
         Object.entries(item || {}).filter(([, valor]) => this.valorTemConteudo(valor))
       );
       if (Object.keys(preenchidos).length > 0) return preenchidos;
 
       const fallback = {};
-      for (const campo of this.camposResumoGenerico(registro, this.ordemColunasResumo(null, registro), 3)) {
+      const grupoBusca = opcoes?.grupoBusca || null;
+      const colunas = opcoes?.colunas || this.ordemColunasResumo(null, registro);
+      const camposFallback = grupoBusca
+        ? this.camposResumoBuscaGlobal(grupoBusca, registro, 3)
+        : this.camposResumoGenerico(registro, colunas, 3);
+      for (const campo of camposFallback) {
         fallback[campo.rotulo || this.exibirNomeCampo(campo.nome)] = campo.valor;
       }
       return fallback;
@@ -610,6 +687,10 @@ function app() {
       return this.camposResumoGenerico(linha, colunas, 3);
     },
 
+    camposCardBuscaGlobalResumido(grupo, linha) {
+      return this.camposResumoBuscaGlobal(grupo, linha, 3);
+    },
+
     camposCardExpandido(linha, colunas) {
       // Retorna todos os campos não-nulos para o card expandido.
       // Colunas com todos os valores nulos/vazios são ocultadas automaticamente
@@ -624,6 +705,10 @@ function app() {
       if (campos.length > 0) return campos;
 
       return this.camposResumoGenerico(linha, colunas, 1);
+    },
+
+    camposCardBuscaGlobalExpandido(grupo, linha) {
+      return this.camposCardExpandido(linha, this.colunasBuscaGrupo(grupo, linha));
     },
 
     salvarFavoritos() {
@@ -1131,8 +1216,10 @@ function app() {
         if (this.resultadosBusca.length > 0) {
           const tabelas_unicas = [...new Set(this.resultadosBusca.map(r => r.tabela))];
           for (const nomeTabela of tabelas_unicas) {
-            const linhas_tabela = this.resultadosBusca.filter(r => r.tabela === nomeTabela);
-            await this.carregarLabelsParaLinhas(nomeTabela, linhas_tabela);
+            const gruposTabela = this.resultadosBusca.filter(r => r.tabela === nomeTabela);
+            const linhasTabela = gruposTabela.flatMap(grupo => grupo.registros || []);
+            await this.garantirMetadadosTabela(nomeTabela);
+            await this.carregarLabelsParaLinhas(nomeTabela, linhasTabela);
           }
           this.simplificarResultadosBusca();
         }
