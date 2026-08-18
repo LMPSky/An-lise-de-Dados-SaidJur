@@ -55,13 +55,15 @@ def main() -> None:
     )
 
     resumo = relatorio["resumo"]
+    resumo_nomes = resumo.get("classificacao_nomes", {})
     print("\n✅ Investigação concluída")
     print(f"🏷️  Colunas investigadas: {resumo['total_investigadas']}")
-    print(f"🟢 Provável booleano: {resumo['provavel_booleano']}")
-    print(f"🎯 Alta confiança: {resumo['alta_confianca']}")
-    print(f"🟡 Pista parcial: {resumo['pista_parcial']}")
-    print(f"❓ Sem pista: {resumo['sem_pista']}")
-    print(f"✅ Já traduzidas manualmente: {resumo['traduzidas_manual']}")
+    print(f"🟢 Provável booleano (independente do nome): {resumo['provavel_booleano']}")
+    print("🏷️  Classificação do nome da coluna:")
+    print(f"   ✅ Já traduzidas manualmente: {resumo_nomes.get('traduzidas_manual', resumo['traduzidas_manual'])}")
+    print(f"   🎯 Alta confiança: {resumo_nomes.get('alta_confianca', resumo['alta_confianca'])}")
+    print(f"   🟡 Pista parcial: {resumo_nomes.get('pista_parcial', resumo['pista_parcial'])}")
+    print(f"   ❓ Sem pista: {resumo_nomes.get('sem_pista', resumo['sem_pista'])}")
     print(f"📝 Relatório: {args.saida}")
 
 

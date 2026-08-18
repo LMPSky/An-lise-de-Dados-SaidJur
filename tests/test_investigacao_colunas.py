@@ -166,15 +166,37 @@ def test_investigar_coluna_individual(monkeypatch) -> None:
 def test_investigar_coluna_marca_provavel_booleano() -> None:
     engine = create_engine("sqlite:///:memory:")
     with engine.connect() as conn:
-        conn.execute(text("CREATE TABLE usuarios (id INTEGER PRIMARY KEY, ativo INTEGER)"))
-        conn.execute(text("INSERT INTO usuarios (ativo) VALUES (0), (1), (NULL)"))
+        conn.execute(text("CREATE TABLE usuarios (id INTEGER PRIMARY KEY, flag_binaria INTEGER)"))
+        conn.execute(text("INSERT INTO usuarios (flag_binaria) VALUES (0), (1), (NULL)"))
         conn.commit()
 
-    resultado = investigar_coluna(engine, "usuarios", "ativo")
+    resultado = investigar_coluna(engine, "usuarios", "flag_binaria")
 
-    assert resultado["nivel_confianca"] == "provavel_booleano"
+    assert resultado["nivel_confianca"] == "pista_parcial"
+    assert resultado["nivel_confianca_nome"] == "pista_parcial"
+    assert resultado["classificacao_valores"] == "provavel_booleano"
     assert resultado["provavel_booleano"] is True
     assert resultado["sugestao_candidata"] is None
+
+
+def test_investigar_coluna_traduzida_manual_tambem_marca_provavel_booleano(monkeypatch) -> None:
+    from src import investigacao_colunas as modulo
+
+    monkeypatch.setitem(modulo.TRADUCOES_COLUNAS, "ativo", "Ativo")
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE prazos_log (ativo INTEGER)"))
+        conn.execute(text("INSERT INTO prazos_log (ativo) VALUES (0), (1), (NULL), (1)"))
+        conn.commit()
+
+    resultado = investigar_coluna(engine, "prazos_log", "ativo")
+
+    assert resultado["estado"] == "traduzida_manual"
+    assert resultado["nivel_confianca"] == "traduzida_manual"
+    assert resultado["nivel_confianca_nome"] == "traduzida_manual"
+    assert resultado["classificacao_valores"] == "provavel_booleano"
+    assert resultado["provavel_booleano"] is True
+    assert resultado["sugestao_candidata"] == "Ativo"
 
 
 def test_aplicar_sugestoes_nao_sobrescreve_manual(monkeypatch, tmp_path: Path) -> None:
@@ -236,6 +258,28 @@ def test_executar_investigacao_colunas_agrupar_booleanos_no_relatorio(tmp_path: 
     relatorio = executar_investigacao_colunas(engine=engine, tabela="users", caminho_saida=str(saida))
 
     assert relatorio["resumo"]["provavel_booleano"] == 1
+    assert relatorio["resumo"]["classificacao_nomes"]["traduzidas_manual"] == 2
+    assert relatorio["resumo"]["classificacao_nomes"]["pista_parcial"] == 1
     assert relatorio["colunas_booleanas_provaveis"]["users"] == [
         {"coluna": "ativo", "tipo": "INTEGER", "valores_observados": ["0", "1"]}
     ]
+
+
+def test_executar_investigacao_colunas_separa_resumo_nome_e_booleano(monkeypatch, tmp_path: Path) -> None:
+    from src import investigacao_colunas as modulo
+
+    monkeypatch.setitem(modulo.TRADUCOES_COLUNAS, "ativo", "Ativo")
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE prazos_log (ativo INTEGER, observacao TEXT)"))
+        conn.execute(text("INSERT INTO prazos_log (ativo, observacao) VALUES (0, 'a'), (1, 'b'), (NULL, 'c')"))
+        conn.commit()
+
+    saida = tmp_path / "relatorio_prazos.yaml"
+    relatorio = executar_investigacao_colunas(engine=engine, tabela="prazos_log", caminho_saida=str(saida))
+
+    investigacao_ativo = next(item for item in relatorio["investigacoes"] if item["coluna"] == "ativo")
+    assert investigacao_ativo["nivel_confianca_nome"] == "traduzida_manual"
+    assert investigacao_ativo["provavel_booleano"] is True
+    assert relatorio["resumo"]["provavel_booleano"] == 1
+    assert relatorio["resumo"]["classificacao_nomes"]["traduzidas_manual"] == 1

@@ -59,10 +59,16 @@
 - `src/investigacao_colunas.py` agora detecta colunas com:
   - tipo compatível (`TINYINT(1)`, `BOOLEAN`, `BOOL`, `INT`/`TINYINT`/`INTEGER` similares);
   - valores distintos observados restritos a `0`, `1` e `NULL`.
-- Quando isso ocorre, o item recebe o novo nível `provavel_booleano`, sem gerar
-  tradução textual automática `"Sim"`/`"Não"`.
+- A classificação booleana passou a ser **independente** da tradução do nome:
+  - `nivel_confianca` / `nivel_confianca_nome` continuam descrevendo apenas a
+    confiança da tradução do nome da coluna;
+  - `provavel_booleano` e `classificacao_valores` descrevem apenas o domínio de
+    valores observado.
+- Com isso, uma coluna pode ser ao mesmo tempo `traduzida_manual` e
+  `provavel_booleano`, sem gerar tradução textual automática `"Sim"`/`"Não"`.
 - O relatório `relatorio_investigacao_colunas.yaml` ganhou:
   - `resumo.provavel_booleano`;
+  - `resumo.classificacao_nomes`, separando o resumo da investigação do nome;
   - seção `colunas_booleanas_provaveis`, agrupada por tabela.
 - O CLI `investigar_colunas.py` agora mostra essa contagem no resumo final.
 - Tabelas prioritárias documentadas para validação no MySQL real:
