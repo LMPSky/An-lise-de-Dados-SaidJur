@@ -192,7 +192,7 @@ def _pista_provavel_booleano(
     coluna: str,
     tipo: str,
 ) -> dict[str, Any] | None:
-    """Detecta colunas cujo domínio observado é restrito a 0/1/NULL."""
+    """Detecta colunas cujo domínio observado é restrito a 0/1, ignorando NULL."""
     if not _tipo_compativel_booleano(tipo):
         return None
 
@@ -211,7 +211,7 @@ def _pista_provavel_booleano(
     return {
         "fonte": "provavel_booleano",
         "valor": (
-            "Valores distintos observados restritos a 0/1/NULL; "
+            "Valores distintos não nulos observados restritos a 0/1; "
             f"tipo compatível: {tipo}."
         ),
         "confianca": "media",

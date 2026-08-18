@@ -617,9 +617,9 @@ function app() {
       // atualmente carregados (página atual).
       const tudo = (colunas || []).map(c => c.nome || c);
       const campos = tudo
-       .filter(n => Object.prototype.hasOwnProperty.call(linha, n))
-       .map(nome => ({ nome, valor: linha[nome] }))
-       .filter(campo => this.valorTemConteudo(campo.valor));
+        .filter(n => Object.prototype.hasOwnProperty.call(linha, n))
+        .map(nome => ({ nome, valor: linha[nome] }))
+        .filter(campo => this.valorTemConteudo(campo.valor));
 
       if (campos.length > 0) return campos;
 
