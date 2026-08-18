@@ -14,6 +14,7 @@ from src.investigacao_colunas import (
     executar_investigacao_colunas,
     investigar_coluna,
     listar_colunas_schema,
+    _pista_provavel_booleano,
 )
 
 
@@ -105,6 +106,31 @@ def test_tipo_dado_booleano() -> None:
     assert any("booleano" in pista["valor"].lower() for pista in pistas if pista["fonte"] == "tipo_dado")
 
 
+def test_pista_provavel_booleano_aceita_zero_um_e_null() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE teste (ativo INTEGER)"))
+        conn.execute(text("INSERT INTO teste (ativo) VALUES (1), (0), (NULL), ('1')"))
+        conn.commit()
+
+    pista = _pista_provavel_booleano(engine, "teste", "ativo", "INTEGER")
+
+    assert pista is not None
+    assert pista["categoria"] == "provavel_booleano"
+    assert pista["valores_observados"] == ["0", "1"]
+
+
+def test_pista_provavel_booleano_rejeita_valor_fora_do_dominio() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE teste (status INTEGER)"))
+        conn.execute(text("INSERT INTO teste (status) VALUES (0), (1), (2)"))
+        conn.commit()
+
+    pista = _pista_provavel_booleano(engine, "teste", "status", "INTEGER")
+
+    assert pista is None
+
 
 def test_colunas_irmas_sugestao() -> None:
     engine = create_engine("sqlite:///:memory:")
@@ -136,6 +162,19 @@ def test_investigar_coluna_individual(monkeypatch) -> None:
     assert resultado["sugestao_candidata"] == "ID do Processo"
     assert resultado["nivel_confianca"] == "alta_confianca"
 
+
+def test_investigar_coluna_marca_provavel_booleano() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE usuarios (id INTEGER PRIMARY KEY, ativo INTEGER)"))
+        conn.execute(text("INSERT INTO usuarios (ativo) VALUES (0), (1), (NULL)"))
+        conn.commit()
+
+    resultado = investigar_coluna(engine, "usuarios", "ativo")
+
+    assert resultado["nivel_confianca"] == "provavel_booleano"
+    assert resultado["provavel_booleano"] is True
+    assert resultado["sugestao_candidata"] is None
 
 
 def test_aplicar_sugestoes_nao_sobrescreve_manual(monkeypatch, tmp_path: Path) -> None:
@@ -184,3 +223,19 @@ def test_executar_investigacao_colunas_gera_relatorio(tmp_path: Path) -> None:
     assert relatorio["resumo"]["total_investigadas"] == 2
     dados = yaml.safe_load(saida.read_text(encoding="utf-8"))
     assert dados["investigacoes"][1]["coluna"] == "xyzabc123"
+
+
+def test_executar_investigacao_colunas_agrupar_booleanos_no_relatorio(tmp_path: Path) -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE users (id INTEGER PRIMARY KEY, ativo INTEGER, status INTEGER)"))
+        conn.execute(text("INSERT INTO users (ativo, status) VALUES (0, 0), (1, 2), (NULL, 1)"))
+        conn.commit()
+
+    saida = tmp_path / "relatorio_booleanos.yaml"
+    relatorio = executar_investigacao_colunas(engine=engine, tabela="users", caminho_saida=str(saida))
+
+    assert relatorio["resumo"]["provavel_booleano"] == 1
+    assert relatorio["colunas_booleanas_provaveis"]["users"] == [
+        {"coluna": "ativo", "tipo": "INTEGER", "valores_observados": ["0", "1"]}
+    ]

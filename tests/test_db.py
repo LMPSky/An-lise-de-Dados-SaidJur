@@ -17,6 +17,7 @@ from src.db import (
     colunas_texto,
     coluna_label,
     fks_inferidas,
+    resumir_registro_para_card,
 )
 
 
@@ -121,6 +122,98 @@ class TestColunaLabel:
     def test_retorna_none_quando_nao_encontra(self, engine_labels: Engine) -> None:
         """Deve retornar None quando nenhuma candidata existe."""
         assert coluna_label(engine_labels, "raw_ids") is None
+
+
+class TestResumoRegistroCard:
+    """Testes para o fallback em cascata do resumo dos cards."""
+
+    @pytest.fixture
+    def engine_resumo(self) -> Engine:
+        """Engine com cenários de label nulo e tabela sem nome óbvio."""
+        import src.db as db_module
+
+        db_module._CACHE_COLUNA_LABEL.clear()
+        engine = create_engine("sqlite:///:memory:")
+        with engine.connect() as conn:
+            conn.execute(text("""
+                CREATE TABLE publicationxml_extra (
+                    id INTEGER PRIMARY KEY,
+                    summary TEXT,
+                    publication TEXT,
+                    created_at TEXT
+                )
+            """))
+            conn.execute(text("""
+                CREATE TABLE client_publication_search_terms (
+                    id INTEGER PRIMARY KEY,
+                    client_id INTEGER,
+                    search_term TEXT,
+                    created_at TEXT
+                )
+            """))
+            conn.execute(text("""
+                CREATE TABLE association_without_text (
+                    id INTEGER PRIMARY KEY,
+                    left_id INTEGER,
+                    right_id INTEGER
+                )
+            """))
+            conn.execute(text("""
+                INSERT INTO publicationxml_extra (id, summary, publication, created_at) VALUES
+                (10, NULL, 'Conteúdo alternativo da publicação', '2026-08-01')
+            """))
+            conn.execute(text("""
+                INSERT INTO client_publication_search_terms (id, client_id, search_term, created_at) VALUES
+                (20, 7, 'execução fiscal', '2026-08-02')
+            """))
+            conn.execute(text("""
+                INSERT INTO association_without_text (id, left_id, right_id) VALUES
+                (30, 100, 200)
+            """))
+            conn.commit()
+        return engine
+
+    def test_resumo_usa_proximo_texto_quando_label_primario_esta_nulo(self, engine_resumo: Engine) -> None:
+        """Se a coluna preferida estiver nula, o resumo deve cair para outro texto."""
+        resumo = resumir_registro_para_card(
+            engine_resumo,
+            "publicationxml_extra",
+            {
+                "id": 10,
+                "summary": None,
+                "publication": "Conteúdo alternativo da publicação",
+                "created_at": "2026-08-01",
+            },
+        )
+
+        assert resumo[0]["nome"] == "publication"
+        assert resumo[0]["valor"] == "Conteúdo alternativo da publicação"
+
+    def test_resumo_tabela_sem_nome_obvio_ainda_mostra_texto_visivel(self, engine_resumo: Engine) -> None:
+        """Tabela de associação com campo textual ainda deve renderizar algo útil."""
+        resumo = resumir_registro_para_card(
+            engine_resumo,
+            "client_publication_search_terms",
+            {
+                "id": 20,
+                "client_id": 7,
+                "search_term": "execução fiscal",
+                "created_at": "2026-08-02",
+            },
+        )
+
+        assert resumo[0]["nome"] == "search_term"
+        assert resumo[0]["valor"] == "execução fiscal"
+
+    def test_resumo_sem_texto_cai_para_identificador_generico(self, engine_resumo: Engine) -> None:
+        """Sem nenhum texto preenchido, o card deve exibir um identificador genérico."""
+        resumo = resumir_registro_para_card(
+            engine_resumo,
+            "association_without_text",
+            {"id": 30, "left_id": 100, "right_id": 200},
+        )
+
+        assert resumo == [{"nome": "id", "rotulo": "Registro", "valor": "#30"}]
 
 
 class TestFksInferidas:

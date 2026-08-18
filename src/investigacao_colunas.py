@@ -19,6 +19,14 @@ from src.traducoes_colunas import (
 )
 
 ARQUIVO_RELATORIO_COLUNAS_PADRAO = "relatorio_investigacao_colunas.yaml"
+TABELAS_PRIORITARIAS_BOOLEANOS = (
+    "lawsuits",
+    "persons",
+    "hearingcontrol",
+    "prazos_log",
+    "employees",
+    "users",
+)
 
 
 @dataclass(frozen=True)
@@ -133,6 +141,84 @@ def _classificar_tipo_dado(tipo: str) -> dict[str, str] | None:
         valor = f"Tipo de dado: {tipo}"
 
     return {"fonte": "tipo_dado", "valor": valor, "confianca": "baixa"}
+
+
+def _tipo_compativel_booleano(tipo: str) -> bool:
+    """Retorna True para tipos compatíveis com armazenamento booleano."""
+    tipo_limpo = tipo.lower().strip()
+    if not tipo_limpo:
+        return False
+    if "tinyint(1)" in tipo_limpo or tipo_limpo == "boolean" or "bool" in tipo_limpo:
+        return True
+    return tipo_limpo.split("(", 1)[0].strip() in {"tinyint", "int", "integer", "smallint", "bigint"}
+
+
+def _normalizar_valor_booleano(valor: Any) -> str | None:
+    """Normaliza valor observado para '0' ou '1' quando possível."""
+    if valor is None:
+        return None
+    if isinstance(valor, bool):
+        return "1" if valor else "0"
+    valor_limpo = str(valor).strip().lower()
+    if valor_limpo in {"0", "1"}:
+        return valor_limpo
+    return None
+
+
+def _valores_distintos_coluna(
+    engine: Engine,
+    tabela: str,
+    coluna: str,
+    *,
+    limite: int = 10,
+) -> list[Any]:
+    """Coleta uma amostra de valores distintos não nulos de uma coluna."""
+    tabela_sql = _identificador(tabela, engine.dialect.name)
+    coluna_sql = _identificador(coluna, engine.dialect.name)
+    sql = text(
+        f"SELECT DISTINCT {coluna_sql} AS valor "
+        f"FROM {tabela_sql} "
+        f"WHERE {coluna_sql} IS NOT NULL "
+        f"LIMIT :limite"
+    )
+
+    with engine.connect() as conn:
+        return [row[0] for row in conn.execute(sql, {"limite": limite}).fetchall()]
+
+
+def _pista_provavel_booleano(
+    engine: Engine,
+    tabela: str,
+    coluna: str,
+    tipo: str,
+) -> dict[str, Any] | None:
+    """Detecta colunas cujo domínio observado é restrito a 0/1/NULL."""
+    if not _tipo_compativel_booleano(tipo):
+        return None
+
+    try:
+        distintos = _valores_distintos_coluna(engine, tabela, coluna)
+    except Exception:
+        return None
+
+    if not distintos:
+        return None
+
+    normalizados = {_normalizar_valor_booleano(valor) for valor in distintos}
+    if None in normalizados:
+        return None
+
+    return {
+        "fonte": "provavel_booleano",
+        "valor": (
+            "Valores distintos observados restritos a 0/1/NULL; "
+            f"tipo compatível: {tipo}."
+        ),
+        "confianca": "media",
+        "categoria": "provavel_booleano",
+        "valores_observados": sorted(normalizados),
+        "amostra_distintos": [str(valor) for valor in distintos],
+    }
 
 
 
@@ -290,6 +376,10 @@ def coletar_pistas_coluna(engine: Engine, tabela: str, coluna: str, tipo: str) -
     if pista_comment:
         pistas.append(pista_comment)
 
+    pista_booleana = _pista_provavel_booleano(engine, tabela, coluna, tipo)
+    if pista_booleana:
+        pistas.append(pista_booleana)
+
     pista_tipo = _classificar_tipo_dado(tipo)
     if pista_tipo:
         pistas.append(pista_tipo)
@@ -317,8 +407,11 @@ def investigar_coluna(engine: Engine, tabela: str, coluna: str) -> dict[str, Any
 
     sugestao_candidata: str | None = None
     nivel_confianca = "sem_pista"
+    pista_booleana = next((p for p in pistas if p.get("categoria") == "provavel_booleano"), None)
 
-    if estado == "traduzida_manual":
+    if pista_booleana is not None:
+        nivel_confianca = "provavel_booleano"
+    elif estado == "traduzida_manual":
         sugestao_candidata = traducao_atual
         nivel_confianca = "traduzida_manual"
     else:
@@ -347,6 +440,7 @@ def investigar_coluna(engine: Engine, tabela: str, coluna: str) -> dict[str, Any
         "pistas": pistas,
         "sugestao_candidata": sugestao_candidata,
         "nivel_confianca": nivel_confianca,
+        "provavel_booleano": pista_booleana is not None,
     }
 
 
@@ -367,6 +461,27 @@ def salvar_yaml(dados: dict[str, Any], caminho: str | Path) -> None:
         encoding="utf-8",
     )
 
+
+def _agrupar_colunas_booleanas(investigacoes: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
+    """Agrupa as colunas marcadas como provável booleano por tabela."""
+    resultado: dict[str, list[dict[str, Any]]] = {}
+
+    for item in investigacoes:
+        if item.get("nivel_confianca") != "provavel_booleano":
+            continue
+        pista = next(
+            (p for p in item.get("pistas", []) if p.get("categoria") == "provavel_booleano"),
+            None,
+        )
+        resultado.setdefault(str(item["tabela"]), []).append(
+            {
+                "coluna": item["coluna"],
+                "tipo": item["tipo"],
+                "valores_observados": [] if pista is None else pista.get("valores_observados", []),
+            }
+        )
+
+    return resultado
 
 
 def executar_investigacao_colunas(
@@ -391,10 +506,11 @@ def executar_investigacao_colunas(
             for nome_tabela in _listar_tabelas_validas(engine_local):
                 investigacoes.extend(investigar_tabela(engine_local, nome_tabela))
 
-        # Os quatro grupos são mutuamente exclusivos e somam exatamente
+        # Os cinco grupos são mutuamente exclusivos e somam exatamente
         # ``total_investigadas``: cada item tem exatamente um ``nivel_confianca``.
         resumo = {
             "total_investigadas": len(investigacoes),
+            "provavel_booleano": sum(1 for item in investigacoes if item["nivel_confianca"] == "provavel_booleano"),
             "traduzidas_manual": sum(1 for item in investigacoes if item["nivel_confianca"] == "traduzida_manual"),
             "alta_confianca": sum(1 for item in investigacoes if item["nivel_confianca"] == "alta_confianca"),
             "pista_parcial": sum(1 for item in investigacoes if item["nivel_confianca"] == "pista_parcial"),
@@ -404,6 +520,7 @@ def executar_investigacao_colunas(
         relatorio = {
             "gerado_em": datetime.now(UTC).isoformat(),
             "resumo": resumo,
+            "colunas_booleanas_provaveis": _agrupar_colunas_booleanas(investigacoes),
             "investigacoes": investigacoes,
         }
         salvar_yaml(relatorio, caminho_saida)

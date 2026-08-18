@@ -57,6 +57,7 @@ def main() -> None:
     resumo = relatorio["resumo"]
     print("\n✅ Investigação concluída")
     print(f"🏷️  Colunas investigadas: {resumo['total_investigadas']}")
+    print(f"🟢 Provável booleano: {resumo['provavel_booleano']}")
     print(f"🎯 Alta confiança: {resumo['alta_confianca']}")
     print(f"🟡 Pista parcial: {resumo['pista_parcial']}")
     print(f"❓ Sem pista: {resumo['sem_pista']}")

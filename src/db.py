@@ -306,6 +306,83 @@ def coluna_label(engine: Engine, nome_tabela: str) -> str | None:
     return None
 
 
+def _valor_preenchido(valor: Any) -> bool:
+    """Retorna True quando o valor possui conteúdo utilizável para exibição."""
+    if valor is None:
+        return False
+    if isinstance(valor, str):
+        return valor.strip() != ""
+    return True
+
+
+def _coluna_id_fallback(colunas: list[dict[str, Any]], registro: dict[str, Any]) -> str | None:
+    """Seleciona a melhor coluna de ID para fallback de resumo do registro."""
+    for coluna in colunas:
+        nome = coluna["nome"]
+        if coluna.get("chave") == "PRI" and nome in registro and _valor_preenchido(registro.get(nome)):
+            return nome
+
+    for nome in ("id", "codigo", "code"):
+        if nome in registro and _valor_preenchido(registro.get(nome)):
+            return nome
+
+    for coluna in colunas:
+        nome = coluna["nome"]
+        if nome in registro and nome.lower().endswith("id") and _valor_preenchido(registro.get(nome)):
+            return nome
+
+    return None
+
+
+def resumir_registro_para_card(
+    engine: Engine,
+    nome_tabela: str,
+    registro: dict[str, Any],
+    *,
+    limite: int = 3,
+) -> list[dict[str, Any]]:
+    """Monta um resumo robusto para cards sem nunca deixar o registro mudo.
+
+    Ordem do fallback:
+    1. coluna de label principal inferida por :func:`coluna_label`;
+    2. próxima coluna textual não vazia, na ordem do schema;
+    3. identificador da linha como ``Registro #<id>``.
+    """
+    if not registro:
+        return []
+
+    colunas = listar_colunas(engine, nome_tabela)
+    tipos_texto = _TIPOS_TEXTO_BASE | _TIPOS_TEXTO_GRANDE
+    campos: list[dict[str, Any]] = []
+    usados: set[str] = set()
+
+    nome_label = coluna_label(engine, nome_tabela)
+    if nome_label and nome_label in registro and _valor_preenchido(registro.get(nome_label)):
+        campos.append({"nome": nome_label, "valor": registro[nome_label]})
+        usados.add(nome_label)
+
+    for coluna in colunas:
+        nome = coluna["nome"]
+        tipo = str(coluna.get("tipo", "")).split("(")[0].lower().strip()
+        if nome not in registro or nome in usados or tipo not in tipos_texto:
+            continue
+        if not _valor_preenchido(registro.get(nome)):
+            continue
+        campos.append({"nome": nome, "valor": registro[nome]})
+        usados.add(nome)
+        if len(campos) >= limite:
+            return campos
+
+    if campos:
+        return campos[:limite]
+
+    nome_id = _coluna_id_fallback(colunas, registro)
+    if nome_id:
+        return [{"nome": nome_id, "rotulo": "Registro", "valor": f"#{registro[nome_id]}"}]
+
+    return []
+
+
 def _candidatos_para(coluna: str) -> list[str]:
     """Gera nomes de tabela candidatas para uma coluna FK implícita."""
     base = re.sub(r"(_id|id|_pk)$", "", coluna, flags=re.IGNORECASE).lower()
