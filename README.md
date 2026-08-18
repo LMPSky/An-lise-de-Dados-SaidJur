@@ -279,9 +279,15 @@ python investigar_colunas.py --colunas prazos_log.pzphase prazos_log.prazoobs
 O script é somente leitura e gera `relatorio_investigacao_colunas.yaml` com:
 - estado de cada coluna (`traduzida_manual` / `traduzida_heuristica` / `nao_traduzida`)
 - pistas coletadas do schema: `COLUMN_COMMENT` do MySQL (alta confiança), tipo de dado, colunas irmãs já traduzidas e referências FK
-- nova classificação `provavel_booleano` quando a coluna tiver tipo compatível e a amostra observada estiver restrita a `0`/`1`/`NULL`
-- sugestão candidata com nível de confiança claramente indicado
+- sugestão candidata com nível de confiança da **tradução do nome** (`nivel_confianca` e `nivel_confianca_nome`)
+- classificação de valores separada e independente:
+  - `provavel_booleano: true/false`
+  - `classificacao_valores: provavel_booleano` quando a amostra observada estiver restrita a `0`/`1`/`NULL` com tipo compatível
 - seção `colunas_booleanas_provaveis` agrupada por tabela para futura revisão/promoção a metadado confirmado
+
+> **Importante:** tradução do **nome** da coluna e classificação do **domínio de valores**
+> são dimensões independentes. Uma mesma coluna pode aparecer simultaneamente como
+> `traduzida_manual` e `provavel_booleano`.
 
 **Investigar booleanos primeiro nas tabelas mais usadas:**
 ```bash

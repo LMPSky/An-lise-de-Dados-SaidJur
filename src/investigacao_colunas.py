@@ -394,6 +394,40 @@ def coletar_pistas_coluna(engine: Engine, tabela: str, coluna: str, tipo: str) -
 
 
 
+def _determinar_confianca_nome(
+    estado: str,
+    traducao_atual: str,
+    coluna: str,
+    pistas: list[dict[str, Any]],
+) -> tuple[str, str | None]:
+    """Determina a confiança da tradução do nome, independente do domínio de valores."""
+    sugestao_candidata: str | None = None
+    nivel_confianca_nome = "sem_pista"
+
+    if estado == "traduzida_manual":
+        sugestao_candidata = traducao_atual
+        nivel_confianca_nome = "traduzida_manual"
+    else:
+        pista_alta = next((p for p in pistas if p["confianca"] == "alta_confianca"), None)
+        pista_media = next((p for p in pistas if p["confianca"] == "media"), None)
+
+        if pista_alta is not None:
+            sugestao_candidata = pista_alta.get("sugestao") or pista_alta["valor"]
+            nivel_confianca_nome = "alta_confianca"
+        elif _traduzir_coluna_relacional(coluna.lower()) is not None:
+            sugestao_candidata = traducao_atual
+            nivel_confianca_nome = "alta_confianca"
+        elif estado == "traduzida_heuristica":
+            sugestao_candidata = traducao_atual
+            nivel_confianca_nome = "pista_parcial"
+        elif pista_media is not None:
+            sugestao_candidata = pista_media.get("sugestao") or pista_media.get("traducao_relacionada")
+            nivel_confianca_nome = "pista_parcial"
+
+    return nivel_confianca_nome, sugestao_candidata
+
+
+
 def investigar_coluna(engine: Engine, tabela: str, coluna: str) -> dict[str, Any]:
     """Executa a investigação completa de uma coluna específica."""
     colunas = listar_colunas_schema(engine, tabela)
@@ -404,32 +438,13 @@ def investigar_coluna(engine: Engine, tabela: str, coluna: str) -> dict[str, Any
     estado = alvo["estado"]
     traducao_atual = alvo["traducao_atual"]
     pistas = coletar_pistas_coluna(engine, tabela, alvo["coluna"], alvo["tipo"])["pistas"]
-
-    sugestao_candidata: str | None = None
-    nivel_confianca = "sem_pista"
     pista_booleana = next((p for p in pistas if p.get("categoria") == "provavel_booleano"), None)
-
-    if pista_booleana is not None:
-        nivel_confianca = "provavel_booleano"
-    elif estado == "traduzida_manual":
-        sugestao_candidata = traducao_atual
-        nivel_confianca = "traduzida_manual"
-    else:
-        pista_alta = next((p for p in pistas if p["confianca"] == "alta_confianca"), None)
-        pista_media = next((p for p in pistas if p["confianca"] == "media"), None)
-
-        if pista_alta is not None:
-            sugestao_candidata = pista_alta.get("sugestao") or pista_alta["valor"]
-            nivel_confianca = "alta_confianca"
-        elif _traduzir_coluna_relacional(alvo["coluna"].lower()) is not None:
-            sugestao_candidata = traducao_atual
-            nivel_confianca = "alta_confianca"
-        elif estado == "traduzida_heuristica":
-            sugestao_candidata = traducao_atual
-            nivel_confianca = "pista_parcial"
-        elif pista_media is not None:
-            sugestao_candidata = pista_media.get("sugestao") or pista_media.get("traducao_relacionada")
-            nivel_confianca = "pista_parcial"
+    nivel_confianca_nome, sugestao_candidata = _determinar_confianca_nome(
+        estado,
+        traducao_atual,
+        alvo["coluna"],
+        pistas,
+    )
 
     return {
         "tabela": tabela,
@@ -439,7 +454,9 @@ def investigar_coluna(engine: Engine, tabela: str, coluna: str) -> dict[str, Any
         "traducao_atual": traducao_atual,
         "pistas": pistas,
         "sugestao_candidata": sugestao_candidata,
-        "nivel_confianca": nivel_confianca,
+        "nivel_confianca": nivel_confianca_nome,
+        "nivel_confianca_nome": nivel_confianca_nome,
+        "classificacao_valores": "provavel_booleano" if pista_booleana is not None else None,
         "provavel_booleano": pista_booleana is not None,
     }
 
@@ -467,7 +484,7 @@ def _agrupar_colunas_booleanas(investigacoes: list[dict[str, Any]]) -> dict[str,
     resultado: dict[str, list[dict[str, Any]]] = {}
 
     for item in investigacoes:
-        if item.get("nivel_confianca") != "provavel_booleano":
+        if not item.get("provavel_booleano"):
             continue
         pista = next(
             (p for p in item.get("pistas", []) if p.get("categoria") == "provavel_booleano"),
@@ -506,15 +523,28 @@ def executar_investigacao_colunas(
             for nome_tabela in _listar_tabelas_validas(engine_local):
                 investigacoes.extend(investigar_tabela(engine_local, nome_tabela))
 
-        # Os cinco grupos são mutuamente exclusivos e somam exatamente
-        # ``total_investigadas``: cada item tem exatamente um ``nivel_confianca``.
+        resumo_nome = {
+            "traduzidas_manual": sum(
+                1 for item in investigacoes if item["nivel_confianca_nome"] == "traduzida_manual"
+            ),
+            "alta_confianca": sum(
+                1 for item in investigacoes if item["nivel_confianca_nome"] == "alta_confianca"
+            ),
+            "pista_parcial": sum(
+                1 for item in investigacoes if item["nivel_confianca_nome"] == "pista_parcial"
+            ),
+            "sem_pista": sum(1 for item in investigacoes if item["nivel_confianca_nome"] == "sem_pista"),
+        }
         resumo = {
             "total_investigadas": len(investigacoes),
-            "provavel_booleano": sum(1 for item in investigacoes if item["nivel_confianca"] == "provavel_booleano"),
-            "traduzidas_manual": sum(1 for item in investigacoes if item["nivel_confianca"] == "traduzida_manual"),
-            "alta_confianca": sum(1 for item in investigacoes if item["nivel_confianca"] == "alta_confianca"),
-            "pista_parcial": sum(1 for item in investigacoes if item["nivel_confianca"] == "pista_parcial"),
-            "sem_pista": sum(1 for item in investigacoes if item["nivel_confianca"] == "sem_pista"),
+            "provavel_booleano": sum(1 for item in investigacoes if item["provavel_booleano"]),
+            "classificacao_nomes": resumo_nome,
+            # Chaves planas mantidas por compatibilidade retroativa com consumidores
+            # que ainda esperam o formato anterior do resumo no YAML/CLI.
+            "traduzidas_manual": resumo_nome["traduzidas_manual"],
+            "alta_confianca": resumo_nome["alta_confianca"],
+            "pista_parcial": resumo_nome["pista_parcial"],
+            "sem_pista": resumo_nome["sem_pista"],
         }
 
         relatorio = {
