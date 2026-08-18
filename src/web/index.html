@@ -261,16 +261,55 @@
                       </div>
                       <div class="space-y-3">
                         <template x-for="(item, indiceItem) in itens" :key="indiceItem">
-                          <div class="simple-card">
-                            <dl class="simple-fields-grid">
-                              <template x-for="[campoNome, campoValor] in Object.entries(item).filter(([, valor]) => valor !== null && valor !== undefined && String(valor).trim() !== '')" :key="campoNome">
-                                <div class="simple-field">
-                                  <dt class="simple-field-label" x-text="campoNome"></dt>
-                                  <dd class="simple-field-value" x-text="campoValor"></dd>
-                                </div>
-                              </template>
-                            </dl>
-                          </div>
+                          <article class="simple-card border border-blue-100 rounded-2xl overflow-hidden" x-data="{ chaveCard: chaveCardBuscaSimples(assunto, indiceItem, item) }">
+                            <div class="flex items-start justify-between gap-3 px-4 py-3">
+                              <div class="flex-1 min-w-0 space-y-2">
+                                <template x-if="item.correspondencia">
+                                  <div class="flex flex-wrap gap-2 text-xs">
+                                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-50 text-blue-700 font-semibold">
+                                      <span x-text="item.correspondencia.rotulo + ':'"></span>
+                                      <span x-text="exibirComLabel(item.tabela, item.correspondencia.nome, item.correspondencia.valor)"></span>
+                                    </span>
+                                  </div>
+                                </template>
+                                <dl class="simple-fields-grid">
+                                  <template x-for="[campoNome, campoValor] in Object.entries(item.resumo).filter(([, valor]) => valor !== null && valor !== undefined && String(valor).trim() !== '')" :key="campoNome">
+                                    <div class="simple-field">
+                                      <dt class="simple-field-label" x-text="campoNome"></dt>
+                                      <dd class="simple-field-value" x-text="campoValor"></dd>
+                                    </div>
+                                  </template>
+                                </dl>
+                              </div>
+                              <button
+                                type="button"
+                                class="shrink-0 inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-2 rounded-xl"
+                                @click.stop="alternarCardExpandido(chaveCard)"
+                              >
+                                <span x-text="cardEstaExpandido(chaveCard) ? 'Ocultar detalhes' : 'Expandir detalhes'"></span>
+                                <span x-text="cardEstaExpandido(chaveCard) ? '▲' : '▼'"></span>
+                              </button>
+                            </div>
+                            <div
+                              x-show="cardEstaExpandido(chaveCard)"
+                              class="border-t border-blue-100 px-4 py-3"
+                            >
+                              <dl class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2 text-sm">
+                                <template x-for="campo in camposCardBuscaGlobalExpandido(item, item.registro)" :key="campo.nome">
+                                  <div class="min-w-0">
+                                    <dt class="text-xs font-bold text-gray-500 uppercase tracking-wide truncate" x-text="campo.rotulo || exibirNomeCampo(campo.nome)"></dt>
+                                    <dd
+                                      class="mt-0.5 break-words"
+                                      :class="ehFkValidoNaTabela(item.tabela, campo.nome, campo.valor) ? 'text-primary cursor-pointer hover:underline' : 'text-gray-900'"
+                                      :title="exibirValor(item.tabela, campo.nome, campo.valor)"
+                                      @click="if(ehFkValidoNaTabela(item.tabela, campo.nome, campo.valor)) abrirFk($event, item.tabela, campo.nome, campo.valor)"
+                                      x-text="exibirComLabel(item.tabela, campo.nome, campo.valor)"
+                                    ></dd>
+                                  </div>
+                                </template>
+                              </dl>
+                            </div>
+                          </article>
                         </template>
                       </div>
                     </article>
@@ -292,7 +331,7 @@
                         <table class="min-w-max text-sm">
                           <thead class="bg-gray-100 sticky top-0">
                             <tr>
-                              <template x-for="col in Object.keys(grupo.registros[0] || {})" :key="col">
+                              <template x-for="col in colunasBuscaGrupo(grupo, grupo.registros[0]).map(c => c.nome || c)" :key="col">
                                 <th class="px-3 py-2 text-left font-semibold text-gray-600" x-text="exibirNomeCampo(col)"></th>
                               </template>
                             </tr>
@@ -300,7 +339,7 @@
                           <tbody>
                             <template x-for="(linha, idx) in grupo.registros" :key="idx">
                               <tr :class="idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'">
-                                <template x-for="col in Object.keys(linha)" :key="col">
+                                <template x-for="col in colunasBuscaGrupo(grupo, linha).map(c => c.nome || c)" :key="col">
                                   <td class="px-3 py-1.5 max-w-xs truncate" :title="exibirValor(grupo.tabela, col, linha[col])" x-text="exibirComLabel(grupo.tabela, col, linha[col])"></td>
                                 </template>
                               </tr>
@@ -313,29 +352,52 @@
                         <template x-for="(linha, idx) in grupo.registros" :key="idx">
                           <article
                             class="border rounded-lg bg-white transition-all"
-                            :class="cardEstaExpandido(grupo.tabela + '_' + grupo.coluna + '_' + idx) ? 'border-blue-300' : 'hover:border-blue-200'"
+                            x-data="{ chaveCard: chaveCardBuscaAvancada(grupo, idx), correspondencia: contextoCorrespondenciaBusca(grupo, linha) }"
+                            :class="cardEstaExpandido(chaveCard) ? 'border-blue-300' : 'hover:border-blue-200'"
                           >
                             <div
-                              class="flex items-center justify-between gap-3 px-3 py-2 cursor-pointer select-none"
-                              @click="alternarCardExpandido(grupo.tabela + '_' + grupo.coluna + '_' + idx)"
+                              class="flex items-center justify-between gap-3 px-3 py-2 select-none"
                             >
-                              <div class="flex flex-wrap gap-x-4 gap-y-1 flex-1 min-w-0">
-                                <span class="text-xs font-semibold text-gray-400 shrink-0" x-text="'#' + (idx + 1)"></span>
-                                <template x-for="campo in camposCardResumido(linha, Object.keys(linha).map(n => ({nome: n})))" :key="campo.nome">
-                                  <span class="flex items-center gap-1 min-w-0">
-                                    <span class="text-xs text-gray-500 shrink-0" x-text="(campo.rotulo || exibirNomeCampo(campo.nome)) + ':'"></span>
-                                    <span class="text-xs font-semibold truncate max-w-xs" :title="exibirValor(grupo.tabela, campo.nome, campo.valor)" x-text="exibirComLabel(grupo.tabela, campo.nome, campo.valor)"></span>
-                                  </span>
+                              <div class="flex flex-col gap-2 flex-1 min-w-0">
+                                <div class="flex flex-wrap gap-x-4 gap-y-1 min-w-0">
+                                  <span class="text-xs font-semibold text-gray-400 shrink-0" x-text="'#' + (idx + 1)"></span>
+                                  <template x-for="campo in camposCardBuscaGlobalResumido(grupo, linha)" :key="campo.nome">
+                                    <span class="flex items-center gap-1 min-w-0">
+                                      <span class="text-xs text-gray-500 shrink-0" x-text="(campo.rotulo || exibirNomeCampo(campo.nome)) + ':'"></span>
+                                      <span class="text-xs font-semibold truncate max-w-xs" :title="exibirValor(grupo.tabela, campo.nome, campo.valor)" x-text="exibirComLabel(grupo.tabela, campo.nome, campo.valor)"></span>
+                                    </span>
+                                  </template>
+                                </div>
+                                <template x-if="correspondencia">
+                                  <div class="flex flex-wrap gap-2 text-xs">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-semibold">
+                                      <span x-text="correspondencia.rotulo + ':'"></span>
+                                      <span x-text="exibirComLabel(grupo.tabela, correspondencia.nome, correspondencia.valor)"></span>
+                                    </span>
+                                  </div>
                                 </template>
                               </div>
-                              <span class="text-gray-400 text-xs shrink-0" x-text="cardEstaExpandido(grupo.tabela + '_' + grupo.coluna + '_' + idx) ? '▲' : '▼'"></span>
+                              <button
+                                type="button"
+                                class="shrink-0 inline-flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-2 rounded-lg"
+                                @click.stop="alternarCardExpandido(chaveCard)"
+                              >
+                                <span x-text="cardEstaExpandido(chaveCard) ? 'Ocultar detalhes' : 'Expandir detalhes'"></span>
+                                <span x-text="cardEstaExpandido(chaveCard) ? '▲' : '▼'"></span>
+                              </button>
                             </div>
-                            <div x-show="cardEstaExpandido(grupo.tabela + '_' + grupo.coluna + '_' + idx)" class="border-t border-blue-100 px-3 py-2">
+                            <div x-show="cardEstaExpandido(chaveCard)" class="border-t border-blue-100 px-3 py-2">
                               <dl class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-1.5 text-xs">
-                                <template x-for="campo in camposCardExpandido(linha, Object.keys(linha).map(n => ({nome: n})))" :key="campo.nome">
+                                <template x-for="campo in camposCardBuscaGlobalExpandido(grupo, linha)" :key="campo.nome">
                                   <div class="min-w-0">
                                     <dt class="font-bold text-gray-500 uppercase tracking-wide truncate" x-text="campo.rotulo || exibirNomeCampo(campo.nome)"></dt>
-                                    <dd class="mt-0.5 text-gray-900 break-words" :title="exibirValor(grupo.tabela, campo.nome, campo.valor)" x-text="exibirComLabel(grupo.tabela, campo.nome, campo.valor)"></dd>
+                                    <dd
+                                      class="mt-0.5 break-words"
+                                      :class="ehFkValidoNaTabela(grupo.tabela, campo.nome, campo.valor) ? 'text-primary cursor-pointer hover:underline' : 'text-gray-900'"
+                                      :title="exibirValor(grupo.tabela, campo.nome, campo.valor)"
+                                      @click="if(ehFkValidoNaTabela(grupo.tabela, campo.nome, campo.valor)) abrirFk($event, grupo.tabela, campo.nome, campo.valor)"
+                                      x-text="exibirComLabel(grupo.tabela, campo.nome, campo.valor)"
+                                    ></dd>
                                   </div>
                                 </template>
                               </dl>

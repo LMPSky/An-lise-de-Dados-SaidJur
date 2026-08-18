@@ -502,6 +502,21 @@ class TestRotaBusca:
         assert resp.status_code == 200
         assert isinstance(resp.json(), list)
 
+    def test_busca_retorna_registro_completo_e_metadados_de_colunas(self, client: TestClient) -> None:
+        """Busca global deve trazer linha completa e colunas para expansão inline dos cards."""
+        resp = client.get("/api/busca?q=João")
+
+        assert resp.status_code == 200
+
+        grupo_clientes = next(item for item in resp.json() if item["tabela"] == "clientes")
+        assert grupo_clientes["registros"][0]["nome"] == "João Silva"
+        assert grupo_clientes["registros"][0]["email"] == "joao@ex.com"
+        assert any(coluna["nome"] == "email" for coluna in grupo_clientes["colunas"])
+        assert any(
+            coluna["nome"] == "id" and coluna["chave"] == "PRI"
+            for coluna in grupo_clientes["colunas"]
+        )
+
     def test_busca_streaming_retorna_eventos(self, client: TestClient) -> None:
         resp = client.get("/api/busca/stream?q=João")
         assert resp.status_code == 200

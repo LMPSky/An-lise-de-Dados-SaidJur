@@ -152,6 +152,11 @@ Cobertura do Relatório Simplificado:
 
 Se a busca encontrar outras tabelas, elas continuam disponíveis na exportação técnica e também aparecem na aba de resumo como próximas candidatas para simplificação futura.
 
+> **Correção da busca global (2026-08-18):**
+> - os cards da busca não usam mais `search_term`/termo correspondido como resumo principal quando existir dado real do registro;
+> - o termo encontrado continua visível apenas como contexto em **Correspondência**;
+> - cada card da busca global (modo simples e avançado) agora tem botão explícito **Expandir detalhes / Ocultar detalhes** para revelar todos os campos não-nulos do registro inline.
+
 ### 🌐 Traduzindo códigos e ENUMs
 Algumas colunas podem guardar códigos curtos, como `nature: "p"` ou campos
 numéricos binários (`0` / `1`). Para exibir nomes mais legíveis, copie o
@@ -330,6 +335,7 @@ Por padrão, os registros são exibidos como **cards verticais** que podem ser e
 - Cada card mostra um resumo com 2–3 campos identificadores do registro.
 - O resumo usa fallback em cascata: **label principal da tabela → próximo campo textual preenchido da própria linha → `Registro #ID`**.
 - Clique no card para **expandir inline** e revelar todos os campos não-nulos em um grid horizontal dentro do próprio fluxo da lista.
+- Na **busca global**, o campo que bateu com o termo pesquisado pode aparecer como badge de **Correspondência**, mas não substitui o resumo principal se houver dados reais do processo/publicação.
 - Múltiplos cards podem estar expandidos ao mesmo tempo — o estado não é um acordeon exclusivo.
 - Campos com valor nulo/vazio são automaticamente ocultados na visualização expandida, mantendo a tela limpa.
 - Isso evita cards “em branco” em tabelas de associação ou em linhas cujo campo de destaque veio nulo.
