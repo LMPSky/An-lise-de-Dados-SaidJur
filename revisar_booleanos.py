@@ -9,9 +9,9 @@ from typing import Any, Callable
 from src.investigacao_colunas import (
     ARQUIVO_DECISOES_BOOLEANOS_PADRAO,
     ARQUIVO_RELATORIO_COLUNAS_PADRAO,
-    _chave_tabela_coluna,
     carregar_decisoes_booleanos,
     carregar_yaml,
+    normalizar_tabela_coluna,
     registrar_decisao_booleana,
     salvar_decisoes_booleanos,
     salvar_yaml,
@@ -85,7 +85,7 @@ def _filtrar_colunas_pendentes(
             continue
         if tabela_filtro and str(item.get("tabela", "")).lower() != tabela_filtro:
             continue
-        chave = _chave_tabela_coluna(str(item.get("tabela", "")), str(item.get("coluna", "")))
+        chave = normalizar_tabela_coluna(str(item.get("tabela", "")), str(item.get("coluna", "")))
         if chave in confirmadas or chave in rejeitadas:
             continue
         pendentes.append(item)
@@ -108,7 +108,7 @@ def _contar_status(
     for item in relatorio.get("investigacoes", []):
         if tabela_filtro and str(item.get("tabela", "")).lower() != tabela_filtro:
             continue
-        chave = _chave_tabela_coluna(str(item.get("tabela", "")), str(item.get("coluna", "")))
+        chave = normalizar_tabela_coluna(str(item.get("tabela", "")), str(item.get("coluna", "")))
         if chave in (decisoes.get("confirmadas") or {}):
             confirmadas += 1
         elif chave in (decisoes.get("rejeitadas") or {}):
@@ -149,7 +149,7 @@ def revisar_booleanos_interativamente(
         raise FileNotFoundError(f"Relatório não encontrado ou vazio: {caminho_relatorio}")
 
     decisoes = carregar_decisoes_booleanos(caminho_decisoes)
-    _salvar_estado(caminho_relatorio, caminho_decisoes, relatorio, decisoes)
+    sincronizar_decisoes_booleanos_relatorio(relatorio, decisoes)
 
     pendentes = _filtrar_colunas_pendentes(relatorio, decisoes, tabela=tabela)
     interrompido = False

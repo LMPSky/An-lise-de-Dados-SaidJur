@@ -63,6 +63,11 @@ def _chave_tabela_coluna(tabela: str, coluna: str) -> str:
     return f"{tabela.strip().lower()}.{coluna.strip().lower()}"
 
 
+def normalizar_tabela_coluna(tabela: str, coluna: str) -> str:
+    """Expõe a normalização pública de chaves ``tabela.coluna``."""
+    return _chave_tabela_coluna(tabela, coluna)
+
+
 def _estrutura_decisoes_booleanos_padrao() -> dict[str, Any]:
     """Retorna a estrutura mínima do arquivo de decisões de booleanos."""
     return {
