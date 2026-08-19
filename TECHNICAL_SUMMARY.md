@@ -57,6 +57,40 @@
 - Novos testes em `tests/test_investigacao_colunas.py` cobrem todos os 6 casos
   reportados + regressão de booleanos genuínos + regressão de PK.
 
+## 🔧 Atualização 2026-08-19 — Revisão interativa de colunas booleanas
+
+- Novo CLI de raiz `revisar_booleanos.py`, alinhado ao padrão de
+  `investigar_colunas.py` e `aplicar_sugestoes_colunas.py`.
+- O script opera **somente sobre YAML**, sem reconectar ao MySQL:
+  - lê `relatorio_investigacao_colunas.yaml`;
+  - filtra apenas itens ainda marcados como `provavel_booleano`;
+  - opcionalmente limita a revisão via `--tabela <nome>`.
+- Cada coluna é exibida com:
+  - `tabela.coluna`;
+  - tipo SQL;
+  - valores observados na amostra (incluindo `NULL` quando detectado);
+  - pistas adicionais já coletadas (`COLUMN_COMMENT`, referência inferida,
+    colunas irmãs, leitura do tipo).
+- Persistência de decisões:
+  - `colunas_booleanas_confirmadas.yaml` virou a fonte persistente para revisão
+    manual, com duas seções: `confirmadas` e `rejeitadas`, ambas indexadas por
+    `tabela.coluna` e com timestamp.
+  - o relatório também recebe anotações aditivas por item:
+    `confirmado_manualmente`, `rejeitado_manualmente`,
+    `revisao_booleano_manual` e `revisado_booleano_em`.
+- Integração com a investigação:
+  - `src/investigacao_colunas.py` agora carrega esse arquivo de decisões;
+  - colunas rejeitadas manualmente passam a ser excluídas por
+    `_motivo_exclusao_booleano(..., colunas_rejeitadas=...)`;
+  - assim, uma rejeição manual impede que a mesma coluna volte a aparecer como
+    `provavel_booleano` em rodadas futuras.
+- Novos testes em `tests/test_revisar_booleanos.py` cobrem:
+  - confirmação;
+  - rejeição com efeito em investigação futura;
+  - pulo com reaparição posterior;
+  - interrupção por `q` preservando progresso;
+  - filtro por `--tabela`.
+
 ## 🔧 Atualização 2026-08-18 — Fallback de cards e investigação de booleanos
 
 ### Cards nunca mais vazios

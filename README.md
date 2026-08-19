@@ -290,6 +290,10 @@ O script é somente leitura e gera `relatorio_investigacao_colunas.yaml` com:
     - houver checagem negativa de domínio sem encontrar valor fora de `0`/`1`;
     - a amostra de distintos (limite maior) continuar restrita a `0`/`1`/`NULL` com tipo compatível.
 - seção `colunas_booleanas_provaveis` agrupada por tabela para futura revisão/promoção a metadado confirmado
+- se existir `colunas_booleanas_confirmadas.yaml`, o relatório também anota
+  decisões manuais de revisão com campos aditivos como
+  `confirmado_manualmente`, `rejeitado_manualmente` e
+  `revisao_booleano_manual`
 
 > **Importante:** tradução do **nome** da coluna e classificação do **domínio de valores**
 > são dimensões independentes. Uma mesma coluna pode aparecer simultaneamente como
@@ -314,6 +318,36 @@ python investigar_colunas.py --tabela users
 > rodando o comando acima a partir da **raiz do projeto** (`python investigar_colunas.py ...`).
 > Evite executar `src/investigacao_colunas.py` diretamente, porque o entrypoint
 > suportado/documentado é o script da raiz.
+
+**Revisar interativamente as colunas `provavel_booleano`:**
+```bash
+python revisar_booleanos.py
+python revisar_booleanos.py --tabela prazos_log
+```
+
+O script lê `relatorio_investigacao_colunas.yaml` e apresenta uma coluna por vez
+com:
+- `tabela.coluna`
+- tipo SQL da coluna
+- valores observados na amostra (incluindo `NULL` quando detectado)
+- contexto adicional já presente nas pistas da investigação (ex.: comentário do
+  schema, referência inferida, colunas irmãs)
+
+Durante a revisão, use:
+- `s` → confirma que a coluna é booleana
+- `n` → rejeita a coluna como booleana
+- `p` → pula por agora; a coluna reaparece na próxima execução
+- `q` → sai imediatamente e salva o progresso já feito
+
+As decisões são persistidas automaticamente em
+`colunas_booleanas_confirmadas.yaml`:
+- `confirmadas` guardam as colunas aprovadas e timestamp de confirmação
+- `rejeitadas` guardam as colunas recusadas e timestamp de rejeição
+
+Além disso, o próprio `relatorio_investigacao_colunas.yaml` é anotado com flags
+aditivas para refletir o estado manual da revisão. Em execuções futuras de
+`investigar_colunas.py`, colunas rejeitadas deixam de ser classificadas como
+`provavel_booleano`, evitando regressão mesmo que a amostra continue em `{0,1}`.
 
 **Aplicar sugestões aprovadas em `src/traducoes_colunas.py`:**
 ```bash

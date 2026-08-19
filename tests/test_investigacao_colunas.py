@@ -318,7 +318,12 @@ def test_executar_investigacao_colunas_agrupar_booleanos_no_relatorio(tmp_path: 
     assert relatorio["resumo"]["classificacao_nomes"]["traduzidas_manual"] == 2
     assert relatorio["resumo"]["classificacao_nomes"]["pista_parcial"] == 1
     assert relatorio["colunas_booleanas_provaveis"]["users"] == [
-        {"coluna": "ativo", "tipo": "INTEGER", "valores_observados": ["0", "1"]}
+        {
+            "coluna": "ativo",
+            "tipo": "INTEGER",
+            "valores_observados": ["0", "1"],
+            "nulos_observados": True,
+        }
     ]
 
 

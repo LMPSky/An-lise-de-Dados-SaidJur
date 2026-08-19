@@ -25,6 +25,7 @@ from src.traducoes_colunas import (
 )
 
 ARQUIVO_RELATORIO_COLUNAS_PADRAO = "relatorio_investigacao_colunas.yaml"
+ARQUIVO_DECISOES_BOOLEANOS_PADRAO = "colunas_booleanas_confirmadas.yaml"
 TABELAS_PRIORITARIAS_BOOLEANOS = (
     "lawsuits",
     "persons",
@@ -46,6 +47,145 @@ class ColunaSchema:
     tabela: str
     coluna: str
     tipo: str
+
+
+def carregar_yaml(caminho: str | Path) -> dict[str, Any]:
+    """Carrega um arquivo YAML, retornando dicionário vazio quando ausente."""
+    caminho_path = Path(caminho)
+    if not caminho_path.exists():
+        return {}
+    dados = yaml.safe_load(caminho_path.read_text(encoding="utf-8"))
+    return dados if isinstance(dados, dict) else {}
+
+
+def _chave_tabela_coluna(tabela: str, coluna: str) -> str:
+    """Normaliza a chave composta ``tabela.coluna`` usada nas decisões."""
+    return f"{tabela.strip().lower()}.{coluna.strip().lower()}"
+
+
+def normalizar_tabela_coluna(tabela: str, coluna: str) -> str:
+    """Expõe a normalização pública de chaves ``tabela.coluna``."""
+    return _chave_tabela_coluna(tabela, coluna)
+
+
+def _estrutura_decisoes_booleanos_padrao() -> dict[str, Any]:
+    """Retorna a estrutura mínima do arquivo de decisões de booleanos."""
+    return {
+        "confirmadas": {},
+        "rejeitadas": {},
+    }
+
+
+def carregar_decisoes_booleanos(caminho: str | Path = ARQUIVO_DECISOES_BOOLEANOS_PADRAO) -> dict[str, Any]:
+    """Carrega decisões manuais de revisão de colunas booleanas."""
+    dados = carregar_yaml(caminho)
+    estrutura = _estrutura_decisoes_booleanos_padrao()
+
+    for secao in ("confirmadas", "rejeitadas"):
+        bloco = dados.get(secao, {})
+        if not isinstance(bloco, dict):
+            bloco = {}
+        normalizado: dict[str, Any] = {}
+        for chave, valor in bloco.items():
+            if not isinstance(valor, dict):
+                valor = {}
+            tabela = str(valor.get("tabela") or str(chave).split(".", 1)[0]).strip()
+            coluna = str(valor.get("coluna") or str(chave).split(".", 1)[-1]).strip()
+            if not tabela or not coluna:
+                continue
+            normalizado[_chave_tabela_coluna(tabela, coluna)] = {
+                "tabela": tabela,
+                "coluna": coluna,
+                **valor,
+            }
+        estrutura[secao] = normalizado
+
+    return estrutura
+
+
+def salvar_decisoes_booleanos(
+    dados: dict[str, Any],
+    caminho: str | Path = ARQUIVO_DECISOES_BOOLEANOS_PADRAO,
+) -> None:
+    """Salva o arquivo de decisões manuais de booleanos."""
+    payload = {
+        "atualizado_em": datetime.now(UTC).isoformat(),
+        "confirmadas": dict(sorted((dados.get("confirmadas") or {}).items())),
+        "rejeitadas": dict(sorted((dados.get("rejeitadas") or {}).items())),
+    }
+    salvar_yaml(payload, caminho)
+
+
+def registrar_decisao_booleana(
+    dados: dict[str, Any],
+    tabela: str,
+    coluna: str,
+    decisao: str,
+    *,
+    timestamp: str | None = None,
+) -> dict[str, Any]:
+    """Registra uma decisão manual de confirmação/rejeição para uma coluna."""
+    decisao_normalizada = decisao.strip().lower()
+    if decisao_normalizada not in {"confirmado", "rejeitado"}:
+        raise ValueError(f"Decisão inválida: {decisao}")
+
+    chave = _chave_tabela_coluna(tabela, coluna)
+    instante = timestamp or datetime.now(UTC).isoformat()
+    dados.setdefault("confirmadas", {})
+    dados.setdefault("rejeitadas", {})
+    dados["confirmadas"].pop(chave, None)
+    dados["rejeitadas"].pop(chave, None)
+
+    payload = {
+        "tabela": tabela,
+        "coluna": coluna,
+    }
+    if decisao_normalizada == "confirmado":
+        payload["confirmado_em"] = instante
+        dados["confirmadas"][chave] = payload
+    else:
+        payload["rejeitado_em"] = instante
+        dados["rejeitadas"][chave] = payload
+
+    return dados
+
+
+def colunas_rejeitadas_booleanos(dados: dict[str, Any]) -> set[str]:
+    """Extrai o conjunto normalizado de colunas rejeitadas manualmente."""
+    rejeitadas = dados.get("rejeitadas", {})
+    if not isinstance(rejeitadas, dict):
+        return set()
+    return set(rejeitadas)
+
+
+def sincronizar_decisoes_booleanos_relatorio(
+    relatorio: dict[str, Any],
+    dados_decisoes: dict[str, Any],
+) -> dict[str, Any]:
+    """Anota no relatório as decisões manuais já persistidas."""
+    confirmadas = dados_decisoes.get("confirmadas", {})
+    rejeitadas = dados_decisoes.get("rejeitadas", {})
+
+    for item in relatorio.get("investigacoes", []):
+        chave = _chave_tabela_coluna(str(item.get("tabela", "")), str(item.get("coluna", "")))
+        for campo in (
+            "confirmado_manualmente",
+            "rejeitado_manualmente",
+            "revisao_booleano_manual",
+            "revisado_booleano_em",
+        ):
+            item.pop(campo, None)
+
+        if chave in confirmadas:
+            item["confirmado_manualmente"] = True
+            item["revisao_booleano_manual"] = "confirmado"
+            item["revisado_booleano_em"] = confirmadas[chave].get("confirmado_em")
+        elif chave in rejeitadas:
+            item["rejeitado_manualmente"] = True
+            item["revisao_booleano_manual"] = "rejeitado"
+            item["revisado_booleano_em"] = rejeitadas[chave].get("rejeitado_em")
+
+    return relatorio
 
 
 
@@ -233,9 +373,17 @@ def _tipo_texto_cast(dialect_name: str) -> str:
     return "TEXT"
 
 
-def _motivo_exclusao_booleano(engine: Engine, tabela: str, coluna: str) -> str | None:
+def _motivo_exclusao_booleano(
+    engine: Engine,
+    tabela: str,
+    coluna: str,
+    *,
+    colunas_rejeitadas: set[str] | None = None,
+) -> str | None:
     """Retorna o motivo de exclusão da coluna na classificação booleana."""
     nome_coluna = coluna.lower()
+    if colunas_rejeitadas and _chave_tabela_coluna(tabela, coluna) in colunas_rejeitadas:
+        return "rejeitada_manualmente"
     if nome_coluna in _colunas_pk_tabela(engine, tabela):
         return "chave_primaria"
     if nome_coluna in _colunas_fk_tabela(engine, tabela):
@@ -259,6 +407,21 @@ def _existe_valor_fora_booleano(engine: Engine, tabela: str, coluna: str) -> boo
         sql = text(f"SELECT TOP 1 1 FROM {tabela_sql} {where_clause}")
     else:
         sql = text(f"SELECT 1 FROM {tabela_sql} {where_clause}{_clausula_limite_um(dialect_name)}")
+    with engine.connect() as conn:
+        return conn.execute(sql).fetchone() is not None
+
+
+def _existe_valor_nulo(engine: Engine, tabela: str, coluna: str) -> bool:
+    """Verifica se a coluna possui pelo menos um valor NULL."""
+    dialect_name = engine.dialect.name
+    tabela_sql = _identificador(tabela, dialect_name)
+    coluna_sql = _identificador(coluna, dialect_name)
+    if dialect_name == "mssql":
+        sql = text(f"SELECT TOP 1 1 FROM {tabela_sql} WHERE {coluna_sql} IS NULL")
+    else:
+        sql = text(
+            f"SELECT 1 FROM {tabela_sql} WHERE {coluna_sql} IS NULL{_clausula_limite_um(dialect_name)}"
+        )
     with engine.connect() as conn:
         return conn.execute(sql).fetchone() is not None
 
@@ -289,9 +452,16 @@ def _pista_provavel_booleano(
     tabela: str,
     coluna: str,
     tipo: str,
+    *,
+    colunas_rejeitadas: set[str] | None = None,
 ) -> dict[str, Any] | None:
     """Detecta colunas cujo domínio observado é restrito a 0/1, ignorando NULL."""
-    if _motivo_exclusao_booleano(engine, tabela, coluna):
+    if _motivo_exclusao_booleano(
+        engine,
+        tabela,
+        coluna,
+        colunas_rejeitadas=colunas_rejeitadas,
+    ):
         return None
 
     if not _tipo_compativel_booleano(tipo):
@@ -315,6 +485,11 @@ def _pista_provavel_booleano(
     except Exception:
         return None
 
+    try:
+        possui_nulos = _existe_valor_nulo(engine, tabela, coluna)
+    except Exception:
+        possui_nulos = False
+
     return {
         "fonte": "provavel_booleano",
         "valor": (
@@ -324,6 +499,7 @@ def _pista_provavel_booleano(
         "confianca": "media",
         "categoria": "provavel_booleano",
         "valores_observados": sorted(normalizados),
+        "nulos_observados": possui_nulos,
         "amostra_distintos": [str(valor) for valor in distintos],
     }
 
@@ -475,7 +651,14 @@ def _pista_column_comment(engine: Engine, tabela: str, coluna: str) -> dict[str,
 
 
 
-def coletar_pistas_coluna(engine: Engine, tabela: str, coluna: str, tipo: str) -> dict[str, Any]:
+def coletar_pistas_coluna(
+    engine: Engine,
+    tabela: str,
+    coluna: str,
+    tipo: str,
+    *,
+    colunas_rejeitadas: set[str] | None = None,
+) -> dict[str, Any]:
     """Coleta pistas estruturais para entender o significado de uma coluna."""
     pistas: list[dict[str, str]] = []
 
@@ -483,7 +666,13 @@ def coletar_pistas_coluna(engine: Engine, tabela: str, coluna: str, tipo: str) -
     if pista_comment:
         pistas.append(pista_comment)
 
-    pista_booleana = _pista_provavel_booleano(engine, tabela, coluna, tipo)
+    pista_booleana = _pista_provavel_booleano(
+        engine,
+        tabela,
+        coluna,
+        tipo,
+        colunas_rejeitadas=colunas_rejeitadas,
+    )
     if pista_booleana:
         pistas.append(pista_booleana)
 
@@ -535,7 +724,14 @@ def _determinar_confianca_nome(
 
 
 
-def investigar_coluna(engine: Engine, tabela: str, coluna: str) -> dict[str, Any]:
+def investigar_coluna(
+    engine: Engine,
+    tabela: str,
+    coluna: str,
+    *,
+    colunas_rejeitadas: set[str] | None = None,
+    decisoes_booleanos: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """Executa a investigação completa de uma coluna específica."""
     colunas = listar_colunas_schema(engine, tabela)
     alvo = next((item for item in colunas if item["coluna"].lower() == coluna.lower()), None)
@@ -544,7 +740,13 @@ def investigar_coluna(engine: Engine, tabela: str, coluna: str) -> dict[str, Any
 
     estado = alvo["estado"]
     traducao_atual = alvo["traducao_atual"]
-    pistas = coletar_pistas_coluna(engine, tabela, alvo["coluna"], alvo["tipo"])["pistas"]
+    pistas = coletar_pistas_coluna(
+        engine,
+        tabela,
+        alvo["coluna"],
+        alvo["tipo"],
+        colunas_rejeitadas=colunas_rejeitadas,
+    )["pistas"]
     pista_booleana = next((p for p in pistas if p.get("categoria") == "provavel_booleano"), None)
     nivel_confianca_nome, sugestao_candidata = _determinar_confianca_nome(
         estado,
@@ -553,7 +755,7 @@ def investigar_coluna(engine: Engine, tabela: str, coluna: str) -> dict[str, Any
         pistas,
     )
 
-    return {
+    resultado = {
         "tabela": tabela,
         "coluna": alvo["coluna"],
         "tipo": alvo["tipo"],
@@ -566,13 +768,31 @@ def investigar_coluna(engine: Engine, tabela: str, coluna: str) -> dict[str, Any
         "classificacao_valores": "provavel_booleano" if pista_booleana is not None else None,
         "provavel_booleano": pista_booleana is not None,
     }
+    if decisoes_booleanos:
+        sincronizar_decisoes_booleanos_relatorio(
+            {"investigacoes": [resultado]},
+            decisoes_booleanos,
+        )
+    return resultado
 
 
 
-def investigar_tabela(engine: Engine, tabela: str) -> list[dict[str, Any]]:
+def investigar_tabela(
+    engine: Engine,
+    tabela: str,
+    *,
+    colunas_rejeitadas: set[str] | None = None,
+    decisoes_booleanos: dict[str, Any] | None = None,
+) -> list[dict[str, Any]]:
     """Investiga todas as colunas de uma tabela."""
     return [
-        investigar_coluna(engine, tabela, coluna["coluna"])
+        investigar_coluna(
+            engine,
+            tabela,
+            coluna["coluna"],
+            colunas_rejeitadas=colunas_rejeitadas,
+            decisoes_booleanos=decisoes_booleanos,
+        )
         for coluna in listar_colunas_schema(engine, tabela)
     ]
 
@@ -602,6 +822,7 @@ def _agrupar_colunas_booleanas(investigacoes: list[dict[str, Any]]) -> dict[str,
                 "coluna": item["coluna"],
                 "tipo": item["tipo"],
                 "valores_observados": [] if pista is None else pista.get("valores_observados", []),
+                "nulos_observados": False if pista is None else bool(pista.get("nulos_observados")),
             }
         )
 
@@ -613,6 +834,7 @@ def executar_investigacao_colunas(
     tabela: str | None = None,
     colunas_diretas: list[str] | None = None,
     caminho_saida: str = ARQUIVO_RELATORIO_COLUNAS_PADRAO,
+    caminho_decisoes_booleanos: str | None = ARQUIVO_DECISOES_BOOLEANOS_PADRAO,
 ) -> dict[str, Any]:
     """Executa o fluxo completo de investigação de nomes de coluna."""
     engine_local = engine or criar_engine()
@@ -623,15 +845,43 @@ def executar_investigacao_colunas(
             _COLUNAS_PK_CACHE.pop(engine_local, None)
             _COLUNAS_FK_CACHE.pop(engine_local, None)
         investigacoes: list[dict[str, Any]] = []
+        decisoes_booleanos = (
+            carregar_decisoes_booleanos(caminho_decisoes_booleanos)
+            if caminho_decisoes_booleanos
+            else _estrutura_decisoes_booleanos_padrao()
+        )
+        rejeitadas = colunas_rejeitadas_booleanos(decisoes_booleanos)
 
         if colunas_diretas:
             for tabela_alvo, coluna_alvo in _parsear_colunas_diretas(colunas_diretas):
-                investigacoes.append(investigar_coluna(engine_local, tabela_alvo, coluna_alvo))
+                investigacoes.append(
+                    investigar_coluna(
+                        engine_local,
+                        tabela_alvo,
+                        coluna_alvo,
+                        colunas_rejeitadas=rejeitadas,
+                        decisoes_booleanos=decisoes_booleanos,
+                    )
+                )
         elif tabela:
-            investigacoes.extend(investigar_tabela(engine_local, tabela))
+            investigacoes.extend(
+                investigar_tabela(
+                    engine_local,
+                    tabela,
+                    colunas_rejeitadas=rejeitadas,
+                    decisoes_booleanos=decisoes_booleanos,
+                )
+            )
         else:
             for nome_tabela in _listar_tabelas_validas(engine_local):
-                investigacoes.extend(investigar_tabela(engine_local, nome_tabela))
+                investigacoes.extend(
+                    investigar_tabela(
+                        engine_local,
+                        nome_tabela,
+                        colunas_rejeitadas=rejeitadas,
+                        decisoes_booleanos=decisoes_booleanos,
+                    )
+                )
 
         resumo_nome = {
             "traduzidas_manual": sum(
@@ -663,6 +913,7 @@ def executar_investigacao_colunas(
             "colunas_booleanas_provaveis": _agrupar_colunas_booleanas(investigacoes),
             "investigacoes": investigacoes,
         }
+        sincronizar_decisoes_booleanos_relatorio(relatorio, decisoes_booleanos)
         salvar_yaml(relatorio, caminho_saida)
         return relatorio
     finally:
