@@ -193,6 +193,30 @@ hearingcontrol:
   hearingfile:
     '0': Não
     '1': Sim
+  analise_prov:
+    '0': Não
+    '1': Sim
+  canceled:
+    '0': Não
+    '1': Sim
+  correspondent:
+    '0': Não
+    '1': Sim
+  deleted:
+    '0': Não
+    '1': Sim
+  dispensed:
+    '0': Não
+    '1': Sim
+  hearingresp_confirmed:
+    '0': Não
+    '1': Sim
+  need_preposto:
+    '0': Não
+    '1': Sim
+  need_witness:
+    '0': Não
+    '1': Sim
   hearingtype:
     '11': Instrução
   hearingstatus:

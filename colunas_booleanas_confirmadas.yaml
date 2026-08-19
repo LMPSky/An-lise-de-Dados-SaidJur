@@ -1,0 +1,55 @@
+atualizado_em: '2026-08-19T15:26:00+00:00'
+confirmadas:
+  hearingcontrol.analise_prov:
+    tabela: hearingcontrol
+    coluna: analise_prov
+    confirmado_em: '2026-08-19T15:26:00+00:00'
+  hearingcontrol.canceled:
+    tabela: hearingcontrol
+    coluna: canceled
+    confirmado_em: '2026-08-19T15:26:00+00:00'
+  hearingcontrol.correspondent:
+    tabela: hearingcontrol
+    coluna: correspondent
+    confirmado_em: '2026-08-19T15:26:00+00:00'
+  hearingcontrol.deleted:
+    tabela: hearingcontrol
+    coluna: deleted
+    confirmado_em: '2026-08-19T15:26:00+00:00'
+  hearingcontrol.dispensed:
+    tabela: hearingcontrol
+    coluna: dispensed
+    confirmado_em: '2026-08-19T15:26:00+00:00'
+  hearingcontrol.hearingfile:
+    tabela: hearingcontrol
+    coluna: hearingfile
+    confirmado_em: '2026-08-19T15:26:00+00:00'
+  hearingcontrol.hearingresp_confirmed:
+    tabela: hearingcontrol
+    coluna: hearingresp_confirmed
+    confirmado_em: '2026-08-19T15:26:00+00:00'
+  hearingcontrol.need_preposto:
+    tabela: hearingcontrol
+    coluna: need_preposto
+    confirmado_em: '2026-08-19T15:26:00+00:00'
+  hearingcontrol.need_witness:
+    tabela: hearingcontrol
+    coluna: need_witness
+    confirmado_em: '2026-08-19T15:26:00+00:00'
+  hearingcontrol.needexpert:
+    tabela: hearingcontrol
+    coluna: needexpert
+    confirmado_em: '2026-08-19T15:26:00+00:00'
+  hearingcontrol.needinterpreter:
+    tabela: hearingcontrol
+    coluna: needinterpreter
+    confirmado_em: '2026-08-19T15:26:00+00:00'
+  hearingcontrol.needother:
+    tabela: hearingcontrol
+    coluna: needother
+    confirmado_em: '2026-08-19T15:26:00+00:00'
+  hearingcontrol.needwitness:
+    tabela: hearingcontrol
+    coluna: needwitness
+    confirmado_em: '2026-08-19T15:26:00+00:00'
+rejeitadas: {}

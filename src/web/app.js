@@ -170,6 +170,7 @@ function app() {
     // ── Labels ───────────────────────────────────────────────────
     labels: {},
     dicionarios: {},
+    colunasBooleanas: new Set(),
     mostrarLabels: true,
     modoAvancado: false,
     mostrarNomesTecnicos: false,
@@ -326,7 +327,7 @@ function app() {
       const primeiraLinha = (registro, chaves) => {
         for (const chave of chaves) {
           const valor = registro?.[chave];
-          if (valor !== null && valor !== undefined && String(valor).trim() !== '') return valor;
+          if (valor !== null && valor !== undefined && String(valor).trim() !== '' && !this.ehDataZero(String(valor))) return valor;
         }
         return null;
       };
@@ -358,8 +359,8 @@ function app() {
             nomeGrupo = 'Audiências';
             item = {
               'Cliente': primeiraLinha(registro, ['client_id', 'client_name', 'cliente']),
-              'Processo': primeiraLinha(registro, ['lawsuit_id', 'numero', 'lawsuitnumber']),
-              'Data': primeiraLinha(registro, ['hearing_date', 'date', 'scheduled_at']),
+              'Processo': primeiraLinha(registro, ['numero', 'lawsuitnumber', 'lawsuit_id']),
+              'Data': primeiraLinha(registro, ['hearing_date', 'date', 'scheduled_at', 'updated_at']),
               'Tipo de Audiência': primeiraLinha(registro, ['hearing_type_id', 'type', 'hearing_type']),
               'Situação': primeiraLinha(registro, ['status', 'situation']),
             };
@@ -582,7 +583,7 @@ function app() {
       // ✅ Fixar paginação no topo durante scroll
       this.configurarScrollFixo();
       
-      await Promise.all([this.carregarTraducoes(), this.carregarTabelas(), this.carregarDashboard(), this.carregarDicionarios()]);
+      await Promise.all([this.carregarTraducoes(), this.carregarTabelas(), this.carregarDashboard(), this.carregarDicionarios(), this.carregarColunasBooleanas()]);
       window.addEventListener('keydown', (event) => this.atalhosTeclado(event));
     },
 
@@ -760,6 +761,19 @@ function app() {
         this.dicionarios = await res.json();
       } catch {
         this.dicionarios = {};
+      }
+    },
+
+    async carregarColunasBooleanas() {
+      try {
+        const res = await fetch('/api/dicionarios/booleanas');
+        if (!res.ok) throw new Error(await res.text());
+        const lista = await res.json();
+        this.colunasBooleanas = new Set(
+          lista.map(({ tabela, coluna }) => `${tabela}.${coluna}`)
+        );
+      } catch {
+        this.colunasBooleanas = new Set();
       }
     },
 
@@ -966,6 +980,10 @@ function app() {
 
     traduzirValor(tabela, coluna, valor) {
       if (!this.mostrarLabels || valor === null || valor === undefined || valor === '') return null;
+      // Traduz colunas confirmadas como booleanas para "Sim"/"Não"
+      if (this.colunasBooleanas && this.colunasBooleanas.has(`${tabela}.${coluna}`)) {
+        return (valor === 1 || valor === true || valor === '1') ? 'Sim' : 'Não';
+      }
       return this.dicionarios?.[tabela]?.[coluna]?.[String(valor)] || null;
     },
 

@@ -632,3 +632,50 @@ Para dúvidas sobre a implementação:
 **Ajuste:** o mesmo comportamento foi aplicado aos cards expandidos via `camposCardExpandido()`. Campos nulos não poluem a visualização expandida, seja na tabela principal ou nos resultados de busca.
 
 **Escopo:** por registro individual — se um campo específico de um registro é nulo, ele é ocultado naquele card. Isso é mais útil na prática do que verificar se a coluna toda é nula (que raramente acontece em tabelas grandes).
+
+---
+
+## Correções dos cards de Audiências na busca global (bug pós-PR #39)
+
+**Data:** 2026-08-19
+
+### Causa raiz — três bugs independentes nunca efetivados
+
+A PR #39 foi mergeada mas seus três requisitos **nunca chegaram a funcionar em produção**. Investigação apontou:
+
+#### 1. Processo exibindo `lawsuit_id` cru (ex: `2332`) em vez do CNJ
+
+**Causa:** em `simplificarResultadosBusca()` (`src/web/app.js`), a lista de candidatos para o campo `Processo` da tabela `hearingcontrol` era `['lawsuit_id', 'numero', 'lawsuitnumber']`. Como `lawsuit_id` é sempre um inteiro não-nulo, `primeiraLinha()` o retornava imediatamente sem jamais tentar `numero`/`lawsuitnumber` — que contêm o CNJ real na própria linha de `hearingcontrol`.
+
+**Correção:** reordenar para `['numero', 'lawsuitnumber', 'lawsuit_id']`, dando prioridade ao CNJ já presente no registro.
+
+#### 2. Data exibindo `0000-00-00` em vez da data real de auditoria
+
+**Causa:** `primeiraLinha()` verificava apenas `!== null && !== undefined && !== ''`, mas não ignorava o valor-sentinela `0000-00-00` (ou `0000-00-00 00:00:00`) gerado pelo MySQL. O campo `updated_at` (com data real visível no card expandido) não estava na lista de candidatos de `hearingcontrol`.
+
+**Correção:**
+- `primeiraLinha()` agora chama `this.ehDataZero()` para ignorar sentinelas zerados.
+- `updated_at` adicionado como último candidato na lista de datas de `hearingcontrol`.
+
+#### 3. Colunas booleanas exibindo `0`/`1` crus (ex: `DISPENSADO: 0`)
+
+**Causa dupla:**
+- O arquivo `colunas_booleanas_confirmadas.yaml` **nunca foi criado** no repositório; o endpoint `/api/dicionarios/booleanas` retornava lista vazia.
+- O frontend **nunca implementou** `carregarColunasBooleanas()` nem a propriedade `colunasBooleanas`, e `traduzirValor()` nunca consultava esse mecanismo.
+- As colunas `dispensed`, `canceled`, `deleted`, `correspondent`, `hearingresp_confirmed`, `need_witness`, `need_preposto` e `analise_prov` também estavam ausentes de `dicionarios.yaml`.
+
+**Correção:**
+- Criado `colunas_booleanas_confirmadas.yaml` com todas as colunas booleanas confirmadas de `hearingcontrol`.
+- Adicionadas as colunas booleanas faltantes ao bloco `hearingcontrol` em `dicionarios.yaml` (mecanismo `Sim`/`Não` já utilizado por `needwitness`, `needinterpreter`, etc.).
+- Adicionados `colunasBooleanas: new Set()` ao estado e método `carregarColunasBooleanas()` em `app.js`, chamado em `iniciar()`.
+- `traduzirValor()` agora verifica `colunasBooleanas` antes de consultar `dicionarios`, retornando `'Sim'`/`'Não'` para colunas booleanas confirmadas.
+
+### Arquivos alterados
+
+| Arquivo | Mudança |
+|---|---|
+| `src/web/app.js` | Fix 1: reordenação candidatos `Processo`; Fix 2: `ehDataZero()` em `primeiraLinha()` + `updated_at` fallback; Fix 3: `colunasBooleanas`, `carregarColunasBooleanas()`, `traduzirValor()` |
+| `dicionarios.yaml` | Adicionadas 8 colunas booleanas faltantes de `hearingcontrol` |
+| `colunas_booleanas_confirmadas.yaml` | Criado com 13 colunas booleanas confirmadas de `hearingcontrol` |
+| `tests/test_web_app.py` | 5 novos testes de regressão end-to-end cobrindo os 3 cenários |
+| `tests/test_routes.py` | 2 novos testes verificando que `/api/dicionarios/booleanas` está registrado e acessível |
