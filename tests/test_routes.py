@@ -715,3 +715,52 @@ class TestMiddlewareGlobal:
         assert resp.status_code == 500
         assert resp.json()["detail"] == "Erro interno do servidor. Veja logs/app.log."
         assert "Exceção não tratada em GET /api/__teste_excecao_nao_tratada" in caplog.text
+
+
+# ── Testes de regressão — endpoint /api/dicionarios/booleanas ────────────────
+
+class TestRotaBooleanas:
+    """Garante que o endpoint /api/dicionarios/booleanas está registrado e acessível."""
+
+    def test_endpoint_booleanas_registrado_e_retorna_lista(self, client: TestClient) -> None:
+        """GET /api/dicionarios/booleanas deve retornar 200 com lista (mesmo que vazia)."""
+        resp = client.get("/api/dicionarios/booleanas")
+        assert resp.status_code == 200, (
+            "O endpoint /api/dicionarios/booleanas não está registrado ou retornou erro"
+        )
+        dados = resp.json()
+        assert isinstance(dados, list), "Resposta deve ser uma lista JSON"
+
+    def test_endpoint_booleanas_retorna_objetos_com_tabela_e_coluna(
+        self, client: TestClient, tmp_path: "pathlib.Path"
+    ) -> None:
+        """Quando colunas_booleanas_confirmadas.yaml existe, os itens devem ter tabela e coluna."""
+        import yaml
+        from pathlib import Path
+        import importlib
+        import src.investigacao_colunas as inv
+
+        arquivo_orig = inv.ARQUIVO_DECISOES_BOOLEANOS_PADRAO
+        arquivo_tmp = tmp_path / "booleanas_teste.yaml"
+        arquivo_tmp.write_text(
+            "atualizado_em: '2026-01-01T00:00:00+00:00'\n"
+            "confirmadas:\n"
+            "  hearingcontrol.dispensed:\n"
+            "    tabela: hearingcontrol\n"
+            "    coluna: dispensed\n"
+            "    confirmado_em: '2026-01-01T00:00:00+00:00'\n"
+            "rejeitadas: {}\n",
+            encoding="utf-8",
+        )
+
+        inv.ARQUIVO_DECISOES_BOOLEANOS_PADRAO = str(arquivo_tmp)
+        try:
+            resp = client.get("/api/dicionarios/booleanas")
+            assert resp.status_code == 200
+            dados = resp.json()
+            assert any(
+                item.get("tabela") == "hearingcontrol" and item.get("coluna") == "dispensed"
+                for item in dados
+            ), "Colunas confirmadas no arquivo devem aparecer na resposta"
+        finally:
+            inv.ARQUIVO_DECISOES_BOOLEANOS_PADRAO = arquivo_orig
