@@ -5,13 +5,19 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
+from threading import Lock
 from typing import Any
 
 from sqlalchemy import inspect, text
 from sqlalchemy.engine import Engine
 import yaml
 
-from src.db import criar_engine, executar_com_retry_db
+from src.db import (
+    criar_engine,
+    executar_com_retry_db,
+    fks_inferidas,
+    listar_chaves_estrangeiras,
+)
 from src.traducoes_colunas import (
     TRADUCOES_COLUNAS,
     _traduzir_coluna_relacional,
@@ -27,6 +33,10 @@ TABELAS_PRIORITARIAS_BOOLEANOS = (
     "employees",
     "users",
 )
+LIMITE_DISTINTOS_BOOLEANO = 64
+_COLUNAS_PK_CACHE: dict[Engine, dict[str, set[str]]] = {}
+_COLUNAS_FK_CACHE: dict[Engine, dict[str, set[str]]] = {}
+_CACHE_BOOLEANOS_LOCK = Lock()
 
 
 @dataclass(frozen=True)
@@ -165,12 +175,100 @@ def _normalizar_valor_booleano(valor: Any) -> str | None:
     return None
 
 
+def _colunas_pk_tabela(engine: Engine, tabela: str) -> set[str]:
+    """Retorna (em cache) o conjunto de colunas PK da tabela."""
+    with _CACHE_BOOLEANOS_LOCK:
+        cache_engine = _COLUNAS_PK_CACHE.setdefault(engine, {})
+        tabela_normalizada = tabela.lower()
+        if tabela_normalizada not in cache_engine:
+            try:
+                pk_constraint = inspect(engine).get_pk_constraint(tabela)
+                pk_cols = pk_constraint.get("constrained_columns") or []
+                cache_engine[tabela_normalizada] = {str(coluna).lower() for coluna in pk_cols}
+            except Exception:
+                cache_engine[tabela_normalizada] = set()
+        return cache_engine[tabela_normalizada]
+
+
+def _colunas_fk_tabela(engine: Engine, tabela: str) -> set[str]:
+    """Retorna (em cache) o conjunto de colunas FK declaradas/inferidas da tabela."""
+    with _CACHE_BOOLEANOS_LOCK:
+        cache_engine = _COLUNAS_FK_CACHE.setdefault(engine, {})
+        tabela_normalizada = tabela.lower()
+        if tabela_normalizada not in cache_engine:
+            try:
+                declaradas = {str(fk["coluna"]).lower() for fk in listar_chaves_estrangeiras(engine, tabela)}
+            except Exception:
+                declaradas = set()
+            try:
+                inferidas = {str(fk["coluna"]).lower() for fk in fks_inferidas(engine, tabela)}
+            except Exception:
+                inferidas = set()
+            cache_engine[tabela_normalizada] = declaradas | inferidas
+        return cache_engine[tabela_normalizada]
+
+
+def _coluna_auditoria_usuario(nome_coluna: str) -> bool:
+    """Identifica colunas de auditoria de usuário que nunca devem ser booleanas."""
+    return nome_coluna.lower().endswith("userid")
+
+
+def _clausula_limite_um(dialect_name: str) -> str:
+    """Retorna cláusula de limitação de 1 linha conforme o dialeto."""
+    if dialect_name in {"mysql", "sqlite", "postgresql"}:
+        return " LIMIT 1"
+    if dialect_name == "oracle":
+        return " FETCH FIRST 1 ROWS ONLY"
+    return ""
+
+
+def _tipo_texto_cast(dialect_name: str) -> str:
+    """Retorna tipo textual para CAST compatível com o dialeto."""
+    if dialect_name == "mysql":
+        return "CHAR"
+    if dialect_name == "mssql":
+        return "VARCHAR(64)"
+    if dialect_name == "oracle":
+        return "VARCHAR2(64)"
+    return "TEXT"
+
+
+def _motivo_exclusao_booleano(engine: Engine, tabela: str, coluna: str) -> str | None:
+    """Retorna o motivo de exclusão da coluna na classificação booleana."""
+    nome_coluna = coluna.lower()
+    if nome_coluna in _colunas_pk_tabela(engine, tabela):
+        return "chave_primaria"
+    if nome_coluna in _colunas_fk_tabela(engine, tabela):
+        return "chave_estrangeira"
+    if _coluna_auditoria_usuario(nome_coluna):
+        return "auditoria_usuario"
+    return None
+
+
+def _existe_valor_fora_booleano(engine: Engine, tabela: str, coluna: str) -> bool:
+    """Verifica se existe algum valor não nulo fora do domínio 0/1."""
+    dialect_name = engine.dialect.name
+    tabela_sql = _identificador(tabela, dialect_name)
+    coluna_sql = _identificador(coluna, dialect_name)
+    cast_texto = f"CAST({coluna_sql} AS {_tipo_texto_cast(dialect_name)})"
+    where_clause = (
+        f"WHERE {coluna_sql} IS NOT NULL "
+        f"AND TRIM(LOWER({cast_texto})) NOT IN ('0', '1')"
+    )
+    if dialect_name == "mssql":
+        sql = text(f"SELECT TOP 1 1 FROM {tabela_sql} {where_clause}")
+    else:
+        sql = text(f"SELECT 1 FROM {tabela_sql} {where_clause}{_clausula_limite_um(dialect_name)}")
+    with engine.connect() as conn:
+        return conn.execute(sql).fetchone() is not None
+
+
 def _valores_distintos_coluna(
     engine: Engine,
     tabela: str,
     coluna: str,
     *,
-    limite: int = 10,
+    limite: int = LIMITE_DISTINTOS_BOOLEANO,
 ) -> list[Any]:
     """Coleta uma amostra de valores distintos não nulos de uma coluna."""
     tabela_sql = _identificador(tabela, engine.dialect.name)
@@ -193,6 +291,9 @@ def _pista_provavel_booleano(
     tipo: str,
 ) -> dict[str, Any] | None:
     """Detecta colunas cujo domínio observado é restrito a 0/1, ignorando NULL."""
+    if _motivo_exclusao_booleano(engine, tabela, coluna):
+        return None
+
     if not _tipo_compativel_booleano(tipo):
         return None
 
@@ -208,11 +309,17 @@ def _pista_provavel_booleano(
     if None in normalizados:
         return None
 
+    try:
+        if _existe_valor_fora_booleano(engine, tabela, coluna):
+            return None
+    except Exception:
+        return None
+
     return {
         "fonte": "provavel_booleano",
         "valor": (
-            "Valores distintos não nulos observados restritos a 0/1; "
-            f"tipo compatível: {tipo}."
+            "Domínio sem valores fora de 0/1 e amostra de distintos "
+            f"(limite={LIMITE_DISTINTOS_BOOLEANO}) restrita a 0/1; tipo compatível: {tipo}."
         ),
         "confianca": "media",
         "categoria": "provavel_booleano",
@@ -512,6 +619,9 @@ def executar_investigacao_colunas(
     criou_engine = engine is None
 
     try:
+        with _CACHE_BOOLEANOS_LOCK:
+            _COLUNAS_PK_CACHE.pop(engine_local, None)
+            _COLUNAS_FK_CACHE.pop(engine_local, None)
         investigacoes: list[dict[str, Any]] = []
 
         if colunas_diretas:

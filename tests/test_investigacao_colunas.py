@@ -132,6 +132,63 @@ def test_pista_provavel_booleano_rejeita_valor_fora_do_dominio() -> None:
     assert pista is None
 
 
+def test_pista_provavel_booleano_rejeita_coluna_pk() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE country (id INTEGER PRIMARY KEY, nome TEXT)"))
+        conn.execute(text("INSERT INTO country (id, nome) VALUES (0, 'A'), (1, 'B')"))
+        conn.commit()
+
+    pista = _pista_provavel_booleano(engine, "country", "id", "INTEGER")
+
+    assert pista is None
+
+
+def test_pista_provavel_booleano_rejeita_coluna_fk() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE accounts (id INTEGER PRIMARY KEY, nome TEXT)"))
+        conn.execute(text("CREATE TABLE controlpanel2accounts (account_id INTEGER, remote INTEGER)"))
+        conn.execute(text("INSERT INTO controlpanel2accounts (account_id, remote) VALUES (0, 0), (1, 1), (NULL, NULL)"))
+        conn.commit()
+
+    pista_fk = _pista_provavel_booleano(engine, "controlpanel2accounts", "account_id", "INTEGER")
+    pista_bool = _pista_provavel_booleano(engine, "controlpanel2accounts", "remote", "INTEGER")
+
+    assert pista_fk is None
+    assert pista_bool is not None
+    assert pista_bool["categoria"] == "provavel_booleano"
+
+
+def test_pista_provavel_booleano_rejeita_coluna_auditoria_userid() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE config_prazo_emails (created_at_userid INTEGER)"))
+        conn.execute(text("INSERT INTO config_prazo_emails (created_at_userid) VALUES (0), (1), (NULL)"))
+        conn.commit()
+
+    pista = _pista_provavel_booleano(engine, "config_prazo_emails", "created_at_userid", "INTEGER")
+
+    assert pista is None
+
+
+def test_pista_provavel_booleano_rejeita_amostra_enviesada_com_valor_posterior() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE eventos (id INTEGER PRIMARY KEY, codigo_multiplo INTEGER)"))
+        conn.execute(
+            text(
+                "INSERT INTO eventos (id, codigo_multiplo) VALUES "
+                "(1, 0), (2, 1), (3, 0), (4, 1), (5, 2)"
+            )
+        )
+        conn.commit()
+
+    pista = _pista_provavel_booleano(engine, "eventos", "codigo_multiplo", "INTEGER")
+
+    assert pista is None
+
+
 def test_colunas_irmas_sugestao() -> None:
     engine = create_engine("sqlite:///:memory:")
     with engine.connect() as conn:
@@ -283,3 +340,62 @@ def test_executar_investigacao_colunas_separa_resumo_nome_e_booleano(monkeypatch
     assert investigacao_ativo["provavel_booleano"] is True
     assert relatorio["resumo"]["provavel_booleano"] == 1
     assert relatorio["resumo"]["classificacao_nomes"]["traduzidas_manual"] == 1
+
+
+def test_relatorio_exemplo_nao_inclui_falsos_positivos_pk_fk_userid(tmp_path: Path) -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE accounts (id INTEGER PRIMARY KEY, nome TEXT)"))
+        conn.execute(text("CREATE TABLE country (id INTEGER PRIMARY KEY, nome TEXT)"))
+        conn.execute(
+            text(
+                "CREATE TABLE controlpanel2accounts ("
+                "controlpanel2accounts_id INTEGER PRIMARY KEY, "
+                "account_id INTEGER, "
+                "remote INTEGER)"
+            )
+        )
+        conn.execute(
+            text(
+                "CREATE TABLE config_prazo_emails ("
+                "id INTEGER PRIMARY KEY, "
+                "created_at_userid INTEGER, "
+                "ativo INTEGER)"
+            )
+        )
+        conn.execute(
+            text(
+                "INSERT INTO controlpanel2accounts (controlpanel2accounts_id, account_id, remote) VALUES "
+                "(0, 0, 0), (1, 1, 1), (2, 7, 1)"
+            )
+        )
+        conn.execute(
+            text(
+                "INSERT INTO config_prazo_emails (id, created_at_userid, ativo) VALUES "
+                "(0, 0, 0), (1, 1, 1), (2, 8, NULL)"
+            )
+        )
+        conn.commit()
+
+    saida = tmp_path / "relatorio_investigacao_colunas.yaml"
+    relatorio = executar_investigacao_colunas(engine=engine, caminho_saida=str(saida))
+    booleanas = {
+        f"{item['tabela']}.{item['coluna']}"
+        for item in relatorio["investigacoes"]
+        if item.get("provavel_booleano")
+    }
+
+    assert "country.id" not in booleanas
+    assert "controlpanel2accounts.controlpanel2accounts_id" not in booleanas
+    assert "controlpanel2accounts.account_id" not in booleanas
+    assert "config_prazo_emails.created_at_userid" not in booleanas
+    assert "controlpanel2accounts.remote" in booleanas
+    assert "config_prazo_emails.ativo" in booleanas
+
+    dados_yaml = yaml.safe_load(saida.read_text(encoding="utf-8"))
+    booleanas_yaml = {
+        f"{item['tabela']}.{item['coluna']}"
+        for item in dados_yaml["investigacoes"]
+        if item.get("provavel_booleano")
+    }
+    assert "config_prazo_emails.created_at_userid" not in booleanas_yaml
