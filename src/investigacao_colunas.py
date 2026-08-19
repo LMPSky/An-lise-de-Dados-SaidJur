@@ -158,6 +158,26 @@ def colunas_rejeitadas_booleanos(dados: dict[str, Any]) -> set[str]:
     return set(rejeitadas)
 
 
+def lista_colunas_booleanas_confirmadas(
+    caminho: str | Path = ARQUIVO_DECISOES_BOOLEANOS_PADRAO,
+) -> list[dict[str, str]]:
+    """Retorna lista de colunas confirmadas como booleanas para exibição no frontend.
+
+    Cada item da lista contém ``tabela`` e ``coluna``.  Quando o arquivo de
+    decisões ainda não existe (antes de qualquer execução de
+    ``revisar_booleanos.py``), retorna lista vazia sem lançar exceção.
+    """
+    dados = carregar_decisoes_booleanos(caminho)
+    confirmadas = dados.get("confirmadas", {})
+    if not isinstance(confirmadas, dict):
+        return []
+    return [
+        {"tabela": info["tabela"], "coluna": info["coluna"]}
+        for info in confirmadas.values()
+        if isinstance(info, dict) and info.get("tabela") and info.get("coluna")
+    ]
+
+
 def sincronizar_decisoes_booleanos_relatorio(
     relatorio: dict[str, Any],
     dados_decisoes: dict[str, Any],
