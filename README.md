@@ -282,12 +282,19 @@ O script é somente leitura e gera `relatorio_investigacao_colunas.yaml` com:
 - sugestão candidata com nível de confiança da **tradução do nome** (`nivel_confianca` e `nivel_confianca_nome`)
 - classificação de valores separada e independente:
   - `provavel_booleano: true/false`
-  - `classificacao_valores: provavel_booleano` quando a amostra observada estiver restrita a `0`/`1`/`NULL` com tipo compatível
+  - `classificacao_valores: provavel_booleano` quando:
+    - a coluna **não** for PK/FK nem auditoria de usuário (`*_userid`, `created_at_userid`, `updated_at_userid`, `updateduserid`);
+    - houver checagem negativa de domínio sem encontrar valor fora de `0`/`1`;
+    - a amostra de distintos (limite maior) continuar restrita a `0`/`1`/`NULL` com tipo compatível.
 - seção `colunas_booleanas_provaveis` agrupada por tabela para futura revisão/promoção a metadado confirmado
 
 > **Importante:** tradução do **nome** da coluna e classificação do **domínio de valores**
 > são dimensões independentes. Uma mesma coluna pode aparecer simultaneamente como
 > `traduzida_manual` e `provavel_booleano`.
+>
+> Para reduzir falso positivo por amostragem enviesada, a detecção booleana não depende
+> só de `SELECT DISTINCT ... LIMIT N`: ela também faz uma verificação explícita para
+> rejeitar colunas onde exista qualquer valor não nulo fora de `0`/`1`.
 
 **Investigar booleanos primeiro nas tabelas mais usadas:**
 ```bash

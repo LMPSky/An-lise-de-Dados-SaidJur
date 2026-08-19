@@ -58,7 +58,13 @@
 
 - `src/investigacao_colunas.py` agora detecta colunas com:
   - tipo compatível (`TINYINT(1)`, `BOOLEAN`, `BOOL`, `INT`/`TINYINT`/`INTEGER` similares);
-  - valores distintos observados restritos a `0`, `1` e `NULL`.
+  - domínio sem valor não nulo fora de `0`/`1` (checagem negativa explícita);
+  - amostra de `SELECT DISTINCT` com limite ampliado (sem ordenação por PK).
+- Exclusões explícitas na detecção booleana:
+  - colunas PK da própria tabela;
+  - colunas FK declaradas ou inferidas via heurística existente em `src/db.py`;
+  - colunas de auditoria de usuário (`*_userid`, `created_at_userid`,
+    `updated_at_userid`, `updateduserid` e variantes diretas).
 - A classificação booleana passou a ser **independente** da tradução do nome:
   - `nivel_confianca` / `nivel_confianca_nome` continuam descrevendo apenas a
     confiança da tradução do nome da coluna;
