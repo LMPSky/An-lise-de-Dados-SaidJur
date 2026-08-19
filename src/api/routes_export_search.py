@@ -160,10 +160,22 @@ def _rotulo_simples_para_coluna(tabela: str, coluna: str) -> str | None:
     return None
 
 
-def _coluna_valor_mais_relevante(registro: dict[str, Any], candidatos: list[str]) -> Any:
-    """Retorna o primeiro valor não vazio encontrado entre colunas candidatas."""
+def _coluna_valor_mais_relevante(
+    registro: dict[str, Any],
+    candidatos: list[str],
+    *,
+    ignorar_data_zero: bool = False,
+) -> Any:
+    """Retorna o primeiro valor não vazio encontrado entre colunas candidatas.
+
+    Quando ``ignorar_data_zero`` for ``True``, valores sentinela de data/hora
+    zerada do MySQL (``0000-00-00``, ``00:00:00`` etc.) são tratados como
+    ausentes e o próximo candidato é testado.
+    """
     for nome in candidatos:
         if nome in registro and not _eh_texto_vazio(registro[nome]):
+            if ignorar_data_zero and _eh_data_zero(registro[nome]):
+                continue
             return registro[nome]
     return None
 
@@ -182,8 +194,8 @@ def _montar_registro_simplificado(tabela: str, registro: dict[str, Any]) -> dict
     elif tabela in {"publicationxml", "publicationxml_extra"}:
         simplificado = {
             "Cliente": _coluna_valor_mais_relevante(registro, ["client_id", "client_name", "cliente"]),
-            "Processo": _coluna_valor_mais_relevante(registro, ["lawsuit_id", "numero", "lawsuitnumber", "processo"]),
-            "Data": _coluna_valor_mais_relevante(registro, ["publication_date", "date", "created_at"]),
+            "Processo": _coluna_valor_mais_relevante(registro, ["numero", "lawsuitnumber", "cnj", "lawsuit_id", "processo"]),
+            "Data": _coluna_valor_mais_relevante(registro, ["publication_date", "date", "created_at"], ignorar_data_zero=True),
             "Classificação": _coluna_valor_mais_relevante(registro, ["pub_classification", "classification"]),
             "Situação": _coluna_valor_mais_relevante(registro, ["status"]),
             "Resumo": _coluna_valor_mais_relevante(registro, ["summary", "publication", "content", "texto"]),
@@ -191,16 +203,19 @@ def _montar_registro_simplificado(tabela: str, registro: dict[str, Any]) -> dict
     elif tabela == "hearingcontrol":
         simplificado = {
             "Cliente": _coluna_valor_mais_relevante(registro, ["client_id", "client_name", "cliente"]),
-            "Processo": _coluna_valor_mais_relevante(registro, ["lawsuit_id", "numero", "lawsuitnumber"]),
+            # Prefere o número CNJ (numero/lawsuitnumber); lawsuit_id já vem com o label
+            # resolvido quando os dados passaram por _normalizar_dados_para_exportacao.
+            "Processo": _coluna_valor_mais_relevante(registro, ["numero", "lawsuitnumber", "cnj", "lawsuit_id"]),
             "Parte": _coluna_valor_mais_relevante(registro, ["person_id", "person_name"]),
-            "Data": _coluna_valor_mais_relevante(registro, ["hearing_date", "date", "scheduled_at"]),
+            # Pula datas zeradas (0000-00-00) e tenta o próximo candidato.
+            "Data": _coluna_valor_mais_relevante(registro, ["hearing_date", "date", "scheduled_at", "updated_at"], ignorar_data_zero=True),
             "Tipo de Audiência": _coluna_valor_mais_relevante(registro, ["hearing_type_id", "type", "hearing_type"]),
             "Situação": _coluna_valor_mais_relevante(registro, ["status", "situation"]),
         }
     elif tabela == "pedidos2lawsuit":
         simplificado = {
             "Cliente": _coluna_valor_mais_relevante(registro, ["client_id", "client_name", "cliente"]),
-            "Processo": _coluna_valor_mais_relevante(registro, ["lawsuit_id", "numero", "lawsuitnumber"]),
+            "Processo": _coluna_valor_mais_relevante(registro, ["numero", "lawsuitnumber", "cnj", "lawsuit_id"]),
             "Pedido": _coluna_valor_mais_relevante(registro, ["claim_text", "request_text", "pedido", "description"]),
             "Andamento": _coluna_valor_mais_relevante(registro, ["progress_text", "status", "instance02", "instance01"]),
             "Valor": _coluna_valor_mais_relevante(registro, ["instance01_amount", "amount", "value"]),
