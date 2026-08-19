@@ -399,3 +399,92 @@ def test_relatorio_exemplo_nao_inclui_falsos_positivos_pk_fk_userid(tmp_path: Pa
         if item.get("provavel_booleano")
     }
     assert "config_prazo_emails.created_at_userid" not in booleanas_yaml
+
+
+def test_pista_provavel_booleano_rejeita_todos_casos_fk_reportados(tmp_path: Path) -> None:
+    """Colunas *_id que a heurística de FK reconhece como referência a outra tabela
+    não devem ser classificadas como provavel_booleano, mesmo com valores {0,1,NULL}.
+
+    Cobre exatamente os 6 casos de falsos positivos reportados pelo usuário:
+    account_id, sub_judicial_area_id, coligada_id, jobrole_id, busunit_id, paymentlimit_id.
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        # Tabelas de referência necessárias para que a heurística de FK reconheça
+        # cada coluna como FK válida (nomes gerados por _candidatos_para).
+        conn.execute(text("CREATE TABLE accounts (id INTEGER PRIMARY KEY, nome TEXT)"))
+        conn.execute(text("CREATE TABLE sub_judicial_areas (id INTEGER PRIMARY KEY, nome TEXT)"))
+        conn.execute(text("CREATE TABLE coligadas (id INTEGER PRIMARY KEY, nome TEXT)"))
+        conn.execute(text("CREATE TABLE jobroles (id INTEGER PRIMARY KEY, nome TEXT)"))
+        conn.execute(text("CREATE TABLE busunits (id INTEGER PRIMARY KEY, nome TEXT)"))
+        conn.execute(text("CREATE TABLE paymentlimits (id INTEGER PRIMARY KEY, nome TEXT)"))
+
+        # Tabela de testes com todos os casos reportados como FK + colunas
+        # genuinamente booleanas para validar que não há regressão.
+        conn.execute(
+            text(
+                "CREATE TABLE casos_reportados ("
+                "id INTEGER PRIMARY KEY, "
+                "account_id INTEGER, "
+                "sub_judicial_area_id INTEGER, "
+                "coligada_id INTEGER, "
+                "jobrole_id INTEGER, "
+                "busunit_id INTEGER, "
+                "paymentlimit_id INTEGER, "
+                "ativo INTEGER, "
+                "remote INTEGER)"
+            )
+        )
+        # Inserir valores {0,1,NULL} em todas as colunas para simular o cenário
+        # que causava os falsos positivos.
+        conn.execute(
+            text(
+                "INSERT INTO casos_reportados "
+                "(account_id, sub_judicial_area_id, coligada_id, jobrole_id, busunit_id, paymentlimit_id, ativo, remote) "
+                "VALUES (0, 0, 0, 0, 0, 0, 0, 0), "
+                "(1, 1, 1, 1, 1, 1, 1, 1), "
+                "(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL)"
+            )
+        )
+        conn.commit()
+
+    fks_reportadas = [
+        "account_id",
+        "sub_judicial_area_id",
+        "coligada_id",
+        "jobrole_id",
+        "busunit_id",
+        "paymentlimit_id",
+    ]
+
+    # Nenhuma coluna FK deve ser classificada como booleana.
+    for coluna in fks_reportadas:
+        pista = _pista_provavel_booleano(engine, "casos_reportados", coluna, "INTEGER")
+        assert pista is None, (
+            f"Coluna FK '{coluna}' foi incorretamente classificada como provavel_booleano"
+        )
+
+    # Colunas genuinamente booleanas continuam sendo detectadas (sem regressão).
+    for coluna_bool in ("ativo", "remote"):
+        pista = _pista_provavel_booleano(engine, "casos_reportados", coluna_bool, "INTEGER")
+        assert pista is not None, (
+            f"Coluna booleana '{coluna_bool}' deixou de ser detectada como provavel_booleano"
+        )
+        assert pista["categoria"] == "provavel_booleano"
+
+    # Verificar também via executar_investigacao_colunas (relatório completo).
+    saida = tmp_path / "relatorio_casos_fk.yaml"
+    relatorio = executar_investigacao_colunas(
+        engine=engine, tabela="casos_reportados", caminho_saida=str(saida)
+    )
+    booleanas = {
+        item["coluna"]
+        for item in relatorio["investigacoes"]
+        if item.get("provavel_booleano")
+    }
+    for coluna in fks_reportadas:
+        assert coluna not in booleanas, (
+            f"Coluna FK '{coluna}' apareceu como provavel_booleano no relatório completo"
+        )
+    assert "ativo" in booleanas
+    assert "remote" in booleanas

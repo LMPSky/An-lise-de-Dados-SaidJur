@@ -283,7 +283,10 @@ O script é somente leitura e gera `relatorio_investigacao_colunas.yaml` com:
 - classificação de valores separada e independente:
   - `provavel_booleano: true/false`
   - `classificacao_valores: provavel_booleano` quando:
-    - a coluna **não** for PK/FK nem auditoria de usuário (`*_userid`, `created_at_userid`, `updated_at_userid`, `updateduserid`);
+    - a coluna **não** for PK da própria tabela, nem FK (declarada no banco ou
+      detectada pela heurística de nome de `src/db.py` — qualquer `*_id` que
+      referencie uma tabela existente no schema é excluída), nem auditoria de
+      usuário (`*_userid`, `created_at_userid`, `updated_at_userid`, `updateduserid`);
     - houver checagem negativa de domínio sem encontrar valor fora de `0`/`1`;
     - a amostra de distintos (limite maior) continuar restrita a `0`/`1`/`NULL` com tipo compatível.
 - seção `colunas_booleanas_provaveis` agrupada por tabela para futura revisão/promoção a metadado confirmado

@@ -39,6 +39,24 @@
   - o modo simples continua exibindo dados reais do registro;
   - o HTML contém o botão explícito de expansão da busca global.
 
+## 🔧 Atualização 2026-08-19 — Exclusão de FKs genéricas na detecção de booleanos
+
+- A exclusão de candidatos a `provavel_booleano` agora **reutiliza a heurística de
+  FK genérica** já existente em `src/db.py` (`fks_inferidas` + `listar_chaves_estrangeiras`),
+  em vez de depender apenas do padrão textual de auditoria `*_userid`.
+- `_colunas_fk_tabela(engine, tabela)` em `src/investigacao_colunas.py` consolida
+  FKs declaradas no banco com FKs inferidas por heurística e armazena o resultado
+  em cache por engine/tabela, sem queries adicionais por coluna.
+- `_motivo_exclusao_booleano` consulta esse cache e retorna `"chave_estrangeira"`
+  para qualquer coluna reconhecida como FK — impedindo falsos positivos como:
+  `account_id`, `sub_judicial_area_id`, `coligada_id`, `jobrole_id`, `busunit_id`,
+  `paymentlimit_id` (e qualquer coluna `*_id` futura que aponte para tabela existente
+  no schema).
+- Colunas `*_id` que **não** apontam para nenhuma tabela existente (ex: PK própria
+  como `companytype_id`) continuam sendo excluídas via a checagem de PK separada.
+- Novos testes em `tests/test_investigacao_colunas.py` cobrem todos os 6 casos
+  reportados + regressão de booleanos genuínos + regressão de PK.
+
 ## 🔧 Atualização 2026-08-18 — Fallback de cards e investigação de booleanos
 
 ### Cards nunca mais vazios
@@ -62,7 +80,13 @@
   - amostra de `SELECT DISTINCT` com limite ampliado (sem ordenação por PK).
 - Exclusões explícitas na detecção booleana:
   - colunas PK da própria tabela;
-  - colunas FK declaradas ou inferidas via heurística existente em `src/db.py`;
+  - colunas FK declaradas no banco (via `listar_chaves_estrangeiras`) **ou**
+    detectadas por heurística de nome (`fks_inferidas`) — a mesma heurística
+    já usada por `coluna_label()` e pela resolução de labels em `src/db.py`.
+    Qualquer coluna `*_id` cujo prefixo corresponda a uma tabela existente no
+    schema é reconhecida como FK genérica e excluída, independentemente do
+    nome específico (ex: `account_id`, `sub_judicial_area_id`, `coligada_id`,
+    `jobrole_id`, `busunit_id`, `paymentlimit_id`);
   - colunas de auditoria de usuário (`*_userid`, `created_at_userid`,
     `updated_at_userid`, `updateduserid` e variantes diretas).
 - A classificação booleana passou a ser **independente** da tradução do nome:
