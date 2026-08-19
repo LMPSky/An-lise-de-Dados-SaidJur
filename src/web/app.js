@@ -170,6 +170,7 @@ function app() {
     // ── Labels ───────────────────────────────────────────────────
     labels: {},
     dicionarios: {},
+    colunasBooleanas: new Set(),
     mostrarLabels: true,
     modoAvancado: false,
     mostrarNomesTecnicos: false,
@@ -326,9 +327,20 @@ function app() {
       const primeiraLinha = (registro, chaves) => {
         for (const chave of chaves) {
           const valor = registro?.[chave];
-          if (valor !== null && valor !== undefined && String(valor).trim() !== '') return valor;
+          if (valor !== null && valor !== undefined && String(valor).trim() !== '' && !this.ehDataZero(String(valor))) return valor;
         }
         return null;
+      };
+
+      // Resolve o número do processo (CNJ) a partir de lawsuit_id via labels ou
+      // cai no primeiro valor não vazio/zerado dentre as colunas candidatas.
+      const resolverProcesso = (registro) => {
+        const id = registro?.lawsuit_id;
+        if (id !== null && id !== undefined && id !== '') {
+          const label = this.labelParaValor('lawsuits', id);
+          if (label) return label;
+        }
+        return primeiraLinha(registro, ['numero', 'lawsuitnumber', 'cnj', 'number', 'lawsuit_id']);
       };
 
       for (const grupo of this.resultadosBusca) {
@@ -349,7 +361,7 @@ function app() {
             nomeGrupo = 'Publicações';
             item = {
               'Cliente': primeiraLinha(registro, ['client_id', 'client_name', 'cliente']),
-              'Processo': primeiraLinha(registro, ['lawsuit_id', 'numero', 'lawsuitnumber', 'processo']),
+              'Processo': resolverProcesso(registro),
               'Data': primeiraLinha(registro, ['publication_date', 'date', 'created_at']),
               'Situação': primeiraLinha(registro, ['status', 'pub_classification', 'classification']),
               'Resumo': primeiraLinha(registro, ['summary', 'publication', 'content', 'texto']),
@@ -358,7 +370,7 @@ function app() {
             nomeGrupo = 'Audiências';
             item = {
               'Cliente': primeiraLinha(registro, ['client_id', 'client_name', 'cliente']),
-              'Processo': primeiraLinha(registro, ['lawsuit_id', 'numero', 'lawsuitnumber']),
+              'Processo': resolverProcesso(registro),
               'Data': primeiraLinha(registro, ['hearing_date', 'date', 'scheduled_at']),
               'Tipo de Audiência': primeiraLinha(registro, ['hearing_type_id', 'type', 'hearing_type']),
               'Situação': primeiraLinha(registro, ['status', 'situation']),
@@ -367,7 +379,7 @@ function app() {
             nomeGrupo = 'Pedidos e Andamentos';
             item = {
               'Cliente': primeiraLinha(registro, ['client_id', 'client_name', 'cliente']),
-              'Processo': primeiraLinha(registro, ['lawsuit_id', 'numero', 'lawsuitnumber']),
+              'Processo': resolverProcesso(registro),
               'Pedido': primeiraLinha(registro, ['claim_text', 'request_text', 'pedido', 'description']),
               'Andamento': primeiraLinha(registro, ['progress_text', 'status', 'instance02', 'instance01']),
               'Valor': primeiraLinha(registro, ['instance01_amount', 'amount', 'value']),
@@ -761,6 +773,14 @@ function app() {
       } catch {
         this.dicionarios = {};
       }
+      try {
+        const res = await fetch('/api/booleanas');
+        if (!res.ok) throw new Error(await res.text());
+        const lista = await res.json();
+        this.colunasBooleanas = new Set(lista);
+      } catch {
+        this.colunasBooleanas = new Set();
+      }
     },
 
     async carregarTraducoes() {
@@ -966,7 +986,15 @@ function app() {
 
     traduzirValor(tabela, coluna, valor) {
       if (!this.mostrarLabels || valor === null || valor === undefined || valor === '') return null;
-      return this.dicionarios?.[tabela]?.[coluna]?.[String(valor)] || null;
+      // Tradução de ENUM/dicionário específica tem prioridade
+      const traducaoDic = this.dicionarios?.[tabela]?.[coluna]?.[String(valor)];
+      if (traducaoDic !== undefined) return traducaoDic;
+      // Colunas confirmadas como booleanas: 0 → "Não", 1 → "Sim"
+      if (this.colunasBooleanas.has(`${tabela}.${coluna}`)) {
+        if (String(valor) === '1' || valor === true) return 'Sim';
+        if (String(valor) === '0' || valor === false) return 'Não';
+      }
+      return null;
     },
 
     descricaoHumana(nomeTabela, coluna, valor) {

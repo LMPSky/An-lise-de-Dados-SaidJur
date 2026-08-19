@@ -161,10 +161,18 @@ def _rotulo_simples_para_coluna(tabela: str, coluna: str) -> str | None:
 
 
 def _coluna_valor_mais_relevante(registro: dict[str, Any], candidatos: list[str]) -> Any:
-    """Retorna o primeiro valor não vazio encontrado entre colunas candidatas."""
+    """Retorna o primeiro valor não vazio e não zerado encontrado entre colunas candidatas.
+
+    Valores sentinela de data/hora zerada do MySQL (``0000-00-00``, ``00:00:00``,
+    ``0000-00-00 00:00:00``) são ignorados para que o próximo candidato da lista
+    seja tentado, evitando que datas zeradas apareçam no resumo quando existe
+    outro campo com data válida.
+    """
     for nome in candidatos:
-        if nome in registro and not _eh_texto_vazio(registro[nome]):
-            return registro[nome]
+        if nome in registro:
+            valor = registro[nome]
+            if not _eh_texto_vazio(valor) and not _eh_data_zero(valor):
+                return valor
     return None
 
 
