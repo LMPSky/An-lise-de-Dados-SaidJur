@@ -1,8 +1,223 @@
 # Pendências de Tradução — Revisão Humana Necessária
 
 Gerado em: 2026-07-30  
-Atualizado em: 2026-08-13 (Rodada 8 — correlação com `prazoobs`, switch de nomes técnicos)  
+Atualizado em: 2026-08-28 (Rodada 9 — fechamento por evidência dos relatórios de banco real)  
 Fonte: `relatorio_auditoria_traducoes.yaml`
+
+---
+
+## Rodada 9 (2026-08-28) — Fechamento por evidência dos relatórios de banco real
+
+### 0) Método desta rodada (sem acesso ao banco)
+
+Nesta rodada **não houve conexão com o banco**. Em vez de rodar
+`investigar_pendencias.py` / `investigar_colunas.py`, as pendências foram
+resolvidas por correlação entre os três artefatos de banco real já versionados:
+
+| Artefato | O que fornece |
+|----------|---------------|
+| `relatorio_auditoria_traducoes.yaml` | Lista de colunas/valores pendentes e o conjunto de valores efetivamente observados na amostragem |
+| `relatorio_investigacao_pendencias.yaml` | Resultado da investigação assistida, com `fonte`, `tabela_referencia` e nível de confiança por código |
+| `dicionario.yaml` | Dump do **domínio completo** de valores distintos por `tabela.coluna` no banco real |
+
+Só foram aplicadas traduções em que o `dicionario.yaml` confirma o **domínio
+fechado** da coluna (ex.: exatamente `{0, 1}` ou `{n, y}`) ou em que o
+`relatorio_investigacao_pendencias.yaml` registra `alta_confianca` com
+`fonte: tabela_referencia`. Nenhum código ambíguo foi adivinhado.
+
+### 1) Higiene de dados — entradas removidas do `dicionarios.yaml`
+
+Duas entradas presentes no dicionário versionado contrariavam decisões já
+documentadas nas Rodadas 5 e 6 e foram removidas:
+
+| Tabela | Coluna | Valor | Conteúdo removido | Motivo |
+|--------|--------|-------|-------------------|--------|
+| `hearingcontrol` | `hearingstatus` | `2` | `Audiência instrução designada para 11/06/2019 14:30 Seção B da 31ª Vara Cível da Capital.` | Texto livre de um registro real (data/hora/local). É exatamente o mesmo vazamento removido de `hearings_log.hearingstatus` na Rodada 5, reintroduzido em `hearingcontrol` pelo bug corrigido na Rodada 7. |
+| `lawsuits` | `finalpayment_type` | `2` | `JAC BH BARÃO` | A Rodada 6 declarou essa entrada como **removida do dicionário ativo** (possível nome de agência/unidade), mas ela continuava no arquivo. |
+
+Com isso, `hearingcontrol.hearingstatus` volta a ser pendência aberta
+(valores `0`, `1`, `2`), alinhada com `hearings_log.hearingstatus`.
+
+### 2) Nomes de coluna — `accounts.lft` / `accounts.rgt` resolvidos
+
+O `dicionario.yaml` confirma que ambas as colunas contêm apenas inteiros
+sequenciais (`1`, `2`, `3`, …), o que caracteriza sem ambiguidade o padrão
+**Nested Sets / MPTT** (limites esquerdo e direito do nó na árvore do plano de
+contas). Como o padrão é notório e não depende de regra de negócio do SaidJur,
+as colunas foram traduzidas em `src/traducoes_colunas.py`:
+
+| Coluna | Tradução aplicada |
+|--------|-------------------|
+| `lft` | Limite Esquerdo (Árvore) |
+| `rgt` | Limite Direito (Árvore) |
+
+São **campos técnicos de estrutura**, não campos de negócio. A decisão de
+**ocultá-los da interface** continua sendo uma escolha de produto (a definir com
+a equipe funcional), mas o item deixa de ser pendência de *tradução*.
+
+Com isso, o item 1.1 desta lista está encerrado. Restam apenas as abreviações
+`lawsuits.nd`, `lawsuits_log.nd`, `pedidos2lawsuit.ias` e `prazos.adm`
+(item 1.2), que continuam sem evidência.
+
+### 3) Status/flags binários com domínio fechado confirmado
+
+Aplicado o padrão já consolidado no projeto (`status` `0`/`1` →
+`Inativo`/`Ativo`; flag booleana → `Não`/`Sim`) **somente** onde o
+`dicionario.yaml` mostra o domínio completo com os dois lados presentes:
+
+| Tabela | Coluna | Domínio no banco | Tradução aplicada |
+|--------|--------|------------------|-------------------|
+| `deniedprazo_reasons` | `status` | `{0, 1}` | Inativo / Ativo |
+| `paymentguarantee2lawsuit` | `status` | `{0, 1}` | Inativo / Ativo |
+| `projectactivityprazos` | `status` | `{0, 1}` | Inativo / Ativo |
+| `prazos_log` | `status` | `{0, 1}` | Inativo / Ativo |
+| `prazo2publication` | `status` | `{0, 1}` | Inativo / Ativo |
+| `paymentguarantee2lawsuit` | `containstypefile` | `{0, 1}` | Não / Sim |
+| `hearingcontrol` | `remote` | `{0, 1}` | Não / Sim |
+| `hearingcontrol` | `confession` | `{n, y}` | Não / Sim |
+| `hearingcontrol` | `third_party_presence` | `{n, y}` | Não / Sim |
+
+> `prazo2publication.status` aparecia como `['0']` na amostra da auditoria, mas o
+> dump de domínios (`dicionario.yaml`) registra `{0, 1}` — por isso entrou nesta
+> rodada, e não nas anteriores.
+
+`hearingcontrol.remote` também foi promovida a booleano confirmado em
+`colunas_booleanas_confirmadas.yaml` (domínio `0`/`1`). `confession` e
+`third_party_presence` **não** foram incluídas nesse arquivo porque ele é
+específico para colunas com domínio `0`/`1`, e essas usam `n`/`y`.
+
+### 4) Valor textual inequívoco
+
+| Tabela | Coluna | Valor | Tradução aplicada |
+|--------|--------|-------|-------------------|
+| `automaticprazos_lawsuits` | `hearing_type` | `all` | Todos |
+
+Domínio completo é `{all}` e a palavra é inglês corrente, não um código interno —
+mesmo tratamento já dado a `chatmessages.recipienttype.all` e a
+`print_reports.nature` (`lawsuits` → Processos, `hearing` → Audiência).
+
+### 5) Propagação entre tabelas irmãs (mesma tabela de referência)
+
+O `relatorio_investigacao_pendencias.yaml` registra que **`prazos_log.pzphase` e
+`prazo2publication.pzphase` resolvem contra a mesma tabela de referência
+`prazotype`**, e que os códigos `3` e `4` produziram rótulos idênticos nas duas
+tabelas. Isso é evidência suficiente para completar `prazos_log.pzphase` com os
+códigos que já estavam traduzidos em `prazo2publication.pzphase`:
+
+| Tabela | Coluna | Valor | Tradução aplicada | Origem |
+|--------|--------|-------|-------------------|--------|
+| `prazos_log` | `pzphase` | `1` | audiência inicial | `prazotype` (via `prazo2publication.pzphase`) |
+| `prazos_log` | `pzphase` | `2` | ENVIAR CTPS P/ ANOTAÇÃO | `prazotype` (via `prazo2publication.pzphase`) |
+| `prazos_log` | `finishtype` | `p` | processo físico | `prazo2publication.finishtype` |
+
+Os domínios de `pzphase` (`{1, 2, 3, 4}`) são idênticos nas duas tabelas no
+`dicionario.yaml`, o que confirma que compartilham o mesmo catálogo.
+`prazos_log.pzphase` fica assim **totalmente traduzida**.
+
+> O valor `0` de `prazos_log.pzphase` citado na Rodada 2 **não existe** no dump de
+> domínios do banco (`{1, 2, 3, 4}`); a investigação da Rodada 8 também retornou
+> `sem_pista_encontrada` para ele. O item foi encerrado como inexistente.
+
+### 6) Normalização documentada de `accounts.code`
+
+A Rodada 5 declarou a normalização de capitalização de `accounts.code`
+(`Passivo`, `Despesas`, `Receitas`, `Sistema Auxiliar`), mas o arquivo continuava
+com os rótulos em caixa alta. A decisão foi aplicada de fato, e `ativo` foi
+alinhado ao mesmo padrão (classe contábil, não "conta de ativos"):
+
+| Valor | Era | Passou a ser |
+|-------|-----|--------------|
+| `ativo` | Conta de ativos | Ativo |
+| `pass` | PASSIVO | Passivo |
+| `desp` | DESPESAS | Despesas |
+| `rec` | RECEITAS | Receitas |
+| `pl` | SISTEMA AUXILIAR | Sistema Auxiliar |
+| `CONT` | Conta | Conta (inalterado) |
+
+`accounts.type` e `accounts.nature` **não** foram alterados: continuam
+pendentes de validação com a regra de negócio contábil (item 2.1).
+
+### 7) `activitynature.nature` — encerrado como "não requer tradução"
+
+A Rodada 5 deixou em aberto a "reconstrução" de `activitynature.nature`. O dump
+de domínios mostra que os valores armazenados **já são rótulos em português**
+(`Reunião no nosso Escritório`, `Telefonema`, `E-mail`, `Almoço/jantar`,
+`Redação da proposta`, …). Não é uma coluna de código: é texto de catálogo
+mantido pelo usuário. Portanto **não deve** receber entradas no
+`dicionarios.yaml` — qualquer mapeamento seria identidade e viraria ruído
+versionado. Item encerrado.
+
+### 8) Pendências que permanecem abertas (com motivo atualizado)
+
+#### 8.1 Um único lado do binário observado
+
+Continuam pendentes pela mesma regra da Rodada 5 (`returned_prazo_reasons.status`):
+enquanto apenas um valor for observado no banco, não há prova de que a coluna
+seja binária `Inativo`/`Ativo`.
+
+| Tabela | Coluna | Domínio observado |
+|--------|--------|-------------------|
+| `automaticprazos_lawsuits` | `lawsuit_phase` | `{0}` |
+| `automaticprazos_lawsuits` | `status` | `{0}` |
+| `pedidos2lawsuit` | `status` | `{1}` |
+| `projectevents` | `status` | `{0}` |
+| `projects` | `status` | `{0}` |
+| `returned_prazo_reasons` | `status` | `{1}` |
+| `timesheet_tasks` | `status` | `{0}` |
+| `lawsuitdocsmetadata` | `pjestatus` | `{0}` |
+| `lawsuitdocsmetadata` | `docstatus` | `{1}` |
+
+Reinvestigar com amostra maior quando houver banco:
+```bash
+python investigar_pendencias.py --limite-linhas 100 --colunas \
+  automaticprazos_lawsuits.status projects.status projectevents.status \
+  timesheet_tasks.status returned_prazo_reasons.status pedidos2lawsuit.status
+```
+
+#### 8.2 Status/fases com três ou mais estados, sem tabela de referência
+
+| Tabela | Coluna | Domínio observado | Situação |
+|--------|--------|-------------------|----------|
+| `hearingcontrol` | `hearingstatus` | `{0, 1, 2}` | Reaberta nesta rodada (ver item 1). A única sugestão de alta confiança apontava para texto livre de `hearings_log`, não para um catálogo. |
+| `hearings_log` | `hearingstatus` | `{0, 1, 2}` | Mesmo caso. |
+| `tasks2publication` | `status` | `{0, 1, 2}` | Três estados sem catálogo identificado. |
+| `clientsystem2lawsuit` | `phase` / `status` | `{1..5}` | Configuração do sistema do cliente. |
+| `lawsuitdocs` | `phase` | `{0, 1, 2, 3, 5}` | Fases do fluxo documental. |
+| `final_payments` | `payment_type` | `{1, 2, 3}` | Sem catálogo identificado. |
+| `lawsuits` / `lawsuits_log` | `finalpayment_type` | `{1, 2, 3}` | Idem (após a remoção do item 1). |
+| `paymentguarantee2lawsuit` | `nature` | `{1, 2, 3}` | Investigação retornou apenas `pista_unica`. |
+| `paymentguarantee2lawsuit` | `type_old` | `{1..12, 14, 16..19}` | Códigos legados. |
+| `lawsuitdocsmetadata` | `prazophase` | `{1}` | O rótulo atual (`Juntada de Substabelecimento`) **diverge** de `prazotype[1]` (`audiência inicial`), então **não** houve propagação a partir de `pzphase`. Confirmar se `prazophase` usa outro catálogo. |
+
+#### 8.3 Códigos curtos sem catálogo
+
+| Tabela | Coluna | Valores | Situação |
+|--------|--------|---------|----------|
+| `lawsuits` / `lawsuits_log` | `contract_type` | `es`, `co`, `ctrl`, `es2` | A investigação assistida retornou `pista_unica`/`sem_pista_encontrada` para todos os quatro. Nenhuma tabela de referência foi localizada mesmo após a ampliação de heurísticas da Rodada 7 (`contracttypes`, `tipos_contrato`, …). Sem evidência, nada foi aplicado. |
+| `person2lawsuit` | `link_type` | `t`, `s`, `u` | `t` e `s` sem evidência. **Atenção**: o dicionário contém `u: SEM JUSTA CAUSA`, sem rastro de origem nos relatórios e sem coerência semântica com "tipo de vínculo". Entrada mantida, mas **marcada para confirmação humana** antes da próxima rodada. |
+| `person2lawsuit` | `persontype` | `p`, `d`, `c` | Provavelmente autor/réu/cliente, mas sem confirmação — não aplicado. |
+| `activitynature` | `type` | `con`, `com` | Sem catálogo. |
+| `automaticprazos_lawsuits` | `type_days` | `b`, `n` | Provável "dias úteis"/"dias corridos", sem confirmação. |
+| `claims` | `lawsuittype` | `j` | Código isolado. |
+| `expedients` | `type` | `p`, `l` | Sem catálogo. |
+| `lawsuitdocs` / `otherdocs` | `processtype` | `j` | Sem catálogo. |
+| `lawsuits` / `lawsuits_log` | `type` | `j` | Sem catálogo. |
+| `projecteventtypes` / `projects` | `type` | `con` | Sem catálogo. |
+| `timesheet_tasks` | `type` | `i` | Sem catálogo. |
+| `prazos_log` / `prazo2publication` | `finishtype` | `f`, `n`, `pje`, `adm` | Apenas `p` (processo físico) tem rótulo confirmado. `adm` só ocorre em `prazo2publication`. |
+| `accounts` | `type` / `nature` | `a`, `d`, `p`, `pl`, `r` | Rótulos atuais mantidos, mas pendentes de validação contábil. |
+| `prazos_log` / `prazo2publication` | `pubtype` | 50 valores distintos (FK) | Resolver via tabela `pubtypes` (ver Rodada 7/8), não por dicionário. |
+
+### 9) Resumo da Rodada 9
+
+| Ação | Quantidade |
+|------|-----------|
+| Nomes de coluna traduzidos | 2 (`lft`, `rgt`) |
+| Valores de ENUM/código adicionados | 22 |
+| Entradas corrigidas (capitalização) | 5 (`accounts.code`) |
+| Entradas removidas por higiene de dados | 2 |
+| Itens encerrados sem necessidade de tradução | 2 (`activitynature.nature`, `prazos_log.pzphase = 0`) |
+| Colunas promovidas a booleano confirmado | 1 (`hearingcontrol.remote`) |
 
 ---
 
@@ -477,12 +692,12 @@ mas **não têm tradução suficientemente confiável sem acesso ao banco real**
 
 ### 1.1 Campos técnicos de estrutura de árvore — tabela `accounts`
 
-| Coluna | Tradução atual (fallback) | Motivo da pendência |
-|--------|--------------------------|---------------------|
-| `lft` | Lft | Coluna técnica de estrutura Nested Sets / MPTT. Pode não fazer sentido expor ao usuário final. |
-| `rgt` | Rgt | Idem — limite direito da árvore. |
+> ✅ **Resolvido na Rodada 9.** Ver seção "Rodada 9 → item 2".
 
-**Sugestão:** confirmar se esses campos devem ser ocultados da interface em vez de traduzidos.
+| Coluna | Tradução aplicada | Situação |
+|--------|-------------------|----------|
+| `lft` | Limite Esquerdo (Árvore) | Campo técnico Nested Sets / MPTT — traduzido; exibi-lo ou não na interface é decisão de produto. |
+| `rgt` | Limite Direito (Árvore) | Idem — limite direito da árvore. |
 
 ---
 
@@ -591,9 +806,13 @@ Nesta rodada, a decisão foi:
 
 ## 4. Próximos passos
 
-1. Confirmar com a equipe funcional se `lft`/`rgt` devem ser ocultados.
+1. Confirmar com a equipe funcional se `lft`/`rgt` (já traduzidos na Rodada 9)
+   devem ser ocultados da interface por serem campos técnicos de árvore.
 2. Levantar o significado interno de `nd`, `ias` e `adm`.
-3. Consultar tabelas de referência/configuração para fases e status numéricos.
+3. Consultar tabelas de referência/configuração para fases e status numéricos
+   ainda listados na seção 8 da Rodada 9.
 4. Validar com o time jurídico/comercial os códigos de `contract_type`,
-   `person2lawsuit.*` e `finishtype = p`.
-5. Após validação, complementar `src/traducoes_colunas.py` e `dicionarios.yaml`.
+   `person2lawsuit.*` e `finishtype` (`f`, `n`, `pje`, `adm`).
+5. Confirmar a origem de `person2lawsuit.link_type['u'] = SEM JUSTA CAUSA` e
+   removê-la caso não venha de um catálogo real.
+6. Após validação, complementar `src/traducoes_colunas.py` e `dicionarios.yaml`.

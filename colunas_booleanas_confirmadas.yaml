@@ -1,4 +1,4 @@
-atualizado_em: '2026-08-19T15:26:00+00:00'
+atualizado_em: '2026-08-28T00:00:00+00:00'
 confirmadas:
   hearingcontrol.analise_prov:
     tabela: hearingcontrol
@@ -52,4 +52,8 @@ confirmadas:
     tabela: hearingcontrol
     coluna: needwitness
     confirmado_em: '2026-08-19T15:26:00+00:00'
+  hearingcontrol.remote:
+    tabela: hearingcontrol
+    coluna: remote
+    confirmado_em: '2026-08-28T00:00:00+00:00'
 rejeitadas: {}

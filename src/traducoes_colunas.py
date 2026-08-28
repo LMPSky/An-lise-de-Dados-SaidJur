@@ -1392,6 +1392,10 @@ TRADUCOES_COLUNAS = {
     'cost_center_2': 'Centro de Custo 2',
     'cost_center_name': 'Nome do Centro de Custo',
     'supervisor_prazo_email': 'E-mail de Prazo do Supervisor',
+    # Campos técnicos de estrutura de árvore (Nested Sets / MPTT) — em `accounts`
+    # delimitam a posição do nó no plano de contas hierárquico.
+    'lft': 'Limite Esquerdo (Árvore)',
+    'rgt': 'Limite Direito (Árvore)',
 }
 
 
