@@ -151,6 +151,14 @@ def test_traducoes_relatorio_sila_do_brasil() -> None:
     assert traduzir_nome_coluna("ias") == "Ias"
 
 
+def test_traducoes_campos_tecnicos_de_arvore() -> None:
+    """Verifica os campos técnicos Nested Sets / MPTT da tabela `accounts`."""
+    assert TRADUCOES_COLUNAS["lft"] == "Limite Esquerdo (Árvore)"
+    assert TRADUCOES_COLUNAS["rgt"] == "Limite Direito (Árvore)"
+    assert traduzir_nome_coluna("lft") == "Limite Esquerdo (Árvore)"
+    assert traduzir_nome_coluna("rgt") == "Limite Direito (Árvore)"
+
+
 def test_traduz_nomes_de_abas_prioritarias_da_exportacao() -> None:
     """Verifica os nomes amigáveis de abas usados no Excel exportado."""
     assert traduzir_nome_tabela_exportacao("client_publication_search_terms") == "Termos de Busca do Cliente"

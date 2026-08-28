@@ -1,9 +1,15 @@
 activitynature: {}
-automaticprazos_lawsuits: {}
+automaticprazos_lawsuits:
+  hearing_type:
+    all: Todos
 chatmessages:
   recipienttype:
     s: Individual
     all: Todos
+  status:
+    '0': Inativo
+    '1': Ativo
+deniedprazo_reasons:
   status:
     '0': Inativo
     '1': Ativo
@@ -30,13 +36,17 @@ lawsuits:
   status:
     '0': Inativo
     '1': Ativo
-  finalpayment_type:
-    '2': JAC BH BARÃO
 lawsuits_log:
   status:
     '0': Inativo
     '1': Ativo
-paymentguarantee2lawsuit: {}
+paymentguarantee2lawsuit:
+  status:
+    '0': Inativo
+    '1': Ativo
+  containstypefile:
+    '0': Não
+    '1': Sim
 paymenttype:
   code:
     Bol: Boleto
@@ -56,7 +66,10 @@ print_reports:
   nature:
     lawsuits: Processos
     hearing: Audiência
-projectactivityprazos: {}
+projectactivityprazos:
+  status:
+    '0': Inativo
+    '1': Ativo
 returned_prazo_reasons:
   status:
     '1': Ativo
@@ -106,11 +119,11 @@ usertasks:
     '1': Sim
 accounts:
   code:
-    ativo: Conta de ativos
-    pass: PASSIVO
-    desp: DESPESAS
-    rec: RECEITAS
-    pl: SISTEMA AUXILIAR
+    ativo: Ativo
+    pass: Passivo
+    desp: Despesas
+    rec: Receitas
+    pl: Sistema Auxiliar
     CONT: Conta
   type:
     a: Conta de ativos
@@ -146,6 +159,9 @@ prazo2publication:
   skip_validate:
     '0': Não
     '1': Sim
+  status:
+    '0': Inativo
+    '1': Ativo
   pzphase:
     '1': audiência inicial
     '2': ENVIAR CTPS P/ ANOTAÇÃO
@@ -166,9 +182,16 @@ prazos_log:
   skip_validate:
     '0': Não
     '1': Sim
+  status:
+    '0': Inativo
+    '1': Ativo
   pzphase:
+    '1': audiência inicial
+    '2': ENVIAR CTPS P/ ANOTAÇÃO
     '3': Juntada de preposição e substabelecimento
     '4': Encerramento
+  finishtype:
+    p: processo físico
 projects: {}
 tasks2publication: {}
 timesheet_tasks: {}
@@ -217,8 +240,14 @@ hearingcontrol:
   need_witness:
     '0': Não
     '1': Sim
+  remote:
+    '0': Não
+    '1': Sim
+  confession:
+    n: Não
+    y: Sim
+  third_party_presence:
+    n: Não
+    y: Sim
   hearingtype:
     '11': Instrução
-  hearingstatus:
-    '2': Audiência instrução designada para 11/06/2019 14:30 Seção B da 31ª Vara Cível
-      da Capital.

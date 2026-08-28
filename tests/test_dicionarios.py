@@ -91,3 +91,45 @@ def test_dicionarios_runtime_versionado_contem_traducoes_de_alta_confianca() -> 
     assert dados["paymenttype"]["code"]["dda"] == "Débito Direto Autorizado (DDA)"
     assert dados["persons"]["persontype"]["n"] == "Pessoa Física"
     assert dados["usertasks"]["write_paytype"]["1"] == "Sim"
+
+
+def test_dicionarios_runtime_contem_traducoes_da_rodada_9() -> None:
+    """Verifica as traduções de domínio fechado aplicadas na Rodada 9."""
+    caminho = Path(__file__).resolve().parent.parent / "dicionarios.yaml"
+    dados = yaml.safe_load(caminho.read_text(encoding="utf-8"))
+
+    # Status binários com os dois lados confirmados no banco real.
+    for tabela, coluna in (
+        ("deniedprazo_reasons", "status"),
+        ("paymentguarantee2lawsuit", "status"),
+        ("projectactivityprazos", "status"),
+        ("prazos_log", "status"),
+        ("prazo2publication", "status"),
+    ):
+        assert dados[tabela][coluna] == {"0": "Inativo", "1": "Ativo"}
+
+    # Flags booleanas com domínio fechado.
+    assert dados["paymentguarantee2lawsuit"]["containstypefile"] == {"0": "Não", "1": "Sim"}
+    assert dados["hearingcontrol"]["remote"] == {"0": "Não", "1": "Sim"}
+    assert dados["hearingcontrol"]["confession"] == {"n": "Não", "y": "Sim"}
+    assert dados["hearingcontrol"]["third_party_presence"] == {"n": "Não", "y": "Sim"}
+
+    # Valor textual inequívoco.
+    assert dados["automaticprazos_lawsuits"]["hearing_type"]["all"] == "Todos"
+
+    # Propagação a partir da mesma tabela de referência (`prazotype`).
+    assert dados["prazos_log"]["pzphase"] == dados["prazo2publication"]["pzphase"]
+    assert dados["prazos_log"]["finishtype"]["p"] == "processo físico"
+
+    # Normalização de capitalização declarada na Rodada 5.
+    assert dados["accounts"]["code"]["pass"] == "Passivo"
+    assert dados["accounts"]["code"]["ativo"] == "Ativo"
+
+
+def test_dicionarios_runtime_sem_conteudo_de_registro_especifico() -> None:
+    """Garante que as entradas removidas por higiene de dados não retornem."""
+    caminho = Path(__file__).resolve().parent.parent / "dicionarios.yaml"
+    dados = yaml.safe_load(caminho.read_text(encoding="utf-8"))
+
+    assert "hearingstatus" not in dados["hearingcontrol"]
+    assert "finalpayment_type" not in dados["lawsuits"]
