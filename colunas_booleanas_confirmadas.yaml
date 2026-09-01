@@ -1,5 +1,9 @@
-atualizado_em: '2026-08-28T15:19:14.938899+00:00'
+atualizado_em: '2026-09-01T00:00:00+00:00'
 confirmadas:
+  automaticprazos_jurify.all_prazos:
+    tabela: automaticprazos_jurify
+    coluna: all_prazos
+    confirmado_em: '2026-09-01T00:00:00+00:00'
   businessunit.deactivated:
     tabela: businessunit
     coluna: deactivated
@@ -12,6 +16,10 @@ confirmadas:
     tabela: correspondent_state_activity_rates
     coluna: status
     confirmado_em: '2026-08-28T11:59:13.165132+00:00'
+  correspondent_usertasks.access_module:
+    tabela: correspondent_usertasks
+    coluna: access_module
+    confirmado_em: '2026-09-01T00:00:00+00:00'
   correspondent_usertasks.approve_requests:
     tabela: correspondent_usertasks
     coluna: approve_requests
@@ -140,6 +148,10 @@ confirmadas:
     tabela: lawsuits_log
     coluna: issuer_defendant
     confirmado_em: '2026-08-28T15:17:21.004387+00:00'
+  lawsuits_log.updated_values_calculation:
+    tabela: lawsuits_log
+    coluna: updated_values_calculation
+    confirmado_em: '2026-09-01T00:00:00+00:00'
   persons.from_acordo_nucleus:
     tabela: persons
     coluna: from_acordo_nucleus
@@ -152,6 +164,10 @@ confirmadas:
     tabela: prazo2publication_persons
     coluna: finished
     confirmado_em: '2026-08-28T15:18:04.882221+00:00'
+  prazos.adm:
+    tabela: prazos
+    coluna: adm
+    confirmado_em: '2026-09-01T00:00:00+00:00'
   prazos.code_red:
     tabela: prazos
     coluna: code_red
@@ -185,18 +201,10 @@ confirmadas:
     coluna: type_tech_assistant
     confirmado_em: '2026-08-28T15:19:00.463935+00:00'
 rejeitadas:
-  automaticprazos_jurify.all_prazos:
-    tabela: automaticprazos_jurify
-    coluna: all_prazos
-    rejeitado_em: '2026-08-28T11:57:50.556503+00:00'
   controlpanel2accounts.account_id:
     tabela: controlpanel2accounts
     coluna: account_id
     rejeitado_em: '2026-08-28T11:58:50.771496+00:00'
-  correspondent_usertasks.access_module:
-    tabela: correspondent_usertasks
-    coluna: access_module
-    rejeitado_em: '2026-08-28T11:59:21.396062+00:00'
   instancia.turma_4:
     tabela: instancia
     coluna: turma_4
@@ -209,18 +217,10 @@ rejeitadas:
     tabela: lawsuits_log
     coluna: sub_judicial_area_id
     rejeitado_em: '2026-08-28T15:17:13.356992+00:00'
-  lawsuits_log.updated_values_calculation:
-    tabela: lawsuits_log
-    coluna: updated_values_calculation
-    rejeitado_em: '2026-08-28T15:17:34.627663+00:00'
   persons.coligada_id:
     tabela: persons
     coluna: coligada_id
     rejeitado_em: '2026-08-28T15:17:39.099758+00:00'
-  prazos.adm:
-    tabela: prazos
-    coluna: adm
-    rejeitado_em: '2026-08-28T15:18:10.922053+00:00'
   users.busunit_id:
     tabela: users
     coluna: busunit_id
