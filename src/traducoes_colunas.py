@@ -376,7 +376,7 @@ TRADUCOES_COLUNAS = {
     'prazophase': 'Fase do Prazo',
     'lawsuitphase': 'Fase do Processo',
     'pjestatus': 'Status no PJe',
-    'pubtype': 'Tipo de Publicação',
+    'pubtype': 'Tipo de Prazo',
     'pub_classification': 'Classificação da Publicação',
     'close_reason': 'Motivo de Encerramento',
     'cancel_reason': 'Motivo de Cancelamento',
