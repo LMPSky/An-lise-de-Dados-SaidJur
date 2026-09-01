@@ -2,6 +2,10 @@ activitynature: {}
 automaticprazos_lawsuits:
   hearing_type:
     all: Todos
+businessunit:
+  deactivated:
+    '0': Não
+    '1': Sim
 chatmessages:
   recipienttype:
     s: Individual
@@ -9,6 +13,45 @@ chatmessages:
   status:
     '0': Inativo
     '1': Ativo
+correspondent_activity_rates:
+  status:
+    '0': Inativo
+    '1': Ativo
+correspondent_state_activity_rates:
+  status:
+    '0': Inativo
+    '1': Ativo
+correspondent_usertasks:
+  access_module:
+    '0': Não
+    '1': Sim
+  approve_requests:
+    '0': Não
+    '1': Sim
+  close_requests:
+    '0': Não
+    '1': Sim
+  designate_correspondent:
+    '0': Não
+    '1': Sim
+  edit_requests_all:
+    '0': Não
+    '1': Sim
+  view_finance:
+    '0': Não
+    '1': Sim
+  view_log:
+    '0': Não
+    '1': Sim
+  view_requests:
+    '0': Não
+    '1': Sim
+  view_requests_all:
+    '0': Não
+    '1': Sim
+  write_requests:
+    '0': Não
+    '1': Sim
 deniedprazo_reasons:
   status:
     '0': Inativo
@@ -21,6 +64,18 @@ expedientfilemetadata:
   status:
     '0': Inativo
     '1': Ativo
+general_info:
+  cnj_required:
+    '0': Não
+    '1': Sim
+hearings_log:
+  remote:
+    '0': Não
+    '1': Sim
+jqcalendar:
+  IsAllDayEvent:
+    '0': Não
+    '1': Sim
 jurify_api_log_salvarprocessos:
   type:
     insert: Inserção
@@ -29,6 +84,13 @@ lawsuit_pendencias_control:
   status:
     '0': Inativo
     '1': Ativo
+lawsuits_additional_info:
+  solidarity:
+    '0': Não
+    '1': Sim
+  solidarity_redeemed:
+    '0': Não
+    '1': Sim
 lawsuitdocsmetadata:
   prazophase:
     '1': Juntada de Substabelecimento
@@ -36,10 +98,25 @@ lawsuits:
   status:
     '0': Inativo
     '1': Ativo
+  code_red:
+    '0': Não
+    '1': Sim
+  issuer_defendant:
+    '0': Não
+    '1': Sim
 lawsuits_log:
   status:
     '0': Inativo
     '1': Ativo
+  code_red:
+    '0': Não
+    '1': Sim
+  issuer_defendant:
+    '0': Não
+    '1': Sim
+  updated_values_calculation:
+    '0': Não
+    '1': Sim
 paymentguarantee2lawsuit:
   status:
     '0': Inativo
@@ -62,6 +139,26 @@ persons:
   personstatus:
     '0': Inativo
     '1': Ativo
+  from_acordo_nucleus:
+    '0': Não
+    '1': Sim
+prazo2publication_persons:
+  confirmed:
+    '0': Não
+    '1': Sim
+  finished:
+    '0': Não
+    '1': Sim
+prazos:
+  code_red:
+    '0': Não
+    '1': Sim
+  inserted_for_jurify:
+    '0': Não
+    '1': Sim
+  adm:
+    '0': Não
+    '1': Sim
 print_reports:
   nature:
     lawsuits: Processos
@@ -78,6 +175,9 @@ sent_hearing_emails:
     lawyer: Advogado
 users:
   status:
+    '0': Inativo
+    '1': Ativo
+  active:
     '0': Inativo
     '1': Ativo
 usertasks:
@@ -117,6 +217,21 @@ usertasks:
   type_otherlaw:
     '0': Não
     '1': Sim
+  type_bank:
+    '0': Não
+    '1': Sim
+  type_clientlaw:
+    '0': Não
+    '1': Sim
+  type_corresp:
+    '0': Não
+    '1': Sim
+  type_judge:
+    '0': Não
+    '1': Sim
+  type_tech_assistant:
+    '0': Não
+    '1': Sim
 accounts:
   code:
     ativo: Ativo
@@ -139,7 +254,6 @@ accounts:
     pl: Conta sistema auxiliar
 clientsystem2lawsuit: {}
 expedients: {}
-hearings_log: {}
 lawsuitdocs: {}
 otherdocs: {}
 pedidos2lawsuit: {}
