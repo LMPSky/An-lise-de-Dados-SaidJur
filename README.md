@@ -250,10 +250,11 @@ python investigar_pendencias.py --lote --limite-linhas 50
 
 O modo de lote continua somente leitura e não altera `dicionarios.yaml`. Para
 evitar falsos positivos, ele só extrai pendências de tabelas Markdown
-estruturadas com cabeçalho `Tabela | Coluna`, ignora exemplos em blocos de
-código/nomes de arquivo e valida a existência da tabela/coluna no schema antes
-de consultar o domínio. Falhas em uma pendência específica são registradas como
-`status: erro` no relatório sem interromper as demais.
+estruturadas com cabeçalho `Tabela | Coluna` e coluna de valor/domínio, ignora
+exemplos em blocos de código/nomes de arquivo e valida a existência da
+tabela/coluna no schema antes de consultar o domínio. Falhas em uma pendência
+específica são registradas como `status: erro` no relatório sem interromper as
+demais.
 
 Para aprovar explicitamente em lote apenas sugestões de alta confiança vindas de uma
 fonte específica (sem alertas de conteúdo sensível), use por exemplo:

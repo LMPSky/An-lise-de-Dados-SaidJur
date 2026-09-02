@@ -15,9 +15,9 @@ tabela; sugestões continuam exigindo revisão humana antes de qualquer alteraç
 em `dicionarios.yaml`.
 
 O parser do modo `--lote` considera apenas linhas de tabelas Markdown com
-cabeçalho `Tabela | Coluna`, ignora exemplos em blocos de código/nomes de
-arquivo e descarta referências cuja tabela/coluna não exista no schema, sem
-interromper a investigação das demais pendências.
+cabeçalho `Tabela | Coluna` e coluna de valor/domínio, ignora exemplos em
+blocos de código/nomes de arquivo e descarta referências cuja tabela/coluna não
+exista no schema, sem interromper a investigação das demais pendências.
 
 ---
 

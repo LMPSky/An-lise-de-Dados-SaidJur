@@ -250,6 +250,18 @@ def _extrair_valores_markdown(celula: str) -> list[str]:
     return valores
 
 
+def _cabecalho_tabela_pendencia_enum(celulas: list[str]) -> bool:
+    """Indica se o cabeçalho descreve pendências de valores/ENUM."""
+    if len(celulas) < 3:
+        return False
+    terceira = _normalizar_celula_markdown(celulas[2])
+    return (
+        _normalizar_celula_markdown(celulas[0]) == "tabela"
+        and _normalizar_celula_markdown(celulas[1]) == "coluna"
+        and ("valor" in terceira or "dominio" in terceira)
+    )
+
+
 def carregar_pendencias_markdown(caminho_markdown: str | Path) -> list[PendenciaEnum]:
     """Extrai pendências documentadas em tabelas Markdown estruturadas.
 
@@ -297,10 +309,7 @@ def carregar_pendencias_markdown(caminho_markdown: str | Path) -> list[Pendencia
             continue
         if set("".join(celulas)) <= {"-", ":", " "}:
             continue
-        if (
-            _normalizar_celula_markdown(celulas[0]) == "tabela"
-            and _normalizar_celula_markdown(celulas[1]) == "coluna"
-        ):
+        if _cabecalho_tabela_pendencia_enum(celulas):
             tabela_pendencias = True
             continue
         if not tabela_pendencias:

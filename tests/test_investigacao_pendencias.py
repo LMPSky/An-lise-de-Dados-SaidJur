@@ -123,6 +123,26 @@ def test_carregar_pendencias_markdown_ignora_blocos_de_codigo(tmp_path: Path) ->
     ]
 
 
+def test_carregar_pendencias_markdown_ignora_tabela_de_nomes_de_coluna(tmp_path: Path) -> None:
+    caminho = tmp_path / "PENDENCIAS.md"
+    caminho.write_text(
+        "## Nomes de coluna pendentes\n"
+        "| Tabela | Coluna | Tradução atual (fallback) | Contexto |\n"
+        "|--------|--------|---------------------------|----------|\n"
+        "| `lawsuits` | `nd` | Nd | Sigla ambígua. |\n"
+        "\n"
+        "## Valores de ENUM/código pendentes\n"
+        "| Tabela | Coluna | Valores pendentes | Observação |\n"
+        "|--------|--------|-------------------|------------|\n"
+        "| `tarefas` | `status` | `novo` | Código real. |\n",
+        encoding="utf-8",
+    )
+
+    assert carregar_pendencias_markdown(caminho) == [
+        PendenciaEnum("tarefas", "status", "novo", "pendencia_documentada"),
+    ]
+
+
 def test_expandir_pendencias_com_dominio_descarta_tabela_inexistente() -> None:
     engine = create_engine("sqlite:///:memory:")
     with engine.connect() as conn:
