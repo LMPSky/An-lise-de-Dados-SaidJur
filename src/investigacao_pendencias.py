@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 import re
+import unicodedata
 from typing import Any
 
 from sqlalchemy import inspect, text
@@ -214,7 +215,12 @@ def _deduplicar_pendencias(pendencias: list[PendenciaEnum]) -> list[PendenciaEnu
 
 def _normalizar_celula_markdown(celula: str) -> str:
     """Normaliza uma célula de cabeçalho Markdown para comparação estrutural."""
-    return re.sub(r"[^a-z0-9]+", "", celula.lower())
+    sem_acentos = "".join(
+        char
+        for char in unicodedata.normalize("NFKD", celula.lower())
+        if not unicodedata.combining(char)
+    )
+    return re.sub(r"[^a-z0-9]+", "", sem_acentos)
 
 
 def _extrair_identificadores_markdown(celula: str) -> list[str]:

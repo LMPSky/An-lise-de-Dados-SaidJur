@@ -143,6 +143,22 @@ def test_carregar_pendencias_markdown_ignora_tabela_de_nomes_de_coluna(tmp_path:
     ]
 
 
+def test_carregar_pendencias_markdown_aceita_cabecalho_dominio_acentuado(tmp_path: Path) -> None:
+    caminho = tmp_path / "PENDENCIAS.md"
+    caminho.write_text(
+        "## Pendências que permanecem abertas\n"
+        "| Tabela | Coluna | Domínio observado |\n"
+        "|--------|--------|-------------------|\n"
+        "| `tarefas` | `status` | `{0, 1}` |\n",
+        encoding="utf-8",
+    )
+
+    assert carregar_pendencias_markdown(caminho) == [
+        PendenciaEnum("tarefas", "status", "0", "pendencia_documentada"),
+        PendenciaEnum("tarefas", "status", "1", "pendencia_documentada"),
+    ]
+
+
 def test_expandir_pendencias_com_dominio_descarta_tabela_inexistente() -> None:
     engine = create_engine("sqlite:///:memory:")
     with engine.connect() as conn:
