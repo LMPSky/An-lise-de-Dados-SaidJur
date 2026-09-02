@@ -18,6 +18,7 @@ from src.db import criar_engine, executar_com_retry_db
 ARQUIVO_AUDITORIA_PADRAO = "relatorio_auditoria_traducoes.yaml"
 ARQUIVO_RELATORIO_INVESTIGACAO_PADRAO = "relatorio_investigacao_pendencias.yaml"
 ARQUIVO_DICIONARIOS_PADRAO = "dicionarios.yaml"
+ARQUIVO_PENDENCIAS_MARKDOWN_PADRAO = "PENDENCIAS_TRADUCAO_HUMANA.md"
 
 _TIPOS_TEXTUAIS = ("char", "text", "enum", "set", "json", "clob")
 _CHAVES_PISTA = (
@@ -65,6 +66,11 @@ _SUFIXOS_OUTRO_IDIOMA = {
     "_es": "es",
 }
 _SUFIXOS_PORTUGUES = ("_pt", "_br")
+_COLUNAS_CODIGO = ("code", "codigo", "status", "phase", "fase", "type", "tipo", "nature", "natureza", "link")
+_GRUPOS_TABELAS_IRMAS = (
+    ("pzphase", ("prazos_log", "prazo2publication", "lawsuitdocsmetadata")),
+    ("finishtype", ("prazos_log", "prazo2publication", "lawsuitdocsmetadata")),
+)
 
 
 @dataclass(frozen=True)
@@ -187,6 +193,64 @@ def carregar_pendencias_enum(caminho_relatorio: str | Path) -> list[PendenciaEnu
     return dedup
 
 
+def _deduplicar_pendencias(pendencias: list[PendenciaEnum]) -> list[PendenciaEnum]:
+    """Remove pendências repetidas, mantendo a ordem da primeira ocorrência."""
+    vistos: set[tuple[str, str, str]] = set()
+    return [
+        item for item in pendencias
+        if not ((chave := (item.tabela, item.coluna, item.valor)) in vistos or vistos.add(chave))
+    ]
+
+
+def carregar_pendencias_markdown(caminho_markdown: str | Path) -> list[PendenciaEnum]:
+    """Extrai referências ``tabela.coluna[:valor]`` documentadas no Markdown.
+
+    O documento histórico usa tabelas com domínios em formatos variados. Por isso,
+    quando não há valor explícito junto da referência, usa ``*`` para que o domínio
+    seja obtido diretamente do banco no modo de lote.
+    """
+    caminho = Path(caminho_markdown)
+    if not caminho.exists():
+        raise FileNotFoundError(f"Arquivo de pendências não encontrado: {caminho}")
+    resultado: list[PendenciaEnum] = []
+    padrao = re.compile(
+        r"`(?P<tabela>[A-Za-z_][\w]*)\.(?P<coluna>[A-Za-z_][\w]*)(?::(?P<valor>[^`]+))?`"
+    )
+    for correspondencia in padrao.finditer(caminho.read_text(encoding="utf-8")):
+        resultado.append(
+            PendenciaEnum(
+                correspondencia["tabela"],
+                correspondencia["coluna"],
+                (correspondencia["valor"] or "*").strip(),
+                "pendencia_documentada",
+            )
+        )
+    for linha in caminho.read_text(encoding="utf-8").splitlines():
+        if not linha.lstrip().startswith("|"):
+            continue
+        celulas = [celula.strip() for celula in linha.strip().strip("|").split("|")]
+        if len(celulas) < 2 or set("".join(celulas)) <= {"-", ":", " "}:
+            continue
+        tabelas = re.findall(r"`([A-Za-z_][\w]*)`", celulas[0])
+        colunas = re.findall(r"`([A-Za-z_][\w]*)`", celulas[1])
+        if not tabelas or not colunas:
+            continue
+        valores = re.findall(r"\{([^}]*)\}", celulas[2] if len(celulas) > 2 else "")
+        dominio = [
+            valor.strip()
+            for grupo in valores
+            for valor in grupo.split(",")
+            if valor.strip() and ".." not in valor
+        ] or ["*"]
+        for tabela in tabelas:
+            for coluna in colunas:
+                resultado.extend(
+                    PendenciaEnum(tabela, coluna, valor, "pendencia_documentada")
+                    for valor in dominio
+                )
+    return _deduplicar_pendencias(resultado)
+
+
 
 def listar_colunas_tabela(engine: Engine, tabela: str) -> list[ColunaTabela]:
     """Lista colunas da tabela com tipo e posição ordinal."""
@@ -200,6 +264,69 @@ def listar_colunas_tabela(engine: Engine, tabela: str) -> list[ColunaTabela]:
         )
         for indice, coluna in enumerate(colunas)
     ]
+
+
+def _valores_distintos_coluna(
+    engine: Engine,
+    tabela: str,
+    coluna: str,
+    *,
+    limite: int = 20,
+) -> list[str]:
+    """Obtém valores curtos distintos de uma coluna, sem coletar texto livre."""
+    tabela_sql = _identificador(tabela, engine.dialect.name)
+    coluna_sql = _identificador(coluna, engine.dialect.name)
+    sql = text(
+        f"SELECT CAST({coluna_sql} AS CHAR) AS valor FROM {tabela_sql} "
+        f"WHERE {coluna_sql} IS NOT NULL "
+        f"AND TRIM(CAST({coluna_sql} AS CHAR)) <> '' "
+        f"GROUP BY CAST({coluna_sql} AS CHAR) "
+        f"LIMIT {int(limite) + 1}"
+    )
+    with engine.connect() as conn:
+        valores = [str(row[0]).strip() for row in conn.execute(sql).fetchall()]
+    return valores if len(valores) <= limite else []
+
+
+def _coluna_parece_codigo(coluna: ColunaTabela) -> bool:
+    """Indica se uma coluna é candidata conservadora a código/ENUM curto."""
+    nome = coluna.nome.lower()
+    return _tipo_textual(coluna.tipo) or any(chave in nome for chave in _COLUNAS_CODIGO)
+
+
+def descobrir_pendencias_schema(engine: Engine, dicionarios: dict[str, Any]) -> list[PendenciaEnum]:
+    """Descobre códigos curtos sem tradução diretamente por introspecção do schema."""
+    resultado: list[PendenciaEnum] = []
+    for tabela in inspect(engine).get_table_names():
+        traducoes_tabela = dicionarios.get(tabela, {})
+        if not isinstance(traducoes_tabela, dict):
+            traducoes_tabela = {}
+        for coluna in listar_colunas_tabela(engine, tabela):
+            if not _coluna_parece_codigo(coluna):
+                continue
+            traducoes_coluna = traducoes_tabela.get(coluna.nome, {})
+            if not isinstance(traducoes_coluna, dict):
+                traducoes_coluna = {}
+            for valor in _valores_distintos_coluna(engine, tabela, coluna.nome):
+                if len(valor) > 40 or _pista_parece_texto_livre(valor):
+                    continue
+                if valor not in traducoes_coluna:
+                    resultado.append(PendenciaEnum(tabela, coluna.nome, valor, "descoberta_schema"))
+    return _deduplicar_pendencias(resultado)
+
+
+def expandir_pendencias_com_dominio(engine: Engine, pendencias: list[PendenciaEnum]) -> list[PendenciaEnum]:
+    """Expande o sentinela ``*`` nos valores distintos observados no banco."""
+    resultado: list[PendenciaEnum] = []
+    for pendencia in pendencias:
+        if pendencia.valor == "*":
+            resultado.extend(
+                PendenciaEnum(pendencia.tabela, pendencia.coluna, valor, pendencia.motivo)
+                for valor in _valores_distintos_coluna(engine, pendencia.tabela, pendencia.coluna)
+            )
+        else:
+            resultado.append(pendencia)
+    return _deduplicar_pendencias(resultado)
 
 
 
@@ -905,6 +1032,34 @@ def _analisar_pistas(
     # com nomes puramente técnicos (pista fraca) não são suficientes para alta
     # confiança, pois qualquer amostra pequena terá valor constante nesses campos.
     descartou_texto_livre = False
+    evidencias_por_rotulo: dict[str, list[dict[str, Any]]] = {}
+    for pista in pistas:
+        if pista["valores_distintos"] != 1:
+            continue
+        unico = pista["valores_frequentes"][0]["valor"]
+        if (
+            _pista_parece_texto_livre(unico)
+            or _pista_e_booleana(pista["valores_frequentes"])
+            or not _coluna_tem_nome_semantico(pista["coluna"])
+        ):
+            continue
+        evidencias_por_rotulo.setdefault(unico, []).append(pista)
+
+    for rotulo, evidencias in evidencias_por_rotulo.items():
+        ocorrencias = sum(pista["ocorrencias_total"] for pista in evidencias)
+        if len(evidencias) >= 2 and ocorrencias >= 2:
+            return _enriquecer_sugestao_com_alertas({
+                "status": "alta_confianca",
+                "traducao_sugerida": rotulo,
+                "justificativa": (
+                    f"Múltiplas colunas-pista ({', '.join(p['coluna'] for p in evidencias)}) "
+                    f"concordaram com '{rotulo}' em {ocorrencias} evidência(s) para o código "
+                    f"'{pendencia.valor}'."
+                ),
+                "pistas": pistas,
+                "fonte": "multiplas_pistas",
+            })
+
     for pista in pistas:
         if pista["valores_distintos"] != 1 or pista["ocorrencias_total"] < 2:
             continue
@@ -1093,6 +1248,80 @@ def _coletar_contexto_coluna_obs(
     }
 
 
+def _coletar_distribuicao_codigo(engine: Engine, pendencia: PendenciaEnum) -> dict[str, Any] | None:
+    """Resume o domínio do código como sinal auxiliar, sem inferir um rótulo."""
+    tabela_sql = _identificador(pendencia.tabela, engine.dialect.name)
+    coluna_sql = _identificador(pendencia.coluna, engine.dialect.name)
+    sql = text(
+        f"SELECT CAST({coluna_sql} AS CHAR) AS valor, COUNT(*) AS ocorrencias "
+        f"FROM {tabela_sql} WHERE {coluna_sql} IS NOT NULL "
+        f"GROUP BY CAST({coluna_sql} AS CHAR) ORDER BY ocorrencias DESC LIMIT 21"
+    )
+    with engine.connect() as conn:
+        linhas = [dict(row._mapping) for row in conn.execute(sql).fetchall()]
+    if not linhas or len(linhas) > 20:
+        return None
+    total = sum(int(linha["ocorrencias"]) for linha in linhas)
+    alvo = next((int(linha["ocorrencias"]) for linha in linhas if str(linha["valor"]) == pendencia.valor), 0)
+    classificacao = "enum_poucos_estados" if len(linhas) <= 5 else "dominio_amplo"
+    if len(linhas) == 2 and total and 0.2 <= alvo / total <= 0.8:
+        classificacao = "binario_balanceado"
+    return {
+        "valores_distintos": len(linhas),
+        "ocorrencias_total": total,
+        "ocorrencias_valor": alvo,
+        "classificacao": classificacao,
+        "valores_frequentes": [
+            {"valor": str(linha["valor"]), "ocorrencias": int(linha["ocorrencias"])}
+            for linha in linhas[:5]
+        ],
+    }
+
+
+def _propagar_entre_tabelas_irmas(investigacoes: list[dict[str, Any]]) -> None:
+    """Propaga rótulo de alta confiança entre tabelas irmãs explicitamente conhecidas."""
+    for coluna, tabelas in _GRUPOS_TABELAS_IRMAS:
+        for destino in investigacoes:
+            if destino["coluna"].lower() != coluna or destino["tabela"].lower() not in tabelas:
+                continue
+            if destino["sugestao"]["status"] == "alta_confianca":
+                continue
+            origem = next(
+                (
+                    item for item in investigacoes
+                    if item["tabela"].lower() in tabelas
+                    and item["coluna"].lower() == coluna
+                    and item["valor"] == destino["valor"]
+                    and item["sugestao"]["status"] == "alta_confianca"
+                    and item["sugestao"].get("traducao_sugerida")
+                ),
+                None,
+            )
+            if origem is None:
+                continue
+            destino["sugestao"] = _enriquecer_sugestao_com_alertas({
+                "status": "alta_confianca",
+                "traducao_sugerida": origem["sugestao"]["traducao_sugerida"],
+                "justificativa": (
+                    f"Tradução propagada da tabela irmã '{origem['tabela']}.{origem['coluna']}' "
+                    "para o mesmo código no grupo de tabelas relacionadas."
+                ),
+                "pistas": origem["sugestao"].get("pistas", []),
+                "fonte": "tabela_irma",
+                "origem_tabela_irma": f"{origem['tabela']}.{origem['coluna']}",
+            })
+
+
+def _agrupar_investigacoes(investigacoes: list[dict[str, Any]]) -> dict[str, dict[str, list[str]]]:
+    """Organiza itens por confiança e tabela para revisão em lote."""
+    resultado: dict[str, dict[str, list[str]]] = {}
+    for item in investigacoes:
+        status = item["sugestao"]["status"]
+        resultado.setdefault(status, {}).setdefault(item["tabela"], []).append(
+            f"{item['coluna']}:{item['valor']}"
+        )
+    return resultado
+
 
 def investigar_pendencias(
     engine: Engine,
@@ -1118,6 +1347,11 @@ def investigar_pendencias(
                         "linhas_exemplo": lookup["linhas_referencia"],
                         "sugestao": lookup["sugestao"],
                         "tabela_referencia": lookup["tabela_referencia"],
+                        **(
+                            {"distribuicao_codigo": distribuicao}
+                            if (distribuicao := _coletar_distribuicao_codigo(engine, pendencia)) is not None
+                            else {}
+                        ),
                     }
                 )
                 continue
@@ -1151,6 +1385,9 @@ def investigar_pendencias(
                 contexto_obs = _coletar_contexto_coluna_obs(
                     engine, pendencia, colunas, limite_linhas=limite_linhas * 4
                 )
+                distribuicao = _coletar_distribuicao_codigo(engine, pendencia)
+                if distribuicao is not None:
+                    item_sem_pista["distribuicao_codigo"] = distribuicao
                 if contexto_obs is not None:
                     item_sem_pista["contexto_obs"] = contexto_obs
                 investigacoes.append(item_sem_pista)
@@ -1189,6 +1426,9 @@ def investigar_pendencias(
                 "linhas_exemplo": linhas,
                 "sugestao": sugestao,
             }
+            distribuicao = _coletar_distribuicao_codigo(engine, pendencia)
+            if distribuicao is not None:
+                item["distribuicao_codigo"] = distribuicao
             if sugestao["status"] != "alta_confianca":
                 contexto_obs = _coletar_contexto_coluna_obs(
                     engine, pendencia, colunas, limite_linhas=limite_linhas * 4
@@ -1218,6 +1458,7 @@ def investigar_pendencias(
                 }
             )
 
+    _propagar_entre_tabelas_irmas(investigacoes)
     resumo = {
         "total_pendencias": len(investigacoes),
         "alta_confianca": sum(1 for i in investigacoes if i["sugestao"]["status"] == "alta_confianca"),
@@ -1233,6 +1474,7 @@ def investigar_pendencias(
         "gerado_em_utc": datetime.now(UTC).isoformat(),
         "resumo": resumo,
         "investigacoes": investigacoes,
+        "agrupado_por_confianca_e_tabela": _agrupar_investigacoes(investigacoes),
     }
 
 
@@ -1320,6 +1562,9 @@ def executar_investigacao(
     *,
     limite_linhas: int = 5,
     colunas_diretas: list[str] | None = None,
+    caminho_pendencias_markdown: str | Path | None = None,
+    descobrir_schema: bool = False,
+    caminho_dicionarios: str | Path = ARQUIVO_DICIONARIOS_PADRAO,
 ) -> dict[str, Any]:
     """Fluxo completo de investigação via banco real configurado em src.config.
 
@@ -1344,12 +1589,25 @@ def executar_investigacao(
     if colunas_diretas:
         pendencias = parsear_colunas_diretas(colunas_diretas)
         fonte = "colunas_diretas:" + ",".join(colunas_diretas)
+    elif caminho_pendencias_markdown or descobrir_schema:
+        pendencias = []
+        fontes = []
+        if caminho_pendencias_markdown:
+            pendencias.extend(carregar_pendencias_markdown(caminho_pendencias_markdown))
+            fontes.append(str(caminho_pendencias_markdown))
+        fontes.append("schema" if descobrir_schema else "")
+        fonte = ",".join(fonte for fonte in fontes if fonte)
     else:
         pendencias = carregar_pendencias_enum(caminho_relatorio_auditoria)
         fonte = str(caminho_relatorio_auditoria)
 
     engine = criar_engine()
     try:
+        if caminho_pendencias_markdown:
+            pendencias = expandir_pendencias_com_dominio(engine, pendencias)
+        if descobrir_schema:
+            pendencias.extend(descobrir_pendencias_schema(engine, carregar_yaml(caminho_dicionarios)))
+        pendencias = _deduplicar_pendencias(pendencias)
         relatorio = investigar_pendencias(engine, pendencias, limite_linhas=limite_linhas)
         relatorio["fonte_pendencias"] = fonte
         salvar_yaml(relatorio, caminho_saida)

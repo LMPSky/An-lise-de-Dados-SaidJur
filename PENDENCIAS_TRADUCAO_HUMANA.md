@@ -4,6 +4,16 @@ Gerado em: 2026-07-30
 Atualizado em: 2026-08-28 (Rodada 9 — fechamento por evidência dos relatórios de banco real)  
 Fonte: `relatorio_auditoria_traducoes.yaml`
 
+## Investigação em lote (quando houver acesso ao banco)
+
+Não é necessário listar manualmente cada `tabela.coluna[:valor]`. Na raiz do
+projeto, execute `python investigar_pendencias.py --lote --limite-linhas 50`.
+O comando extrai referências documentadas neste arquivo, consulta o domínio
+atual dessas colunas e procura códigos curtos ainda sem tradução por
+introspecção do schema. O relatório resultante é agrupado por confiança e
+tabela; sugestões continuam exigindo revisão humana antes de qualquer alteração
+em `dicionarios.yaml`.
+
 ---
 
 ## Rodada 9 (2026-08-28) — Fechamento por evidência dos relatórios de banco real

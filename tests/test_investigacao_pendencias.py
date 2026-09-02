@@ -12,7 +12,9 @@ import yaml
 from src.investigacao_pendencias import (
     PendenciaEnum,
     aplicar_decisoes_em_dicionario,
+    carregar_pendencias_markdown,
     carregar_pendencias_enum,
+    descobrir_pendencias_schema,
     executar_investigacao,
     gerar_template_decisoes,
     investigar_pendencias,
@@ -61,6 +63,36 @@ def test_carregar_pendencias_enum_do_relatorio_yaml(tmp_path: Path) -> None:
         PendenciaEnum("paymenttype", "code", "Bol", "sem_entrada_no_dicionario"),
         PendenciaEnum("paymenttype", "code", "chq", "sem_entrada_no_dicionario"),
     ]
+
+
+def test_carregar_pendencias_markdown_extrai_referencias_e_valor(tmp_path: Path) -> None:
+    caminho = tmp_path / "PENDENCIAS.md"
+    caminho.write_text(
+        "`prazos_log.pzphase:3` e `prazo2publication.pzphase` permanecem pendentes.\n"
+        "| `tarefas` | `status` | `{novo, antigo}` |",
+        encoding="utf-8",
+    )
+
+    assert carregar_pendencias_markdown(caminho) == [
+        PendenciaEnum("prazos_log", "pzphase", "3", "pendencia_documentada"),
+        PendenciaEnum("prazo2publication", "pzphase", "*", "pendencia_documentada"),
+        PendenciaEnum("tarefas", "status", "novo", "pendencia_documentada"),
+        PendenciaEnum("tarefas", "status", "antigo", "pendencia_documentada"),
+    ]
+
+
+def test_descobrir_pendencias_schema_ignora_texto_livre_e_ja_traduzidos() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE tarefas (status TEXT, observacao TEXT)"))
+        conn.execute(text(
+            "INSERT INTO tarefas VALUES ('novo', 'Texto de observação livre bastante longo que não é código')"
+        ))
+        conn.commit()
+
+    pendencias = descobrir_pendencias_schema(engine, {"tarefas": {"status": {"novo": "Novo"}}})
+
+    assert pendencias == []
 
 
 
@@ -1095,3 +1127,52 @@ def test_investigar_pendencias_nao_inclui_contexto_obs_quando_alta_confianca() -
     item = relatorio["investigacoes"][0]
     assert item["sugestao"]["status"] == "alta_confianca"
     assert "contexto_obs" not in item
+
+
+def test_multiplas_pistas_concordantes_aumentam_confianca() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE itens (codigo TEXT, nome TEXT, descricao TEXT)"))
+        conn.execute(text("INSERT INTO itens VALUES ('x', 'Categoria', NULL), ('x', NULL, 'Categoria')"))
+        conn.commit()
+
+    item = investigar_pendencias(engine, [PendenciaEnum("itens", "codigo", "x")])["investigacoes"][0]
+
+    assert item["sugestao"]["status"] == "alta_confianca"
+    assert item["sugestao"]["fonte"] == "multiplas_pistas"
+    assert item["sugestao"]["traducao_sugerida"] == "Categoria"
+
+
+def test_propaga_traducao_entre_tabelas_irmas() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE prazo2publication (pzphase INTEGER, nome TEXT)"))
+        conn.execute(text("CREATE TABLE prazos_log (pzphase INTEGER)"))
+        conn.execute(text("INSERT INTO prazo2publication VALUES (3, 'Recurso'), (3, 'Recurso')"))
+        conn.execute(text("INSERT INTO prazos_log VALUES (3)"))
+        conn.commit()
+
+    with patch("src.investigacao_pendencias._buscar_em_tabela_referencia", return_value=None):
+        relatorio = investigar_pendencias(
+            engine,
+            [PendenciaEnum("prazo2publication", "pzphase", "3"), PendenciaEnum("prazos_log", "pzphase", "3")],
+        )
+    destino = relatorio["investigacoes"][1]
+
+    assert destino["sugestao"]["status"] == "alta_confianca"
+    assert destino["sugestao"]["fonte"] == "tabela_irma"
+    assert destino["sugestao"]["traducao_sugerida"] == "Recurso"
+
+
+def test_relatorio_inclui_distribuicao_e_agrupamento_consolidado() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE flags (status INTEGER)"))
+        conn.execute(text("INSERT INTO flags VALUES (0), (0), (1), (1)"))
+        conn.commit()
+
+    relatorio = investigar_pendencias(engine, [PendenciaEnum("flags", "status", "0")])
+    item = relatorio["investigacoes"][0]
+
+    assert item["distribuicao_codigo"]["classificacao"] == "binario_balanceado"
+    assert relatorio["agrupado_por_confianca_e_tabela"]["sem_pista_encontrada"]["flags"] == ["status:0"]

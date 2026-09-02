@@ -1,5 +1,17 @@
 # 🔧 Resumo Técnico - Exportação de Resultados de Busca
 
+## 🔎 Atualização 2026-09-02 — Investigação autônoma em lote
+
+- `investigar_pendencias.py --lote` combina as pendências referenciadas em
+  `PENDENCIAS_TRADUCAO_HUMANA.md` com descoberta conservadora de códigos curtos
+  sem tradução via schema; não depende do relatório de auditoria removido.
+- O relatório agrega pistas semânticas concordantes, inclui a distribuição do
+  domínio do código, propaga resultados de alta confiança entre tabelas irmãs
+  conhecidas (`prazos_log`, `prazo2publication`, `lawsuitdocsmetadata`) e cria
+  `agrupado_por_confianca_e_tabela` para revisão priorizada.
+- A investigação continua somente leitura. A aplicação permanece humana:
+  `--aprovar-fonte` exige uma escolha explícita e exclui sugestões com alertas.
+
 ## 🔧 Atualização 2026-08-18 — Busca global com resumo útil e expansão inline
 
 ### Busca global agora carrega contexto suficiente para cards completos
