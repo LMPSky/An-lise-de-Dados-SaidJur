@@ -238,12 +238,12 @@ def _extrair_identificadores_markdown(celula: str) -> list[str]:
 def _extrair_valores_markdown(celula: str) -> list[str]:
     """Extrai valores documentados em uma célula de domínio Markdown."""
     valores: list[str] = []
+    if ".." in celula or "–" in celula:
+        return []
     grupos = re.findall(r"\{([^}]*)\}", celula)
     if grupos:
         candidatos = [valor for grupo in grupos for valor in grupo.split(",")]
     else:
-        if ".." in celula or "–" in celula:
-            return []
         candidatos = re.findall(r"`([^`]+)`", celula)
 
     for candidato in candidatos:

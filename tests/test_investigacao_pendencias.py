@@ -159,6 +159,21 @@ def test_carregar_pendencias_markdown_aceita_cabecalho_dominio_acentuado(tmp_pat
     ]
 
 
+def test_carregar_pendencias_markdown_usa_asterisco_para_dominio_com_intervalo(tmp_path: Path) -> None:
+    caminho = tmp_path / "PENDENCIAS.md"
+    caminho.write_text(
+        "## Valores de ENUM/código pendentes\n"
+        "| Tabela | Coluna | Valores pendentes |\n"
+        "|--------|--------|-------------------|\n"
+        "| `paymentguarantee2lawsuit` | `type_old` | `{1..12, 14, 16..19}` |\n",
+        encoding="utf-8",
+    )
+
+    assert carregar_pendencias_markdown(caminho) == [
+        PendenciaEnum("paymentguarantee2lawsuit", "type_old", "*", "pendencia_documentada"),
+    ]
+
+
 def test_expandir_pendencias_com_dominio_descarta_tabela_inexistente() -> None:
     engine = create_engine("sqlite:///:memory:")
     with engine.connect() as conn:
