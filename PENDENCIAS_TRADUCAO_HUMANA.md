@@ -14,6 +14,11 @@ introspecção do schema. O relatório resultante é agrupado por confiança e
 tabela; sugestões continuam exigindo revisão humana antes de qualquer alteração
 em `dicionarios.yaml`.
 
+O parser do modo `--lote` considera apenas linhas de tabelas Markdown com
+cabeçalho `Tabela | Coluna`, ignora exemplos em blocos de código/nomes de
+arquivo e descarta referências cuja tabela/coluna não exista no schema, sem
+interromper a investigação das demais pendências.
+
 ---
 
 ## Rodada 9 (2026-08-28) — Fechamento por evidência dos relatórios de banco real

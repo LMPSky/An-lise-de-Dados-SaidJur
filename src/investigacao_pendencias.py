@@ -39,6 +39,16 @@ _CHAVES_PISTA = (
 _CHAVES_SEMANTICAS = _CHAVES_PISTA
 
 _TEXTO_LIVRE_COMPRIMENTO_MIN = 50
+_EXTENSOES_ARQUIVO_IGNORADAS = (
+    ".yaml",
+    ".yml",
+    ".md",
+    ".py",
+    ".xlsx",
+    ".json",
+    ".diff",
+    ".txt",
+)
 
 # Nomes de colunas de observação/texto-livre usadas como contexto complementar.
 # Quando a coluna investigada não obtém tradução de alta confiança, a ferramenta
@@ -202,46 +212,105 @@ def _deduplicar_pendencias(pendencias: list[PendenciaEnum]) -> list[PendenciaEnu
     ]
 
 
-def carregar_pendencias_markdown(caminho_markdown: str | Path) -> list[PendenciaEnum]:
-    """Extrai referências ``tabela.coluna[:valor]`` documentadas no Markdown.
+def _normalizar_celula_markdown(celula: str) -> str:
+    """Normaliza uma célula de cabeçalho Markdown para comparação estrutural."""
+    return re.sub(r"[^a-z0-9]+", "", celula.lower())
 
-    O documento histórico usa tabelas com domínios em formatos variados. Por isso,
-    quando não há valor explícito junto da referência, usa ``*`` para que o domínio
-    seja obtido diretamente do banco no modo de lote.
+
+def _extrair_identificadores_markdown(celula: str) -> list[str]:
+    """Extrai identificadores entre crases, ignorando nomes de arquivo."""
+    identificadores: list[str] = []
+    for token in re.findall(r"`([^`]+)`", celula):
+        token = token.strip()
+        if token.lower().endswith(_EXTENSOES_ARQUIVO_IGNORADAS):
+            continue
+        if re.fullmatch(r"[A-Za-z_][\w]*", token):
+            identificadores.append(token)
+    return identificadores
+
+
+def _extrair_valores_markdown(celula: str) -> list[str]:
+    """Extrai valores documentados em uma célula de domínio Markdown."""
+    valores: list[str] = []
+    grupos = re.findall(r"\{([^}]*)\}", celula)
+    if grupos:
+        candidatos = [valor for grupo in grupos for valor in grupo.split(",")]
+    else:
+        if ".." in celula or "–" in celula:
+            return []
+        candidatos = re.findall(r"`([^`]+)`", celula)
+
+    for candidato in candidatos:
+        valor = candidato.strip()
+        if not valor or ".." in valor or "–" in valor:
+            continue
+        if valor.lower().endswith(_EXTENSOES_ARQUIVO_IGNORADAS):
+            continue
+        valores.append(valor)
+    return valores
+
+
+def carregar_pendencias_markdown(caminho_markdown: str | Path) -> list[PendenciaEnum]:
+    """Extrai pendências documentadas em tabelas Markdown estruturadas.
+
+    Apenas tabelas em seções de pendências cujo cabeçalho começa com ``Tabela``
+    e ``Coluna`` são consideradas. Exemplos em texto corrido, comandos entre
+    crases e blocos de código são ignorados para evitar falsos positivos como
+    nomes de arquivo.
     """
     caminho = Path(caminho_markdown)
     if not caminho.exists():
         raise FileNotFoundError(f"Arquivo de pendências não encontrado: {caminho}")
     resultado: list[PendenciaEnum] = []
-    padrao = re.compile(
-        r"`(?P<tabela>[A-Za-z_][\w]*)\.(?P<coluna>[A-Za-z_][\w]*)(?::(?P<valor>[^`]+))?`"
-    )
-    for correspondencia in padrao.finditer(caminho.read_text(encoding="utf-8")):
-        resultado.append(
-            PendenciaEnum(
-                correspondencia["tabela"],
-                correspondencia["coluna"],
-                (correspondencia["valor"] or "*").strip(),
-                "pendencia_documentada",
-            )
-        )
+
+    dentro_bloco_codigo = False
+    tabela_pendencias = False
+    secao_pendencias = False
+    nivel_secao_pendencias = 0
     for linha in caminho.read_text(encoding="utf-8").splitlines():
+        if linha.lstrip().startswith("```"):
+            dentro_bloco_codigo = not dentro_bloco_codigo
+            tabela_pendencias = False
+            continue
+        if dentro_bloco_codigo:
+            continue
+        cabecalho = re.match(r"^(#{2,6})\s+(.+)$", linha.strip())
+        if cabecalho:
+            nivel = len(cabecalho.group(1))
+            titulo = cabecalho.group(2).lower()
+            if "pend" in titulo:
+                secao_pendencias = True
+                nivel_secao_pendencias = nivel
+            elif secao_pendencias and nivel <= nivel_secao_pendencias:
+                secao_pendencias = False
+                nivel_secao_pendencias = 0
+            tabela_pendencias = False
+            continue
         if not linha.lstrip().startswith("|"):
+            tabela_pendencias = False
+            continue
+        if not secao_pendencias:
             continue
         celulas = [celula.strip() for celula in linha.strip().strip("|").split("|")]
-        if len(celulas) < 2 or set("".join(celulas)) <= {"-", ":", " "}:
+        if len(celulas) < 2:
+            tabela_pendencias = False
             continue
-        tabelas = re.findall(r"`([A-Za-z_][\w]*)`", celulas[0])
-        colunas = re.findall(r"`([A-Za-z_][\w]*)`", celulas[1])
+        if set("".join(celulas)) <= {"-", ":", " "}:
+            continue
+        if (
+            _normalizar_celula_markdown(celulas[0]) == "tabela"
+            and _normalizar_celula_markdown(celulas[1]) == "coluna"
+        ):
+            tabela_pendencias = True
+            continue
+        if not tabela_pendencias:
+            continue
+
+        tabelas = _extrair_identificadores_markdown(celulas[0])
+        colunas = _extrair_identificadores_markdown(celulas[1])
         if not tabelas or not colunas:
             continue
-        valores = re.findall(r"\{([^}]*)\}", celulas[2] if len(celulas) > 2 else "")
-        dominio = [
-            valor.strip()
-            for grupo in valores
-            for valor in grupo.split(",")
-            if valor.strip() and ".." not in valor
-        ] or ["*"]
+        dominio = _extrair_valores_markdown(celulas[2] if len(celulas) > 2 else "") or ["*"]
         for tabela in tabelas:
             for coluna in colunas:
                 resultado.extend(
@@ -316,16 +385,37 @@ def descobrir_pendencias_schema(engine: Engine, dicionarios: dict[str, Any]) -> 
 
 
 def expandir_pendencias_com_dominio(engine: Engine, pendencias: list[PendenciaEnum]) -> list[PendenciaEnum]:
-    """Expande o sentinela ``*`` nos valores distintos observados no banco."""
+    """Expande o sentinela ``*`` nos valores distintos observados no banco.
+
+    Pendências vindas do Markdown são validadas por introspecção leve antes da
+    primeira consulta de domínio. Tabelas ou colunas inexistentes são descartadas
+    para que referências obsoletas/falsos positivos não interrompam o lote.
+    """
     resultado: list[PendenciaEnum] = []
+    insp = inspect(engine)
+    tabelas_por_lower = {tabela.lower(): tabela for tabela in insp.get_table_names()}
+    colunas_por_tabela: dict[str, dict[str, str]] = {}
+
     for pendencia in pendencias:
+        tabela_real = tabelas_por_lower.get(pendencia.tabela.lower())
+        if not tabela_real:
+            continue
+        if tabela_real not in colunas_por_tabela:
+            colunas_por_tabela[tabela_real] = {
+                str(coluna.get("name", "")).lower(): str(coluna.get("name", ""))
+                for coluna in insp.get_columns(tabela_real)
+            }
+        coluna_real = colunas_por_tabela[tabela_real].get(pendencia.coluna.lower())
+        if not coluna_real:
+            continue
+
         if pendencia.valor == "*":
             resultado.extend(
-                PendenciaEnum(pendencia.tabela, pendencia.coluna, valor, pendencia.motivo)
-                for valor in _valores_distintos_coluna(engine, pendencia.tabela, pendencia.coluna)
+                PendenciaEnum(tabela_real, coluna_real, valor, pendencia.motivo)
+                for valor in _valores_distintos_coluna(engine, tabela_real, coluna_real)
             )
         else:
-            resultado.append(pendencia)
+            resultado.append(PendenciaEnum(tabela_real, coluna_real, pendencia.valor, pendencia.motivo))
     return _deduplicar_pendencias(resultado)
 
 

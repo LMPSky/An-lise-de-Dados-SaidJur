@@ -16,6 +16,7 @@ from src.investigacao_pendencias import (
     carregar_pendencias_enum,
     descobrir_pendencias_schema,
     executar_investigacao,
+    expandir_pendencias_com_dominio,
     gerar_template_decisoes,
     investigar_pendencias,
     selecionar_colunas_pista,
@@ -68,17 +69,113 @@ def test_carregar_pendencias_enum_do_relatorio_yaml(tmp_path: Path) -> None:
 def test_carregar_pendencias_markdown_extrai_referencias_e_valor(tmp_path: Path) -> None:
     caminho = tmp_path / "PENDENCIAS.md"
     caminho.write_text(
-        "`prazos_log.pzphase:3` e `prazo2publication.pzphase` permanecem pendentes.\n"
+        "## Valores de ENUM/código pendentes\n"
+        "| Tabela | Coluna | Valores pendentes |\n"
+        "|--------|--------|-------------------|\n"
+        "| `prazos_log` / `prazo2publication` | `pzphase` | `{3, 4}` |\n"
         "| `tarefas` | `status` | `{novo, antigo}` |",
         encoding="utf-8",
     )
 
     assert carregar_pendencias_markdown(caminho) == [
         PendenciaEnum("prazos_log", "pzphase", "3", "pendencia_documentada"),
-        PendenciaEnum("prazo2publication", "pzphase", "*", "pendencia_documentada"),
+        PendenciaEnum("prazos_log", "pzphase", "4", "pendencia_documentada"),
+        PendenciaEnum("prazo2publication", "pzphase", "3", "pendencia_documentada"),
+        PendenciaEnum("prazo2publication", "pzphase", "4", "pendencia_documentada"),
         PendenciaEnum("tarefas", "status", "novo", "pendencia_documentada"),
         PendenciaEnum("tarefas", "status", "antigo", "pendencia_documentada"),
     ]
+
+
+def test_carregar_pendencias_markdown_ignora_nomes_de_arquivo(tmp_path: Path) -> None:
+    caminho = tmp_path / "PENDENCIAS.md"
+    caminho.write_text(
+        "Fonte: `relatorio_auditoria_traducoes.yaml`\n"
+        "Execute `python investigar_pendencias.py --colunas tabela.coluna`.\n"
+        "## Valores de ENUM/código pendentes\n"
+        "| Tabela | Coluna | Valores pendentes |\n"
+        "|--------|--------|-------------------|\n"
+        "| `tarefas` | `status` | `{novo}` |\n",
+        encoding="utf-8",
+    )
+
+    assert carregar_pendencias_markdown(caminho) == [
+        PendenciaEnum("tarefas", "status", "novo", "pendencia_documentada"),
+    ]
+
+
+def test_carregar_pendencias_markdown_ignora_blocos_de_codigo(tmp_path: Path) -> None:
+    caminho = tmp_path / "PENDENCIAS.md"
+    caminho.write_text(
+        "```bash\n"
+        "python investigar_pendencias.py --colunas falsa.tabela:1\n"
+        "| `tambem_falsa` | `status` | `{1}` |\n"
+        "```\n"
+        "## Valores de ENUM/código pendentes\n"
+        "| Tabela | Coluna | Valores pendentes |\n"
+        "|--------|--------|-------------------|\n"
+        "| `tarefas` | `status` | `{novo}` |\n",
+        encoding="utf-8",
+    )
+
+    assert carregar_pendencias_markdown(caminho) == [
+        PendenciaEnum("tarefas", "status", "novo", "pendencia_documentada"),
+    ]
+
+
+def test_expandir_pendencias_com_dominio_descarta_tabela_inexistente() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE tarefas (status TEXT)"))
+        conn.execute(text("INSERT INTO tarefas (status) VALUES ('novo'), ('antigo')"))
+        conn.commit()
+
+    pendencias = [
+        PendenciaEnum("relatorio_auditoria_traducoes", "yaml", "*", "pendencia_documentada"),
+        PendenciaEnum("tarefas", "status", "*", "pendencia_documentada"),
+    ]
+
+    assert expandir_pendencias_com_dominio(engine, pendencias) == [
+        PendenciaEnum("tarefas", "status", "antigo", "pendencia_documentada"),
+        PendenciaEnum("tarefas", "status", "novo", "pendencia_documentada"),
+    ]
+
+
+def test_investigar_pendencias_registra_erro_por_item_e_continua() -> None:
+    import src.investigacao_pendencias as mod
+
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE falha (codigo TEXT, name TEXT)"))
+        conn.execute(text("CREATE TABLE sucesso (codigo TEXT, name TEXT)"))
+        conn.execute(text("INSERT INTO sucesso (codigo, name) VALUES ('ok', 'Rótulo válido')"))
+        conn.commit()
+
+    original_coletar = mod._coletar_linhas_exemplo
+
+    def _coletar_com_falha(engine_arg, pendencia, colunas_pista, *, limite_linhas):
+        if pendencia.tabela == "falha":
+            raise RuntimeError("falha SQL simulada")
+        return original_coletar(engine_arg, pendencia, colunas_pista, limite_linhas=limite_linhas)
+
+    with (
+        patch.object(mod, "_buscar_em_tabela_referencia", return_value=None),
+        patch.object(mod, "_coletar_linhas_exemplo", side_effect=_coletar_com_falha),
+    ):
+        relatorio = investigar_pendencias(
+            engine,
+            [
+                PendenciaEnum("falha", "codigo", "x", "pendencia_documentada"),
+                PendenciaEnum("sucesso", "codigo", "ok", "pendencia_documentada"),
+            ],
+            limite_linhas=5,
+        )
+
+    assert relatorio["resumo"]["total_pendencias"] == 2
+    assert relatorio["resumo"]["erros"] == 1
+    assert relatorio["investigacoes"][0]["sugestao"]["status"] == "erro"
+    assert relatorio["investigacoes"][1]["sugestao"]["status"] != "erro"
+    assert "falha SQL simulada" in relatorio["investigacoes"][0]["sugestao"]["justificativa"]
 
 
 def test_descobrir_pendencias_schema_ignora_texto_livre_e_ja_traduzidos() -> None:

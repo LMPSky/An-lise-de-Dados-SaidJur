@@ -5,6 +5,10 @@
 - `investigar_pendencias.py --lote` combina as pendências referenciadas em
   `PENDENCIAS_TRADUCAO_HUMANA.md` com descoberta conservadora de códigos curtos
   sem tradução via schema; não depende do relatório de auditoria removido.
+- O parser do Markdown é restrito a tabelas estruturadas `Tabela | Coluna`,
+  ignora blocos de código e nomes de arquivo, valida tabela/coluna por
+  introspecção antes de expandir domínios e mantém erros de SQL isolados por
+  pendência com `status: erro`.
 - O relatório agrega pistas semânticas concordantes, inclui a distribuição do
   domínio do código, propaga resultados de alta confiança entre tabelas irmãs
   conhecidas (`prazos_log`, `prazo2publication`, `lawsuitdocsmetadata`) e cria
