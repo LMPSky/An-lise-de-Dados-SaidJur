@@ -1,5 +1,29 @@
 # 🔧 Resumo Técnico - Exportação de Resultados de Busca
 
+## 🔎 Atualização 2026-09-02 (2) — Descoberta via schema resiliente a colunas de texto livre/grande
+
+- Corrige travamento real observado em produção: `descobrir_pendencias_schema()`
+  consultava `DISTINCT`/`GROUP BY` em colunas como `emails.body` e
+  `publications_duplicate_info.filename` (texto livre/grande), causando
+  timeout de conexão (`Lost connection to MySQL server during query`) que
+  derrubava o `--lote` inteiro.
+- Novas constantes nomeadas em `src/investigacao_pendencias.py` excluem
+  candidatos **antes** de qualquer query de valores distintos:
+  `_TIPOS_EXCLUIDOS_DESCOBERTA_SCHEMA` (`TEXT`/`BLOB`/`JSON` e variantes),
+  `_TAMANHO_MAXIMO_VARCHAR_DESCOBERTA_SCHEMA` (150 caracteres) e
+  `_NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA` (`body`, `content`, `summary`,
+  `description`, `observacao`, `html`, `json`, etc.).
+- A consulta de valores distintos por coluna, dentro do loop de
+  `descobrir_pendencias_schema()`, agora é isolada em `try/except`: uma
+  falha (timeout, erro de conexão, erro de SQL) em uma coluna específica é
+  registrada como aviso e a descoberta continua para as demais
+  colunas/tabelas, no mesmo espírito de resiliência de
+  `auditar_traducoes.py` (estratégia de tabela colossal).
+- `descobrir_pendencias_schema()` passou a retornar `(pendencias, resumo)`;
+  o `resumo` (contagens e listas de `tabela.coluna` excluídas/com falha) é
+  propagado para `relatorio_investigacao_pendencias.yaml` (chave
+  `descoberta_schema`) e exibido no console de `investigar_pendencias.py`.
+
 ## 🔎 Atualização 2026-09-02 — Investigação autônoma em lote
 
 - `investigar_pendencias.py --lote` combina as pendências referenciadas em
