@@ -211,6 +211,9 @@ banco (somente leitura) e gera `relatorio_investigacao_pendencias.yaml` com:
 - marcação explícita de **sem pista encontrada** quando não houver evidência clara
 - preferência automática por **coluna em português** quando existir uma coluna irmã
   em outro idioma no mesmo schema (ex.: `name`/`name_pt` antes de `name_en`)
+- agregação de pistas concordantes de múltiplas colunas e linhas, correlação entre
+  tabelas irmãs conhecidas e estatística do domínio do código como sinais auxiliares
+- agrupamento final por confiança e tabela para facilitar revisão em lote
 
 > **Nota sobre pistas fortes vs fracas**: uma coluna booleana com valor `0` constante em
 > 5/5 linhas de amostra *não* revela o significado do código investigado — é apenas o padrão
@@ -236,6 +239,21 @@ também funciona no modo direcionado `--colunas`:
 
 ```bash
 python investigar_pendencias.py --colunas hearingcontrol.hearingtype:11 prazo2publication.pzphase:4 --limite-linhas 50
+```
+
+Para investigar todas as pendências documentadas sem recriar a auditoria removida,
+e também descobrir códigos curtos ainda ausentes no schema, execute:
+
+```bash
+python investigar_pendencias.py --lote --limite-linhas 50
+```
+
+O modo de lote continua somente leitura e não altera `dicionarios.yaml`. Para
+aprovar explicitamente em lote apenas sugestões de alta confiança vindas de uma
+fonte específica (sem alertas de conteúdo sensível), use por exemplo:
+
+```bash
+python aplicar_sugestoes_investigacao.py --aprovar-fonte tabela_referencia --dry-run
 ```
 
 ### ✅ Aplicação assistida das sugestões no `dicionarios.yaml`

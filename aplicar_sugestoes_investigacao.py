@@ -46,6 +46,11 @@ def _parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Mostra o que seria aplicado sem alterar dicionarios.yaml",
     )
+    parser.add_argument(
+        "--aprovar-fonte",
+        choices=("tabela_referencia", "tabela_irma", "multiplas_pistas"),
+        help="Aprova explicitamente, em lote, sugestões de alta confiança desta fonte.",
+    )
     return parser
 
 
@@ -142,6 +147,22 @@ def main() -> None:
     if args.aplicar_decisoes:
         arquivo_decisoes = carregar_yaml(args.aplicar_decisoes)
         decisoes = arquivo_decisoes.get("decisoes", [])
+    elif args.aprovar_fonte:
+        decisoes = [
+            {
+                "tabela": item.get("tabela"),
+                "coluna": item.get("coluna"),
+                "valor": item.get("valor"),
+                "status_sugestao": item.get("sugestao", {}).get("status"),
+                "traducao_sugerida": item.get("sugestao", {}).get("traducao_sugerida"),
+                "decisao": "aplicar",
+            }
+            for item in relatorio.get("investigacoes", [])
+            if item.get("sugestao", {}).get("status") == "alta_confianca"
+            and item.get("sugestao", {}).get("fonte") == args.aprovar_fonte
+            and not item.get("sugestao", {}).get("alertas")
+        ]
+        print(f"⚠️ Aprovação explícita em lote: fonte {args.aprovar_fonte} ({len(decisoes)} sugestão(ões)).")
     else:
         decisoes = _revisar_interativo(relatorio)
 

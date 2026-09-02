@@ -6,6 +6,7 @@ import argparse
 
 from src.investigacao_pendencias import (
     ARQUIVO_AUDITORIA_PADRAO,
+    ARQUIVO_PENDENCIAS_MARKDOWN_PADRAO,
     ARQUIVO_RELATORIO_INVESTIGACAO_PADRAO,
     executar_investigacao,
 )
@@ -22,6 +23,22 @@ def _parser() -> argparse.ArgumentParser:
         "--relatorio-auditoria",
         default=ARQUIVO_AUDITORIA_PADRAO,
         help="Arquivo YAML de auditoria com pendências (padrão: relatorio_auditoria_traducoes.yaml)",
+    )
+    parser.add_argument(
+        "--lote",
+        action="store_true",
+        help="Descobre pendências do Markdown e do schema, sem relatório de auditoria.",
+    )
+    parser.add_argument(
+        "--pendencias-markdown",
+        nargs="?",
+        const=ARQUIVO_PENDENCIAS_MARKDOWN_PADRAO,
+        help="Extrai pendências de um Markdown (padrão: PENDENCIAS_TRADUCAO_HUMANA.md).",
+    )
+    parser.add_argument(
+        "--descobrir-schema",
+        action="store_true",
+        help="Inclui códigos curtos sem tradução encontrados diretamente no schema.",
     )
     parser.add_argument(
         "--saida",
@@ -57,6 +74,8 @@ def main() -> None:
         print("🔎 Iniciando investigação direcionada das colunas especificadas...")
         print(f"📌 Colunas: {', '.join(args.colunas)}")
         print(f"📏 Limite de linhas por item: {max(2, args.limite_linhas)}")
+    elif args.lote or args.pendencias_markdown or args.descobrir_schema:
+        print("🔎 Iniciando investigação automática em lote...")
     else:
         print("🔎 Iniciando investigação assistida de pendências...")
     print("ℹ️  Modo somente leitura (queries SELECT).")
@@ -66,6 +85,11 @@ def main() -> None:
         caminho_saida=args.saida,
         limite_linhas=max(2, args.limite_linhas),
         colunas_diretas=args.colunas,
+        caminho_pendencias_markdown=(
+            args.pendencias_markdown
+            or (ARQUIVO_PENDENCIAS_MARKDOWN_PADRAO if args.lote else None)
+        ),
+        descobrir_schema=args.descobrir_schema or args.lote,
     )
 
     resumo = relatorio["resumo"]
@@ -76,6 +100,8 @@ def main() -> None:
     print(f"❓ Sem pista clara: {resumo['sem_pista_encontrada']}")
     print(f"📭 Sem registros: {resumo['sem_registros']}")
     print(f"⚠️  Erros: {resumo['erros']}")
+    for status, tabelas in relatorio["agrupado_por_confianca_e_tabela"].items():
+        print(f"📂 {status}: " + ", ".join(f"{tabela} ({len(itens)})" for tabela, itens in tabelas.items()))
     print(f"📝 Relatório: {args.saida}")
 
 
