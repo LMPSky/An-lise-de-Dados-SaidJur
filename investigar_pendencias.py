@@ -102,6 +102,21 @@ def main() -> None:
     print(f"⚠️  Erros: {resumo['erros']}")
     for status, tabelas in relatorio["agrupado_por_confianca_e_tabela"].items():
         print(f"📂 {status}: " + ", ".join(f"{tabela} ({len(itens)})" for tabela, itens in tabelas.items()))
+
+    resumo_descoberta = relatorio.get("descoberta_schema")
+    if resumo_descoberta is not None:
+        total_excluidas = resumo_descoberta["total_colunas_excluidas"]
+        total_falhas = resumo_descoberta["total_colunas_com_falha"]
+        print("\n🔍 Descoberta via schema")
+        print(f"🚫 Colunas excluídas (texto livre/grande): {total_excluidas}")
+        if total_excluidas and total_excluidas <= 20:
+            for item in resumo_descoberta["colunas_excluidas"]:
+                print(f"   - {item['tabela_coluna']} ({item['motivo']})")
+        print(f"⏭️  Colunas com falha na consulta (puladas): {total_falhas}")
+        if total_falhas and total_falhas <= 20:
+            for item in resumo_descoberta["colunas_com_falha"]:
+                print(f"   - {item['tabela_coluna']}: {item['erro']}")
+
     print(f"📝 Relatório: {args.saida}")
 
 

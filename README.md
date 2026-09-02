@@ -256,6 +256,25 @@ tabela/coluna no schema antes de consultar o domínio. Falhas em uma pendência
 específica são registradas como `status: erro` no relatório sem interromper as
 demais.
 
+A descoberta via schema (`--descobrir-schema`/`--lote`) também é protegida
+contra colunas de texto livre/grande, que causavam timeout de conexão em
+produção (ex: `emails.body`, `publications_duplicate_info.filename`). Antes de
+consultar valores distintos, colunas são excluídas quando:
+
+- o tipo é `TEXT`/`MEDIUMTEXT`/`LONGTEXT`/`BLOB`/`JSON` (ou variantes);
+- o tipo é `VARCHAR`/`CHAR` acima de 150 caracteres;
+- o nome indica conteúdo textual livre (`body`, `content`, `summary`,
+  `description`, `descricao`, `observacao`, `comentario`, `html`, `json`, etc.
+  — ver `_NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA` em
+  `src/investigacao_pendencias.py`).
+
+Além disso, uma falha isolada (timeout, erro de conexão) ao consultar uma
+coluna específica é capturada e registrada como aviso, sem interromper a
+descoberta das colunas/tabelas seguintes. Ao final da execução, o console e o
+`relatorio_investigacao_pendencias.yaml` (chave `descoberta_schema`) mostram
+quantas colunas foram excluídas e quantas falharam, com a lista de
+`tabela.coluna` correspondente.
+
 Para aprovar explicitamente em lote apenas sugestões de alta confiança vindas de uma
 fonte específica (sem alertas de conteúdo sensível), use por exemplo:
 

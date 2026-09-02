@@ -272,9 +272,169 @@ def test_descobrir_pendencias_schema_ignora_texto_livre_e_ja_traduzidos() -> Non
         ))
         conn.commit()
 
-    pendencias = descobrir_pendencias_schema(engine, {"tarefas": {"status": {"novo": "Novo"}}})
+    pendencias, resumo = descobrir_pendencias_schema(engine, {"tarefas": {"status": {"novo": "Novo"}}})
 
     assert pendencias == []
+    assert resumo["total_colunas_excluidas"] >= 0
+    assert resumo["total_colunas_com_falha"] == 0
+
+
+def test_descobrir_pendencias_schema_exclui_colunas_text_blob_json_por_tipo() -> None:
+    """Colunas TEXT/BLOB/JSON nunca devem ser consultadas: excluídas antes da query."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE emails (
+                id INTEGER PRIMARY KEY,
+                code VARCHAR(20),
+                body TEXT,
+                anexo BLOB,
+                metadados JSON
+            )
+        """))
+        conn.execute(text("INSERT INTO emails (id, code, body) VALUES (1, 'A', 'texto grande de e-mail')"))
+        conn.commit()
+
+    pendencias, resumo = descobrir_pendencias_schema(engine, {})
+
+    tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
+    assert ("emails", "body") not in tabelas_colunas
+    assert ("emails", "anexo") not in tabelas_colunas
+    assert ("emails", "metadados") not in tabelas_colunas
+    assert ("emails", "code") in tabelas_colunas
+
+    excluidas = {item["tabela_coluna"] for item in resumo["colunas_excluidas"]}
+    assert "emails.body" in excluidas
+    assert "emails.anexo" in excluidas
+    assert "emails.metadados" in excluidas
+    assert resumo["total_colunas_excluidas"] == len(excluidas)
+
+
+def test_descobrir_pendencias_schema_exclui_varchar_acima_do_limite() -> None:
+    """VARCHAR acima do tamanho configurado é excluído mesmo com nome de código."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE publications_duplicate_info (
+                id INTEGER PRIMARY KEY,
+                filecode VARCHAR(20),
+                filename VARCHAR(255)
+            )
+        """))
+        conn.execute(text(
+            "INSERT INTO publications_duplicate_info (id, filecode, filename) VALUES (1, 'A', 'algum_arquivo.pdf')"
+        ))
+        conn.commit()
+
+    pendencias, resumo = descobrir_pendencias_schema(engine, {})
+
+    tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
+    assert ("publications_duplicate_info", "filename") not in tabelas_colunas
+    assert ("publications_duplicate_info", "filecode") in tabelas_colunas
+
+    excluidas = {item["tabela_coluna"]: item["motivo"] for item in resumo["colunas_excluidas"]}
+    assert excluidas["publications_duplicate_info.filename"] == "varchar_acima_do_limite"
+
+
+def test_descobrir_pendencias_schema_exclui_por_nome_mesmo_com_tipo_curto() -> None:
+    """Nomes como body/content/summary são excluídos mesmo com VARCHAR curto."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE publicacoes (
+                id INTEGER PRIMARY KEY,
+                code VARCHAR(20),
+                summary VARCHAR(50),
+                content VARCHAR(50)
+            )
+        """))
+        conn.execute(text(
+            "INSERT INTO publicacoes (id, code, summary, content) VALUES (1, 'A', 'resumo curto', 'conteudo curto')"
+        ))
+        conn.commit()
+
+    pendencias, resumo = descobrir_pendencias_schema(engine, {})
+
+    tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
+    assert ("publicacoes", "summary") not in tabelas_colunas
+    assert ("publicacoes", "content") not in tabelas_colunas
+    assert ("publicacoes", "code") in tabelas_colunas
+
+    excluidas = {item["tabela_coluna"]: item["motivo"] for item in resumo["colunas_excluidas"]}
+    assert excluidas["publicacoes.summary"] == "nome_indica_texto_livre"
+    assert excluidas["publicacoes.content"] == "nome_indica_texto_livre"
+
+
+def test_descobrir_pendencias_schema_falha_isolada_nao_interrompe_demais_colunas() -> None:
+    """Uma falha (timeout/erro SQL) ao consultar uma coluna não deve derrubar o lote."""
+    import src.investigacao_pendencias as mod
+
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE emails (
+                id INTEGER PRIMARY KEY,
+                code VARCHAR(20)
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE prazos_log (
+                id INTEGER PRIMARY KEY,
+                pzphase VARCHAR(20)
+            )
+        """))
+        conn.execute(text("INSERT INTO emails (id, code) VALUES (1, 'A')"))
+        conn.execute(text("INSERT INTO prazos_log (id, pzphase) VALUES (1, 'X')"))
+        conn.commit()
+
+    original = mod._valores_distintos_coluna
+
+    def _falha_para_emails_code(engine_, tabela, coluna, **kwargs):
+        if tabela == "emails" and coluna == "code":
+            raise TimeoutError("Lost connection to MySQL server during query (timed out)")
+        return original(engine_, tabela, coluna, **kwargs)
+
+    with patch.object(mod, "_valores_distintos_coluna", side_effect=_falha_para_emails_code):
+        pendencias, resumo = descobrir_pendencias_schema(engine, {})
+
+    tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
+    assert ("prazos_log", "pzphase") in tabelas_colunas
+    assert not any(t == "emails" and c == "code" for t, c in tabelas_colunas)
+
+    falhas = {item["tabela_coluna"] for item in resumo["colunas_com_falha"]}
+    assert "emails.code" in falhas
+    assert resumo["total_colunas_com_falha"] == 1
+
+
+def test_executar_investigacao_inclui_resumo_descoberta_schema_no_relatorio(tmp_path: Path) -> None:
+    """O relatório final expõe contagens de colunas excluídas/com falha na descoberta via schema."""
+    import src.investigacao_pendencias as mod
+
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE paymenttype (
+                id INTEGER PRIMARY KEY,
+                code VARCHAR(20),
+                body TEXT
+            )
+        """))
+        conn.execute(text("INSERT INTO paymenttype (id, code, body) VALUES (1, 'Bol', 'texto livre')"))
+        conn.commit()
+
+    caminho_saida = tmp_path / "relatorio.yaml"
+    with patch.object(mod, "criar_engine", return_value=engine):
+        relatorio = executar_investigacao(caminho_saida=caminho_saida, descobrir_schema=True)
+
+    assert "descoberta_schema" in relatorio
+    assert relatorio["descoberta_schema"]["total_colunas_excluidas"] >= 1
+    assert any(
+        item["tabela_coluna"] == "paymenttype.body"
+        for item in relatorio["descoberta_schema"]["colunas_excluidas"]
+    )
+
+    relatorio_salvo = yaml.safe_load(caminho_saida.read_text(encoding="utf-8"))
+    assert "descoberta_schema" in relatorio_salvo
 
 
 

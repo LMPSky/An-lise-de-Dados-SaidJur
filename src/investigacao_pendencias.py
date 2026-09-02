@@ -51,6 +51,49 @@ _EXTENSOES_ARQUIVO_IGNORADAS = (
     ".txt",
 )
 
+# Tipos de coluna sempre excluídos da descoberta via schema: são tipicamente
+# texto livre/binário grande (conteúdo de e-mail, HTML, arquivos, etc.) e uma
+# consulta DISTINCT/GROUP BY nesses tipos pode travar o banco (timeout) sem
+# nunca produzir candidatos úteis de código/ENUM.
+_TIPOS_EXCLUIDOS_DESCOBERTA_SCHEMA: tuple[str, ...] = (
+    "text",
+    "clob",
+    "blob",
+    "json",
+)
+
+# Tamanho máximo (em caracteres) de VARCHAR/CHAR ainda considerado candidato a
+# código/ENUM curto. Colunas VARCHAR/CHAR maiores que isso costumam guardar
+# texto livre (ex: nomes de arquivo, resumos) e são excluídas da descoberta.
+_TAMANHO_MAXIMO_VARCHAR_DESCOBERTA_SCHEMA = 150
+
+# Nomes de coluna que indicam conteúdo textual livre (não código/ENUM), mesmo
+# quando o tipo declarado seria compatível (ex: VARCHAR curto usado para
+# resumo). Usada para excluir colunas como `body`, `content`, `summary` da
+# descoberta via schema antes de qualquer consulta de valores distintos.
+# Constante nomeada para facilitar expansão futura, no mesmo padrão de
+# `_COLUNAS_OBSERVACAO_PADRAO`/`_PREFIXOS_ABREVIADOS`.
+_NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA: tuple[str, ...] = (
+    "body",
+    "content",
+    "conteudo",
+    "summary",
+    "resumo",
+    "text",
+    "texto",
+    "description",
+    "descricao",
+    "observacao",
+    "obs",
+    "comentario",
+    "comment",
+    "html",
+    "xml",
+    "json",
+    "note",
+    "notes",
+)
+
 # Nomes de colunas de observação/texto-livre usadas como contexto complementar.
 # Quando a coluna investigada não obtém tradução de alta confiança, a ferramenta
 # agrega os valores dessas colunas correlacionadas para ajudar o usuário a inferir
@@ -378,25 +421,118 @@ def _coluna_parece_codigo(coluna: ColunaTabela) -> bool:
     return _tipo_textual(coluna.tipo) or any(chave in nome for chave in _COLUNAS_CODIGO)
 
 
-def descobrir_pendencias_schema(engine: Engine, dicionarios: dict[str, Any]) -> list[PendenciaEnum]:
-    """Descobre códigos curtos sem tradução diretamente por introspecção do schema."""
+def _coluna_elegivel_para_descoberta_schema(coluna: ColunaTabela) -> bool:
+    """Indica se a coluna deve ao menos ser avaliada pela descoberta via schema.
+
+    Mais abrangente que :func:`_coluna_parece_codigo`: também inclui colunas de
+    tipo explicitamente excluído (``TEXT``/``BLOB``/``JSON``) para que elas
+    apareçam no resumo de "excluídas" em vez de serem silenciosamente
+    descartadas sem rastro.
+    """
+    nome = coluna.nome.lower()
+    tipo = coluna.tipo.lower()
+    return (
+        _tipo_textual(tipo)
+        or any(chave in tipo for chave in _TIPOS_EXCLUIDOS_DESCOBERTA_SCHEMA)
+        or any(chave in nome for chave in _COLUNAS_CODIGO)
+    )
+
+
+def _tamanho_varchar(tipo: str) -> int | None:
+    """Extrai o tamanho declarado de um tipo ``VARCHAR(n)``/``CHAR(n)``, se houver."""
+    correspondencia = re.search(r"\((\d+)", tipo)
+    return int(correspondencia.group(1)) if correspondencia else None
+
+
+def _motivo_exclusao_descoberta_schema(coluna: ColunaTabela) -> str | None:
+    """Indica por que uma coluna deve ser excluída da descoberta via schema.
+
+    Retorna ``None`` quando a coluna é uma candidata válida, ou uma string com
+    o motivo da exclusão (para compor o resumo exibido ao usuário) quando ela
+    aparenta ser texto livre/binário grande — o mesmo padrão de coluna que
+    causou os travamentos observados em produção (``emails.body``,
+    ``publications_duplicate_info.filename``).
+    """
+    tipo = coluna.tipo.lower()
+    nome = coluna.nome.lower()
+
+    if any(chave in tipo for chave in _TIPOS_EXCLUIDOS_DESCOBERTA_SCHEMA):
+        return "tipo_texto_livre_ou_binario"
+
+    tamanho = _tamanho_varchar(tipo)
+    if tamanho is not None and tamanho > _TAMANHO_MAXIMO_VARCHAR_DESCOBERTA_SCHEMA:
+        return "varchar_acima_do_limite"
+
+    if any(chave in nome for chave in _NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA):
+        return "nome_indica_texto_livre"
+
+    return None
+
+
+def descobrir_pendencias_schema(
+    engine: Engine, dicionarios: dict[str, Any]
+) -> tuple[list[PendenciaEnum], dict[str, Any]]:
+    """Descobre códigos curtos sem tradução diretamente por introspecção do schema.
+
+    Antes de consultar valores distintos, colunas candidatas são filtradas por
+    tipo (``TEXT``/``BLOB``/``VARCHAR`` grande) e por nome (indícios de texto
+    livre como ``body``/``content``/``summary``), evitando consultas
+    ``DISTINCT``/``GROUP BY`` custosas em colunas que nunca seriam código/ENUM.
+    Falhas isoladas (timeout, erro de conexão) ao consultar uma coluna são
+    capturadas e reportadas no resumo, sem interromper a descoberta das demais
+    colunas/tabelas.
+
+    Retorna uma tupla ``(pendencias, resumo)``, em que ``resumo`` traz as
+    contagens/listas de colunas excluídas e de colunas que falharam.
+    """
     resultado: list[PendenciaEnum] = []
+    colunas_excluidas: list[dict[str, str]] = []
+    colunas_com_falha: list[dict[str, str]] = []
+
     for tabela in inspect(engine).get_table_names():
         traducoes_tabela = dicionarios.get(tabela, {})
         if not isinstance(traducoes_tabela, dict):
             traducoes_tabela = {}
         for coluna in listar_colunas_tabela(engine, tabela):
-            if not _coluna_parece_codigo(coluna):
+            if not _coluna_elegivel_para_descoberta_schema(coluna):
                 continue
+
+            motivo_exclusao = _motivo_exclusao_descoberta_schema(coluna)
+            if motivo_exclusao is not None:
+                colunas_excluidas.append(
+                    {"tabela_coluna": f"{tabela}.{coluna.nome}", "motivo": motivo_exclusao}
+                )
+                continue
+
             traducoes_coluna = traducoes_tabela.get(coluna.nome, {})
             if not isinstance(traducoes_coluna, dict):
                 traducoes_coluna = {}
-            for valor in _valores_distintos_coluna(engine, tabela, coluna.nome):
+
+            try:
+                valores = _valores_distintos_coluna(engine, tabela, coluna.nome)
+            except Exception as exc:  # noqa: BLE001 - falha isolada não pode derrubar o lote
+                colunas_com_falha.append(
+                    {"tabela_coluna": f"{tabela}.{coluna.nome}", "erro": str(exc)}
+                )
+                print(
+                    f"⚠️  Descoberta via schema: falha ao consultar {tabela}.{coluna.nome}, "
+                    f"pulando esta coluna: {exc}"
+                )
+                continue
+
+            for valor in valores:
                 if len(valor) > 40 or _pista_parece_texto_livre(valor):
                     continue
                 if valor not in traducoes_coluna:
                     resultado.append(PendenciaEnum(tabela, coluna.nome, valor, "descoberta_schema"))
-    return _deduplicar_pendencias(resultado)
+
+    resumo = {
+        "colunas_excluidas": colunas_excluidas,
+        "total_colunas_excluidas": len(colunas_excluidas),
+        "colunas_com_falha": colunas_com_falha,
+        "total_colunas_com_falha": len(colunas_com_falha),
+    }
+    return _deduplicar_pendencias(resultado), resumo
 
 
 def expandir_pendencias_com_dominio(engine: Engine, pendencias: list[PendenciaEnum]) -> list[PendenciaEnum]:
@@ -1708,13 +1844,19 @@ def executar_investigacao(
 
     engine = criar_engine()
     try:
+        resumo_descoberta_schema: dict[str, Any] | None = None
         if caminho_pendencias_markdown:
             pendencias = expandir_pendencias_com_dominio(engine, pendencias)
         if descobrir_schema:
-            pendencias.extend(descobrir_pendencias_schema(engine, carregar_yaml(caminho_dicionarios)))
+            pendencias_schema, resumo_descoberta_schema = descobrir_pendencias_schema(
+                engine, carregar_yaml(caminho_dicionarios)
+            )
+            pendencias.extend(pendencias_schema)
         pendencias = _deduplicar_pendencias(pendencias)
         relatorio = investigar_pendencias(engine, pendencias, limite_linhas=limite_linhas)
         relatorio["fonte_pendencias"] = fonte
+        if resumo_descoberta_schema is not None:
+            relatorio["descoberta_schema"] = resumo_descoberta_schema
         salvar_yaml(relatorio, caminho_saida)
         return relatorio
     finally:
