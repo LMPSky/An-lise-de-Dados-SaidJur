@@ -44,3 +44,8 @@ coverage.xml
 # Temporários
 *.tmp
 *.bak
+
+# Relatórios e exportações gerados (raiz)
+/relatorio_*.yaml
+/*.xlsx
+/*.diff
