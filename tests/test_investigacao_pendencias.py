@@ -28,6 +28,7 @@ from src.investigacao_pendencias import (
     _pista_parece_texto_livre,
     _contar_linhas_com_valor,
     _coletar_contexto_coluna_obs,
+    _propagar_entre_tabelas_irmas,
 )
 
 
@@ -227,6 +228,39 @@ def test_investigar_pendencias_registra_erro_por_item_e_continua() -> None:
     assert relatorio["investigacoes"][0]["sugestao"]["status"] == "erro"
     assert relatorio["investigacoes"][1]["sugestao"]["status"] != "erro"
     assert "falha SQL simulada" in relatorio["investigacoes"][0]["sugestao"]["justificativa"]
+
+
+def test_propagar_entre_tabelas_irmas_nao_sobrescreve_erro() -> None:
+    investigacoes = [
+        {
+            "tabela": "prazos_log",
+            "coluna": "pzphase",
+            "valor": "1",
+            "sugestao": {
+                "status": "erro",
+                "traducao_sugerida": None,
+                "justificativa": "Falha ao investigar: timeout",
+                "pistas": [],
+            },
+        },
+        {
+            "tabela": "prazo2publication",
+            "coluna": "pzphase",
+            "valor": "1",
+            "sugestao": {
+                "status": "alta_confianca",
+                "traducao_sugerida": "audiência inicial",
+                "justificativa": "Tabela de referência confirmou o rótulo.",
+                "pistas": [],
+            },
+        },
+    ]
+
+    _propagar_entre_tabelas_irmas(investigacoes)
+
+    assert investigacoes[0]["sugestao"]["status"] == "erro"
+    assert investigacoes[0]["sugestao"]["traducao_sugerida"] is None
+    assert "timeout" in investigacoes[0]["sugestao"]["justificativa"]
 
 
 def test_descobrir_pendencias_schema_ignora_texto_livre_e_ja_traduzidos() -> None:

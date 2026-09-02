@@ -1389,7 +1389,7 @@ def _propagar_entre_tabelas_irmas(investigacoes: list[dict[str, Any]]) -> None:
         for destino in investigacoes:
             if destino["coluna"].lower() != coluna or destino["tabela"].lower() not in tabelas:
                 continue
-            if destino["sugestao"]["status"] == "alta_confianca":
+            if destino["sugestao"]["status"] in {"alta_confianca", "erro"}:
                 continue
             origem = next(
                 (
