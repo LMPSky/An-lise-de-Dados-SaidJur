@@ -15,6 +15,7 @@ from sqlalchemy.engine import Engine
 import yaml
 
 from src.db import criar_engine, executar_com_retry_db
+from src.tabelas_grandes import LIMITE_LINHAS_TABELA_COLOSSAL
 
 ARQUIVO_AUDITORIA_PADRAO = "relatorio_auditoria_traducoes.yaml"
 ARQUIVO_RELATORIO_INVESTIGACAO_PADRAO = "relatorio_investigacao_pendencias.yaml"
@@ -469,27 +470,75 @@ def _motivo_exclusao_descoberta_schema(coluna: ColunaTabela) -> str | None:
     return None
 
 
+def _linhas_estimadas_tabela(engine: Engine, tabela: str) -> int:
+    """Retorna a contagem estimada de linhas (``TABLE_ROWS`` do information_schema).
+
+    Essa contagem é uma estimativa do otimizador do MySQL, não uma contagem
+    exata — mas é rápida e suficiente para decidir se a tabela é "colossal" o
+    bastante para ser pulada por completo na descoberta via schema (mesmo
+    padrão já usado em ``auditar_traducoes.py``). Em dialetos sem
+    ``information_schema.TABLES`` equivalente (ex: SQLite, usado nos testes),
+    retorna ``0`` — nesse caso a tabela nunca é tratada como colossal.
+    """
+    if engine.dialect.name != "mysql":
+        return 0
+    schema = engine.url.database
+    sql = text(
+        "SELECT TABLE_ROWS FROM information_schema.TABLES "
+        "WHERE TABLE_SCHEMA = :schema AND TABLE_NAME = :tabela"
+    )
+    with engine.connect() as conn:
+        row = conn.execute(sql, {"schema": schema, "tabela": tabela}).fetchone()
+    if not row or row[0] is None:
+        return 0
+    return int(row[0])
+
+
 def descobrir_pendencias_schema(
     engine: Engine, dicionarios: dict[str, Any]
 ) -> tuple[list[PendenciaEnum], dict[str, Any]]:
     """Descobre códigos curtos sem tradução diretamente por introspecção do schema.
 
-    Antes de consultar valores distintos, colunas candidatas são filtradas por
-    tipo (``TEXT``/``BLOB``/``VARCHAR`` grande) e por nome (indícios de texto
-    livre como ``body``/``content``/``summary``), evitando consultas
-    ``DISTINCT``/``GROUP BY`` custosas em colunas que nunca seriam código/ENUM.
-    Falhas isoladas (timeout, erro de conexão) ao consultar uma coluna são
-    capturadas e reportadas no resumo, sem interromper a descoberta das demais
-    colunas/tabelas.
+    Antes de consultar valores distintos, tabelas colossais (acima de
+    ``LIMITE_LINHAS_TABELA_COLOSSAL`` linhas estimadas, ex: ``publicationxml``)
+    são puladas por completo — evitando descobrir o timeout coluna a coluna,
+    como acontecia antes. Para as demais tabelas, colunas candidatas são
+    filtradas por tipo (``TEXT``/``BLOB``/``VARCHAR`` grande) e por nome
+    (indícios de texto livre como ``body``/``content``/``summary``), evitando
+    consultas ``DISTINCT``/``GROUP BY`` custosas em colunas que nunca seriam
+    código/ENUM. Falhas isoladas (timeout, erro de conexão) ao consultar uma
+    coluna ou ao estimar linhas de uma tabela são capturadas e reportadas no
+    resumo, sem interromper a descoberta das demais colunas/tabelas.
 
     Retorna uma tupla ``(pendencias, resumo)``, em que ``resumo`` traz as
-    contagens/listas de colunas excluídas e de colunas que falharam.
+    contagens/listas de colunas excluídas, colunas que falharam e tabelas
+    colossais puladas.
     """
     resultado: list[PendenciaEnum] = []
     colunas_excluidas: list[dict[str, str]] = []
     colunas_com_falha: list[dict[str, str]] = []
+    tabelas_colossais_puladas: list[dict[str, Any]] = []
 
     for tabela in inspect(engine).get_table_names():
+        try:
+            linhas_estimadas = _linhas_estimadas_tabela(engine, tabela)
+        except Exception as exc:  # noqa: BLE001 - falha isolada não pode derrubar o lote
+            linhas_estimadas = 0
+            print(
+                f"⚠️  Descoberta via schema: falha ao estimar linhas de {tabela}, "
+                f"tratando como tabela normal: {exc}"
+            )
+
+        if linhas_estimadas > LIMITE_LINHAS_TABELA_COLOSSAL:
+            tabelas_colossais_puladas.append(
+                {"tabela": tabela, "linhas_estimadas": linhas_estimadas}
+            )
+            print(
+                f"ℹ️  Tabela colossal '{tabela}' (~{linhas_estimadas:,} linhas): "
+                "pulando descoberta via schema desta tabela inteira."
+            )
+            continue
+
         traducoes_tabela = dicionarios.get(tabela, {})
         if not isinstance(traducoes_tabela, dict):
             traducoes_tabela = {}
@@ -531,6 +580,8 @@ def descobrir_pendencias_schema(
         "total_colunas_excluidas": len(colunas_excluidas),
         "colunas_com_falha": colunas_com_falha,
         "total_colunas_com_falha": len(colunas_com_falha),
+        "tabelas_colossais_puladas": tabelas_colossais_puladas,
+        "total_tabelas_colossais_puladas": len(tabelas_colossais_puladas),
     }
     return _deduplicar_pendencias(resultado), resumo
 

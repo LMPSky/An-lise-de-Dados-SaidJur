@@ -116,6 +116,11 @@ def main() -> None:
         if total_falhas and total_falhas <= 20:
             for item in resumo_descoberta["colunas_com_falha"]:
                 print(f"   - {item['tabela_coluna']}: {item['erro']}")
+        total_tabelas_colossais = resumo_descoberta.get("total_tabelas_colossais_puladas", 0)
+        print(f"🏔️  Tabelas colossais puladas por completo: {total_tabelas_colossais}")
+        if total_tabelas_colossais:
+            for item in resumo_descoberta["tabelas_colossais_puladas"]:
+                print(f"   - {item['tabela']} (~{item['linhas_estimadas']:,} linhas)")
 
     print(f"📝 Relatório: {args.saida}")
 
