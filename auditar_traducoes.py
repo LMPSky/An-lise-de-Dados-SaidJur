@@ -13,6 +13,7 @@ import yaml
 
 from src.config import CONFIG
 from src.dicionarios import dicionario_de_coluna
+from src.tabelas_grandes import LIMITE_LINHAS_TABELA_COLOSSAL
 from src.traducoes_colunas import TRADUCOES_COLUNAS, traduzir_nome_coluna
 
 ARQUIVO_RELATORIO = "relatorio_auditoria_traducoes.yaml"
@@ -26,7 +27,8 @@ LIMITE_LINHAS_TABELA_GRANDE = 500_000
 # Para tabelas colossais, mesmo a subseleção pode estourar timeout se a coluna
 # auditada não tiver índice útil. Nesses casos, auditamos apenas nomes de
 # coluna e registramos explicitamente no relatório que os ENUMs foram pulados.
-LIMITE_LINHAS_TABELA_COLOSSAL = 5_000_000
+# Constante importada de src.tabelas_grandes para ser compartilhada com a
+# descoberta automática de pendências em lote (src.investigacao_pendencias).
 # Quantas linhas ler (no máximo) ao amostrar colunas de tabelas grandes.
 LIMITE_SUBSELECAO_TABELA_GRANDE = 50_000
 # Quantas linhas ler (no máximo) ao amostrar tabelas muito grandes, mas ainda

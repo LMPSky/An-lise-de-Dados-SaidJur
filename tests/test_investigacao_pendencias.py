@@ -406,6 +406,89 @@ def test_descobrir_pendencias_schema_falha_isolada_nao_interrompe_demais_colunas
     assert resumo["total_colunas_com_falha"] == 1
 
 
+def test_linhas_estimadas_tabela_retorna_zero_para_dialeto_nao_mysql() -> None:
+    """Em SQLite (usado nos testes) não há TABLE_ROWS: nunca deve ser tratado como colossal."""
+    from src.investigacao_pendencias import _linhas_estimadas_tabela
+
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE publicationxml (id INTEGER PRIMARY KEY, nature VARCHAR(20))"))
+        conn.commit()
+
+    assert _linhas_estimadas_tabela(engine, "publicationxml") == 0
+
+
+def test_descobrir_pendencias_schema_pula_tabela_colossal_por_completo() -> None:
+    """Tabelas colossais (ex: publicationxml) são puladas antes de consultar qualquer coluna."""
+    import src.investigacao_pendencias as mod
+    from src.tabelas_grandes import LIMITE_LINHAS_TABELA_COLOSSAL
+
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE publicationxml (
+                id INTEGER PRIMARY KEY,
+                nature VARCHAR(20)
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE prazos_log (
+                id INTEGER PRIMARY KEY,
+                pzphase VARCHAR(20)
+            )
+        """))
+        conn.execute(text("INSERT INTO publicationxml (id, nature) VALUES (1, 'p')"))
+        conn.execute(text("INSERT INTO prazos_log (id, pzphase) VALUES (1, 'X')"))
+        conn.commit()
+
+    def _estimativa_falsa(engine_, tabela):
+        if tabela == "publicationxml":
+            return LIMITE_LINHAS_TABELA_COLOSSAL + 1
+        return 0
+
+    with patch.object(mod, "_linhas_estimadas_tabela", side_effect=_estimativa_falsa):
+        with patch.object(mod, "_valores_distintos_coluna", wraps=mod._valores_distintos_coluna) as mock_valores:
+            pendencias, resumo = descobrir_pendencias_schema(engine, {})
+
+    tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
+    assert not any(t == "publicationxml" for t, c in tabelas_colunas)
+    assert ("prazos_log", "pzphase") in tabelas_colunas
+
+    tabelas_chamadas = {call.args[1] for call in mock_valores.call_args_list}
+    assert "publicationxml" not in tabelas_chamadas
+
+    assert resumo["total_tabelas_colossais_puladas"] == 1
+    assert resumo["tabelas_colossais_puladas"] == [
+        {"tabela": "publicationxml", "linhas_estimadas": LIMITE_LINHAS_TABELA_COLOSSAL + 1}
+    ]
+
+
+def test_descobrir_pendencias_schema_falha_ao_estimar_linhas_nao_interrompe() -> None:
+    """Uma falha ao estimar linhas de uma tabela não deve derrubar a descoberta: trata como normal."""
+    import src.investigacao_pendencias as mod
+
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE prazos_log (
+                id INTEGER PRIMARY KEY,
+                pzphase VARCHAR(20)
+            )
+        """))
+        conn.execute(text("INSERT INTO prazos_log (id, pzphase) VALUES (1, 'X')"))
+        conn.commit()
+
+    def _falha_estimativa(engine_, tabela):
+        raise TimeoutError("Lost connection to MySQL server during query (timed out)")
+
+    with patch.object(mod, "_linhas_estimadas_tabela", side_effect=_falha_estimativa):
+        pendencias, resumo = descobrir_pendencias_schema(engine, {})
+
+    tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
+    assert ("prazos_log", "pzphase") in tabelas_colunas
+    assert resumo["total_tabelas_colossais_puladas"] == 0
+
+
 def test_executar_investigacao_inclui_resumo_descoberta_schema_no_relatorio(tmp_path: Path) -> None:
     """O relatório final expõe contagens de colunas excluídas/com falha na descoberta via schema."""
     import src.investigacao_pendencias as mod
