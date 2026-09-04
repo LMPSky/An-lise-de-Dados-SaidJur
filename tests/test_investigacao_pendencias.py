@@ -193,6 +193,66 @@ def test_expandir_pendencias_com_dominio_descarta_tabela_inexistente() -> None:
     ]
 
 
+def test_expandir_pendencias_com_dominio_falha_isolada_nao_interrompe_demais() -> None:
+    """Um timeout ao expandir domínio de uma pendência não deve derrubar as demais."""
+    import src.investigacao_pendencias as mod
+
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE emails (code TEXT)"))
+        conn.execute(text("CREATE TABLE tarefas (status TEXT)"))
+        conn.execute(text("INSERT INTO emails (code) VALUES ('A')"))
+        conn.execute(text("INSERT INTO tarefas (status) VALUES ('novo')"))
+        conn.commit()
+
+    original = mod._valores_distintos_coluna
+
+    def _falha_para_emails_code(engine_, tabela, coluna, **kwargs):
+        if tabela == "emails" and coluna == "code":
+            raise TimeoutError("Lost connection to MySQL server during query (timed out)")
+        return original(engine_, tabela, coluna, **kwargs)
+
+    pendencias = [
+        PendenciaEnum("emails", "code", "*", "pendencia_documentada"),
+        PendenciaEnum("tarefas", "status", "*", "pendencia_documentada"),
+    ]
+
+    with patch.object(mod, "_valores_distintos_coluna", side_effect=_falha_para_emails_code):
+        resultado = expandir_pendencias_com_dominio(engine, pendencias)
+
+    assert resultado == [PendenciaEnum("tarefas", "status", "novo", "pendencia_documentada")]
+
+
+def test_expandir_pendencias_com_dominio_pula_tabela_colossal() -> None:
+    """Expansão de domínio em tabela colossal (ex: publicationxml) é pulada de antemão."""
+    import src.investigacao_pendencias as mod
+    from src.tabelas_grandes import LIMITE_LINHAS_TABELA_COLOSSAL
+
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE publicationxml (nature TEXT)"))
+        conn.execute(text("CREATE TABLE tarefas (status TEXT)"))
+        conn.execute(text("INSERT INTO publicationxml (nature) VALUES ('p')"))
+        conn.execute(text("INSERT INTO tarefas (status) VALUES ('novo')"))
+        conn.commit()
+
+    def _estimativa_falsa(engine_, tabela):
+        return LIMITE_LINHAS_TABELA_COLOSSAL + 1 if tabela == "publicationxml" else 0
+
+    pendencias = [
+        PendenciaEnum("publicationxml", "nature", "*", "pendencia_documentada"),
+        PendenciaEnum("tarefas", "status", "*", "pendencia_documentada"),
+    ]
+
+    with patch.object(mod, "_linhas_estimadas_tabela", side_effect=_estimativa_falsa):
+        with patch.object(mod, "_valores_distintos_coluna", wraps=mod._valores_distintos_coluna) as mock_valores:
+            resultado = expandir_pendencias_com_dominio(engine, pendencias)
+
+    assert resultado == [PendenciaEnum("tarefas", "status", "novo", "pendencia_documentada")]
+    tabelas_chamadas = {call.args[1] for call in mock_valores.call_args_list}
+    assert "publicationxml" not in tabelas_chamadas
+
+
 def test_investigar_pendencias_registra_erro_por_item_e_continua() -> None:
     import src.investigacao_pendencias as mod
 
