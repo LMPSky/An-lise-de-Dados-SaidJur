@@ -592,11 +592,19 @@ def expandir_pendencias_com_dominio(engine: Engine, pendencias: list[PendenciaEn
     Pendências vindas do Markdown são validadas por introspecção leve antes da
     primeira consulta de domínio. Tabelas ou colunas inexistentes são descartadas
     para que referências obsoletas/falsos positivos não interrompam o lote.
+
+    Tabelas colossais (acima de ``LIMITE_LINHAS_TABELA_COLOSSAL`` linhas
+    estimadas, ex: ``publicationxml``) têm a expansão de domínio pulada
+    proativamente, e uma falha isolada (timeout, erro de conexão) ao consultar
+    os valores distintos de uma pendência específica é registrada como aviso e
+    não interrompe a expansão das demais pendências — o mesmo padrão de
+    resiliência já usado em :func:`descobrir_pendencias_schema`.
     """
     resultado: list[PendenciaEnum] = []
     insp = inspect(engine)
     tabelas_por_lower = {tabela.lower(): tabela for tabela in insp.get_table_names()}
     colunas_por_tabela: dict[str, dict[str, str]] = {}
+    linhas_estimadas_por_tabela: dict[str, int] = {}
 
     for pendencia in pendencias:
         tabela_real = tabelas_por_lower.get(pendencia.tabela.lower())
@@ -611,14 +619,42 @@ def expandir_pendencias_com_dominio(engine: Engine, pendencias: list[PendenciaEn
         if not coluna_real:
             continue
 
-        if pendencia.valor == "*":
-            resultado.extend(
-                PendenciaEnum(tabela_real, coluna_real, valor, pendencia.motivo)
-                for valor in _valores_distintos_coluna(engine, tabela_real, coluna_real)
-            )
-        else:
+        if pendencia.valor != "*":
             resultado.append(PendenciaEnum(tabela_real, coluna_real, pendencia.valor, pendencia.motivo))
+            continue
+
+        if tabela_real not in linhas_estimadas_por_tabela:
+            try:
+                linhas_estimadas_por_tabela[tabela_real] = _linhas_estimadas_tabela(engine, tabela_real)
+            except Exception as exc:  # noqa: BLE001 - falha isolada não pode derrubar o lote
+                linhas_estimadas_por_tabela[tabela_real] = 0
+                print(
+                    f"⚠️  Expansão de domínio: falha ao estimar linhas de {tabela_real}, "
+                    f"tratando como tabela normal: {exc}"
+                )
+
+        if linhas_estimadas_por_tabela[tabela_real] > LIMITE_LINHAS_TABELA_COLOSSAL:
+            print(
+                f"ℹ️  Tabela colossal '{tabela_real}' "
+                f"(~{linhas_estimadas_por_tabela[tabela_real]:,} linhas): "
+                f"pulando expansão de domínio de {tabela_real}.{coluna_real}."
+            )
+            continue
+
+        try:
+            valores = _valores_distintos_coluna(engine, tabela_real, coluna_real)
+        except Exception as exc:  # noqa: BLE001 - falha isolada não pode derrubar o lote
+            print(
+                f"⚠️  Expansão de domínio: falha ao consultar valores de "
+                f"{tabela_real}.{coluna_real}, pulando esta pendência: {exc}"
+            )
+            continue
+
+        resultado.extend(
+            PendenciaEnum(tabela_real, coluna_real, valor, pendencia.motivo) for valor in valores
+        )
     return _deduplicar_pendencias(resultado)
+
 
 
 
