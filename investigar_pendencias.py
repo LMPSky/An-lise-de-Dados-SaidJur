@@ -63,6 +63,16 @@ def _parser() -> argparse.ArgumentParser:
             "Exemplo: --colunas hearingcontrol.hearingtype:11 pedidos2lawsuit.status:6"
         ),
     )
+    parser.add_argument(
+        "--intervalo-checkpoint",
+        type=int,
+        default=25,
+        help=(
+            "Salva um checkpoint parcial em --saida a cada N pendências processadas, "
+            "para não perder o progresso caso o processo trave ou seja interrompido "
+            "(padrão: 25; use 0 para desativar)."
+        ),
+    )
     return parser
 
 
@@ -80,17 +90,30 @@ def main() -> None:
         print("🔎 Iniciando investigação assistida de pendências...")
     print("ℹ️  Modo somente leitura (queries SELECT).")
 
-    relatorio = executar_investigacao(
-        caminho_relatorio_auditoria=args.relatorio_auditoria,
-        caminho_saida=args.saida,
-        limite_linhas=max(2, args.limite_linhas),
-        colunas_diretas=args.colunas,
-        caminho_pendencias_markdown=(
-            args.pendencias_markdown
-            or (ARQUIVO_PENDENCIAS_MARKDOWN_PADRAO if args.lote else None)
-        ),
-        descobrir_schema=args.descobrir_schema or args.lote,
-    )
+    try:
+        relatorio = executar_investigacao(
+            caminho_relatorio_auditoria=args.relatorio_auditoria,
+            caminho_saida=args.saida,
+            limite_linhas=max(2, args.limite_linhas),
+            colunas_diretas=args.colunas,
+            caminho_pendencias_markdown=(
+                args.pendencias_markdown
+                or (ARQUIVO_PENDENCIAS_MARKDOWN_PADRAO if args.lote else None)
+            ),
+            descobrir_schema=args.descobrir_schema or args.lote,
+            intervalo_checkpoint=args.intervalo_checkpoint,
+        )
+    except KeyboardInterrupt:
+        print("\n⏹️  Investigação interrompida pelo usuário (Ctrl+C).")
+        if args.intervalo_checkpoint > 0:
+            print(
+                f"💾 O progresso até o último checkpoint foi salvo em: {args.saida}\n"
+                "   (o relatório parcial traz 'em_andamento: true' e "
+                "'total_pendencias_esperado' para indicar que não está completo)."
+            )
+        else:
+            print("⚠️  Checkpoint incremental estava desativado (--intervalo-checkpoint 0); nada foi salvo.")
+        return
 
     resumo = relatorio["resumo"]
     print("\n✅ Investigação concluída")

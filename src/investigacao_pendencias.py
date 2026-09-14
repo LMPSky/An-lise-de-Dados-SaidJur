@@ -14,7 +14,7 @@ from sqlalchemy import inspect, text
 from sqlalchemy.engine import Engine
 import yaml
 
-from src.db import criar_engine, executar_com_retry_db
+from src.db import conectar_com_timeout, criar_engine, executar_com_retry_db
 from src.tabelas_grandes import LIMITE_LINHAS_TABELA_COLOSSAL
 
 ARQUIVO_AUDITORIA_PADRAO = "relatorio_auditoria_traducoes.yaml"
@@ -411,7 +411,7 @@ def _valores_distintos_coluna(
         f"GROUP BY CAST({coluna_sql} AS CHAR) "
         f"LIMIT {int(limite) + 1}"
     )
-    with engine.connect() as conn:
+    with conectar_com_timeout(engine) as conn:
         valores = [str(row[0]).strip() for row in conn.execute(sql).fetchall()]
     return valores if len(valores) <= limite else []
 
@@ -487,7 +487,7 @@ def _linhas_estimadas_tabela(engine: Engine, tabela: str) -> int:
         "SELECT TABLE_ROWS FROM information_schema.TABLES "
         "WHERE TABLE_SCHEMA = :schema AND TABLE_NAME = :tabela"
     )
-    with engine.connect() as conn:
+    with conectar_com_timeout(engine) as conn:
         row = conn.execute(sql, {"schema": schema, "tabela": tabela}).fetchone()
     if not row or row[0] is None:
         return 0
@@ -1040,7 +1040,7 @@ def _buscar_em_tabela_referencia(engine: Engine, pendencia: PendenciaEnum) -> di
         )
 
         def _executar() -> list[dict[str, Any]]:
-            with engine.connect() as conn:
+            with conectar_com_timeout(engine) as conn:
                 res = conn.execute(sql, {"valor": str(pendencia.valor)})
                 return [dict(row._mapping) for row in res.fetchall()]
 
@@ -1143,7 +1143,7 @@ def _contar_linhas_com_valor(
         f"SELECT COUNT(*) FROM {tabela_sql} WHERE {coluna_sql} = :valor"
     )
     try:
-        with engine.connect() as conn:
+        with conectar_com_timeout(engine) as conn:
             resultado = conn.execute(sql, {"valor": param_valor})
             row = resultado.fetchone()
             return int(row[0]) if row else 0
@@ -1175,7 +1175,7 @@ def _coletar_linhas_exemplo(
     param_valor = _converter_valor_para_param(pendencia.valor)
 
     def _executar() -> list[dict[str, Any]]:
-        with engine.connect() as conn:
+        with conectar_com_timeout(engine) as conn:
             res = conn.execute(sql, {"valor": param_valor})
             return [dict(row._mapping) for row in res.fetchall()]
 
@@ -1199,7 +1199,7 @@ def _coletar_linhas_exemplo(
         )
 
         def _executar_str() -> list[dict[str, Any]]:
-            with engine.connect() as conn:
+            with conectar_com_timeout(engine) as conn:
                 res = conn.execute(sql_str, {"valor": str(param_valor)})
                 return [dict(row._mapping) for row in res.fetchall()]
 
@@ -1540,7 +1540,7 @@ def _coletar_contexto_coluna_obs(
     )
 
     def _executar() -> list[dict[str, Any]]:
-        with engine.connect() as conn:
+        with conectar_com_timeout(engine) as conn:
             res = conn.execute(sql, {"valor": param_valor})
             return [dict(row._mapping) for row in res.fetchall()]
 
@@ -1585,7 +1585,7 @@ def _coletar_distribuicao_codigo(engine: Engine, pendencia: PendenciaEnum) -> di
         f"FROM {tabela_sql} WHERE {coluna_sql} IS NOT NULL "
         f"GROUP BY CAST({coluna_sql} AS CHAR) ORDER BY ocorrencias DESC LIMIT 21"
     )
-    with engine.connect() as conn:
+    with conectar_com_timeout(engine) as conn:
         linhas = [dict(row._mapping) for row in conn.execute(sql).fetchall()]
     if not linhas or len(linhas) > 20:
         return None
@@ -1651,17 +1651,80 @@ def _agrupar_investigacoes(investigacoes: list[dict[str, Any]]) -> dict[str, dic
     return resultado
 
 
+def _construir_relatorio(
+    investigacoes: list[dict[str, Any]],
+    *,
+    total_esperado: int | None = None,
+) -> dict[str, Any]:
+    """Monta o relatório final (ou um checkpoint parcial) a partir das investigações.
+
+    Roda a propagação entre tabelas irmãs antes de resumir — é seguro chamar
+    repetidamente durante checkpoints parciais, pois só preenche itens ainda
+    sem sugestão de alta confiança usando o que já foi processado até o
+    momento; itens já propagados não são reprocessados.
+
+    Quando ``total_esperado`` é informado e menor que o número de pendências
+    já processadas, o relatório é marcado como ``em_andamento`` — usado nos
+    checkpoints salvos periodicamente durante uma rodada longa, para deixar
+    claro (caso o processo seja interrompido) que aquele YAML é parcial.
+    """
+    _propagar_entre_tabelas_irmas(investigacoes)
+    resumo = {
+        "total_pendencias": len(investigacoes),
+        "alta_confianca": sum(1 for i in investigacoes if i["sugestao"]["status"] == "alta_confianca"),
+        "pista_unica": sum(1 for i in investigacoes if i["sugestao"]["status"] == "pista_unica"),
+        "sem_pista_encontrada": sum(
+            1 for i in investigacoes if i["sugestao"]["status"] == "sem_pista_encontrada"
+        ),
+        "sem_registros": sum(1 for i in investigacoes if i["sugestao"]["status"] == "sem_registros"),
+        "erros": sum(1 for i in investigacoes if i["sugestao"]["status"] == "erro"),
+    }
+
+    relatorio: dict[str, Any] = {
+        "gerado_em_utc": datetime.now(UTC).isoformat(),
+        "resumo": resumo,
+        "investigacoes": investigacoes,
+        "agrupado_por_confianca_e_tabela": _agrupar_investigacoes(investigacoes),
+    }
+    if total_esperado is not None:
+        relatorio["em_andamento"] = len(investigacoes) < total_esperado
+        relatorio["total_pendencias_esperado"] = total_esperado
+    return relatorio
+
+
 def investigar_pendencias(
     engine: Engine,
     pendencias: list[PendenciaEnum],
     *,
     limite_linhas: int = 5,
+    caminho_checkpoint: str | Path | None = None,
+    intervalo_checkpoint: int = 25,
 ) -> dict[str, Any]:
-    """Investiga pendências de código/ENUM consultando exemplos reais no banco."""
+    """Investiga pendências de código/ENUM consultando exemplos reais no banco.
+
+    Quando ``caminho_checkpoint`` é informado, salva um relatório parcial em
+    disco (mesmo formato do relatório final, marcado com ``em_andamento:
+    true``) a cada ``intervalo_checkpoint`` pendências processadas — assim,
+    caso o processo trave numa pendência específica ou seja interrompido
+    (``Ctrl+C``), o progresso até a última pendência concluída antes da
+    interrupção não é perdido.
+    """
     limite_linhas = max(2, int(limite_linhas))
     investigacoes: list[dict[str, Any]] = []
+    total_pendencias = len(pendencias)
 
-    for pendencia in pendencias:
+    def _salvar_checkpoint() -> None:
+        if not caminho_checkpoint:
+            return
+        try:
+            salvar_yaml(
+                _construir_relatorio(investigacoes, total_esperado=total_pendencias),
+                caminho_checkpoint,
+            )
+        except Exception as exc:  # noqa: BLE001 - checkpoint não pode derrubar o lote
+            print(f"⚠️  Falha ao salvar checkpoint parcial em {caminho_checkpoint}: {exc}")
+
+    for indice, pendencia in enumerate(pendencias, start=1):
         try:
             lookup = _buscar_em_tabela_referencia(engine, pendencia)
             if lookup:
@@ -1682,88 +1745,86 @@ def investigar_pendencias(
                         ),
                     }
                 )
-                continue
-
-            colunas = executar_com_retry_db(
-                lambda tabela=pendencia.tabela, engine_ref=engine: listar_colunas_tabela(
-                    engine_ref, tabela
-                ),
-                descricao=f"Listar colunas de {pendencia.tabela}",
-            )
-            colunas_pista = selecionar_colunas_pista(colunas, pendencia.coluna)
-            if not colunas_pista:
-                item_sem_pista: dict[str, Any] = {
-                    "tabela": pendencia.tabela,
-                    "coluna": pendencia.coluna,
-                    "valor": pendencia.valor,
-                    "motivo_pendencia": pendencia.motivo,
-                    "colunas_pista": [],
-                    "linhas_exemplo": [],
-                    "sugestao": {
-                        **_enriquecer_sugestao_com_alertas(
-                            {
-                                "status": "sem_pista_encontrada",
-                                "traducao_sugerida": None,
-                                "justificativa": "Nenhuma coluna vizinha candidata a pista foi identificada.",
-                                "pistas": [],
-                            }
-                        ),
-                    },
-                }
-                contexto_obs = _coletar_contexto_coluna_obs(
-                    engine, pendencia, colunas, limite_linhas=limite_linhas * 4
+            else:
+                colunas = executar_com_retry_db(
+                    lambda tabela=pendencia.tabela, engine_ref=engine: listar_colunas_tabela(
+                        engine_ref, tabela
+                    ),
+                    descricao=f"Listar colunas de {pendencia.tabela}",
                 )
-                distribuicao = _coletar_distribuicao_codigo(engine, pendencia)
-                if distribuicao is not None:
-                    item_sem_pista["distribuicao_codigo"] = distribuicao
-                if contexto_obs is not None:
-                    item_sem_pista["contexto_obs"] = contexto_obs
-                investigacoes.append(item_sem_pista)
-                continue
-
-            linhas = _coletar_linhas_exemplo(
-                engine,
-                pendencia,
-                colunas_pista,
-                limite_linhas=limite_linhas,
-            )
-            sugestao = _analisar_pistas(pendencia, linhas, colunas_pista)
-
-            # Diagnóstico adicional: quando sem_registros, verifica via COUNT se
-            # existe alguma linha com esse valor (pode indicar problema de tipo ou
-            # de nome de coluna/tabela que a query de amostra não capturou).
-            if sugestao["status"] == "sem_registros":
-                param_valor = _converter_valor_para_param(pendencia.valor)
-                contagem = _contar_linhas_com_valor(engine, pendencia, param_valor=param_valor)
-                if contagem > 0:
-                    sugestao = dict(sugestao)
-                    sugestao["justificativa"] = (
-                        f"A query de amostragem retornou 0 linhas, mas COUNT(*) encontrou "
-                        f"{contagem} linha(s) com {pendencia.coluna} = {pendencia.valor!r}. "
-                        "Possível incompatibilidade de tipo ou coluna com nome diferente do esperado. "
-                        "Verifique o tipo real da coluna no schema (ex: TEXT vs INT)."
+                colunas_pista = selecionar_colunas_pista(colunas, pendencia.coluna)
+                if not colunas_pista:
+                    item_sem_pista: dict[str, Any] = {
+                        "tabela": pendencia.tabela,
+                        "coluna": pendencia.coluna,
+                        "valor": pendencia.valor,
+                        "motivo_pendencia": pendencia.motivo,
+                        "colunas_pista": [],
+                        "linhas_exemplo": [],
+                        "sugestao": {
+                            **_enriquecer_sugestao_com_alertas(
+                                {
+                                    "status": "sem_pista_encontrada",
+                                    "traducao_sugerida": None,
+                                    "justificativa": "Nenhuma coluna vizinha candidata a pista foi identificada.",
+                                    "pistas": [],
+                                }
+                            ),
+                        },
+                    }
+                    contexto_obs = _coletar_contexto_coluna_obs(
+                        engine, pendencia, colunas, limite_linhas=limite_linhas * 4
                     )
-                    sugestao["contagem_real"] = contagem
+                    distribuicao = _coletar_distribuicao_codigo(engine, pendencia)
+                    if distribuicao is not None:
+                        item_sem_pista["distribuicao_codigo"] = distribuicao
+                    if contexto_obs is not None:
+                        item_sem_pista["contexto_obs"] = contexto_obs
+                    investigacoes.append(item_sem_pista)
+                else:
+                    linhas = _coletar_linhas_exemplo(
+                        engine,
+                        pendencia,
+                        colunas_pista,
+                        limite_linhas=limite_linhas,
+                    )
+                    sugestao = _analisar_pistas(pendencia, linhas, colunas_pista)
 
-            item: dict[str, Any] = {
-                "tabela": pendencia.tabela,
-                "coluna": pendencia.coluna,
-                "valor": pendencia.valor,
-                "motivo_pendencia": pendencia.motivo,
-                "colunas_pista": colunas_pista,
-                "linhas_exemplo": linhas,
-                "sugestao": sugestao,
-            }
-            distribuicao = _coletar_distribuicao_codigo(engine, pendencia)
-            if distribuicao is not None:
-                item["distribuicao_codigo"] = distribuicao
-            if sugestao["status"] != "alta_confianca":
-                contexto_obs = _coletar_contexto_coluna_obs(
-                    engine, pendencia, colunas, limite_linhas=limite_linhas * 4
-                )
-                if contexto_obs is not None:
-                    item["contexto_obs"] = contexto_obs
-            investigacoes.append(item)
+                    # Diagnóstico adicional: quando sem_registros, verifica via COUNT se
+                    # existe alguma linha com esse valor (pode indicar problema de tipo ou
+                    # de nome de coluna/tabela que a query de amostra não capturou).
+                    if sugestao["status"] == "sem_registros":
+                        param_valor = _converter_valor_para_param(pendencia.valor)
+                        contagem = _contar_linhas_com_valor(engine, pendencia, param_valor=param_valor)
+                        if contagem > 0:
+                            sugestao = dict(sugestao)
+                            sugestao["justificativa"] = (
+                                f"A query de amostragem retornou 0 linhas, mas COUNT(*) encontrou "
+                                f"{contagem} linha(s) com {pendencia.coluna} = {pendencia.valor!r}. "
+                                "Possível incompatibilidade de tipo ou coluna com nome diferente do esperado. "
+                                "Verifique o tipo real da coluna no schema (ex: TEXT vs INT)."
+                            )
+                            sugestao["contagem_real"] = contagem
+
+                    item: dict[str, Any] = {
+                        "tabela": pendencia.tabela,
+                        "coluna": pendencia.coluna,
+                        "valor": pendencia.valor,
+                        "motivo_pendencia": pendencia.motivo,
+                        "colunas_pista": colunas_pista,
+                        "linhas_exemplo": linhas,
+                        "sugestao": sugestao,
+                    }
+                    distribuicao = _coletar_distribuicao_codigo(engine, pendencia)
+                    if distribuicao is not None:
+                        item["distribuicao_codigo"] = distribuicao
+                    if sugestao["status"] != "alta_confianca":
+                        contexto_obs = _coletar_contexto_coluna_obs(
+                            engine, pendencia, colunas, limite_linhas=limite_linhas * 4
+                        )
+                        if contexto_obs is not None:
+                            item["contexto_obs"] = contexto_obs
+                    investigacoes.append(item)
         except Exception as exc:
             investigacoes.append(
                 {
@@ -1786,24 +1847,10 @@ def investigar_pendencias(
                 }
             )
 
-    _propagar_entre_tabelas_irmas(investigacoes)
-    resumo = {
-        "total_pendencias": len(investigacoes),
-        "alta_confianca": sum(1 for i in investigacoes if i["sugestao"]["status"] == "alta_confianca"),
-        "pista_unica": sum(1 for i in investigacoes if i["sugestao"]["status"] == "pista_unica"),
-        "sem_pista_encontrada": sum(
-            1 for i in investigacoes if i["sugestao"]["status"] == "sem_pista_encontrada"
-        ),
-        "sem_registros": sum(1 for i in investigacoes if i["sugestao"]["status"] == "sem_registros"),
-        "erros": sum(1 for i in investigacoes if i["sugestao"]["status"] == "erro"),
-    }
+        if caminho_checkpoint and indice % max(1, intervalo_checkpoint) == 0:
+            _salvar_checkpoint()
 
-    return {
-        "gerado_em_utc": datetime.now(UTC).isoformat(),
-        "resumo": resumo,
-        "investigacoes": investigacoes,
-        "agrupado_por_confianca_e_tabela": _agrupar_investigacoes(investigacoes),
-    }
+    return _construir_relatorio(investigacoes)
 
 
 
@@ -1893,6 +1940,7 @@ def executar_investigacao(
     caminho_pendencias_markdown: str | Path | None = None,
     descobrir_schema: bool = False,
     caminho_dicionarios: str | Path = ARQUIVO_DICIONARIOS_PADRAO,
+    intervalo_checkpoint: int = 25,
 ) -> dict[str, Any]:
     """Fluxo completo de investigação via banco real configurado em src.config.
 
@@ -1901,7 +1949,11 @@ def executar_investigacao(
     caminho_relatorio_auditoria:
         Arquivo YAML de auditoria (ignorado quando ``colunas_diretas`` é fornecido).
     caminho_saida:
-        Arquivo YAML de saída.
+        Arquivo YAML de saída. Também usado como destino dos checkpoints
+        parciais salvos periodicamente durante a investigação (ver
+        ``intervalo_checkpoint``) — se o processo travar ou for interrompido
+        antes do fim, este arquivo já contém o progresso até a última
+        pendência concluída, marcado com ``em_andamento: true``.
     limite_linhas:
         Máximo de linhas de exemplo por pendência.
     colunas_diretas:
@@ -1913,6 +1965,9 @@ def executar_investigacao(
                 "hearingcontrol.hearingtype:11",
                 "pedidos2lawsuit.status:6",
             ])
+    intervalo_checkpoint:
+        Quantidade de pendências processadas entre cada checkpoint salvo em
+        ``caminho_saida``. Use ``0`` para desativar o checkpoint incremental.
     """
     if colunas_diretas:
         pendencias = parsear_colunas_diretas(colunas_diretas)
@@ -1940,7 +1995,13 @@ def executar_investigacao(
             )
             pendencias.extend(pendencias_schema)
         pendencias = _deduplicar_pendencias(pendencias)
-        relatorio = investigar_pendencias(engine, pendencias, limite_linhas=limite_linhas)
+        relatorio = investigar_pendencias(
+            engine,
+            pendencias,
+            limite_linhas=limite_linhas,
+            caminho_checkpoint=caminho_saida if intervalo_checkpoint > 0 else None,
+            intervalo_checkpoint=intervalo_checkpoint,
+        )
         relatorio["fonte_pendencias"] = fonte
         if resumo_descoberta_schema is not None:
             relatorio["descoberta_schema"] = resumo_descoberta_schema
@@ -1948,3 +2009,4 @@ def executar_investigacao(
         return relatorio
     finally:
         engine.dispose()
+

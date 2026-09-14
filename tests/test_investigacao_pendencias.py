@@ -290,6 +290,61 @@ def test_investigar_pendencias_registra_erro_por_item_e_continua() -> None:
     assert "falha SQL simulada" in relatorio["investigacoes"][0]["sugestao"]["justificativa"]
 
 
+def test_investigar_pendencias_salva_checkpoint_parcial_periodicamente(tmp_path: Path) -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE sucesso (codigo TEXT, name TEXT)"))
+        conn.execute(text("INSERT INTO sucesso (codigo, name) VALUES ('ok', 'Rótulo válido')"))
+        conn.commit()
+
+    caminho_checkpoint = tmp_path / "checkpoint.yaml"
+    pendencias = [
+        PendenciaEnum("sucesso", "codigo", "ok", "pendencia_documentada") for _ in range(5)
+    ]
+
+    with patch(
+        "src.investigacao_pendencias._buscar_em_tabela_referencia", return_value=None
+    ):
+        relatorio_final = investigar_pendencias(
+            engine,
+            pendencias,
+            limite_linhas=5,
+            caminho_checkpoint=caminho_checkpoint,
+            intervalo_checkpoint=2,
+        )
+
+    # Checkpoint deve ter sido salvo (a cada 2 itens, entre os 5 processados).
+    assert caminho_checkpoint.exists()
+    checkpoint = yaml.safe_load(caminho_checkpoint.read_text(encoding="utf-8"))
+    assert checkpoint["em_andamento"] is True
+    assert checkpoint["total_pendencias_esperado"] == 5
+    assert checkpoint["resumo"]["total_pendencias"] in (2, 4)
+
+    # O relatório final (retornado, não necessariamente salvo em disco por
+    # investigar_pendencias) não deve ter marcação de "em andamento".
+    assert "em_andamento" not in relatorio_final
+    assert "total_pendencias_esperado" not in relatorio_final
+    assert relatorio_final["resumo"]["total_pendencias"] == 5
+
+
+def test_investigar_pendencias_sem_checkpoint_nao_grava_arquivo(tmp_path: Path) -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE sucesso (codigo TEXT, name TEXT)"))
+        conn.execute(text("INSERT INTO sucesso (codigo, name) VALUES ('ok', 'Rótulo válido')"))
+        conn.commit()
+
+    caminho_checkpoint = tmp_path / "nao_deve_existir.yaml"
+    pendencias = [PendenciaEnum("sucesso", "codigo", "ok", "pendencia_documentada")]
+
+    with patch(
+        "src.investigacao_pendencias._buscar_em_tabela_referencia", return_value=None
+    ):
+        investigar_pendencias(engine, pendencias, limite_linhas=5)
+
+    assert not caminho_checkpoint.exists()
+
+
 def test_propagar_entre_tabelas_irmas_nao_sobrescreve_erro() -> None:
     investigacoes = [
         {

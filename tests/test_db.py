@@ -8,6 +8,7 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError
 
 from src.db import (
+    conectar_com_timeout,
     criar_engine,
     executar_com_retry_db,
     listar_tabelas,
@@ -467,6 +468,74 @@ class TestConfiguracaoEngine:
 
         assert resultado == "ok"
         assert chamadas["total"] == 2
+
+
+class TestConectarComTimeout:
+    def test_nao_executa_set_session_em_dialeto_nao_mysql(self) -> None:
+        """SQLite (usado nos testes) não suporta o comando; deve ser ignorado silenciosamente."""
+        engine = create_engine("sqlite:///:memory:")
+
+        with conectar_com_timeout(engine) as conn:
+            resultado = conn.execute(text("SELECT 1")).scalar()
+
+        assert resultado == 1
+
+    def test_aplica_set_session_max_execution_time_em_mysql(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        comandos_executados: list[tuple[str, dict[str, object]]] = []
+
+        class FakeConn:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *exc_info):
+                return False
+
+            def execute(self, statement, params=None):
+                comandos_executados.append((str(statement), params or {}))
+
+        class FakeEngine:
+            class dialect:
+                name = "mysql"
+
+            def connect(self):
+                return FakeConn()
+
+        engine = FakeEngine()
+
+        with conectar_com_timeout(engine, timeout_ms=45_000) as conn:
+            assert isinstance(conn, FakeConn)
+
+        assert len(comandos_executados) == 1
+        sql, params = comandos_executados[0]
+        assert "max_execution_time" in sql
+        assert params == {"ms": 45_000}
+
+    def test_falha_ao_definir_timeout_nao_impede_uso_da_conexao(self) -> None:
+        """Se o SET SESSION falhar por qualquer motivo, a conexão ainda deve ser utilizável."""
+
+        class FakeConn:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *exc_info):
+                return False
+
+            def execute(self, statement, params=None):
+                if "max_execution_time" in str(statement):
+                    raise RuntimeError("comando não suportado")
+                return "ok"
+
+        class FakeEngine:
+            class dialect:
+                name = "mysql"
+
+            def connect(self):
+                return FakeConn()
+
+        engine = FakeEngine()
+
+        with conectar_com_timeout(engine) as conn:
+            assert conn.execute(text("SELECT 1")) == "ok"
 
 
 class TestColunaLabelComSobrescritas:

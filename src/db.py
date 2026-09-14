@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from contextlib import contextmanager
+from collections.abc import Iterator
 import logging
 import re
 import time
@@ -9,13 +11,23 @@ from datetime import UTC, datetime, timedelta
 from typing import Any, Callable, TypeVar
 
 from sqlalchemy import MetaData, Table, create_engine, func, inspect, select, text
-from sqlalchemy.engine import Engine
+from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import DBAPIError, OperationalError
 
 from src.config import CONFIG
 
 logger = logging.getLogger("saidjur.db")
 _T = TypeVar("_T")
+
+# Timeout padrão (ms) de execução no lado do servidor MySQL para consultas de
+# investigação/introspecção somente leitura. Complementa (não substitui) o
+# `read_timeout` do socket já configurado em `criar_engine`: em cenários onde a
+# consulta força uma varredura completa sem índice (ex: CAST em coluna de
+# tabela grande sem índice útil), o servidor agora aborta a query de forma
+# determinística após este limite, em vez de depender apenas do timeout do
+# socket do cliente — que na prática se mostrou não confiável para detectar
+# esse tipo de trava (observado em produção: consulta presa por mais de 1h).
+TIMEOUT_EXECUCAO_QUERY_MS = 60_000
 
 # Tipos de coluna considerados "textuais" para busca global
 _TIPOS_TEXTO_BASE = frozenset({"char", "varchar", "tinytext", "text", "json", "enum", "set"})
@@ -92,6 +104,31 @@ def criar_engine(cfg: dict[str, Any] | None = None) -> Engine:
         },
         echo=False,
     )
+
+
+@contextmanager
+def conectar_com_timeout(
+    engine: Engine, timeout_ms: int = TIMEOUT_EXECUCAO_QUERY_MS
+) -> Iterator[Connection]:
+    """Abre uma conexão e aplica um timeout de execução no lado do servidor.
+
+    Em MySQL/MariaDB, define ``SET SESSION max_execution_time`` logo após abrir
+    a conexão, para que consultas somente leitura que forcem uma varredura sem
+    índice (ex: ``CAST`` em coluna de tabela grande) sejam abortadas pelo
+    próprio servidor após ``timeout_ms`` milissegundos, em vez de depender
+    apenas do timeout de leitura do socket do cliente. Em dialetos que não
+    suportam esse comando (ex: SQLite, usado nos testes) ou se o comando
+    falhar por qualquer motivo, a conexão segue normalmente sem o timeout de
+    servidor — o timeout de socket do cliente continua sendo a rede de
+    segurança nesse caso.
+    """
+    with engine.connect() as conn:
+        if engine.dialect.name == "mysql":
+            try:
+                conn.execute(text("SET SESSION max_execution_time = :ms"), {"ms": int(timeout_ms)})
+            except Exception:
+                pass
+        yield conn
 
 
 def executar_com_retry_db(
