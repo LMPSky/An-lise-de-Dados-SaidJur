@@ -72,6 +72,23 @@ hearings_log:
   remote:
     '0': Não
     '1': Sim
+  hearingtype:
+    '7': Inicial
+    '8': Nova Inicial
+    '9': Una
+    '10': Nova Una
+    '11': Instrução
+    '12': Oitiva de Testemunha
+    '13': Audiência de Conciliação
+    '14': AIJ - Audiência de Instrução e Julgamento
+    '15': Encerramento de Instrução
+    '17': Sustentação Oral
+    '18': Reunião
+    '19': Dispensados Partes e Procuradores
+    '20': Audiência
+    '21': Julgamento
+    '22': Sentença
+    '23': Perícia
 jqcalendar:
   IsAllDayEvent:
     '0': Não
@@ -93,7 +110,10 @@ lawsuits_additional_info:
     '1': Sim
 lawsuitdocsmetadata:
   prazophase:
-    '1': Juntada de Substabelecimento
+    '1': RETIFICAR CTPS
+    '2': ENVIAR CTPS P/ ANOTAÇÃO
+    '3': Juntada de preposição e substabelecimento
+    '4': Encerramento
 lawsuits:
   status:
     '0': Inativo
@@ -104,6 +124,26 @@ lawsuits:
   issuer_defendant:
     '0': Não
     '1': Sim
+  result_old:
+    '1': Procedente
+    '2': Improcedente
+    '3': Parcialmente procedente
+    '4': Acordo
+    '5': Extinto sem resolução do mérito
+    '8': Documento que comprove o alegado
+    '9': Não houve condenação
+    '10': Testemunhas
+    '11': Arquivamento - Ausência reclamante
+    '12': Ausência de documentos
+    '13': Ausência de preposto - revelia
+    '14': Depoimento da testemunha do reclamante
+    '15': Duplicidade
+    '16': Laudo positivo
+    '17': Solicitado pelo pool
+    '19': Confissão de preposto
+    '20': Extinção da execução
+    '21': Exclusão da lide
+    '22': Carta Precatória cumprida
 lawsuits_log:
   status:
     '0': Inativo
@@ -117,6 +157,20 @@ lawsuits_log:
   updated_values_calculation:
     '0': Não
     '1': Sim
+  result_old:
+    '1': Procedente
+    '2': Improcedente
+    '3': Parcialmente procedente
+    '4': Acordo
+    '5': Extinto sem resolução do mérito
+    '8': Documento que comprove o alegado
+    '9': Não houve condenação
+    '10': Testemunhas
+    '12': Ausência de documentos
+    '15': Duplicidade
+    '17': Solicitado pelo pool
+    '20': Extinção da execução
+    '22': Carta Precatória cumprida
 paymentguarantee2lawsuit:
   status:
     '0': Inativo
@@ -124,6 +178,19 @@ paymentguarantee2lawsuit:
   containstypefile:
     '0': Não
     '1': Sim
+  payment_type:
+    '1': Acordo
+    '12': Seguro Garantia
+    '2': Bacenjud
+    '6': Depósito Recursal (RR)
+    '10': Honorários Periciais
+    '7': Depósito Recursal (AIRR)
+    '5': Depósito Recursal (RO)
+    '9': Consignação
+    '8': Depósito Recursal
+    '4': Depósito Judicial
+    '3': Custas
+    '11': Pagamento
 paymenttype:
   code:
     Bol: Boleto
@@ -142,6 +209,8 @@ persons:
   from_acordo_nucleus:
     '0': Não
     '1': Sim
+  person_group:
+    '1': Grupo do administrador root
 prazo2publication_persons:
   confirmed:
     '0': Não
@@ -277,12 +346,15 @@ prazo2publication:
     '0': Inativo
     '1': Ativo
   pzphase:
-    '1': audiência inicial
+    '1': RETIFICAR CTPS
     '2': ENVIAR CTPS P/ ANOTAÇÃO
     '3': Juntada de preposição e substabelecimento
     '4': Encerramento
   finishtype:
     p: processo físico
+  hearingtype:
+    '13': Audiência de Conciliação
+    '14': AIJ - Audiência de Instrução e Julgamento
 prazos_log:
   canceled:
     '0': Não
@@ -300,7 +372,7 @@ prazos_log:
     '0': Inativo
     '1': Ativo
   pzphase:
-    '1': audiência inicial
+    '1': RETIFICAR CTPS
     '2': ENVIAR CTPS P/ ANOTAÇÃO
     '3': Juntada de preposição e substabelecimento
     '4': Encerramento
@@ -365,3 +437,26 @@ hearingcontrol:
     y: Sim
   hearingtype:
     '11': Instrução
+    '7': Inicial
+    '8': Nova Inicial
+    '9': Una
+    '10': Nova Una
+    '12': Oitiva de Testemunha
+    '13': Audiência de Conciliação
+    '14': AIJ - Audiência de Instrução e Julgamento
+    '15': Encerramento de Instrução
+    '17': Sustentação Oral
+    '18': Reunião
+    '19': Dispensados Partes e Procuradores
+    '20': Audiência
+    '21': Julgamento
+    '22': Sentença
+    '23': Perícia
+final_payments:
+  payment_type:
+    '1': Acordo
+    '2': Bacenjud
+    '3': Custas
+config_prazo_emails:
+  prazos_not_finished_business_email:
+    '1': Área comercial
