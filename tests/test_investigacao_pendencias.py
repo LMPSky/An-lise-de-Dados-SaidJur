@@ -875,19 +875,16 @@ def test_buscar_em_tabela_referencia_abstem_quando_candidatas_empatadas_divergem
 
 def test_buscar_em_tabela_referencia_aceita_candidatas_empatadas_que_concordam() -> None:
     """Quando candidatas empatadas concordam no rótulo, a tradução é aceita
-    normalmente (o empate por si só não é motivo de rejeição)."""
+    normalmente (o empate por si só não é motivo de rejeição). Usa 'prazo'
+    (radical específico de domínio) como base do empate, já que radicais
+    puramente genéricos como 'type' agora têm score limitado e não chegam
+    a formar candidatas por si só."""
     engine = create_engine("sqlite:///:memory:")
     with engine.connect() as conn:
         conn.execute(text("""
-            CREATE TABLE final_payments (
+            CREATE TABLE lawsuitdocsmetadata (
                 id INTEGER PRIMARY KEY,
-                payment_type INTEGER
-            )
-        """))
-        conn.execute(text("""
-            CREATE TABLE companytype (
-                id INTEGER PRIMARY KEY,
-                name TEXT
+                prazo_fase INTEGER
             )
         """))
         conn.execute(text("""
@@ -896,15 +893,21 @@ def test_buscar_em_tabela_referencia_aceita_candidatas_empatadas_que_concordam()
                 name TEXT
             )
         """))
-        conn.execute(text("INSERT INTO final_payments (id, payment_type) VALUES (1, 1)"))
-        conn.execute(text("INSERT INTO companytype (id, name) VALUES (1, 'Bacenjud')"))
-        conn.execute(text("INSERT INTO prazotype (id, name) VALUES (1, 'Bacenjud')"))
+        conn.execute(text("""
+            CREATE TABLE prazomotivos (
+                id INTEGER PRIMARY KEY,
+                name TEXT
+            )
+        """))
+        conn.execute(text("INSERT INTO lawsuitdocsmetadata (id, prazo_fase) VALUES (1, 1)"))
+        conn.execute(text("INSERT INTO prazotype (id, name) VALUES (1, 'Encerramento')"))
+        conn.execute(text("INSERT INTO prazomotivos (id, name) VALUES (1, 'Encerramento')"))
         conn.commit()
 
-    resultado = _buscar_em_tabela_referencia(engine, PendenciaEnum("final_payments", "payment_type", "1"))
+    resultado = _buscar_em_tabela_referencia(engine, PendenciaEnum("lawsuitdocsmetadata", "prazo_fase", "1"))
 
     assert resultado is not None
-    assert resultado["sugestao"]["traducao_sugerida"] == "Bacenjud"
+    assert resultado["sugestao"]["traducao_sugerida"] == "Encerramento"
 
 
 def test_buscar_em_tabela_referencia_ignora_tabela_de_fato_larga() -> None:
@@ -940,6 +943,38 @@ def test_buscar_em_tabela_referencia_ignora_tabela_de_fato_larga() -> None:
     resultado = _buscar_em_tabela_referencia(
         engine, PendenciaEnum("lawsuit_phases2judicial_area", "lawsuit_phase_id", "7")
     )
+
+    assert resultado is None
+
+
+def test_buscar_em_tabela_referencia_ignora_match_baseado_so_em_radical_generico() -> None:
+    """Regressão: colunas como 'payment_type'/'doctype'/'type_old' só
+    compartilham a palavra genérica 'type' com tabelas de catálogo não
+    relacionadas ('prazotype', 'hearingtype', 'companytype'...). Um match
+    que só se sustenta nessa palavra genérica não deve nem virar candidata
+    — do contrário a coluna resolveria para o valor de uma tabela sem
+    nenhuma relação semântica real assim que ela for a única com o id
+    procurado (sem conflito para acionar a abstenção por empate).
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE templatesubject (
+                id INTEGER PRIMARY KEY,
+                type INTEGER
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE prazotype (
+                id INTEGER PRIMARY KEY,
+                name TEXT
+            )
+        """))
+        conn.execute(text("INSERT INTO templatesubject (id, type) VALUES (1, 2)"))
+        conn.execute(text("INSERT INTO prazotype (id, name) VALUES (2, 'ENVIAR CTPS P/ ANOTAÇÃO')"))
+        conn.commit()
+
+    resultado = _buscar_em_tabela_referencia(engine, PendenciaEnum("templatesubject", "type", "2"))
 
     assert resultado is None
 
