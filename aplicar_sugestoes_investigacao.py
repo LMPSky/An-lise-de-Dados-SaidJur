@@ -163,6 +163,25 @@ def main() -> None:
             and not item.get("sugestao", {}).get("alertas")
         ]
         print(f"⚠️ Aprovação explícita em lote: fonte {args.aprovar_fonte} ({len(decisoes)} sugestão(ões)).")
+        if args.aprovar_fonte == "tabela_referencia":
+            print(
+                "⚠️  ATENÇÃO: esta fonte usa lookup por id em outra tabela detectada por "
+                "heurística de nome — pode colidir por coincidência com uma tabela sem "
+                "relação semântica real. Revise a coluna 'tabela_referencia' de cada item "
+                "abaixo antes de aplicar; se o nome da tabela não fizer sentido para a "
+                "coluna original, use --aplicar-decisoes com decisao=pular para esse item."
+            )
+            for item in relatorio.get("investigacoes", []):
+                if (
+                    item.get("sugestao", {}).get("status") == "alta_confianca"
+                    and item.get("sugestao", {}).get("fonte") == args.aprovar_fonte
+                    and not item.get("sugestao", {}).get("alertas")
+                ):
+                    print(
+                        f"   - {item.get('tabela')}.{item.get('coluna')}[{item.get('valor')}] "
+                        f"= {item.get('sugestao', {}).get('traducao_sugerida')!r} "
+                        f"(via tabela_referencia={item.get('tabela_referencia')})"
+                    )
     else:
         decisoes = _revisar_interativo(relatorio)
 

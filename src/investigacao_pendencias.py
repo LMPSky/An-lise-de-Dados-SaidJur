@@ -52,6 +52,57 @@ _EXTENSOES_ARQUIVO_IGNORADAS = (
     ".txt",
 )
 
+# Extensões de documento/anexo comumente salvas como nome de arquivo em colunas
+# do domínio jurídico (ex: comprovantes, petições, procurações). Um rótulo com
+# uma dessas extensões nunca é uma tradução de ENUM válida — é o nome de um
+# arquivo específico de um caso.
+_EXTENSOES_ARQUIVO_DOCUMENTO: tuple[str, ...] = (
+    ".pdf",
+    ".doc",
+    ".docx",
+    ".xls",
+    ".xlsx",
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".tif",
+    ".tiff",
+    ".zip",
+    ".rar",
+    ".rtf",
+    ".odt",
+)
+
+# Prefixos de nome de coluna que, pela convenção usada neste banco, indicam
+# uma flag booleana de permissão/ação (ex: "read_users", "write_clients",
+# "role_client") em vez de uma chave estrangeira para uma tabela de catálogo.
+# Buscar tradução via tabela de referência para essas colunas é sistematicamente
+# enganoso: o valor 0/1 coincide, por acaso, com o id de alguma linha de uma
+# tabela cujo nome apenas soa parecido com o "recurso" citado no nome da coluna
+# (ex: "read_users" != FK para "users.id" — é uma permissão booleana).
+_PREFIXOS_COLUNA_ACAO_BOOLEANA: tuple[str, ...] = (
+    "read_",
+    "write_",
+    "insert_",
+    "del_",
+    "delete_",
+    "change_",
+    "access_",
+    "approve_",
+    "confirm_",
+    "email_",
+    "send_",
+    "close_",
+    "cancel_",
+    "edit_",
+    "finish_",
+    "return_",
+    "supervisor_",
+    "role_",
+    "receive_",
+    "no_receive_",
+)
+
 # Tipos de coluna sempre excluídos da descoberta via schema: são tipicamente
 # texto livre/binário grande (conteúdo de e-mail, HTML, arquivos, etc.) e uma
 # consulta DISTINCT/GROUP BY nesses tipos pode travar o banco (timeout) sem
@@ -996,7 +1047,13 @@ def _buscar_em_tabela_referencia(engine: Engine, pendencia: PendenciaEnum) -> di
     2. Candidatos explícitos: lista de nomes derivados diretamente do nome da
        coluna e da tabela de origem, cobrindo padrões específicos do domínio
        jurídico brasileiro (ex: prefixo ``pz``, variantes de contrato/fase).
+
+    Colunas de permissão/ação booleanas (``read_x``, ``role_x``...) são
+    ignoradas por esta estratégia — ver ``_coluna_parece_flag_de_acao``.
     """
+    if _coluna_parece_flag_de_acao(pendencia.coluna):
+        return None
+
     insp = inspect(engine)
     todas_tabelas = set(insp.get_table_names())
     radicais = _extrair_radicais_coluna(pendencia.coluna)
@@ -1067,6 +1124,15 @@ def _buscar_em_tabela_referencia(engine: Engine, pendencia: PendenciaEnum) -> di
             continue
 
         traducao = distintos[0]
+
+        # Rejeita rótulos implausíveis para uma tradução de ENUM: texto livre
+        # longo (nota/observação de um caso específico) ou nome de arquivo
+        # (documento anexado a um caso). Continua tentando outras tabelas
+        # candidatas em vez de aceitar um dado de registro específico como
+        # se fosse uma categoria genérica.
+        if _pista_parece_texto_livre(traducao) or _valor_parece_nome_arquivo(traducao):
+            continue
+
         coluna_outro_idioma = _coluna_em_outro_idioma(coluna_rotulo) is not None
         justificativa = (
             f"Tabela de referência '{tabela_ref}' detectada via schema; "
@@ -1226,6 +1292,30 @@ def _coluna_tem_nome_semantico(nome: str) -> bool:
     nome_lower = nome.lower()
     return any(chave in nome_lower for chave in _CHAVES_SEMANTICAS)
 
+
+def _coluna_parece_flag_de_acao(nome_coluna: str) -> bool:
+    """Detecta colunas de permissão/ação booleanas (ex: ``read_users``, ``role_client``).
+
+    Essas colunas seguem a convenção verbo/prefixo + nome do "recurso"
+    (``read_users``, ``write_clients``...), mas são booleanas (0/1) — o nome do
+    recurso citado não é uma chave estrangeira para a tabela homônima. Uma
+    busca em tabela de referência para essas colunas produz falsos positivos
+    sistemáticos: o valor 0/1 coincide, por acaso, com o id de alguma linha
+    dessa tabela (ex: ``usertasks.read_users = 1`` bate com ``users.id = 1``,
+    retornando o nome de um usuário qualquer como se fosse a tradução).
+    """
+    nome = nome_coluna.lower()
+    return any(nome.startswith(prefixo) for prefixo in _PREFIXOS_COLUNA_ACAO_BOOLEANA)
+
+
+def _valor_parece_nome_arquivo(valor: str) -> bool:
+    """Detecta valores que parecem nome de arquivo (ex: ``peticao_123.pdf``).
+
+    Um nome de arquivo específico de um documento de caso nunca é uma
+    tradução válida de ENUM — é sempre um dado de registro individual.
+    """
+    texto = valor.strip().lower()
+    return any(texto.endswith(ext) for ext in _EXTENSOES_ARQUIVO_DOCUMENTO)
 
 
 def _pista_e_booleana(valores_frequentes: list[dict[str, Any]]) -> bool:
