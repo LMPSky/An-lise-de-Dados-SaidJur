@@ -846,6 +846,20 @@ _SUFIXOS_SEMANTICOS = (
     "_link", "link", "_kind", "kind",
 )
 
+# Radicais puramente genéricos: palavras que, sozinhas, não indicam qual
+# catálogo é o correto (praticamente toda tabela de enum do banco tem um
+# nome terminado em algo assim). Usadas em _pontuar_tabela_referencia para
+# limitar o score de um match baseado apenas nelas — ver docstring da
+# função para o raciocínio completo.
+_RADICAIS_GENERICOS = frozenset(
+    _normalizar_token_schema(termo)
+    for termo in (
+        "type", "tipo", "status", "phase", "fase", "nature", "natureza",
+        "kind", "link", "code", "codigo", "id", "old", "ref",
+    )
+)
+_TETO_SCORE_RADICAL_GENERICO = 3
+
 # Prefixos que identificam campos de tipo/estado/fase.
 _PREFIXOS_SEMANTICOS = (
     "type_", "tipo_", "status_", "phase_", "fase_", "code_", "codigo_", "id_",
@@ -980,18 +994,29 @@ def _gerar_nomes_candidatos_tabela(
 
 
 def _pontuar_tabela_referencia(nome_tabela: str, radicais: list[str]) -> int:
-    """Pontua o quão provável uma tabela é ser catálogo do código investigado."""
+    """Pontua o quão provável uma tabela é ser catálogo do código investigado.
+
+    Radicais puramente genéricos (``type``, ``status``, ``phase``...) não
+    carregam nenhuma informação sobre qual catálogo é o correto — quase
+    todo catálogo enum do banco tem um nome terminado em algo do tipo. Por
+    isso seu score é limitado a um teto baixo, evitando que uma coluna como
+    ``payment_type`` (radical genérico "type") empate com tabelas totalmente
+    não relacionadas como ``prazotype``/``hearingtype``/``companytype`` só
+    por coincidência de sufixo. Um radical específico do domínio (ex.:
+    "payment", "hearing", "prazo") continua pontuando normalmente.
+    """
     normalizado = _normalizar_token_schema(nome_tabela)
     score = 0
     for radical in radicais:
+        teto = _TETO_SCORE_RADICAL_GENERICO if radical in _RADICAIS_GENERICOS else None
         if normalizado == radical:
-            score = max(score, 12)
+            score = max(score, 12 if teto is None else min(12, teto))
         if normalizado in {f"{radical}s", f"{radical}es"}:
-            score = max(score, 11)
+            score = max(score, 11 if teto is None else min(11, teto))
         if normalizado.endswith(radical) or normalizado.startswith(radical):
-            score = max(score, 8)
+            score = max(score, 8 if teto is None else min(8, teto))
         if radical in normalizado:
-            score = max(score, 6)
+            score = max(score, 6 if teto is None else min(6, teto))
     return score
 
 
@@ -1072,7 +1097,11 @@ def _buscar_em_tabela_referencia(engine: Engine, pendencia: PendenciaEnum) -> di
         if tabela.lower() == pendencia.tabela.lower():
             continue
         score = _pontuar_tabela_referencia(tabela, radicais)
-        if score > 0:
+        # Descarta scores no teto genérico (ou abaixo): um match que só se
+        # sustenta em uma palavra genérica como "type"/"status" não é
+        # informação suficiente para sugerir uma tabela de catálogo
+        # específica — ver docstring de _pontuar_tabela_referencia.
+        if score > _TETO_SCORE_RADICAL_GENERICO:
             candidatas.append((score, tabela))
 
     candidatas.sort(key=lambda item: (-item[0], item[1]))
