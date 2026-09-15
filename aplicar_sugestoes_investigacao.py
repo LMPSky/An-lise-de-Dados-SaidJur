@@ -51,7 +51,50 @@ def _parser() -> argparse.ArgumentParser:
         choices=("tabela_referencia", "tabela_irma", "multiplas_pistas"),
         help="Aprova explicitamente, em lote, sugestões de alta confiança desta fonte.",
     )
+    parser.add_argument(
+        "--excluir-coluna",
+        action="append",
+        default=[],
+        metavar="tabela.coluna",
+        help=(
+            "Exclui explicitamente uma coluna (formato 'tabela.coluna') do lote aprovado "
+            "por --aprovar-fonte, mesmo que ela tenha sugestões de alta confiança. Útil "
+            "para deixar de fora colunas que você já identificou manualmente como "
+            "problemáticas. Pode ser repetido para excluir várias colunas."
+        ),
+    )
+    parser.add_argument(
+        "--incluir-colunas-inconsistentes",
+        action="store_true",
+        help=(
+            "Por padrão, quando a fonte 'tabela_referencia' resolve a MESMA coluna para "
+            "tabelas de referência diferentes em valores distintos (sinal de colisão por "
+            "coincidência, não uma FK real), essa coluna é excluída automaticamente do lote "
+            "e um aviso é exibido. Use esta flag para incluir essas colunas mesmo assim."
+        ),
+    )
     return parser
+
+
+
+def _detectar_colunas_referencia_inconsistente(itens: list[dict[str, Any]]) -> dict[str, set[str]]:
+    """Detecta colunas cujos itens resolveram para tabela_referencia divergentes.
+
+    Uma coluna ENUM legítima deve mapear consistentemente para um único
+    catálogo/tabela de referência em todos os seus valores. Quando valores
+    diferentes da mesma coluna (tabela.coluna) resolvem para tabelas de
+    referência diferentes, é sinal de que ao menos uma delas bateu por
+    coincidência de id, não por uma relação semântica real — ver o caso de
+    'lawsuitdocs.doctype' resolvendo ora para 'correspondent_document_types',
+    ora para 'otherdocs'.
+    """
+    tabelas_por_coluna: dict[str, set[str]] = {}
+    for item in itens:
+        chave = f"{item.get('tabela')}.{item.get('coluna')}"
+        tabela_ref = item.get("tabela_referencia")
+        if tabela_ref:
+            tabelas_por_coluna.setdefault(chave, set()).add(tabela_ref)
+    return {chave: tabelas for chave, tabelas in tabelas_por_coluna.items() if len(tabelas) > 1}
 
 
 
@@ -148,6 +191,31 @@ def main() -> None:
         arquivo_decisoes = carregar_yaml(args.aplicar_decisoes)
         decisoes = arquivo_decisoes.get("decisoes", [])
     elif args.aprovar_fonte:
+        itens_elegiveis = [
+            item
+            for item in relatorio.get("investigacoes", [])
+            if item.get("sugestao", {}).get("status") == "alta_confianca"
+            and item.get("sugestao", {}).get("fonte") == args.aprovar_fonte
+            and not item.get("sugestao", {}).get("alertas")
+        ]
+
+        colunas_inconsistentes = (
+            _detectar_colunas_referencia_inconsistente(itens_elegiveis)
+            if args.aprovar_fonte == "tabela_referencia"
+            else {}
+        )
+        excluidas_manualmente = set(args.excluir_coluna)
+        excluidas_por_inconsistencia = (
+            set(colunas_inconsistentes) if not args.incluir_colunas_inconsistentes else set()
+        )
+        colunas_excluidas = excluidas_manualmente | excluidas_por_inconsistencia
+
+        itens_aprovados = [
+            item
+            for item in itens_elegiveis
+            if f"{item.get('tabela')}.{item.get('coluna')}" not in colunas_excluidas
+        ]
+
         decisoes = [
             {
                 "tabela": item.get("tabela"),
@@ -157,31 +225,43 @@ def main() -> None:
                 "traducao_sugerida": item.get("sugestao", {}).get("traducao_sugerida"),
                 "decisao": "aplicar",
             }
-            for item in relatorio.get("investigacoes", [])
-            if item.get("sugestao", {}).get("status") == "alta_confianca"
-            and item.get("sugestao", {}).get("fonte") == args.aprovar_fonte
-            and not item.get("sugestao", {}).get("alertas")
+            for item in itens_aprovados
         ]
         print(f"⚠️ Aprovação explícita em lote: fonte {args.aprovar_fonte} ({len(decisoes)} sugestão(ões)).")
+
+        if colunas_inconsistentes:
+            print(
+                "\n🚫 Colunas excluídas automaticamente por tabela_referencia inconsistente "
+                "(a mesma coluna resolveu para tabelas de referência diferentes em valores "
+                "distintos — sinal de colisão por coincidência, não FK real). Use "
+                "--incluir-colunas-inconsistentes para incluí-las mesmo assim, ou revise "
+                "manualmente com --aplicar-decisoes:"
+            )
+            for chave, tabelas in sorted(colunas_inconsistentes.items()):
+                marcador = " (incluída via --incluir-colunas-inconsistentes)" if args.incluir_colunas_inconsistentes else ""
+                print(f"   - {chave}: {', '.join(sorted(tabelas))}{marcador}")
+
+        if excluidas_manualmente:
+            presentes = excluidas_manualmente & {
+                f"{item.get('tabela')}.{item.get('coluna')}" for item in itens_elegiveis
+            }
+            if presentes:
+                print(f"\n🚫 Colunas excluídas manualmente via --excluir-coluna: {', '.join(sorted(presentes))}")
+
         if args.aprovar_fonte == "tabela_referencia":
             print(
-                "⚠️  ATENÇÃO: esta fonte usa lookup por id em outra tabela detectada por "
+                "\n⚠️  ATENÇÃO: esta fonte usa lookup por id em outra tabela detectada por "
                 "heurística de nome — pode colidir por coincidência com uma tabela sem "
                 "relação semântica real. Revise a coluna 'tabela_referencia' de cada item "
                 "abaixo antes de aplicar; se o nome da tabela não fizer sentido para a "
                 "coluna original, use --aplicar-decisoes com decisao=pular para esse item."
             )
-            for item in relatorio.get("investigacoes", []):
-                if (
-                    item.get("sugestao", {}).get("status") == "alta_confianca"
-                    and item.get("sugestao", {}).get("fonte") == args.aprovar_fonte
-                    and not item.get("sugestao", {}).get("alertas")
-                ):
-                    print(
-                        f"   - {item.get('tabela')}.{item.get('coluna')}[{item.get('valor')}] "
-                        f"= {item.get('sugestao', {}).get('traducao_sugerida')!r} "
-                        f"(via tabela_referencia={item.get('tabela_referencia')})"
-                    )
+            for item in itens_aprovados:
+                print(
+                    f"   - {item.get('tabela')}.{item.get('coluna')}[{item.get('valor')}] "
+                    f"= {item.get('sugestao', {}).get('traducao_sugerida')!r} "
+                    f"(via tabela_referencia={item.get('tabela_referencia')})"
+                )
     else:
         decisoes = _revisar_interativo(relatorio)
 
