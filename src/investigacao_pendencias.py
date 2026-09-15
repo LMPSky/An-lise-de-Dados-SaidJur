@@ -103,6 +103,14 @@ _PREFIXOS_COLUNA_ACAO_BOOLEANA: tuple[str, ...] = (
     "no_receive_",
 )
 
+# Número máximo de colunas que uma tabela pode ter para ser considerada uma
+# tabela de catálogo/enum plausível em _buscar_em_tabela_referencia. Tabelas
+# de catálogo genuínas são estreitas (id + 1-3 colunas de rótulo/descrição).
+# Uma tabela com muitas colunas é uma tabela de fato do domínio (ex.:
+# 'lawsuits', com dezenas de colunas) — mesmo que seu nome compartilhe um
+# radical com a coluna investigada, um id que "bate" nela é coincidência.
+_MAX_COLUNAS_TABELA_CATALOGO = 12
+
 # Tipos de coluna sempre excluídos da descoberta via schema: são tipicamente
 # texto livre/binário grande (conteúdo de e-mail, HTML, arquivos, etc.) e uma
 # consulta DISTINCT/GROUP BY nesses tipos pode travar o banco (timeout) sem
@@ -1079,76 +1087,143 @@ def _buscar_em_tabela_referencia(engine: Engine, pendencia: PendenciaEnum) -> di
             candidatas.append((5, real))
             ja_em_candidatas.add(real.lower())
 
-    for _score, tabela_ref in candidatas:
-        colunas_ref = listar_colunas_tabela(engine, tabela_ref)
-        coluna_codigo = _selecionar_coluna_codigo_referencia(colunas_ref, pendencia.coluna)
-        coluna_rotulo = _selecionar_coluna_rotulo_referencia(colunas_ref)
-        if not coluna_codigo or not coluna_rotulo:
+    # Agrupa candidatas por nível de pontuação (mantendo a ordem de desempate
+    # já aplicada). Tabelas empatadas no mesmo nível de similaridade com o
+    # nome da coluna são tratadas como igualmente plausíveis a priori — não
+    # há justificativa para preferir uma sobre a outra apenas pela ordem
+    # alfabética, que era o comportamento anterior e causava colisões
+    # semânticas (ex.: 'companytype' sendo aceita para 'payment_type' só
+    # porque vinha antes de 'paymentguarantee_types' no alfabeto).
+    niveis: list[tuple[int, list[str]]] = []
+    for score, tabela_ref in candidatas:
+        if niveis and niveis[-1][0] == score:
+            niveis[-1][1].append(tabela_ref)
+        else:
+            niveis.append((score, [tabela_ref]))
+
+    for _score, tabelas_do_nivel in niveis:
+        resultados_validos: list[dict[str, Any]] = []
+        for tabela_ref in tabelas_do_nivel:
+            resultado = _avaliar_candidata_tabela_referencia(engine, pendencia, tabela_ref)
+            if resultado is not None:
+                resultados_validos.append(resultado)
+
+        if not resultados_validos:
+            # Nenhuma tabela deste nível produziu um rótulo utilizável;
+            # tenta o próximo nível (menos específico).
             continue
 
-        tabela_sql = _identificador(tabela_ref, engine.dialect.name)
-        coluna_codigo_sql = _identificador(coluna_codigo, engine.dialect.name)
-        coluna_rotulo_sql = _identificador(coluna_rotulo, engine.dialect.name)
-        sql = text(
-            f"SELECT {coluna_codigo_sql} AS codigo, {coluna_rotulo_sql} AS rotulo "
-            f"FROM {tabela_sql} "
-            f"WHERE CAST({coluna_codigo_sql} AS CHAR) = CAST(:valor AS CHAR) "
-            "LIMIT 5"
-        )
+        traducoes_distintas = {r["traducao"] for r in resultados_validos}
+        if len(traducoes_distintas) > 1:
+            # Duas ou mais tabelas com o MESMO grau de similaridade ao nome
+            # da coluna divergem sobre qual seria a tradução do mesmo
+            # código. Isso é evidência de ambiguidade genuína (múltiplos
+            # catálogos "*_type"/"*_status" no schema que coincidentemente
+            # compartilham o mesmo id) — não há como escolher uma
+            # candidata sem uma confirmação humana, então esta estratégia
+            # se abstém em vez de arriscar uma tradução errada. Tentar
+            # níveis mais fracos (menos específicos) seria ainda menos
+            # confiável, então encerramos aqui.
+            return None
 
-        def _executar() -> list[dict[str, Any]]:
-            with conectar_com_timeout(engine) as conn:
-                res = conn.execute(sql, {"valor": str(pendencia.valor)})
-                return [dict(row._mapping) for row in res.fetchall()]
+        return resultados_validos[0]["resultado"]
 
-        linhas = executar_com_retry_db(
-            _executar,
-            descricao=f"Investigar catálogo {tabela_ref} para {pendencia.tabela}.{pendencia.coluna}",
-        )
-        rotulos = []
-        for linha in linhas:
-            valor_rotulo = linha.get("rotulo")
-            # Rejeitar explicitamente valores nulos/vazios: None, string vazia ou
-            # string que, após strip, resulte em "" — nunca converter None para "None".
-            if valor_rotulo is None:
-                continue
-            rotulo = str(valor_rotulo).strip()
-            if not rotulo:
-                continue
-            rotulos.append(rotulo)
-        distintos = sorted(set(rotulos))
-        if len(distintos) != 1:
-            # Se há linhas mas todos os rótulos eram nulos/vazios, registramos
-            # que a tabela foi encontrada mas não tinha rótulo válido e continuamos
-            # tentando outras candidatas.
+    return None
+
+
+
+def _avaliar_candidata_tabela_referencia(
+    engine: Engine,
+    pendencia: PendenciaEnum,
+    tabela_ref: str,
+) -> dict[str, Any] | None:
+    """Consulta uma única tabela candidata e monta o resultado, se plausível.
+
+    Retorna ``None`` quando a tabela não tem colunas de código/rótulo
+    detectáveis, não possui o código procurado, tem rótulos ambíguos
+    (múltiplos valores distintos) ou o rótulo encontrado é implausível
+    (texto livre/nome de arquivo). Em caso de sucesso, retorna um dict com
+    a chave ``"traducao"`` (para comparação de ambiguidade entre
+    candidatas do mesmo nível) e ``"resultado"`` (o dict final no formato
+    esperado pelo chamador).
+    """
+    colunas_ref = listar_colunas_tabela(engine, tabela_ref)
+    if len(colunas_ref) > _MAX_COLUNAS_TABELA_CATALOGO:
+        # Tabelas de catálogo/enum genuínas são estreitas (id + 1-3 colunas de
+        # rótulo). Uma tabela com muitas colunas é uma tabela de fato do
+        # domínio (ex.: 'lawsuits', com dezenas de colunas) e não um
+        # catálogo — mesmo que seu nome contenha um radical em comum com a
+        # coluna investigada, um "acerto" de id nela é coincidência, não uma
+        # relação de chave estrangeira real.
+        return None
+    coluna_codigo = _selecionar_coluna_codigo_referencia(colunas_ref, pendencia.coluna)
+    coluna_rotulo = _selecionar_coluna_rotulo_referencia(colunas_ref)
+    if not coluna_codigo or not coluna_rotulo:
+        return None
+
+    tabela_sql = _identificador(tabela_ref, engine.dialect.name)
+    coluna_codigo_sql = _identificador(coluna_codigo, engine.dialect.name)
+    coluna_rotulo_sql = _identificador(coluna_rotulo, engine.dialect.name)
+    sql = text(
+        f"SELECT {coluna_codigo_sql} AS codigo, {coluna_rotulo_sql} AS rotulo "
+        f"FROM {tabela_sql} "
+        f"WHERE CAST({coluna_codigo_sql} AS CHAR) = CAST(:valor AS CHAR) "
+        "LIMIT 5"
+    )
+
+    def _executar() -> list[dict[str, Any]]:
+        with conectar_com_timeout(engine) as conn:
+            res = conn.execute(sql, {"valor": str(pendencia.valor)})
+            return [dict(row._mapping) for row in res.fetchall()]
+
+    linhas = executar_com_retry_db(
+        _executar,
+        descricao=f"Investigar catálogo {tabela_ref} para {pendencia.tabela}.{pendencia.coluna}",
+    )
+    rotulos = []
+    for linha in linhas:
+        valor_rotulo = linha.get("rotulo")
+        # Rejeitar explicitamente valores nulos/vazios: None, string vazia ou
+        # string que, após strip, resulte em "" — nunca converter None para "None".
+        if valor_rotulo is None:
             continue
-
-        traducao = distintos[0]
-
-        # Rejeita rótulos implausíveis para uma tradução de ENUM: texto livre
-        # longo (nota/observação de um caso específico) ou nome de arquivo
-        # (documento anexado a um caso). Continua tentando outras tabelas
-        # candidatas em vez de aceitar um dado de registro específico como
-        # se fosse uma categoria genérica.
-        if _pista_parece_texto_livre(traducao) or _valor_parece_nome_arquivo(traducao):
+        rotulo = str(valor_rotulo).strip()
+        if not rotulo:
             continue
+        rotulos.append(rotulo)
+    distintos = sorted(set(rotulos))
+    if len(distintos) != 1:
+        # Se há linhas mas todos os rótulos eram nulos/vazios (ou a própria
+        # tabela tem valores divergentes para o mesmo código), não há como
+        # usar esta candidata isoladamente.
+        return None
 
-        coluna_outro_idioma = _coluna_em_outro_idioma(coluna_rotulo) is not None
-        justificativa = (
-            f"Tabela de referência '{tabela_ref}' detectada via schema; "
-            f"coluna '{coluna_codigo}' mapeou o código '{pendencia.valor}' "
-            f"para '{traducao}' usando o rótulo '{coluna_rotulo}'."
+    traducao = distintos[0]
+
+    # Rejeita rótulos implausíveis para uma tradução de ENUM: texto livre
+    # longo (nota/observação de um caso específico) ou nome de arquivo
+    # (documento anexado a um caso).
+    if _pista_parece_texto_livre(traducao) or _valor_parece_nome_arquivo(traducao):
+        return None
+
+    coluna_outro_idioma = _coluna_em_outro_idioma(coluna_rotulo) is not None
+    justificativa = (
+        f"Tabela de referência '{tabela_ref}' detectada via schema; "
+        f"coluna '{coluna_codigo}' mapeou o código '{pendencia.valor}' "
+        f"para '{traducao}' usando o rótulo '{coluna_rotulo}'."
+    )
+    if coluna_outro_idioma and not _tem_coluna_irma_portuguesa(
+        coluna_rotulo,
+        [coluna.nome for coluna in colunas_ref],
+    ):
+        justificativa += (
+            " A pista veio de coluna em outro idioma; revise/traduza manualmente "
+            "antes de aplicar ao dicionário em português."
         )
-        if coluna_outro_idioma and not _tem_coluna_irma_portuguesa(
-            coluna_rotulo,
-            [coluna.nome for coluna in colunas_ref],
-        ):
-            justificativa += (
-                " A pista veio de coluna em outro idioma; revise/traduza manualmente "
-                "antes de aplicar ao dicionário em português."
-            )
 
-        return {
+    return {
+        "traducao": traducao,
+        "resultado": {
             "tabela_referencia": tabela_ref,
             "coluna_codigo_referencia": coluna_codigo,
             "coluna_rotulo_referencia": coluna_rotulo,
@@ -1169,8 +1244,8 @@ def _buscar_em_tabela_referencia(engine: Engine, pendencia: PendenciaEnum) -> di
                     "fonte": "tabela_referencia",
                 }
             ),
-        }
-    return None
+        },
+    }
 
 
 
