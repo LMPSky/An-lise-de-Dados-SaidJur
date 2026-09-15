@@ -834,6 +834,116 @@ def test_buscar_em_tabela_referencia_rejeita_rotulo_nome_de_arquivo() -> None:
     assert resultado is None
 
 
+def test_buscar_em_tabela_referencia_abstem_quando_candidatas_empatadas_divergem() -> None:
+    """Regressão: colunas como 'payment_type'/'doctype' geram o radical genérico
+    'type', que empata (mesma pontuação de similaridade) entre várias tabelas
+    "*type*" do schema. Antes desta correção, a primeira em ordem alfabética
+    que tivesse um rótulo válido para o id era aceita cegamente — mesmo que
+    outra tabela empatada apontasse para um rótulo completamente diferente.
+    Agora, quando candidatas do mesmo nível de pontuação divergem sobre a
+    tradução, a função se abstém em vez de adivinhar.
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE final_payments (
+                id INTEGER PRIMARY KEY,
+                payment_type INTEGER
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE companytype (
+                id INTEGER PRIMARY KEY,
+                name TEXT
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE prazotype (
+                id INTEGER PRIMARY KEY,
+                name TEXT
+            )
+        """))
+        conn.execute(text("INSERT INTO final_payments (id, payment_type) VALUES (1, 1)"))
+        conn.execute(text("INSERT INTO companytype (id, name) VALUES (1, 'supervisor de controle')"))
+        conn.execute(text("INSERT INTO prazotype (id, name) VALUES (1, 'ENVIAR CTPS P/ ANOTAÇÃO')"))
+        conn.commit()
+
+    resultado = _buscar_em_tabela_referencia(engine, PendenciaEnum("final_payments", "payment_type", "1"))
+
+    assert resultado is None
+
+
+def test_buscar_em_tabela_referencia_aceita_candidatas_empatadas_que_concordam() -> None:
+    """Quando candidatas empatadas concordam no rótulo, a tradução é aceita
+    normalmente (o empate por si só não é motivo de rejeição)."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE final_payments (
+                id INTEGER PRIMARY KEY,
+                payment_type INTEGER
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE companytype (
+                id INTEGER PRIMARY KEY,
+                name TEXT
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE prazotype (
+                id INTEGER PRIMARY KEY,
+                name TEXT
+            )
+        """))
+        conn.execute(text("INSERT INTO final_payments (id, payment_type) VALUES (1, 1)"))
+        conn.execute(text("INSERT INTO companytype (id, name) VALUES (1, 'Bacenjud')"))
+        conn.execute(text("INSERT INTO prazotype (id, name) VALUES (1, 'Bacenjud')"))
+        conn.commit()
+
+    resultado = _buscar_em_tabela_referencia(engine, PendenciaEnum("final_payments", "payment_type", "1"))
+
+    assert resultado is not None
+    assert resultado["sugestao"]["traducao_sugerida"] == "Bacenjud"
+
+
+def test_buscar_em_tabela_referencia_ignora_tabela_de_fato_larga() -> None:
+    """Regressão: 'lawsuits' é a tabela de fato central do domínio (dezenas de
+    colunas), não um catálogo/enum — mesmo pontuando alto por similaridade de
+    nome com 'lawsuit_phase_id', um id que bate nela é coincidência, não uma
+    FK real. Tabelas com muitas colunas devem ser descartadas como
+    candidatas de catálogo.
+    """
+    engine = create_engine("sqlite:///:memory:")
+    colunas_largas = ", ".join(f"col{i} TEXT" for i in range(15))
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE lawsuit_phases2judicial_area (
+                id INTEGER PRIMARY KEY,
+                lawsuit_phase_id INTEGER
+            )
+        """))
+        conn.execute(text(f"""
+            CREATE TABLE lawsuits (
+                id INTEGER PRIMARY KEY,
+                {colunas_largas}
+            )
+        """))
+        conn.execute(text(
+            "INSERT INTO lawsuit_phases2judicial_area (id, lawsuit_phase_id) VALUES (1, 7)"
+        ))
+        conn.execute(text(
+            "INSERT INTO lawsuits (id, col0) VALUES (7, 'EXTINTA A EXECUÇÃO')"
+        ))
+        conn.commit()
+
+    resultado = _buscar_em_tabela_referencia(
+        engine, PendenciaEnum("lawsuit_phases2judicial_area", "lawsuit_phase_id", "7")
+    )
+
+    assert resultado is None
+
+
 
 def test_investigar_pendencias_prefere_coluna_portugues_sobre_name_en() -> None:
     engine = create_engine("sqlite:///:memory:")
