@@ -29,6 +29,7 @@ from src.investigacao_pendencias import (
     _contar_linhas_com_valor,
     _coletar_contexto_coluna_obs,
     _propagar_entre_tabelas_irmas,
+    _buscar_em_tabela_referencia,
 )
 
 
@@ -746,6 +747,91 @@ def test_investigar_pendencias_detecta_tabela_referencia_via_schema() -> None:
     assert item["sugestao"]["status"] == "alta_confianca"
     assert item["sugestao"]["traducao_sugerida"] == "Audiência de Instrução"
     assert "Tabela de referência 'hearingtypes'" in item["sugestao"]["justificativa"]
+
+
+def test_buscar_em_tabela_referencia_ignora_coluna_de_permissao_booleana() -> None:
+    """Colunas como 'read_users'/'role_client' são flags booleanas, não FK.
+
+    Regressão: antes desta correção, usertasks.read_users = 1 batia por
+    coincidência com o id=1 da tabela 'users', retornando o nome de um
+    usuário qualquer como se fosse a tradução do código.
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE usertasks (
+                id INTEGER PRIMARY KEY,
+                read_users INTEGER
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE users (
+                id INTEGER PRIMARY KEY,
+                name TEXT
+            )
+        """))
+        conn.execute(text("INSERT INTO usertasks (id, read_users) VALUES (1, 1)"))
+        conn.execute(text("INSERT INTO users (id, name) VALUES (1, 'AmericoBarroso')"))
+        conn.commit()
+
+    resultado = _buscar_em_tabela_referencia(engine, PendenciaEnum("usertasks", "read_users", "1"))
+
+    assert resultado is None
+
+
+def test_buscar_em_tabela_referencia_rejeita_rotulo_texto_livre() -> None:
+    """Rótulos longos/texto corrido são notas de caso, não categorias de ENUM."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE hearingcontrol (
+                id INTEGER PRIMARY KEY,
+                hearingstatus INTEGER
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE hearingstatuses (
+                id INTEGER PRIMARY KEY,
+                name TEXT
+            )
+        """))
+        conn.execute(text("INSERT INTO hearingcontrol (id, hearingstatus) VALUES (1, 2)"))
+        conn.execute(text(
+            "INSERT INTO hearingstatuses (id, name) VALUES "
+            "(2, 'Audiência instrução designada para 11/06/2019 14:30 Seção B da 31ª Vara Cível da Capital.')"
+        ))
+        conn.commit()
+
+    resultado = _buscar_em_tabela_referencia(engine, PendenciaEnum("hearingcontrol", "hearingstatus", "2"))
+
+    assert resultado is None
+
+
+def test_buscar_em_tabela_referencia_rejeita_rotulo_nome_de_arquivo() -> None:
+    """Um nome de arquivo de documento anexado não é uma tradução de ENUM válida."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE expedients (
+                id INTEGER PRIMARY KEY,
+                expedientfile INTEGER
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE expedientfiles (
+                id INTEGER PRIMARY KEY,
+                name TEXT
+            )
+        """))
+        conn.execute(text("INSERT INTO expedients (id, expedientfile) VALUES (1, 1)"))
+        conn.execute(text(
+            "INSERT INTO expedientfiles (id, name) VALUES (1, 'alvara_11041-2015-039.pdf')"
+        ))
+        conn.commit()
+
+    resultado = _buscar_em_tabela_referencia(engine, PendenciaEnum("expedients", "expedientfile", "1"))
+
+    assert resultado is None
 
 
 
