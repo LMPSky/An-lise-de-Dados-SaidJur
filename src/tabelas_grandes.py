@@ -16,3 +16,11 @@ from __future__ import annotations
 # amostragem de valores distintos passam a ser evitadas por completo, em vez
 # de descobertas coluna a coluna via timeout.
 LIMITE_LINHAS_TABELA_COLOSSAL = 5_000_000
+
+# Para tabelas colossais, em vez de pular a amostragem de valores distintos
+# por completo (o que deixaria pendências de tradução dessas tabelas para
+# sempre fora do radar), a amostragem passa a rodar sobre uma subseleção já
+# limitada por LIMIT — evitando o GROUP BY/DISTINCT na tabela inteira, que é
+# a operação que historicamente causa timeout. Mesmo valor já usado em
+# ``auditar_traducoes.py`` (``LIMITE_SUBSELECAO_TABELA_COLOSSAL`` local).
+LIMITE_SUBSELECAO_TABELA_COLOSSAL = 5_000

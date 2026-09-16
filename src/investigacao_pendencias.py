@@ -15,7 +15,7 @@ from sqlalchemy.engine import Engine
 import yaml
 
 from src.db import conectar_com_timeout, criar_engine, executar_com_retry_db
-from src.tabelas_grandes import LIMITE_LINHAS_TABELA_COLOSSAL
+from src.tabelas_grandes import LIMITE_LINHAS_TABELA_COLOSSAL, LIMITE_SUBSELECAO_TABELA_COLOSSAL
 
 ARQUIVO_AUDITORIA_PADRAO = "relatorio_auditoria_traducoes.yaml"
 ARQUIVO_RELATORIO_INVESTIGACAO_PADRAO = "relatorio_investigacao_pendencias.yaml"
@@ -459,17 +459,42 @@ def _valores_distintos_coluna(
     coluna: str,
     *,
     limite: int = 20,
+    limite_subselecao: int | None = None,
 ) -> list[str]:
-    """Obtém valores curtos distintos de uma coluna, sem coletar texto livre."""
+    """Obtém valores curtos distintos de uma coluna, sem coletar texto livre.
+
+    Quando ``limite_subselecao`` é informado (tabelas colossais, ex:
+    ``publicationxml``), evita o ``GROUP BY``/``DISTINCT`` na tabela inteira
+    — que é a operação que historicamente causa timeout nessas tabelas — e em
+    vez disso faz o ``DISTINCT`` sobre uma subseleção já limitada por
+    ``LIMIT``, restringindo o número de linhas lidas do disco. Mesma
+    estratégia usada em ``auditar_traducoes.py`` para essas tabelas. Isso
+    troca uma amostra completa por uma amostra parcial (pode não descobrir
+    todos os valores distintos se eles só aparecerem além do limite), mas é
+    preferível a pular a tabela por completo e nunca investigar suas
+    pendências de tradução.
+    """
     tabela_sql = _identificador(tabela, engine.dialect.name)
     coluna_sql = _identificador(coluna, engine.dialect.name)
-    sql = text(
-        f"SELECT CAST({coluna_sql} AS CHAR) AS valor FROM {tabela_sql} "
-        f"WHERE {coluna_sql} IS NOT NULL "
-        f"AND TRIM(CAST({coluna_sql} AS CHAR)) <> '' "
-        f"GROUP BY CAST({coluna_sql} AS CHAR) "
-        f"LIMIT {int(limite) + 1}"
-    )
+
+    if limite_subselecao is not None:
+        sql = text(
+            f"SELECT DISTINCT valor FROM ("
+            f"SELECT TRIM(CAST({coluna_sql} AS CHAR)) AS valor FROM {tabela_sql} "
+            f"WHERE {coluna_sql} IS NOT NULL "
+            f"LIMIT {int(limite_subselecao)}"
+            f") AS amostra "
+            f"WHERE valor <> '' "
+            f"LIMIT {int(limite) + 1}"
+        )
+    else:
+        sql = text(
+            f"SELECT CAST({coluna_sql} AS CHAR) AS valor FROM {tabela_sql} "
+            f"WHERE {coluna_sql} IS NOT NULL "
+            f"AND TRIM(CAST({coluna_sql} AS CHAR)) <> '' "
+            f"GROUP BY CAST({coluna_sql} AS CHAR) "
+            f"LIMIT {int(limite) + 1}"
+        )
     with conectar_com_timeout(engine) as conn:
         valores = [str(row[0]).strip() for row in conn.execute(sql).fetchall()]
     return valores if len(valores) <= limite else []
@@ -558,10 +583,15 @@ def descobrir_pendencias_schema(
 ) -> tuple[list[PendenciaEnum], dict[str, Any]]:
     """Descobre códigos curtos sem tradução diretamente por introspecção do schema.
 
-    Antes de consultar valores distintos, tabelas colossais (acima de
-    ``LIMITE_LINHAS_TABELA_COLOSSAL`` linhas estimadas, ex: ``publicationxml``)
-    são puladas por completo — evitando descobrir o timeout coluna a coluna,
-    como acontecia antes. Para as demais tabelas, colunas candidatas são
+    Tabelas colossais (acima de ``LIMITE_LINHAS_TABELA_COLOSSAL`` linhas
+    estimadas, ex: ``publicationxml``) não são mais puladas por completo:
+    suas colunas são amostradas com uma subseleção limitada
+    (``LIMITE_SUBSELECAO_TABELA_COLOSSAL`` linhas) em vez do
+    ``GROUP BY``/``DISTINCT`` na tabela inteira que causava timeout — mesma
+    estratégia já usada em ``auditar_traducoes.py``. Isso pode não descobrir
+    todos os valores distintos dessas tabelas (só os que aparecerem dentro do
+    limite amostrado), mas evita deixar pendências de tradução dessas tabelas
+    para sempre fora do radar. Para as demais tabelas, colunas candidatas são
     filtradas por tipo (``TEXT``/``BLOB``/``VARCHAR`` grande) e por nome
     (indícios de texto livre como ``body``/``content``/``summary``), evitando
     consultas ``DISTINCT``/``GROUP BY`` custosas em colunas que nunca seriam
@@ -571,12 +601,12 @@ def descobrir_pendencias_schema(
 
     Retorna uma tupla ``(pendencias, resumo)``, em que ``resumo`` traz as
     contagens/listas de colunas excluídas, colunas que falharam e tabelas
-    colossais puladas.
+    colossais amostradas com limite reduzido.
     """
     resultado: list[PendenciaEnum] = []
     colunas_excluidas: list[dict[str, str]] = []
     colunas_com_falha: list[dict[str, str]] = []
-    tabelas_colossais_puladas: list[dict[str, Any]] = []
+    tabelas_colossais_amostradas: list[dict[str, Any]] = []
 
     for tabela in inspect(engine).get_table_names():
         try:
@@ -589,14 +619,16 @@ def descobrir_pendencias_schema(
             )
 
         if linhas_estimadas > LIMITE_LINHAS_TABELA_COLOSSAL:
-            tabelas_colossais_puladas.append(
+            tabelas_colossais_amostradas.append(
                 {"tabela": tabela, "linhas_estimadas": linhas_estimadas}
             )
+            limite_subselecao = LIMITE_SUBSELECAO_TABELA_COLOSSAL
             print(
                 f"ℹ️  Tabela colossal '{tabela}' (~{linhas_estimadas:,} linhas): "
-                "pulando descoberta via schema desta tabela inteira."
+                f"amostrando até {limite_subselecao:,} linhas em vez de escanear a tabela inteira."
             )
-            continue
+        else:
+            limite_subselecao = None
 
         traducoes_tabela = dicionarios.get(tabela, {})
         if not isinstance(traducoes_tabela, dict):
@@ -617,7 +649,9 @@ def descobrir_pendencias_schema(
                 traducoes_coluna = {}
 
             try:
-                valores = _valores_distintos_coluna(engine, tabela, coluna.nome)
+                valores = _valores_distintos_coluna(
+                    engine, tabela, coluna.nome, limite_subselecao=limite_subselecao
+                )
             except Exception as exc:  # noqa: BLE001 - falha isolada não pode derrubar o lote
                 colunas_com_falha.append(
                     {"tabela_coluna": f"{tabela}.{coluna.nome}", "erro": str(exc)}
@@ -639,8 +673,8 @@ def descobrir_pendencias_schema(
         "total_colunas_excluidas": len(colunas_excluidas),
         "colunas_com_falha": colunas_com_falha,
         "total_colunas_com_falha": len(colunas_com_falha),
-        "tabelas_colossais_puladas": tabelas_colossais_puladas,
-        "total_tabelas_colossais_puladas": len(tabelas_colossais_puladas),
+        "tabelas_colossais_amostradas": tabelas_colossais_amostradas,
+        "total_tabelas_colossais_amostradas": len(tabelas_colossais_amostradas),
     }
     return _deduplicar_pendencias(resultado), resumo
 
@@ -653,11 +687,13 @@ def expandir_pendencias_com_dominio(engine: Engine, pendencias: list[PendenciaEn
     para que referências obsoletas/falsos positivos não interrompam o lote.
 
     Tabelas colossais (acima de ``LIMITE_LINHAS_TABELA_COLOSSAL`` linhas
-    estimadas, ex: ``publicationxml``) têm a expansão de domínio pulada
-    proativamente, e uma falha isolada (timeout, erro de conexão) ao consultar
-    os valores distintos de uma pendência específica é registrada como aviso e
-    não interrompe a expansão das demais pendências — o mesmo padrão de
-    resiliência já usado em :func:`descobrir_pendencias_schema`.
+    estimadas, ex: ``publicationxml``) não têm mais a expansão de domínio
+    pulada por completo: a consulta passa a usar uma subseleção limitada
+    (``LIMITE_SUBSELECAO_TABELA_COLOSSAL`` linhas) em vez do
+    ``GROUP BY``/``DISTINCT`` na tabela inteira — mesma estratégia usada em
+    :func:`descobrir_pendencias_schema`. Uma falha isolada (timeout, erro de
+    conexão) ao consultar os valores distintos de uma pendência específica é
+    registrada como aviso e não interrompe a expansão das demais pendências.
     """
     resultado: list[PendenciaEnum] = []
     insp = inspect(engine)
@@ -693,15 +729,20 @@ def expandir_pendencias_com_dominio(engine: Engine, pendencias: list[PendenciaEn
                 )
 
         if linhas_estimadas_por_tabela[tabela_real] > LIMITE_LINHAS_TABELA_COLOSSAL:
+            limite_subselecao = LIMITE_SUBSELECAO_TABELA_COLOSSAL
             print(
                 f"ℹ️  Tabela colossal '{tabela_real}' "
                 f"(~{linhas_estimadas_por_tabela[tabela_real]:,} linhas): "
-                f"pulando expansão de domínio de {tabela_real}.{coluna_real}."
+                f"amostrando até {limite_subselecao:,} linhas para expandir domínio de "
+                f"{tabela_real}.{coluna_real}."
             )
-            continue
+        else:
+            limite_subselecao = None
 
         try:
-            valores = _valores_distintos_coluna(engine, tabela_real, coluna_real)
+            valores = _valores_distintos_coluna(
+                engine, tabela_real, coluna_real, limite_subselecao=limite_subselecao
+            )
         except Exception as exc:  # noqa: BLE001 - falha isolada não pode derrubar o lote
             print(
                 f"⚠️  Expansão de domínio: falha ao consultar valores de "
