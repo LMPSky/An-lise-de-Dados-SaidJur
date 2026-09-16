@@ -1138,7 +1138,12 @@ def _selecionar_coluna_rotulo_referencia(colunas: list[ColunaTabela]) -> str | N
 
 
 
-def _buscar_em_tabela_referencia(engine: Engine, pendencia: PendenciaEnum) -> dict[str, Any] | None:
+def _buscar_em_tabela_referencia(
+    engine: Engine,
+    pendencia: PendenciaEnum,
+    *,
+    limite_subselecao: int | None = None,
+) -> dict[str, Any] | None:
     """Busca tradução em tabela de referência/catálogo detectada via schema.
 
     Combina duas estratégias:
@@ -1149,9 +1154,19 @@ def _buscar_em_tabela_referencia(engine: Engine, pendencia: PendenciaEnum) -> di
        jurídico brasileiro (ex: prefixo ``pz``, variantes de contrato/fase).
 
     Colunas de permissão/ação booleanas (``read_x``, ``role_x``...) são
-    ignoradas por esta estratégia — ver ``_coluna_parece_flag_de_acao``.
+    ignoradas por esta estratégia — ver ``_coluna_parece_flag_de_acao``. Além
+    disso, colunas booleanas sem um prefixo verbal reconhecível (ex:
+    ``client_sys_updated``) também são descartadas via verificação factual do
+    próprio domínio de valores — ver ``_coluna_e_booleana_no_banco``: um
+    código '0'/'1' pode coincidir, por acaso, com o id de alguma linha de uma
+    tabela candidata sem que exista relação semântica real (caso observado:
+    ``client_sys_updated`` == '1' batendo com ``client_sectors.id`` = 1).
     """
     if _coluna_parece_flag_de_acao(pendencia.coluna):
+        return None
+    if _coluna_e_booleana_no_banco(
+        engine, pendencia.tabela, pendencia.coluna, limite_subselecao=limite_subselecao
+    ):
         return None
 
     insp = inspect(engine)
@@ -1522,6 +1537,44 @@ def _coluna_parece_flag_de_acao(nome_coluna: str) -> bool:
     """
     nome = nome_coluna.lower()
     return any(nome.startswith(prefixo) for prefixo in _PREFIXOS_COLUNA_ACAO_BOOLEANA)
+
+
+def _coluna_e_booleana_no_banco(
+    engine: Engine,
+    tabela: str,
+    coluna: str,
+    *,
+    limite_subselecao: int | None = None,
+) -> bool:
+    """Verifica, consultando o banco, se a coluna só assume os valores '0'/'1'.
+
+    Complementa ``_coluna_parece_flag_de_acao`` (baseada só no nome) com uma
+    checagem factual: colunas booleanas sem um prefixo verbal reconhecível
+    (ex: ``client_sys_updated``, que não bate com nenhum prefixo de
+    ``_PREFIXOS_COLUNA_ACAO_BOOLEANA``) também podem coincidir por acaso com
+    o id de alguma linha de uma tabela candidata — caso observado:
+    ``prazo2publication.client_sys_updated`` = '1' batendo com
+    ``client_sectors.id`` = 1 e sugerindo 'DSC' como se fosse tradução do
+    código, quando na verdade a coluna é só um flag 0/1 com 980 mil
+    ocorrências de '0' e 258 de '1'.
+
+    Qualquer falha na consulta (timeout, coluna inexistente) resulta em
+    ``False``: este é um filtro extra opcional, e não deve impedir uma
+    correspondência legítima só porque a checagem de sanidade não pôde ser
+    confirmada.
+
+    Exige exatamente 2 valores distintos, iguais a ``{'0', '1'}`` — não basta
+    encontrar um único valor '0' ou '1' isolado (que poderia ser apenas o
+    único código de um domínio maior ainda não observado), é preciso
+    confirmar a real bimodalidade 0/1 da coluna.
+    """
+    try:
+        valores = _valores_distintos_coluna(
+            engine, tabela, coluna, limite=3, limite_subselecao=limite_subselecao
+        )
+    except Exception:  # noqa: BLE001 - filtro extra opcional, não pode travar a busca
+        return False
+    return len(valores) == 2 and set(valores) == {"0", "1"}
 
 
 def _valor_parece_nome_arquivo(valor: str) -> bool:
@@ -2102,7 +2155,7 @@ def investigar_pendencias(
     for indice, pendencia in enumerate(pendencias, start=1):
         try:
             limite_subselecao = _limite_subselecao_para(pendencia.tabela)
-            lookup = _buscar_em_tabela_referencia(engine, pendencia)
+            lookup = _buscar_em_tabela_referencia(engine, pendencia, limite_subselecao=limite_subselecao)
             if lookup:
                 investigacoes.append(
                     {

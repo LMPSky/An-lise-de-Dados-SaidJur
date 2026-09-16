@@ -939,6 +939,40 @@ def test_buscar_em_tabela_referencia_ignora_coluna_de_permissao_booleana() -> No
     assert resultado is None
 
 
+def test_buscar_em_tabela_referencia_ignora_flag_booleano_sem_prefixo_reconhecido() -> None:
+    """Colunas booleanas sem prefixo verbal reconhecido também são descartadas.
+
+    Regressão: 'client_sys_updated' não bate com nenhum prefixo de
+    _PREFIXOS_COLUNA_ACAO_BOOLEANA, mas é um flag 0/1 (maioria '0') que
+    coincidiu, por acaso, com o id=1 de 'client_sectors', sugerindo 'DSC'
+    como se fosse a tradução do código.
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE prazo2publication (
+                id INTEGER PRIMARY KEY,
+                client_sys_updated INTEGER
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE client_sectors (
+                id INTEGER PRIMARY KEY,
+                name TEXT
+            )
+        """))
+        conn.execute(text("INSERT INTO prazo2publication (id, client_sys_updated) VALUES (1, 0)"))
+        conn.execute(text("INSERT INTO prazo2publication (id, client_sys_updated) VALUES (2, 1)"))
+        conn.execute(text("INSERT INTO client_sectors (id, name) VALUES (1, 'DSC')"))
+        conn.commit()
+
+    resultado = _buscar_em_tabela_referencia(
+        engine, PendenciaEnum("prazo2publication", "client_sys_updated", "1")
+    )
+
+    assert resultado is None
+
+
 def test_buscar_em_tabela_referencia_rejeita_rotulo_texto_livre() -> None:
     """Rótulos longos/texto corrido são notas de caso, não categorias de ENUM."""
     engine = create_engine("sqlite:///:memory:")
