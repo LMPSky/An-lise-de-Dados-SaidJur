@@ -224,10 +224,10 @@ def test_expandir_pendencias_com_dominio_falha_isolada_nao_interrompe_demais() -
     assert resultado == [PendenciaEnum("tarefas", "status", "novo", "pendencia_documentada")]
 
 
-def test_expandir_pendencias_com_dominio_pula_tabela_colossal() -> None:
-    """Expansão de domínio em tabela colossal (ex: publicationxml) é pulada de antemão."""
+def test_expandir_pendencias_com_dominio_amostra_tabela_colossal() -> None:
+    """Expansão de domínio em tabela colossal (ex: publicationxml) usa amostra limitada, não é pulada."""
     import src.investigacao_pendencias as mod
-    from src.tabelas_grandes import LIMITE_LINHAS_TABELA_COLOSSAL
+    from src.tabelas_grandes import LIMITE_LINHAS_TABELA_COLOSSAL, LIMITE_SUBSELECAO_TABELA_COLOSSAL
 
     engine = create_engine("sqlite:///:memory:")
     with engine.connect() as conn:
@@ -249,9 +249,31 @@ def test_expandir_pendencias_com_dominio_pula_tabela_colossal() -> None:
         with patch.object(mod, "_valores_distintos_coluna", wraps=mod._valores_distintos_coluna) as mock_valores:
             resultado = expandir_pendencias_com_dominio(engine, pendencias)
 
-    assert resultado == [PendenciaEnum("tarefas", "status", "novo", "pendencia_documentada")]
-    tabelas_chamadas = {call.args[1] for call in mock_valores.call_args_list}
-    assert "publicationxml" not in tabelas_chamadas
+    assert resultado == [
+        PendenciaEnum("publicationxml", "nature", "p", "pendencia_documentada"),
+        PendenciaEnum("tarefas", "status", "novo", "pendencia_documentada"),
+    ]
+    chamadas_por_tabela = {call.args[1]: call.kwargs.get("limite_subselecao") for call in mock_valores.call_args_list}
+    assert chamadas_por_tabela["publicationxml"] == LIMITE_SUBSELECAO_TABELA_COLOSSAL
+    assert chamadas_por_tabela["tarefas"] is None
+
+
+def test_valores_distintos_coluna_com_limite_subselecao_usa_subconsulta_limitada() -> None:
+    """Com ``limite_subselecao``, a consulta lê apenas as N primeiras linhas, sem GROUP BY na tabela toda."""
+    import src.investigacao_pendencias as mod
+
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE grande (codigo TEXT)"))
+        # Os 3 primeiros valores (dentro do limite de subseleção) são 'a'/'b'; o valor
+        # 'c' só aparece depois do limite de subseleção e não deve ser retornado.
+        conn.execute(text("INSERT INTO grande (codigo) VALUES ('a'), ('a'), ('b'), ('c')"))
+        conn.commit()
+
+    valores = mod._valores_distintos_coluna(engine, "grande", "codigo", limite_subselecao=3)
+
+    assert set(valores) == {"a", "b"}
+    assert "c" not in valores
 
 
 def test_investigar_pendencias_registra_erro_por_item_e_continua() -> None:
@@ -534,10 +556,10 @@ def test_linhas_estimadas_tabela_retorna_zero_para_dialeto_nao_mysql() -> None:
     assert _linhas_estimadas_tabela(engine, "publicationxml") == 0
 
 
-def test_descobrir_pendencias_schema_pula_tabela_colossal_por_completo() -> None:
-    """Tabelas colossais (ex: publicationxml) são puladas antes de consultar qualquer coluna."""
+def test_descobrir_pendencias_schema_amostra_tabela_colossal_em_vez_de_pular() -> None:
+    """Tabelas colossais (ex: publicationxml) são amostradas com limite reduzido, não puladas."""
     import src.investigacao_pendencias as mod
-    from src.tabelas_grandes import LIMITE_LINHAS_TABELA_COLOSSAL
+    from src.tabelas_grandes import LIMITE_LINHAS_TABELA_COLOSSAL, LIMITE_SUBSELECAO_TABELA_COLOSSAL
 
     engine = create_engine("sqlite:///:memory:")
     with engine.connect() as conn:
@@ -567,14 +589,15 @@ def test_descobrir_pendencias_schema_pula_tabela_colossal_por_completo() -> None
             pendencias, resumo = descobrir_pendencias_schema(engine, {})
 
     tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
-    assert not any(t == "publicationxml" for t, c in tabelas_colunas)
+    assert ("publicationxml", "nature") in tabelas_colunas
     assert ("prazos_log", "pzphase") in tabelas_colunas
 
-    tabelas_chamadas = {call.args[1] for call in mock_valores.call_args_list}
-    assert "publicationxml" not in tabelas_chamadas
+    chamadas_por_tabela = {call.args[1]: call.kwargs.get("limite_subselecao") for call in mock_valores.call_args_list}
+    assert chamadas_por_tabela["publicationxml"] == LIMITE_SUBSELECAO_TABELA_COLOSSAL
+    assert chamadas_por_tabela["prazos_log"] is None
 
-    assert resumo["total_tabelas_colossais_puladas"] == 1
-    assert resumo["tabelas_colossais_puladas"] == [
+    assert resumo["total_tabelas_colossais_amostradas"] == 1
+    assert resumo["tabelas_colossais_amostradas"] == [
         {"tabela": "publicationxml", "linhas_estimadas": LIMITE_LINHAS_TABELA_COLOSSAL + 1}
     ]
 
@@ -602,7 +625,7 @@ def test_descobrir_pendencias_schema_falha_ao_estimar_linhas_nao_interrompe() ->
 
     tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
     assert ("prazos_log", "pzphase") in tabelas_colunas
-    assert resumo["total_tabelas_colossais_puladas"] == 0
+    assert resumo["total_tabelas_colossais_amostradas"] == 0
 
 
 def test_executar_investigacao_inclui_resumo_descoberta_schema_no_relatorio(tmp_path: Path) -> None:
