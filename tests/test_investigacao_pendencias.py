@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import contextlib
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 import yaml
@@ -274,6 +276,69 @@ def test_valores_distintos_coluna_com_limite_subselecao_usa_subconsulta_limitada
 
     assert set(valores) == {"a", "b"}
     assert "c" not in valores
+
+
+def test_valores_distintos_coluna_reduz_limite_subselecao_apos_falha() -> None:
+    """Se a subseleção falhar (ex: timeout), tenta de novo com LIMIT reduzido até o piso."""
+    import src.investigacao_pendencias as mod
+
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE grande (codigo TEXT)"))
+        conn.execute(text("INSERT INTO grande (codigo) VALUES ('a'), ('b')"))
+        conn.commit()
+
+    conectar_original = mod.conectar_com_timeout
+    chamadas: list[int] = []
+
+    @contextlib.contextmanager
+    def _conectar_instrumentado(engine_arg, *args, **kwargs):
+        with conectar_original(engine_arg, *args, **kwargs) as conn:
+            execute_original = conn.execute
+
+            def _execute_instrumentado(sql, *a, **kw):
+                texto_sql = str(sql)
+                if "LIMIT 1000" in texto_sql:
+                    chamadas.append(1000)
+                    raise TimeoutError("Lost connection to MySQL server during query (timed out)")
+                if "LIMIT 500" in texto_sql:
+                    chamadas.append(500)
+                return execute_original(sql, *a, **kw)
+
+            conn.execute = _execute_instrumentado
+            yield conn
+
+    with patch.object(mod, "conectar_com_timeout", side_effect=_conectar_instrumentado):
+        valores = mod._valores_distintos_coluna(
+            engine,
+            "grande",
+            "codigo",
+            limite_subselecao=1000,
+            limite_minimo_subselecao=500,
+        )
+
+    assert set(valores) == {"a", "b"}
+    assert chamadas == [1000, 500]
+
+
+def test_valores_distintos_coluna_propaga_erro_apos_atingir_piso() -> None:
+    """Se todas as tentativas (até o piso) falharem, o erro é propagado, não engolido."""
+    import src.investigacao_pendencias as mod
+
+    engine = create_engine("sqlite:///:memory:")
+
+    def _falha_sempre(engine_arg, *args, **kwargs):
+        raise TimeoutError("Lost connection to MySQL server during query (timed out)")
+
+    with patch.object(mod, "conectar_com_timeout", side_effect=_falha_sempre):
+        with pytest.raises(TimeoutError):
+            mod._valores_distintos_coluna(
+                engine,
+                "grande",
+                "codigo",
+                limite_subselecao=200,
+                limite_minimo_subselecao=200,
+            )
 
 
 def test_investigar_pendencias_registra_erro_por_item_e_continua() -> None:

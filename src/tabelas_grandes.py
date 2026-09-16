@@ -24,3 +24,11 @@ LIMITE_LINHAS_TABELA_COLOSSAL = 5_000_000
 # a operação que historicamente causa timeout. Mesmo valor já usado em
 # ``auditar_traducoes.py`` (``LIMITE_SUBSELECAO_TABELA_COLOSSAL`` local).
 LIMITE_SUBSELECAO_TABELA_COLOSSAL = 5_000
+
+# Algumas colunas de tabelas colossais ainda estouram o timeout mesmo com a
+# subseleção acima: como o armazenamento é por linha, ler N linhas de uma
+# coluna curta ainda exige varrer outras colunas grandes (TEXT/BLOB) da mesma
+# linha. Nesses casos, a subseleção é tentada de novo com um LIMIT cada vez
+# menor (reduzido pela metade a cada tentativa) até este piso, antes de
+# desistir e reportar a coluna como falha.
+LIMITE_MINIMO_SUBSELECAO_TABELA_COLOSSAL = 200

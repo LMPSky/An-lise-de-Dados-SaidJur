@@ -15,7 +15,11 @@ from sqlalchemy.engine import Engine
 import yaml
 
 from src.db import conectar_com_timeout, criar_engine, executar_com_retry_db
-from src.tabelas_grandes import LIMITE_LINHAS_TABELA_COLOSSAL, LIMITE_SUBSELECAO_TABELA_COLOSSAL
+from src.tabelas_grandes import (
+    LIMITE_LINHAS_TABELA_COLOSSAL,
+    LIMITE_MINIMO_SUBSELECAO_TABELA_COLOSSAL,
+    LIMITE_SUBSELECAO_TABELA_COLOSSAL,
+)
 
 ARQUIVO_AUDITORIA_PADRAO = "relatorio_auditoria_traducoes.yaml"
 ARQUIVO_RELATORIO_INVESTIGACAO_PADRAO = "relatorio_investigacao_pendencias.yaml"
@@ -460,6 +464,7 @@ def _valores_distintos_coluna(
     *,
     limite: int = 20,
     limite_subselecao: int | None = None,
+    limite_minimo_subselecao: int = LIMITE_MINIMO_SUBSELECAO_TABELA_COLOSSAL,
 ) -> list[str]:
     """Obtém valores curtos distintos de uma coluna, sem coletar texto livre.
 
@@ -473,21 +478,18 @@ def _valores_distintos_coluna(
     todos os valores distintos se eles só aparecerem além do limite), mas é
     preferível a pular a tabela por completo e nunca investigar suas
     pendências de tradução.
+
+    Algumas colunas ainda estouram o timeout mesmo com a subseleção — como o
+    armazenamento é por linha, ler as primeiras N linhas de uma coluna curta
+    ainda exige varrer outras colunas grandes (TEXT/BLOB) da mesma linha.
+    Nesse caso, a consulta é tentada de novo com um ``LIMIT`` cada vez menor
+    (reduzido pela metade a cada tentativa) até ``limite_minimo_subselecao``,
+    antes de desistir e propagar o erro.
     """
     tabela_sql = _identificador(tabela, engine.dialect.name)
     coluna_sql = _identificador(coluna, engine.dialect.name)
 
-    if limite_subselecao is not None:
-        sql = text(
-            f"SELECT DISTINCT valor FROM ("
-            f"SELECT TRIM(CAST({coluna_sql} AS CHAR)) AS valor FROM {tabela_sql} "
-            f"WHERE {coluna_sql} IS NOT NULL "
-            f"LIMIT {int(limite_subselecao)}"
-            f") AS amostra "
-            f"WHERE valor <> '' "
-            f"LIMIT {int(limite) + 1}"
-        )
-    else:
+    if limite_subselecao is None:
         sql = text(
             f"SELECT CAST({coluna_sql} AS CHAR) AS valor FROM {tabela_sql} "
             f"WHERE {coluna_sql} IS NOT NULL "
@@ -495,9 +497,33 @@ def _valores_distintos_coluna(
             f"GROUP BY CAST({coluna_sql} AS CHAR) "
             f"LIMIT {int(limite) + 1}"
         )
-    with conectar_com_timeout(engine) as conn:
-        valores = [str(row[0]).strip() for row in conn.execute(sql).fetchall()]
-    return valores if len(valores) <= limite else []
+        with conectar_com_timeout(engine) as conn:
+            valores = [str(row[0]).strip() for row in conn.execute(sql).fetchall()]
+        return valores if len(valores) <= limite else []
+
+    limite_atual = int(limite_subselecao)
+    while True:
+        sql = text(
+            f"SELECT DISTINCT valor FROM ("
+            f"SELECT TRIM(CAST({coluna_sql} AS CHAR)) AS valor FROM {tabela_sql} "
+            f"WHERE {coluna_sql} IS NOT NULL "
+            f"LIMIT {limite_atual}"
+            f") AS amostra "
+            f"WHERE valor <> '' "
+            f"LIMIT {int(limite) + 1}"
+        )
+        try:
+            with conectar_com_timeout(engine) as conn:
+                valores = [str(row[0]).strip() for row in conn.execute(sql).fetchall()]
+            return valores if len(valores) <= limite else []
+        except Exception:  # noqa: BLE001 - decide entre reduzir o LIMIT ou propagar
+            if limite_atual <= limite_minimo_subselecao:
+                raise
+            limite_atual = max(limite_minimo_subselecao, limite_atual // 2)
+            print(
+                f"⏳ Amostragem de {tabela}.{coluna} falhou, tentando de novo com "
+                f"LIMIT reduzido para {limite_atual:,} linhas."
+            )
 
 
 def _coluna_parece_codigo(coluna: ColunaTabela) -> bool:
