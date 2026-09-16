@@ -353,10 +353,10 @@ def test_investigar_pendencias_registra_erro_por_item_e_continua() -> None:
 
     original_coletar = mod._coletar_linhas_exemplo
 
-    def _coletar_com_falha(engine_arg, pendencia, colunas_pista, *, limite_linhas):
+    def _coletar_com_falha(engine_arg, pendencia, colunas_pista, *, limite_linhas, **kwargs):
         if pendencia.tabela == "falha":
             raise RuntimeError("falha SQL simulada")
-        return original_coletar(engine_arg, pendencia, colunas_pista, limite_linhas=limite_linhas)
+        return original_coletar(engine_arg, pendencia, colunas_pista, limite_linhas=limite_linhas, **kwargs)
 
     with (
         patch.object(mod, "_buscar_em_tabela_referencia", return_value=None),
@@ -376,6 +376,78 @@ def test_investigar_pendencias_registra_erro_por_item_e_continua() -> None:
     assert relatorio["investigacoes"][0]["sugestao"]["status"] == "erro"
     assert relatorio["investigacoes"][1]["sugestao"]["status"] != "erro"
     assert "falha SQL simulada" in relatorio["investigacoes"][0]["sugestao"]["justificativa"]
+
+
+def test_investigar_pendencias_nao_descarta_item_quando_distribuicao_falha() -> None:
+    """Falha em _coletar_distribuicao_codigo (sinal auxiliar) não deve virar status 'erro'."""
+    import src.investigacao_pendencias as mod
+
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE sucesso (codigo TEXT, name TEXT)"))
+        conn.execute(text("INSERT INTO sucesso (codigo, name) VALUES ('ok', 'Rótulo válido')"))
+        conn.commit()
+
+    with (
+        patch.object(mod, "_buscar_em_tabela_referencia", return_value=None),
+        patch.object(mod, "_coletar_distribuicao_codigo", side_effect=RuntimeError("timeout simulado")),
+    ):
+        relatorio = investigar_pendencias(
+            engine,
+            [PendenciaEnum("sucesso", "codigo", "ok", "pendencia_documentada")],
+            limite_linhas=5,
+        )
+
+    item = relatorio["investigacoes"][0]
+    assert item["sugestao"]["status"] != "erro"
+    assert "distribuicao_codigo" not in item
+
+
+def test_coletar_distribuicao_codigo_captura_falha_e_retorna_none() -> None:
+    """_coletar_distribuicao_codigo não propaga exceções: retorna None em caso de falha."""
+    import src.investigacao_pendencias as mod
+
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE sucesso (codigo TEXT)"))
+        conn.commit()
+
+    with patch.object(mod, "conectar_com_timeout", side_effect=TimeoutError("timeout simulado")):
+        resultado = mod._coletar_distribuicao_codigo(
+            engine, PendenciaEnum("sucesso", "codigo", "x", "pendencia_documentada")
+        )
+
+    assert resultado is None
+
+
+def test_coletar_linhas_exemplo_com_limite_subselecao_usa_subconsulta_limitada() -> None:
+    """Com limite_subselecao, a busca por valor roda sobre uma subseleção, não a tabela toda."""
+    import src.investigacao_pendencias as mod
+
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE grande (codigo TEXT, nome TEXT)"))
+        conn.execute(text("INSERT INTO grande (codigo, nome) VALUES ('a', 'primeiro')"))
+        conn.execute(text("INSERT INTO grande (codigo, nome) VALUES ('b', 'fora_da_amostra')"))
+        conn.commit()
+
+    linhas_dentro = mod._coletar_linhas_exemplo(
+        engine,
+        PendenciaEnum("grande", "codigo", "a", "pendencia_documentada"),
+        ["nome"],
+        limite_linhas=5,
+        limite_subselecao=1,
+    )
+    linhas_fora = mod._coletar_linhas_exemplo(
+        engine,
+        PendenciaEnum("grande", "codigo", "b", "pendencia_documentada"),
+        ["nome"],
+        limite_linhas=5,
+        limite_subselecao=1,
+    )
+
+    assert linhas_dentro == [{"nome": "primeiro"}]
+    assert linhas_fora == []
 
 
 def test_investigar_pendencias_salva_checkpoint_parcial_periodicamente(tmp_path: Path) -> None:
