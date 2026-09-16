@@ -1395,28 +1395,71 @@ def _coletar_linhas_exemplo(
     colunas_pista: list[str],
     *,
     limite_linhas: int,
+    limite_subselecao: int | None = None,
+    limite_minimo_subselecao: int = LIMITE_MINIMO_SUBSELECAO_TABELA_COLOSSAL,
 ) -> list[dict[str, Any]]:
+    """Coleta linhas de exemplo onde ``coluna = valor``, para uso como pista.
+
+    Quando ``limite_subselecao`` é informado (tabelas colossais, ex:
+    ``publicationxml``), a consulta roda sobre uma subseleção já limitada por
+    ``LIMIT`` em vez da tabela inteira — evitando a varredura completa sem
+    índice que causa timeout nessas tabelas, mesma estratégia usada em
+    :func:`_valores_distintos_coluna`. Como o valor buscado veio de uma
+    amostra da mesma tabela (via ``_valores_distintos_coluna``), ele deve
+    aparecer dentro dessa subseleção na maioria dos casos.
+
+    Se a consulta ainda assim falhar (timeout), tenta de novo com o ``LIMIT``
+    da subseleção reduzido pela metade a cada tentativa, até
+    ``limite_minimo_subselecao`` — mesma estratégia de recuperação usada em
+    :func:`_valores_distintos_coluna`.
+    """
     tabela_sql = _identificador(pendencia.tabela, engine.dialect.name)
     coluna_sql = _identificador(pendencia.coluna, engine.dialect.name)
     colunas_sql = ", ".join(_identificador(col, engine.dialect.name) for col in colunas_pista)
-
-    sql = text(
-        f"SELECT {colunas_sql} "
-        f"FROM {tabela_sql} "
-        f"WHERE {coluna_sql} = :valor "
-        f"LIMIT {int(limite_linhas)}"
-    )
 
     # Converte para int quando numérico para compatibilidade com colunas
     # inteiras no MySQL, evitando falso negativo por diferença de tipo.
     param_valor = _converter_valor_para_param(pendencia.valor)
 
-    def _executar() -> list[dict[str, Any]]:
-        with conectar_com_timeout(engine) as conn:
-            res = conn.execute(sql, {"valor": param_valor})
-            return [dict(row._mapping) for row in res.fetchall()]
+    def _origem_sql(limite_atual: int | None) -> str:
+        if limite_atual is None:
+            return tabela_sql
+        return f"(SELECT * FROM {tabela_sql} LIMIT {int(limite_atual)}) AS amostra"
 
-    linhas = executar_com_retry_db(_executar, descricao=f"Investigar {pendencia.tabela}.{pendencia.coluna}")
+    def _buscar(limite_atual: int | None) -> list[dict[str, Any]]:
+        origem_sql = _origem_sql(limite_atual)
+        sql = text(
+            f"SELECT {colunas_sql} "
+            f"FROM {origem_sql} "
+            f"WHERE {coluna_sql} = :valor "
+            f"LIMIT {int(limite_linhas)}"
+        )
+
+        def _executar() -> list[dict[str, Any]]:
+            with conectar_com_timeout(engine) as conn:
+                res = conn.execute(sql, {"valor": param_valor})
+                return [dict(row._mapping) for row in res.fetchall()]
+
+        return executar_com_retry_db(_executar, descricao=f"Investigar {pendencia.tabela}.{pendencia.coluna}")
+
+    limite_final = limite_subselecao
+    if limite_subselecao is None:
+        linhas = _buscar(None)
+    else:
+        limite_atual = int(limite_subselecao)
+        while True:
+            try:
+                linhas = _buscar(limite_atual)
+                limite_final = limite_atual
+                break
+            except Exception:  # noqa: BLE001 - decide entre reduzir o LIMIT ou propagar
+                if limite_atual <= limite_minimo_subselecao:
+                    raise
+                limite_atual = max(limite_minimo_subselecao, limite_atual // 2)
+                print(
+                    f"⏳ Consulta de exemplo em {pendencia.tabela}.{pendencia.coluna} falhou, "
+                    f"tentando de novo com LIMIT reduzido para {limite_atual:,} linhas."
+                )
 
     # Diagnóstico: se a query principal não retornou linhas mas o valor é numérico,
     # tenta também comparar como string para capturar colunas TEXT que armazenam
@@ -1428,9 +1471,10 @@ def _coletar_linhas_exemplo(
     # CAST(... AS TEXT) é aceito apenas pelo SQLite e causa erro de sintaxe no MySQL.
     if not linhas and isinstance(param_valor, int):
         _tipo_cast = "CHAR"
+        origem_sql = _origem_sql(limite_final)
         sql_str = text(
             f"SELECT {colunas_sql} "
-            f"FROM {tabela_sql} "
+            f"FROM {origem_sql} "
             f"WHERE CAST({coluna_sql} AS {_tipo_cast}) = CAST(:valor AS {_tipo_cast}) "
             f"LIMIT {int(limite_linhas)}"
         )
@@ -1449,6 +1493,7 @@ def _coletar_linhas_exemplo(
         )
 
     return linhas
+
 
 
 
@@ -1756,6 +1801,7 @@ def _coletar_contexto_coluna_obs(
     colunas_disponiveis: list[ColunaTabela],
     *,
     limite_linhas: int = 20,
+    limite_subselecao: int | None = None,
 ) -> dict[str, Any] | None:
     """Coleta distribuição de valores de coluna de observação correlacionada.
 
@@ -1765,6 +1811,10 @@ def _coletar_contexto_coluna_obs(
     resultado é incluído no relatório como contexto adicional para ajudar o
     usuário a inferir manualmente o significado do código — sem gerar sugestão
     automática.
+
+    Quando ``limite_subselecao`` é informado (tabelas colossais, ex:
+    ``publicationxml``), a consulta roda sobre uma subseleção já limitada por
+    ``LIMIT`` em vez da tabela inteira, evitando timeout.
 
     Retorna ``None`` se não houver coluna de observação ou se não houver linhas
     com valores não-nulos correlacionadas ao código investigado.
@@ -1786,12 +1836,17 @@ def _coletar_contexto_coluna_obs(
     coluna_sql = _identificador(pendencia.coluna, engine.dialect.name)
     coluna_obs_sql = _identificador(coluna_obs_nome, engine.dialect.name)
     param_valor = _converter_valor_para_param(pendencia.valor)
+    origem_sql = (
+        f"(SELECT * FROM {tabela_sql} LIMIT {int(limite_subselecao)}) AS amostra"
+        if limite_subselecao is not None
+        else tabela_sql
+    )
 
     # Usa GROUP BY para obter contagens reais diretamente no banco, evitando
     # que o LIMIT distorça a distribuição de frequência quando há muitas linhas.
     sql = text(
         f"SELECT {coluna_obs_sql} AS obs_valor, COUNT(*) AS ocorrencias "
-        f"FROM {tabela_sql} "
+        f"FROM {origem_sql} "
         f"WHERE {coluna_sql} = :valor "
         f"AND {coluna_obs_sql} IS NOT NULL "
         f"AND TRIM(CAST({coluna_obs_sql} AS CHAR)) <> '' "
@@ -1837,17 +1892,40 @@ def _coletar_contexto_coluna_obs(
     }
 
 
-def _coletar_distribuicao_codigo(engine: Engine, pendencia: PendenciaEnum) -> dict[str, Any] | None:
-    """Resume o domínio do código como sinal auxiliar, sem inferir um rótulo."""
+def _coletar_distribuicao_codigo(
+    engine: Engine,
+    pendencia: PendenciaEnum,
+    *,
+    limite_subselecao: int | None = None,
+) -> dict[str, Any] | None:
+    """Resume o domínio do código como sinal auxiliar, sem inferir um rótulo.
+
+    Quando ``limite_subselecao`` é informado (tabelas colossais, ex:
+    ``publicationxml``), o ``GROUP BY`` roda sobre uma subseleção já limitada
+    por ``LIMIT`` em vez da tabela inteira, evitando timeout — mesma
+    estratégia usada em :func:`_valores_distintos_coluna`. Qualquer falha
+    (timeout, erro de conexão) é capturada e resulta em ``None``: esta
+    distribuição é apenas um sinal auxiliar no relatório, e uma falha aqui não
+    deve descartar uma investigação por outro lado bem-sucedida (ex: uma
+    sugestão de alta confiança já obtida via ``_coletar_linhas_exemplo``).
+    """
     tabela_sql = _identificador(pendencia.tabela, engine.dialect.name)
     coluna_sql = _identificador(pendencia.coluna, engine.dialect.name)
+    origem_sql = (
+        f"(SELECT * FROM {tabela_sql} LIMIT {int(limite_subselecao)}) AS amostra"
+        if limite_subselecao is not None
+        else tabela_sql
+    )
     sql = text(
         f"SELECT CAST({coluna_sql} AS CHAR) AS valor, COUNT(*) AS ocorrencias "
-        f"FROM {tabela_sql} WHERE {coluna_sql} IS NOT NULL "
+        f"FROM {origem_sql} WHERE {coluna_sql} IS NOT NULL "
         f"GROUP BY CAST({coluna_sql} AS CHAR) ORDER BY ocorrencias DESC LIMIT 21"
     )
-    with conectar_com_timeout(engine) as conn:
-        linhas = [dict(row._mapping) for row in conn.execute(sql).fetchall()]
+    try:
+        with conectar_com_timeout(engine) as conn:
+            linhas = [dict(row._mapping) for row in conn.execute(sql).fetchall()]
+    except Exception:  # noqa: BLE001 - sinal auxiliar não pode derrubar a investigação
+        return None
     if not linhas or len(linhas) > 20:
         return None
     total = sum(int(linha["ocorrencias"]) for linha in linhas)
@@ -1865,6 +1943,24 @@ def _coletar_distribuicao_codigo(engine: Engine, pendencia: PendenciaEnum) -> di
             for linha in linhas[:5]
         ],
     }
+
+
+def _coletar_distribuicao_codigo_segura(
+    engine: Engine, pendencia: PendenciaEnum, *, limite_subselecao: int | None = None
+) -> dict[str, Any] | None:
+    """Wrapper resiliente sobre :func:`_coletar_distribuicao_codigo`.
+
+    ``_coletar_distribuicao_codigo`` já captura falhas de consulta
+    internamente, mas este wrapper garante — como defesa em profundidade —
+    que nenhuma exceção (mesmo em um trecho não coberto pelo try/except
+    interno, ex: pós-processamento) escape e derrube uma investigação de item
+    por outro lado bem-sucedida: esta distribuição é apenas um sinal auxiliar
+    no relatório.
+    """
+    try:
+        return _coletar_distribuicao_codigo(engine, pendencia, limite_subselecao=limite_subselecao)
+    except Exception:  # noqa: BLE001 - sinal auxiliar não pode derrubar a investigação
+        return None
 
 
 def _propagar_entre_tabelas_irmas(investigacoes: list[dict[str, Any]]) -> None:
@@ -1973,6 +2069,24 @@ def investigar_pendencias(
     limite_linhas = max(2, int(limite_linhas))
     investigacoes: list[dict[str, Any]] = []
     total_pendencias = len(pendencias)
+    limites_subselecao_por_tabela: dict[str, int | None] = {}
+
+    def _limite_subselecao_para(tabela: str) -> int | None:
+        """Retorna o LIMIT de subseleção para tabelas colossais, com cache por tabela.
+
+        Evita consultar ``information_schema.TABLES`` repetidamente para cada
+        pendência da mesma tabela — o custo de estimar linhas é pago uma única
+        vez por tabela ao longo de toda a investigação.
+        """
+        if tabela not in limites_subselecao_por_tabela:
+            try:
+                linhas_estimadas = _linhas_estimadas_tabela(engine, tabela)
+            except Exception:  # noqa: BLE001 - falha isolada não pode derrubar o lote
+                linhas_estimadas = 0
+            limites_subselecao_por_tabela[tabela] = (
+                LIMITE_SUBSELECAO_TABELA_COLOSSAL if linhas_estimadas > LIMITE_LINHAS_TABELA_COLOSSAL else None
+            )
+        return limites_subselecao_por_tabela[tabela]
 
     def _salvar_checkpoint() -> None:
         if not caminho_checkpoint:
@@ -1987,6 +2101,7 @@ def investigar_pendencias(
 
     for indice, pendencia in enumerate(pendencias, start=1):
         try:
+            limite_subselecao = _limite_subselecao_para(pendencia.tabela)
             lookup = _buscar_em_tabela_referencia(engine, pendencia)
             if lookup:
                 investigacoes.append(
@@ -2001,7 +2116,12 @@ def investigar_pendencias(
                         "tabela_referencia": lookup["tabela_referencia"],
                         **(
                             {"distribuicao_codigo": distribuicao}
-                            if (distribuicao := _coletar_distribuicao_codigo(engine, pendencia)) is not None
+                            if (
+                                distribuicao := _coletar_distribuicao_codigo_segura(
+                                    engine, pendencia, limite_subselecao=limite_subselecao
+                                )
+                            )
+                            is not None
                             else {}
                         ),
                     }
@@ -2034,9 +2154,15 @@ def investigar_pendencias(
                         },
                     }
                     contexto_obs = _coletar_contexto_coluna_obs(
-                        engine, pendencia, colunas, limite_linhas=limite_linhas * 4
+                        engine,
+                        pendencia,
+                        colunas,
+                        limite_linhas=limite_linhas * 4,
+                        limite_subselecao=limite_subselecao,
                     )
-                    distribuicao = _coletar_distribuicao_codigo(engine, pendencia)
+                    distribuicao = _coletar_distribuicao_codigo_segura(
+                        engine, pendencia, limite_subselecao=limite_subselecao
+                    )
                     if distribuicao is not None:
                         item_sem_pista["distribuicao_codigo"] = distribuicao
                     if contexto_obs is not None:
@@ -2048,6 +2174,7 @@ def investigar_pendencias(
                         pendencia,
                         colunas_pista,
                         limite_linhas=limite_linhas,
+                        limite_subselecao=limite_subselecao,
                     )
                     sugestao = _analisar_pistas(pendencia, linhas, colunas_pista)
 
@@ -2076,12 +2203,18 @@ def investigar_pendencias(
                         "linhas_exemplo": linhas,
                         "sugestao": sugestao,
                     }
-                    distribuicao = _coletar_distribuicao_codigo(engine, pendencia)
+                    distribuicao = _coletar_distribuicao_codigo_segura(
+                        engine, pendencia, limite_subselecao=limite_subselecao
+                    )
                     if distribuicao is not None:
                         item["distribuicao_codigo"] = distribuicao
                     if sugestao["status"] != "alta_confianca":
                         contexto_obs = _coletar_contexto_coluna_obs(
-                            engine, pendencia, colunas, limite_linhas=limite_linhas * 4
+                            engine,
+                            pendencia,
+                            colunas,
+                            limite_linhas=limite_linhas * 4,
+                            limite_subselecao=limite_subselecao,
                         )
                         if contexto_obs is not None:
                             item["contexto_obs"] = contexto_obs
