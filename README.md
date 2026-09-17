@@ -275,6 +275,45 @@ descoberta das colunas/tabelas seguintes. Ao final da execução, o console e o
 quantas colunas foram excluídas e quantas falharam, com a lista de
 `tabela.coluna` correspondente.
 
+#### 🌙 Modo exaustivo (`--completo`) — varredura completa do banco, para rodar durante a noite
+
+```bash
+python investigar_pendencias.py --completo --limite-linhas 50
+```
+
+Amplia a descoberta via schema para revisar o banco inteiro sem os filtros de
+tipo/nome do modo padrão: apenas colunas `BLOB` continuam excluídas de
+antemão. Colunas `TEXT`/`JSON`/`VARCHAR` grandes (ex: `observacao`, `body`)
+também são amostradas — colunas de texto livre de verdade continuam sendo
+descartadas naturalmente, pela cardinalidade (muitos valores distintos) ou
+pelo conteúdo (`_pista_parece_texto_livre`), não por uma exclusão prévia. Além
+disso, tabelas colossais (ex: `publicationxml`) usam uma amostra inicial bem
+maior (50.000 linhas em vez de 5.000) antes do mesmo mecanismo de retry
+decrescente. Isso troca tempo de execução (pode levar muitas horas) por
+cobertura — pensado para ser deixado rodando sem supervisão, com o mesmo
+checkpoint incremental (`--intervalo-checkpoint`) protegendo o progresso caso
+o processo seja interrompido.
+
+#### 🔗 Busca por tabela de referência: FK real > FK inferida > heurística de nome
+
+A busca por tradução em tabela de catálogo/referência (usada tanto no modo
+padrão quanto no `--completo`) agora tenta, em ordem de confiabilidade:
+
+1. **`fk_declarada`** — chave estrangeira real declarada no schema
+   (`information_schema.KEY_COLUMN_USAGE`/`FOREIGN KEY`, quando existir).
+2. **`fk_inferida`** — FK detectada por convenção de nome já validada em
+   outras partes do sistema (`src/db.py::fks_inferidas`, mesma heurística
+   usada pela resolução de labels da interface web — cobre casos como
+   `userid`→`employees`, `pubtype`→`pubtypes`, `city_id`→`cities`).
+3. **`tabela_referencia`** — heurística de radical/nome local a este módulo
+   (fallback quando as duas fontes acima não resolvem a coluna).
+
+As duas primeiras fontes não "adivinham" a tabela/coluna de referência por
+similaridade de nome — usam uma relação já conhecida —, por isso são mais
+confiáveis. Use `--aprovar-fonte fk_declarada` ou `--aprovar-fonte fk_inferida`
+para aprovar essas sugestões em lote com ainda mais segurança do que
+`tabela_referencia`.
+
 Para aprovar explicitamente em lote apenas sugestões de alta confiança vindas de uma
 fonte específica (sem alertas de conteúdo sensível), use por exemplo:
 

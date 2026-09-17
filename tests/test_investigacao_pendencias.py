@@ -25,6 +25,7 @@ from src.investigacao_pendencias import (
     listar_colunas_tabela,
     _converter_valor_para_param,
     _coluna_tem_nome_semantico,
+    _coluna_elegivel_para_descoberta_completa,
     _pista_e_booleana,
     _pista_parece_dado_especifico,
     _pista_parece_texto_livre,
@@ -32,6 +33,7 @@ from src.investigacao_pendencias import (
     _coletar_contexto_coluna_obs,
     _propagar_entre_tabelas_irmas,
     _buscar_em_tabela_referencia,
+    ColunaTabela,
 )
 
 
@@ -1198,6 +1200,146 @@ def test_investigar_pendencias_prefere_coluna_portugues_sobre_name_en() -> None:
     assert item["sugestao"]["status"] == "alta_confianca"
     assert item["sugestao"]["traducao_sugerida"] == "Vara Federal"
     assert "outro idioma" not in item["sugestao"]["justificativa"]
+
+
+def test_buscar_em_tabela_referencia_usa_fk_declarada_no_schema() -> None:
+    """FK real declarada no schema (``FOREIGN KEY``) deve ser usada como fonte
+    de tradução, com prioridade sobre a heurística de radical de nome, e sem
+    o teto de largura de tabela (uma FK real pode apontar para tabela larga).
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("PRAGMA foreign_keys = ON"))
+        conn.execute(text("""
+            CREATE TABLE employees (
+                id INTEGER PRIMARY KEY,
+                name TEXT,
+                c2 TEXT, c3 TEXT, c4 TEXT, c5 TEXT, c6 TEXT, c7 TEXT,
+                c8 TEXT, c9 TEXT, c10 TEXT, c11 TEXT, c12 TEXT, c13 TEXT
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE prazos_log (
+                id INTEGER PRIMARY KEY,
+                userid INTEGER,
+                FOREIGN KEY (userid) REFERENCES employees(id)
+            )
+        """))
+        conn.execute(text("INSERT INTO employees (id, name) VALUES (7, 'Maria Souza')"))
+        conn.commit()
+
+    resultado = _buscar_em_tabela_referencia(engine, PendenciaEnum("prazos_log", "userid", "7"))
+
+    assert resultado is not None
+    assert resultado["sugestao"]["fonte"] == "fk_declarada"
+    assert resultado["sugestao"]["traducao_sugerida"] == "Maria Souza"
+    assert resultado["tabela_referencia"] == "employees"
+
+
+def test_buscar_em_tabela_referencia_usa_fk_inferida_por_convencao() -> None:
+    """FK inferida por convenção de nome (``pubtype`` → ``pubtypes``, sem
+    declaração real no schema) deve ser usada como fonte de tradução —
+    reaproveitando a heurística ``fks_inferidas`` já validada na resolução
+    de labels da interface web.
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE prazo2publication (
+                id INTEGER PRIMARY KEY,
+                pubtype INTEGER
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE pubtypes (
+                id INTEGER PRIMARY KEY,
+                name TEXT
+            )
+        """))
+        conn.execute(text("INSERT INTO pubtypes (id, name) VALUES (3, 'Publicação de Sentença')"))
+        conn.commit()
+
+    resultado = _buscar_em_tabela_referencia(engine, PendenciaEnum("prazo2publication", "pubtype", "3"))
+
+    assert resultado is not None
+    assert resultado["sugestao"]["fonte"] == "fk_inferida"
+    assert resultado["sugestao"]["traducao_sugerida"] == "Publicação de Sentença"
+    assert resultado["tabela_referencia"] == "pubtypes"
+
+
+def test_buscar_em_tabela_referencia_ignora_fk_declarada_de_coluna_booleana() -> None:
+    """Mesmo com uma FK real declarada, uma coluna que se comporta como flag
+    booleana no banco (apenas '0'/'1') continua sendo descartada — o guard de
+    boolean/flag roda antes de qualquer estratégia, incluindo FK declarada.
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("PRAGMA foreign_keys = ON"))
+        conn.execute(text("""
+            CREATE TABLE client_sectors (
+                id INTEGER PRIMARY KEY,
+                name TEXT
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE clients (
+                id INTEGER PRIMARY KEY,
+                client_sys_updated INTEGER,
+                FOREIGN KEY (client_sys_updated) REFERENCES client_sectors(id)
+            )
+        """))
+        conn.execute(text("""
+            INSERT INTO client_sectors (id, name) VALUES (0, 'Sem Setor'), (1, 'Setor Fiscal')
+        """))
+        conn.execute(text("""
+            INSERT INTO clients (id, client_sys_updated) VALUES
+            (1, 0), (2, 0), (3, 0), (4, 1)
+        """))
+        conn.commit()
+
+    resultado = _buscar_em_tabela_referencia(engine, PendenciaEnum("clients", "client_sys_updated", "1"))
+
+    assert resultado is None
+
+
+def test_coluna_elegivel_para_descoberta_completa_exclui_apenas_blob() -> None:
+    """No modo completo, apenas BLOB é excluído de antemão; TEXT/JSON/VARCHAR
+    grande e nomes que sugerem texto livre seguem elegíveis (o filtro real
+    fica por conta da cardinalidade observada na amostragem)."""
+    assert _coluna_elegivel_para_descoberta_completa(ColunaTabela("body", "text", 0)) is True
+    assert _coluna_elegivel_para_descoberta_completa(ColunaTabela("observacao", "mediumtext", 0)) is True
+    assert _coluna_elegivel_para_descoberta_completa(ColunaTabela("dados", "json", 0)) is True
+    assert _coluna_elegivel_para_descoberta_completa(ColunaTabela("anexo", "blob", 0)) is False
+    assert _coluna_elegivel_para_descoberta_completa(ColunaTabela("arquivo", "longblob", 0)) is False
+
+
+def test_descobrir_pendencias_schema_modo_completo_encontra_codigo_em_coluna_text() -> None:
+    """Modo completo deve descobrir um código curto guardado em uma coluna
+    TEXT com nome que sugere texto livre ('observacao') — normalmente
+    excluída pelo modo padrão por tipo e por nome."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE lawsuitdocs (
+                id INTEGER PRIMARY KEY,
+                observacao TEXT
+            )
+        """))
+        conn.execute(text("""
+            INSERT INTO lawsuitdocs (id, observacao) VALUES (1, '2'), (2, '2'), (3, '9')
+        """))
+        conn.commit()
+
+    pendencias_padrao, resumo_padrao = descobrir_pendencias_schema(engine, {})
+    assert not any(p.tabela == "lawsuitdocs" and p.coluna == "observacao" for p in pendencias_padrao)
+    assert any(item["tabela_coluna"] == "lawsuitdocs.observacao" for item in resumo_padrao["colunas_excluidas"])
+
+    pendencias_completo, resumo_completo = descobrir_pendencias_schema(engine, {}, modo_completo=True)
+    valores_encontrados = {
+        p.valor for p in pendencias_completo if p.tabela == "lawsuitdocs" and p.coluna == "observacao"
+    }
+    assert valores_encontrados == {"2", "9"}
+    assert resumo_completo["colunas_excluidas"] == []
 
 
 
