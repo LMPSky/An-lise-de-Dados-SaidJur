@@ -48,8 +48,14 @@ def _parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--aprovar-fonte",
-        choices=("tabela_referencia", "tabela_irma", "multiplas_pistas"),
-        help="Aprova explicitamente, em lote, sugestões de alta confiança desta fonte.",
+        choices=("fk_declarada", "fk_inferida", "tabela_referencia", "tabela_irma", "multiplas_pistas"),
+        help=(
+            "Aprova explicitamente, em lote, sugestões de alta confiança desta fonte. "
+            "'fk_declarada' (chave estrangeira real do schema) e 'fk_inferida' (FK "
+            "detectada por convenção de nome, mesma heurística já usada na interface "
+            "web) são as fontes mais confiáveis, pois a tabela/coluna de referência "
+            "não é adivinhada por radical de nome como em 'tabela_referencia'."
+        ),
     )
     parser.add_argument(
         "--excluir-coluna",

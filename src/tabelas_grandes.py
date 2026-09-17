@@ -32,3 +32,14 @@ LIMITE_SUBSELECAO_TABELA_COLOSSAL = 5_000
 # menor (reduzido pela metade a cada tentativa) até este piso, antes de
 # desistir e reportar a coluna como falha.
 LIMITE_MINIMO_SUBSELECAO_TABELA_COLOSSAL = 200
+
+# Variante do limite de subseleção usada pelo "modo completo" (varredura
+# exaustiva do banco inteiro, pensada para rodar sem supervisão durante a
+# noite — ver ``--completo`` em ``investigar_pendencias.py``). Como o tempo
+# de execução deixa de ser uma restrição nesse modo, a amostragem inicial de
+# tabelas colossais usa um LIMIT bem maior antes de recorrer ao mesmo
+# mecanismo de retry decrescente (até o mesmo piso
+# ``LIMITE_MINIMO_SUBSELECAO_TABELA_COLOSSAL``), aumentando a chance de
+# descobrir valores distintos que só aparecem além da amostra padrão de
+# ``LIMITE_SUBSELECAO_TABELA_COLOSSAL`` linhas.
+LIMITE_SUBSELECAO_TABELA_COLOSSAL_MODO_COMPLETO = 50_000

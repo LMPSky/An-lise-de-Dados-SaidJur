@@ -14,11 +14,18 @@ from sqlalchemy import inspect, text
 from sqlalchemy.engine import Engine
 import yaml
 
-from src.db import conectar_com_timeout, criar_engine, executar_com_retry_db
+from src.db import (
+    conectar_com_timeout,
+    criar_engine,
+    executar_com_retry_db,
+    fks_inferidas,
+    listar_chaves_estrangeiras,
+)
 from src.tabelas_grandes import (
     LIMITE_LINHAS_TABELA_COLOSSAL,
     LIMITE_MINIMO_SUBSELECAO_TABELA_COLOSSAL,
     LIMITE_SUBSELECAO_TABELA_COLOSSAL,
+    LIMITE_SUBSELECAO_TABELA_COLOSSAL_MODO_COMPLETO,
 )
 
 ARQUIVO_AUDITORIA_PADRAO = "relatorio_auditoria_traducoes.yaml"
@@ -549,6 +556,30 @@ def _coluna_elegivel_para_descoberta_schema(coluna: ColunaTabela) -> bool:
     )
 
 
+_TIPOS_BINARIOS_SEMPRE_EXCLUIDOS: tuple[str, ...] = ("blob",)
+
+
+def _coluna_elegivel_para_descoberta_completa(coluna: ColunaTabela) -> bool:
+    """Elegibilidade ampliada usada pelo "modo completo" (``--completo``).
+
+    Ao contrário de :func:`_coluna_elegivel_para_descoberta_schema`, aqui só o
+    tipo ``BLOB`` (binário, sem representação textual útil) é descartado de
+    antemão. Colunas ``TEXT``/``JSON``/``VARCHAR`` grandes ou com nome que
+    sugere texto livre (``body``, ``observacao``...) não são mais excluídas
+    por heurística de tipo/nome: elas seguem para a amostragem normal, que já
+    descarta naturalmente colunas de texto livre verdadeiras — tanto por
+    cardinalidade (``_valores_distintos_coluna`` retorna vazio quando a coluna
+    tem mais valores distintos do que o limite) quanto por conteúdo
+    (``_pista_parece_texto_livre`` filtra valores longos/com muitas palavras).
+    Isso amplia a cobertura da varredura para colunas mal tipadas que, na
+    prática, guardam poucos códigos curtos (ex: um ``TEXT`` usado só para
+    armazenar '0'/'1'/'2'), ao custo de mais consultas — aceitável no modo
+    completo, pensado para rodar sem supervisão durante a noite.
+    """
+    tipo = coluna.tipo.lower()
+    return not any(chave in tipo for chave in _TIPOS_BINARIOS_SEMPRE_EXCLUIDOS)
+
+
 def _tamanho_varchar(tipo: str) -> int | None:
     """Extrai o tamanho declarado de um tipo ``VARCHAR(n)``/``CHAR(n)``, se houver."""
     correspondencia = re.search(r"\((\d+)", tipo)
@@ -605,7 +636,7 @@ def _linhas_estimadas_tabela(engine: Engine, tabela: str) -> int:
 
 
 def descobrir_pendencias_schema(
-    engine: Engine, dicionarios: dict[str, Any]
+    engine: Engine, dicionarios: dict[str, Any], *, modo_completo: bool = False
 ) -> tuple[list[PendenciaEnum], dict[str, Any]]:
     """Descobre códigos curtos sem tradução diretamente por introspecção do schema.
 
@@ -625,6 +656,14 @@ def descobrir_pendencias_schema(
     coluna ou ao estimar linhas de uma tabela são capturadas e reportadas no
     resumo, sem interromper a descoberta das demais colunas/tabelas.
 
+    Quando ``modo_completo=True`` (varredura exaustiva do banco inteiro,
+    pensada para rodar sem supervisão durante a noite — ver ``--completo``
+    em ``investigar_pendencias.py``), a elegibilidade de coluna é ampliada
+    (``_coluna_elegivel_para_descoberta_completa``: só ``BLOB`` é excluído de
+    antemão) e tabelas colossais usam uma amostra inicial bem maior
+    (``LIMITE_SUBSELECAO_TABELA_COLOSSAL_MODO_COMPLETO``), trocando tempo de
+    execução por cobertura.
+
     Retorna uma tupla ``(pendencias, resumo)``, em que ``resumo`` traz as
     contagens/listas de colunas excluídas, colunas que falharam e tabelas
     colossais amostradas com limite reduzido.
@@ -633,6 +672,11 @@ def descobrir_pendencias_schema(
     colunas_excluidas: list[dict[str, str]] = []
     colunas_com_falha: list[dict[str, str]] = []
     tabelas_colossais_amostradas: list[dict[str, Any]] = []
+    limite_subselecao_colossal = (
+        LIMITE_SUBSELECAO_TABELA_COLOSSAL_MODO_COMPLETO
+        if modo_completo
+        else LIMITE_SUBSELECAO_TABELA_COLOSSAL
+    )
 
     for tabela in inspect(engine).get_table_names():
         try:
@@ -648,7 +692,7 @@ def descobrir_pendencias_schema(
             tabelas_colossais_amostradas.append(
                 {"tabela": tabela, "linhas_estimadas": linhas_estimadas}
             )
-            limite_subselecao = LIMITE_SUBSELECAO_TABELA_COLOSSAL
+            limite_subselecao = limite_subselecao_colossal
             print(
                 f"ℹ️  Tabela colossal '{tabela}' (~{linhas_estimadas:,} linhas): "
                 f"amostrando até {limite_subselecao:,} linhas em vez de escanear a tabela inteira."
@@ -660,15 +704,19 @@ def descobrir_pendencias_schema(
         if not isinstance(traducoes_tabela, dict):
             traducoes_tabela = {}
         for coluna in listar_colunas_tabela(engine, tabela):
-            if not _coluna_elegivel_para_descoberta_schema(coluna):
-                continue
+            if modo_completo:
+                if not _coluna_elegivel_para_descoberta_completa(coluna):
+                    continue
+            else:
+                if not _coluna_elegivel_para_descoberta_schema(coluna):
+                    continue
 
-            motivo_exclusao = _motivo_exclusao_descoberta_schema(coluna)
-            if motivo_exclusao is not None:
-                colunas_excluidas.append(
-                    {"tabela_coluna": f"{tabela}.{coluna.nome}", "motivo": motivo_exclusao}
-                )
-                continue
+                motivo_exclusao = _motivo_exclusao_descoberta_schema(coluna)
+                if motivo_exclusao is not None:
+                    colunas_excluidas.append(
+                        {"tabela_coluna": f"{tabela}.{coluna.nome}", "motivo": motivo_exclusao}
+                    )
+                    continue
 
             traducoes_coluna = traducoes_tabela.get(coluna.nome, {})
             if not isinstance(traducoes_coluna, dict):
@@ -1138,6 +1186,28 @@ def _selecionar_coluna_rotulo_referencia(colunas: list[ColunaTabela]) -> str | N
 
 
 
+def _fks_declaradas_seguro(engine: Engine, tabela: str) -> list[dict[str, str]]:
+    """Wrapper de ``listar_chaves_estrangeiras`` que nunca propaga exceção.
+
+    Uma falha isolada na introspecção de FK (ex: timeout/erro de conexão) não
+    pode derrubar o item inteiro como "erro" — as demais estratégias de
+    busca (FK inferida, radical, candidatos explícitos) continuam
+    disponíveis mesmo que esta falhe.
+    """
+    try:
+        return listar_chaves_estrangeiras(engine, tabela)
+    except Exception:  # noqa: BLE001 - falha isolada não pode derrubar o item
+        return []
+
+
+def _fks_inferidas_seguro(engine: Engine, tabela: str) -> list[dict[str, str]]:
+    """Wrapper de ``fks_inferidas`` que nunca propaga exceção (ver ``_fks_declaradas_seguro``)."""
+    try:
+        return fks_inferidas(engine, tabela)
+    except Exception:  # noqa: BLE001 - falha isolada não pode derrubar o item
+        return []
+
+
 def _buscar_em_tabela_referencia(
     engine: Engine,
     pendencia: PendenciaEnum,
@@ -1146,16 +1216,24 @@ def _buscar_em_tabela_referencia(
 ) -> dict[str, Any] | None:
     """Busca tradução em tabela de referência/catálogo detectada via schema.
 
-    Combina duas estratégias:
-    1. Pontuação por radical: pontua todas as tabelas do banco pelo grau de
+    Tenta, em ordem de confiabilidade decrescente, quatro estratégias:
+    1. FK declarada no schema: usa ``listar_chaves_estrangeiras`` (chave
+       estrangeira real, quando o banco a declara) — a coluna-código na
+       tabela referenciada já é conhecida com certeza, não adivinhada.
+    2. FK inferida por convenção de nome: usa ``fks_inferidas`` (mesma
+       heurística de nomenclatura já validada e usada pela resolução de
+       labels da interface web — ex.: ``userid``→``employees``,
+       ``pubtype``→``pubtypes``, ``city_id``→``cities``), mais abrangente e
+       testada do que a heurística de radicais local a este módulo.
+    3. Pontuação por radical: pontua todas as tabelas do banco pelo grau de
        similaridade semântica com o nome da coluna investigada.
-    2. Candidatos explícitos: lista de nomes derivados diretamente do nome da
+    4. Candidatos explícitos: lista de nomes derivados diretamente do nome da
        coluna e da tabela de origem, cobrindo padrões específicos do domínio
        jurídico brasileiro (ex: prefixo ``pz``, variantes de contrato/fase).
 
     Colunas de permissão/ação booleanas (``read_x``, ``role_x``...) são
-    ignoradas por esta estratégia — ver ``_coluna_parece_flag_de_acao``. Além
-    disso, colunas booleanas sem um prefixo verbal reconhecível (ex:
+    ignoradas por todas as estratégias — ver ``_coluna_parece_flag_de_acao``.
+    Além disso, colunas booleanas sem um prefixo verbal reconhecível (ex:
     ``client_sys_updated``) também são descartadas via verificação factual do
     próprio domínio de valores — ver ``_coluna_e_booleana_no_banco``: um
     código '0'/'1' pode coincidir, por acaso, com o id de alguma linha de uma
@@ -1171,6 +1249,40 @@ def _buscar_em_tabela_referencia(
 
     insp = inspect(engine)
     todas_tabelas = set(insp.get_table_names())
+
+    for fks, fonte, descricao_fonte in (
+        (
+            _fks_declaradas_seguro(engine, pendencia.tabela),
+            "fk_declarada",
+            "Chave estrangeira declarada no schema",
+        ),
+        (
+            _fks_inferidas_seguro(engine, pendencia.tabela),
+            "fk_inferida",
+            "Chave estrangeira inferida por convenção de nome",
+        ),
+    ):
+        fk = next(
+            (item for item in fks if str(item.get("coluna", "")).lower() == pendencia.coluna.lower()),
+            None,
+        )
+        if not fk:
+            continue
+        tabela_ref = str(fk.get("tabela_referenciada") or "")
+        coluna_codigo = str(fk.get("coluna_referenciada") or "")
+        if not tabela_ref or not coluna_codigo or tabela_ref not in todas_tabelas:
+            continue
+        resultado = _avaliar_fk_explicita(
+            engine,
+            pendencia,
+            tabela_ref,
+            coluna_codigo,
+            fonte=fonte,
+            descricao_fonte=descricao_fonte,
+        )
+        if resultado is not None:
+            return resultado
+
     radicais = _extrair_radicais_coluna(pendencia.coluna)
 
     # --- Estratégia 1: pontuação por radical ---
@@ -1243,35 +1355,20 @@ def _buscar_em_tabela_referencia(
 
 
 
-def _avaliar_candidata_tabela_referencia(
+def _consultar_rotulo_para_codigo(
     engine: Engine,
     pendencia: PendenciaEnum,
     tabela_ref: str,
-) -> dict[str, Any] | None:
-    """Consulta uma única tabela candidata e monta o resultado, se plausível.
+    coluna_codigo: str,
+    coluna_rotulo: str,
+) -> tuple[str, list[dict[str, Any]]] | None:
+    """Consulta ``tabela_ref.coluna_rotulo`` onde ``coluna_codigo = valor``.
 
-    Retorna ``None`` quando a tabela não tem colunas de código/rótulo
-    detectáveis, não possui o código procurado, tem rótulos ambíguos
-    (múltiplos valores distintos) ou o rótulo encontrado é implausível
-    (texto livre/nome de arquivo). Em caso de sucesso, retorna um dict com
-    a chave ``"traducao"`` (para comparação de ambiguidade entre
-    candidatas do mesmo nível) e ``"resultado"`` (o dict final no formato
-    esperado pelo chamador).
+    Retorna ``(traducao, linhas)`` quando exatamente um rótulo distinto e
+    plausível (não texto livre, não nome de arquivo) é encontrado, ou
+    ``None`` caso contrário — sem linhas, rótulos ambíguos (a tabela tem
+    valores divergentes para o mesmo código) ou rótulo implausível.
     """
-    colunas_ref = listar_colunas_tabela(engine, tabela_ref)
-    if len(colunas_ref) > _MAX_COLUNAS_TABELA_CATALOGO:
-        # Tabelas de catálogo/enum genuínas são estreitas (id + 1-3 colunas de
-        # rótulo). Uma tabela com muitas colunas é uma tabela de fato do
-        # domínio (ex.: 'lawsuits', com dezenas de colunas) e não um
-        # catálogo — mesmo que seu nome contenha um radical em comum com a
-        # coluna investigada, um "acerto" de id nela é coincidência, não uma
-        # relação de chave estrangeira real.
-        return None
-    coluna_codigo = _selecionar_coluna_codigo_referencia(colunas_ref, pendencia.coluna)
-    coluna_rotulo = _selecionar_coluna_rotulo_referencia(colunas_ref)
-    if not coluna_codigo or not coluna_rotulo:
-        return None
-
     tabela_sql = _identificador(tabela_ref, engine.dialect.name)
     coluna_codigo_sql = _identificador(coluna_codigo, engine.dialect.name)
     coluna_rotulo_sql = _identificador(coluna_rotulo, engine.dialect.name)
@@ -1317,6 +1414,45 @@ def _avaliar_candidata_tabela_referencia(
     if _pista_parece_texto_livre(traducao) or _valor_parece_nome_arquivo(traducao):
         return None
 
+    return traducao, linhas
+
+
+def _avaliar_candidata_tabela_referencia(
+    engine: Engine,
+    pendencia: PendenciaEnum,
+    tabela_ref: str,
+) -> dict[str, Any] | None:
+    """Consulta uma única tabela candidata e monta o resultado, se plausível.
+
+    Retorna ``None`` quando a tabela não tem colunas de código/rótulo
+    detectáveis, não possui o código procurado, tem rótulos ambíguos
+    (múltiplos valores distintos) ou o rótulo encontrado é implausível
+    (texto livre/nome de arquivo). Em caso de sucesso, retorna um dict com
+    a chave ``"traducao"`` (para comparação de ambiguidade entre
+    candidatas do mesmo nível) e ``"resultado"`` (o dict final no formato
+    esperado pelo chamador).
+    """
+    colunas_ref = listar_colunas_tabela(engine, tabela_ref)
+    if len(colunas_ref) > _MAX_COLUNAS_TABELA_CATALOGO:
+        # Tabelas de catálogo/enum genuínas são estreitas (id + 1-3 colunas de
+        # rótulo). Uma tabela com muitas colunas é uma tabela de fato do
+        # domínio (ex.: 'lawsuits', com dezenas de colunas) e não um
+        # catálogo — mesmo que seu nome contenha um radical em comum com a
+        # coluna investigada, um "acerto" de id nela é coincidência, não uma
+        # relação de chave estrangeira real.
+        return None
+    coluna_codigo = _selecionar_coluna_codigo_referencia(colunas_ref, pendencia.coluna)
+    coluna_rotulo = _selecionar_coluna_rotulo_referencia(colunas_ref)
+    if not coluna_codigo or not coluna_rotulo:
+        return None
+
+    resultado_consulta = _consultar_rotulo_para_codigo(
+        engine, pendencia, tabela_ref, coluna_codigo, coluna_rotulo
+    )
+    if resultado_consulta is None:
+        return None
+    traducao, linhas = resultado_consulta
+
     coluna_outro_idioma = _coluna_em_outro_idioma(coluna_rotulo) is not None
     justificativa = (
         f"Tabela de referência '{tabela_ref}' detectada via schema; "
@@ -1347,15 +1483,88 @@ def _avaliar_candidata_tabela_referencia(
                     "pistas": [
                         {
                             "coluna": f"{tabela_ref}.{coluna_rotulo}",
-                            "valores_frequentes": [{"valor": traducao, "ocorrencias": len(rotulos)}],
+                            "valores_frequentes": [{"valor": traducao, "ocorrencias": len(linhas)}],
                             "valores_distintos": 1,
-                            "ocorrencias_total": len(rotulos),
+                            "ocorrencias_total": len(linhas),
                         }
                     ],
                     "fonte": "tabela_referencia",
                 }
             ),
         },
+    }
+
+
+def _avaliar_fk_explicita(
+    engine: Engine,
+    pendencia: PendenciaEnum,
+    tabela_ref: str,
+    coluna_codigo: str,
+    *,
+    fonte: str,
+    descricao_fonte: str,
+) -> dict[str, Any] | None:
+    """Consulta uma tabela referenciada por uma FK real/inferida já conhecida.
+
+    Diferente de :func:`_avaliar_candidata_tabela_referencia` (que precisa
+    *adivinhar* a coluna-código na tabela candidata por heurística de nome),
+    aqui a coluna-código já é conhecida com certeza — veio de uma chave
+    estrangeira declarada no schema (``listar_chaves_estrangeiras``) ou de
+    uma FK inferida por convenção de nomenclatura já validada em outras
+    partes do sistema (``fks_inferidas``, usada pela resolução de labels da
+    interface web). Por isso, também não se aplica aqui o teto de largura de
+    ``_MAX_COLUNAS_TABELA_CATALOGO``: uma FK real pode legitimamente apontar
+    para uma tabela "de fato" larga (ex.: ``employees``), não apenas para
+    catálogos estreitos.
+    """
+    colunas_ref = listar_colunas_tabela(engine, tabela_ref)
+    coluna_rotulo = _selecionar_coluna_rotulo_referencia(colunas_ref)
+    if not coluna_rotulo:
+        return None
+
+    resultado_consulta = _consultar_rotulo_para_codigo(
+        engine, pendencia, tabela_ref, coluna_codigo, coluna_rotulo
+    )
+    if resultado_consulta is None:
+        return None
+    traducao, linhas = resultado_consulta
+
+    coluna_outro_idioma = _coluna_em_outro_idioma(coluna_rotulo) is not None
+    justificativa = (
+        f"{descricao_fonte}: '{pendencia.tabela}.{pendencia.coluna}' referencia "
+        f"'{tabela_ref}.{coluna_codigo}'; coluna de rótulo '{coluna_rotulo}' mapeou "
+        f"o código '{pendencia.valor}' para '{traducao}'."
+    )
+    if coluna_outro_idioma and not _tem_coluna_irma_portuguesa(
+        coluna_rotulo,
+        [coluna.nome for coluna in colunas_ref],
+    ):
+        justificativa += (
+            " A pista veio de coluna em outro idioma; revise/traduza manualmente "
+            "antes de aplicar ao dicionário em português."
+        )
+
+    return {
+        "tabela_referencia": tabela_ref,
+        "coluna_codigo_referencia": coluna_codigo,
+        "coluna_rotulo_referencia": coluna_rotulo,
+        "linhas_referencia": linhas,
+        "sugestao": _enriquecer_sugestao_com_alertas(
+            {
+                "status": "alta_confianca",
+                "traducao_sugerida": traducao,
+                "justificativa": justificativa,
+                "pistas": [
+                    {
+                        "coluna": f"{tabela_ref}.{coluna_rotulo}",
+                        "valores_frequentes": [{"valor": traducao, "ocorrencias": len(linhas)}],
+                        "valores_distintos": 1,
+                        "ocorrencias_total": len(linhas),
+                    }
+                ],
+                "fonte": fonte,
+            }
+        ),
     }
 
 
@@ -2109,6 +2318,7 @@ def investigar_pendencias(
     limite_linhas: int = 5,
     caminho_checkpoint: str | Path | None = None,
     intervalo_checkpoint: int = 25,
+    modo_completo: bool = False,
 ) -> dict[str, Any]:
     """Investiga pendências de código/ENUM consultando exemplos reais no banco.
 
@@ -2118,11 +2328,20 @@ def investigar_pendencias(
     caso o processo trave numa pendência específica ou seja interrompido
     (``Ctrl+C``), o progresso até a última pendência concluída antes da
     interrupção não é perdido.
+
+    Quando ``modo_completo=True``, tabelas colossais usam a amostra inicial
+    maior de ``LIMITE_SUBSELECAO_TABELA_COLOSSAL_MODO_COMPLETO`` em vez de
+    ``LIMITE_SUBSELECAO_TABELA_COLOSSAL`` — mesma troca de tempo por
+    cobertura usada em :func:`descobrir_pendencias_schema`, mantendo a
+    amostragem consistente entre a fase de descoberta e a de investigação.
     """
     limite_linhas = max(2, int(limite_linhas))
     investigacoes: list[dict[str, Any]] = []
     total_pendencias = len(pendencias)
     limites_subselecao_por_tabela: dict[str, int | None] = {}
+    limite_subselecao_colossal = (
+        LIMITE_SUBSELECAO_TABELA_COLOSSAL_MODO_COMPLETO if modo_completo else LIMITE_SUBSELECAO_TABELA_COLOSSAL
+    )
 
     def _limite_subselecao_para(tabela: str) -> int | None:
         """Retorna o LIMIT de subseleção para tabelas colossais, com cache por tabela.
@@ -2137,7 +2356,7 @@ def investigar_pendencias(
             except Exception:  # noqa: BLE001 - falha isolada não pode derrubar o lote
                 linhas_estimadas = 0
             limites_subselecao_por_tabela[tabela] = (
-                LIMITE_SUBSELECAO_TABELA_COLOSSAL if linhas_estimadas > LIMITE_LINHAS_TABELA_COLOSSAL else None
+                limite_subselecao_colossal if linhas_estimadas > LIMITE_LINHAS_TABELA_COLOSSAL else None
             )
         return limites_subselecao_por_tabela[tabela]
 
@@ -2388,6 +2607,7 @@ def executar_investigacao(
     descobrir_schema: bool = False,
     caminho_dicionarios: str | Path = ARQUIVO_DICIONARIOS_PADRAO,
     intervalo_checkpoint: int = 25,
+    modo_completo: bool = False,
 ) -> dict[str, Any]:
     """Fluxo completo de investigação via banco real configurado em src.config.
 
@@ -2415,6 +2635,13 @@ def executar_investigacao(
     intervalo_checkpoint:
         Quantidade de pendências processadas entre cada checkpoint salvo em
         ``caminho_saida``. Use ``0`` para desativar o checkpoint incremental.
+    modo_completo:
+        Varredura exaustiva do banco inteiro (ver ``--completo`` em
+        ``investigar_pendencias.py``), pensada para rodar sem supervisão
+        durante a noite: amplia a elegibilidade de colunas na descoberta via
+        schema (``descobrir_pendencias_schema``) e usa uma amostra inicial
+        maior para tabelas colossais, trocando tempo de execução por
+        cobertura. Requer ``descobrir_schema=True`` para ter efeito.
     """
     if colunas_diretas:
         pendencias = parsear_colunas_diretas(colunas_diretas)
@@ -2438,7 +2665,7 @@ def executar_investigacao(
             pendencias = expandir_pendencias_com_dominio(engine, pendencias)
         if descobrir_schema:
             pendencias_schema, resumo_descoberta_schema = descobrir_pendencias_schema(
-                engine, carregar_yaml(caminho_dicionarios)
+                engine, carregar_yaml(caminho_dicionarios), modo_completo=modo_completo
             )
             pendencias.extend(pendencias_schema)
         pendencias = _deduplicar_pendencias(pendencias)
@@ -2448,6 +2675,7 @@ def executar_investigacao(
             limite_linhas=limite_linhas,
             caminho_checkpoint=caminho_saida if intervalo_checkpoint > 0 else None,
             intervalo_checkpoint=intervalo_checkpoint,
+            modo_completo=modo_completo,
         )
         relatorio["fonte_pendencias"] = fonte
         if resumo_descoberta_schema is not None:

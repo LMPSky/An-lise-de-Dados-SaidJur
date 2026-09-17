@@ -41,6 +41,17 @@ def _parser() -> argparse.ArgumentParser:
         help="Inclui códigos curtos sem tradução encontrados diretamente no schema.",
     )
     parser.add_argument(
+        "--completo",
+        action="store_true",
+        help=(
+            "Modo exaustivo: revisa o banco inteiro (todas as tabelas/colunas, "
+            "incluindo TEXT/JSON/VARCHAR grandes normalmente excluídos) e usa uma "
+            "amostra inicial bem maior em tabelas colossais, maximizando as "
+            "traduções descobertas ao custo de uma execução bem mais longa. "
+            "Recomendado para deixar rodando durante a noite (implica --lote)."
+        ),
+    )
+    parser.add_argument(
         "--saida",
         default=ARQUIVO_RELATORIO_INVESTIGACAO_PADRAO,
         help="Arquivo YAML de saída da investigação",
@@ -84,6 +95,9 @@ def main() -> None:
         print("🔎 Iniciando investigação direcionada das colunas especificadas...")
         print(f"📌 Colunas: {', '.join(args.colunas)}")
         print(f"📏 Limite de linhas por item: {max(2, args.limite_linhas)}")
+    elif args.completo:
+        print("🔎 Iniciando investigação EXAUSTIVA do banco inteiro (modo completo)...")
+        print("⏳ Pode levar muito mais tempo que o modo normal — recomendado para rodar durante a noite.")
     elif args.lote or args.pendencias_markdown or args.descobrir_schema:
         print("🔎 Iniciando investigação automática em lote...")
     else:
@@ -98,10 +112,11 @@ def main() -> None:
             colunas_diretas=args.colunas,
             caminho_pendencias_markdown=(
                 args.pendencias_markdown
-                or (ARQUIVO_PENDENCIAS_MARKDOWN_PADRAO if args.lote else None)
+                or (ARQUIVO_PENDENCIAS_MARKDOWN_PADRAO if (args.lote or args.completo) else None)
             ),
-            descobrir_schema=args.descobrir_schema or args.lote,
+            descobrir_schema=args.descobrir_schema or args.lote or args.completo,
             intervalo_checkpoint=args.intervalo_checkpoint,
+            modo_completo=args.completo,
         )
     except KeyboardInterrupt:
         print("\n⏹️  Investigação interrompida pelo usuário (Ctrl+C).")
