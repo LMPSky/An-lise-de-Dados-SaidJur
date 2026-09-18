@@ -50,7 +50,23 @@ _CHAVES_PISTA = (
 )
 # Palavras-chave que indicam coluna com nome semanticamente relacionado a
 # rótulos/descrições — usadas para diferenciar "pista forte" de "pista fraca".
-_CHAVES_SEMANTICAS = _CHAVES_PISTA
+# Deliberadamente mais restrita que ``_CHAVES_PISTA`` (que só seleciona
+# candidatas a examinar): ``obs``/``observacao``/``text`` foram removidas
+# porque, na prática, são campos de nota/observação de texto livre — a
+# revisão manual de 2.126 itens ``pista_unica`` mostrou 109 casos em que uma
+# coluna de observação (``markup_observation``, ``system_date_proposal_observation``,
+# ``proposal_observation``, ``observations``...) "bateu" por coincidência com
+# um código, retornando um comentário específico daquele caso/pessoa (ex:
+# "não há interesse em acordo", nome de um funcionário) como se fosse a
+# tradução da categoria. Colunas assim continuam elegíveis como pista, só não
+# contam mais como pista "forte" (nome semântico) — caem em "pista fraca".
+_CHAVES_SEMANTICAS = ("name", "nome", "desc", "descricao", "description", "title", "titulo", "label")
+
+# Nomes de coluna que contêm "name"/"nome" como substring mas não são rótulos
+# de categoria — são identificadores de arquivo/usuário específicos de cada
+# linha. Ex: ``expedientfilemetadata.filename`` bateu com ``obs`` e foi
+# classificado (erroneamente) como "pista forte" só por conter "name".
+_COLUNAS_NOME_IGNORADAS = frozenset({"filename", "username", "hostname", "pathname", "surname", "nickname"})
 
 _TEXTO_LIVRE_COMPRIMENTO_MIN = 50
 _EXTENSOES_ARQUIVO_IGNORADAS = (
@@ -573,6 +589,15 @@ _TIPOS_TEMPORAIS_SEMPRE_EXCLUIDOS: tuple[str, ...] = (
 )
 
 
+# Nomes de coluna sensíveis (credenciais/segredos): nunca devem ser tratados
+# como código/ENUM a traduzir. Além de nunca fazer sentido (um valor de senha
+# não é uma categoria), buscar tradução para eles arrisca expor o valor em
+# claro no relatório/dicionário — constatado em produção com
+# `users_api.password` recebendo, por coincidência de amostra pequena, o nome
+# de um usuário como "tradução" via `_analisar_pistas`.
+_COLUNAS_SENSIVEIS_SEMPRE_EXCLUIDAS: tuple[str, ...] = ("password", "senha", "secret", "token", "hash", "salt")
+
+
 def _coluna_elegivel_para_descoberta_completa(coluna: ColunaTabela) -> bool:
     """Elegibilidade ampliada usada pelo "modo completo" (``--completo``).
 
@@ -582,7 +607,9 @@ def _coluna_elegivel_para_descoberta_completa(coluna: ColunaTabela) -> bool:
     antemão, além da coluna ``id`` (convenção de chave primária: cada valor é
     único por definição e nunca é um código/categoria — em produção,
     `expedientfilemetadata.id` chegou a ser tratada como pendência e recebeu
-    o nome de um arquivo de outra linha como "tradução"). Colunas
+    o nome de um arquivo de outra linha como "tradução") e de colunas
+    sensíveis de credenciais/segredos (``password``, ``senha``, ``token``...
+    — ver ``_COLUNAS_SENSIVEIS_SEMPRE_EXCLUIDAS``). Colunas
     ``TEXT``/``JSON``/``VARCHAR`` grandes ou com nome que sugere texto livre
     (``body``, ``observacao``...) não são mais excluídas por heurística de
     tipo/nome: elas seguem para a amostragem normal, que já descarta
@@ -595,7 +622,10 @@ def _coluna_elegivel_para_descoberta_completa(coluna: ColunaTabela) -> bool:
     armazenar '0'/'1'/'2'), ao custo de mais consultas — aceitável no modo
     completo, pensado para rodar sem supervisão durante a noite.
     """
-    if coluna.nome.strip().lower() == "id":
+    nome = coluna.nome.strip().lower()
+    if nome == "id":
+        return False
+    if any(chave in nome for chave in _COLUNAS_SENSIVEIS_SEMPRE_EXCLUIDAS):
         return False
     tipo = coluna.tipo.lower()
     tipos_excluidos = _TIPOS_BINARIOS_SEMPRE_EXCLUIDOS + _TIPOS_TEMPORAIS_SEMPRE_EXCLUIDOS
@@ -1750,8 +1780,15 @@ def _coluna_tem_nome_semantico(nome: str) -> bool:
     a conter texto descritivo do código investigado — são "pistas fortes".
     Colunas puramente booleanas/numéricas (ex: ``hearingfile``, ``dispensed``)
     são "pistas fracas" que não indicam o significado semântico do código.
+
+    Colunas em ``_COLUNAS_NOME_IGNORADAS`` (ex: ``filename``) são descartadas
+    mesmo contendo "name" como substring — não são rótulos de categoria, e
+    sim identificadores específicos de cada linha (ver docstring da
+    constante).
     """
     nome_lower = nome.lower()
+    if nome_lower in _COLUNAS_NOME_IGNORADAS:
+        return False
     return any(chave in nome_lower for chave in _CHAVES_SEMANTICAS)
 
 
