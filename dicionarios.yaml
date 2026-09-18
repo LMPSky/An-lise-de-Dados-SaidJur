@@ -2,6 +2,43 @@ activitynature: {}
 automaticprazos_lawsuits:
   hearing_type:
     all: Todos
+  lawsuit_resp_id:
+    '64571': ANDREIA BARROS
+    '83829': CARLOS ALMEIDA
+    '94899': LUCIANA GOMES
+    '105895': CYNTHIA MENDONCA
+    '118664': THIAGO CÂMARA
+  lawsuit_coordinator_id:
+    '9': Lucimar
+    '13': Gustavo
+    '29': Carlos
+    '153': André
+    '203': Tarciso
+    '357': Igor
+    '370': Andréia
+    '507': Carlos
+    '570': Leonardo
+    '695': Cynthia
+    '779': Anna
+  busunit_id:
+    '1': Décio Freire e Advogados Associados - BH
+    '2': Décio Freire e Advogados Associados - SP
+    '4': Décio Freire e Advogados Associados - DF
+    '8': Décio Freire e Advogados Associados - PE
+    '14': Unidade criada para os processos da Lara Piau
+  automaticprazo_id:
+    '2233': ANEXAR ATA
+    '22439': Pós audiência
+  user_change_status:
+    '21': Naiara
+    '659': Rodson
+  user_inserted:
+    '21': Naiara
+    '88': Jessica
+    '97': Viviane
+  user_updated:
+    '21': Naiara
+    '659': Rodson
 businessunit:
   deactivated:
     '0': Não
@@ -21,6 +58,25 @@ correspondent_state_activity_rates:
   status:
     '0': Inativo
     '1': Ativo
+  state_id:
+    '5': BAHIA
+    '11': MINAS GERAIS
+    '10': MARANHÃO
+    '26': SÃO PAULO
+    '7': DISTRITO FEDERAL
+    '9': GOIÁS
+    '13': MATO GROSSO
+    '12': MATO GROSSO DO SUL
+    '18': PARANÁ
+    '24': SANTA CATARINA
+    '23': RIO GRANDE DO SUL
+    '19': RIO DE JANEIRO
+    '17': PIAUÍ
+    '8': ESPÍRITO SANTO
+    '15': PARAÍBA
+    '21': RONDÔNIA
+    '20': RIO GRANDE DO NORTE
+    '2': ALAGOAS
 correspondent_usertasks:
   access_module:
     '0': Não
@@ -52,14 +108,37 @@ correspondent_usertasks:
   write_requests:
     '0': Não
     '1': Sim
+  user_id:
+    '1': Dalton
+    '2': Jessé
+    '3': Suporte
+    '21': Naiara
+    '326': Adriana
+    '327': Naiara
+    '659': Rodson
 deniedprazo_reasons:
   status:
     '0': Inativo
     '1': Ativo
+  user_created_at:
+    '21': Naiara
+    '43': Fabiana
+    '83': Felipe
+    '88': Jessica
+    '97': Viviane
+    '212': Caroline
+    '243': Jefferson
+    '254': Bianca
+    '383': Aline
+    '394': Natália
+    '425': Brenda
+    '490': Ana
 employees:
   empstatus:
     '0': Inativo
     '1': Ativo
+  user_id:
+    '1': AmericoBarroso
 expedientfilemetadata:
   status:
     '0': Inativo
@@ -89,6 +168,12 @@ hearings_log:
     '21': Julgamento
     '22': Sentença
     '23': Perícia
+  result:
+    '5': Extinto sem resolução do mérito
+    '4': Acordo
+    '10': Testemunhas
+    '3': Parcialmente procedente
+    '13': Ausência de preposto - revelia
 jqcalendar:
   IsAllDayEvent:
     '0': Não
@@ -97,6 +182,12 @@ jurify_api_log_salvarprocessos:
   type:
     insert: Inserção
     update: Atualização
+  created_at_userid:
+    '21': Naiara
+    '203': Tarciso
+    '394': Natália
+    '425': Brenda
+    '490': Ana
 lawsuit_pendencias_control:
   status:
     '0': Inativo
@@ -108,6 +199,9 @@ lawsuits_additional_info:
   solidarity_redeemed:
     '0': Não
     '1': Sim
+  solidarity_payment:
+    '1': Acordo
+    '2': Bacenjud
 lawsuitdocsmetadata:
   prazophase:
     '1': RETIFICAR CTPS
@@ -144,6 +238,41 @@ lawsuits:
     '20': Extinção da execução
     '21': Exclusão da lide
     '22': Carta Precatória cumprida
+  busunit_id:
+    '1': Décio Freire e Advogados Associados - BH
+    '2': Décio Freire e Advogados Associados - SP
+    '3': Décio Freire e Advogados Associados - Varginha
+    '4': Décio Freire e Advogados Associados - DF
+    '7': Décio Freire e Advogados Associados - ES
+    '8': Décio Freire e Advogados Associados - PE
+    '9': Décio Freire e Advogados Associados - Ipatinga
+    '10': Décio Freire e Advogados Associados - Uberlândia
+  unit:
+    '10': Dist/Passos
+    '11': Dist/Montes Claros
+    '12': Dist/Divinopolis
+    '5': Dist/Contagem
+    '6': Dist/Poços de Caldas
+    '7': Dist/Conselheiro Lafaiete
+    '8': Dist/Varginha
+    '9': Dist/Juiz de Fora
+  causeamount_result:
+    '2': Improcedente
+    '3': Parcialmente procedente
+    '1': Procedente
+    '4': Acordo
+    '5': Extinto sem resolução do mérito
+    '26': Ilegitimidade acolhida
+    '11': Arquivamento - Ausência reclamante
+    '21': Exclusão da lide
+    '25': Pendente de julgamento
+    '29': Arquivado
+    '24': Provido
+    '9': Não houve condenação
+  result_instance:
+    '2': 2ª instância
+    '1': 1ª instância
+    '3': 3ª instância
 lawsuits_log:
   status:
     '0': Inativo
@@ -171,6 +300,20 @@ lawsuits_log:
     '17': Solicitado pelo pool
     '20': Extinção da execução
     '22': Carta Precatória cumprida
+  causeamount_result:
+    '2': Improcedente
+    '3': Parcialmente procedente
+    '1': Procedente
+    '5': Extinto sem resolução do mérito
+    '11': Arquivamento - Ausência reclamante
+    '25': Pendente de julgamento
+    '4': Acordo
+    '21': Exclusão da lide
+    '24': Provido
+    '9': Não houve condenação
+  result_instance:
+    '2': 2ª instância
+    '1': 1ª instância
 paymentguarantee2lawsuit:
   status:
     '0': Inativo
@@ -236,9 +379,18 @@ projectactivityprazos:
   status:
     '0': Inativo
     '1': Ativo
+  finished_at_userid:
+    '21': Naiara
+    '184': Gessica
+  userinserted_id:
+    '21': Naiara
+    '184': Gessica
 returned_prazo_reasons:
   status:
     '1': Ativo
+  user_created_at:
+    '128': Michelle
+    '144': Andressa
 sent_hearing_emails:
   type:
     lawyer: Advogado
@@ -322,13 +474,23 @@ accounts:
     r: Conta de receita
     pl: Conta sistema auxiliar
 clientsystem2lawsuit: {}
-expedients: {}
+expedients:
+  lawsuit_id:
+    '76248': 'Motivo: indenização'
 lawsuitdocs: {}
 otherdocs: {}
 pedidos2lawsuit: {}
 person2lawsuit:
   link_type:
     u: SEM JUSTA CAUSA
+  third_party_id:
+    '29382': VIASUPER DISTRIBUIDORA DE PERIODICOS LTDA - ME
+  sector:
+    '1': DSC
+    '2': TM&D
+    '3': INDUSTRIAL
+    '4': TABACO
+    '5': NÃO INFORMADO
 prazo2publication:
   canceled:
     '0': Não
@@ -355,6 +517,8 @@ prazo2publication:
   hearingtype:
     '13': Audiência de Conciliação
     '14': AIJ - Audiência de Instrução e Julgamento
+  pubtype:
+    '58704': AVALIAR OPOSIÇÃO DE EMBARGOS DECLARATÓRIOS.
 prazos_log:
   canceled:
     '0': Não
@@ -378,9 +542,16 @@ prazos_log:
     '4': Encerramento
   finishtype:
     p: processo físico
-projects: {}
+projects:
+  coordinator_id:
+    '779': NAIARA MARQUES
+    '27701': GESSICA BERNARDO
 tasks2publication: {}
-timesheet_tasks: {}
+timesheet_tasks:
+  lawyer_id:
+    '89029': ISABELA OLIVEIRA
+  created_at_userid:
+    '563': Isabela
 varas:
   code:
     '5': Vara do Trabalho
@@ -452,6 +623,24 @@ hearingcontrol:
     '21': Julgamento
     '22': Sentença
     '23': Perícia
+  result:
+    '2': Improcedente
+    '16': Laudo positivo
+    '4': Acordo
+    '1': Procedente
+    '12': Ausência de documentos
+    '8': Documento que comprove o alegado
+    '6': Pagamentos por terceiros
+    '3': Parcialmente procedente
+    '5': Extinto sem resolução do mérito
+    '9': Não houve condenação
+    '10': Testemunhas
+    '15': Duplicidade
+    '7': Sem custo
+    '14': Depoimento da testemunha do reclamante
+    '11': Arquivamento - Ausência reclamante
+    '13': Ausência de preposto - revelia
+    '17': Solicitado pelo pool
 final_payments:
   payment_type:
     '1': Acordo
@@ -460,3 +649,431 @@ final_payments:
 config_prazo_emails:
   prazos_not_finished_business_email:
     '1': Área comercial
+agenda_busunits:
+  busunit_id:
+    '1': Décio Freire e Advogados Associados - BH
+    '4': Décio Freire e Advogados Associados - DF
+automaticprazos_jurify:
+  created_at_userid:
+    '21': Naiara
+automaticprazos_jurify_clients:
+  client_id:
+    '6625': COMPANHIA BRASILEIRA DE DISTRIBUIÇÃO
+    '28586': MASTERCARD BRASIL SOLUÇÕES DE PAGAMENTO LTDA
+automaticprazos_jurify_employees:
+  employee_id:
+    '66503': VIVIAN ALVES
+    '67434': LEANDRO CARVALHO
+    '69684': LUCAS VELEZ
+    '81865': FRANCISCO ERIVALDO CARVALHO
+automaticprazos_lawsuit_groups:
+  group_id:
+    '3784': GRUPO SADA
+    '6119': GRUPO ADLER
+    '6476': GRUPO PROMA BRASIL
+    '6477': GRUPO SILA
+    '6557': GRUPO VB EDITORA
+    '21446': GRUPO GPA
+    '65006': GRUPO RAIA DROGASIL
+    '107431': GRUPO CSN
+    '107432': GRUPO RAIA
+    '109013': GRUPO HUAWEI
+automaticprazos_lawsuit_persons:
+  person_id:
+    '2730': CAMILA MARLEY
+    '63576': IGOR FOLENA
+    '64571': ANDREIA BARROS
+    '89615': LEONARDO LOPES
+    '94899': LUCIANA GOMES
+    '105895': CYNTHIA MENDONCA
+    '108432': LIVIA DINIZ
+    '113931': ANNA MELLO
+    '118633': ANA PAULA JUSTO
+    '118664': THIAGO CÂMARA
+    '122634': JOSE ANDRADE
+    '122636': LUCAS COUTINHO DA SILVA
+busunitaccess:
+  busunitid:
+    '1': Décio Freire e Advogados Associados - BH
+    '2': Décio Freire e Advogados Associados - SP
+    '3': Décio Freire e Advogados Associados - Varginha
+    '4': Décio Freire e Advogados Associados - DF
+    '7': Décio Freire e Advogados Associados - ES
+    '8': Décio Freire e Advogados Associados - PE
+    '9': Décio Freire e Advogados Associados - Ipatinga
+    '10': Décio Freire e Advogados Associados - Uberlândia
+    '14': Unidade criada para os processos da Lara Piau
+busunitaccess_controllerlawsuits:
+  busunitid:
+    '1': Décio Freire e Advogados Associados - BH
+    '2': Décio Freire e Advogados Associados - SP
+    '3': Décio Freire e Advogados Associados - Varginha
+    '4': Décio Freire e Advogados Associados - DF
+    '7': Décio Freire e Advogados Associados - ES
+    '8': Décio Freire e Advogados Associados - PE
+    '9': Décio Freire e Advogados Associados - Ipatinga
+    '10': Décio Freire e Advogados Associados - Uberlândia
+    '14': Unidade criada para os processos da Lara Piau
+busunitaccess_strategiclawsuits:
+  busunitid:
+    '1': Décio Freire e Advogados Associados - BH
+    '2': Décio Freire e Advogados Associados - SP
+    '3': Décio Freire e Advogados Associados - Varginha
+    '4': Décio Freire e Advogados Associados - DF
+    '7': Décio Freire e Advogados Associados - ES
+    '8': Décio Freire e Advogados Associados - PE
+    '9': Décio Freire e Advogados Associados - Ipatinga
+    '10': Décio Freire e Advogados Associados - Uberlândia
+    '14': Unidade criada para os processos da Lara Piau
+busunitaccess_strategiclawsuits2:
+  busunitid:
+    '1': Décio Freire e Advogados Associados - BH
+    '2': Décio Freire e Advogados Associados - SP
+    '3': Décio Freire e Advogados Associados - Varginha
+    '4': Décio Freire e Advogados Associados - DF
+    '7': Décio Freire e Advogados Associados - ES
+    '8': Décio Freire e Advogados Associados - PE
+    '9': Décio Freire e Advogados Associados - Ipatinga
+    '10': Décio Freire e Advogados Associados - Uberlândia
+    '14': Unidade criada para os processos da Lara Piau
+claims_pericias_control:
+  created_at_userid:
+    '1': Dalton
+    '7': Gabriela
+    '8': Gabriel
+    '71': Pietro
+  updated_at_userid:
+    '7': Gabriela
+    '8': Gabriel
+    '71': Pietro
+client_publication_search_terms:
+  client_id:
+    '1074': LIGHT SERVIÇOS DE ELETRICIDADE S.A.
+    '1076': FGV
+    '1148': ADLER PTI S/A
+    '1152': PELZER DA BAHIA
+    '2267': SILA DO BRASIL
+    '2313': VB EDITORA
+    '3779': ICG PROMA BRASIL
+    '6288': PROMA BRASIL
+    '26184': CSN MINERAÇÃO S.A.
+    '26185': COMPANHIA SIDERÚRGICA NACIONAL
+    '28492': CSN MINERACAO S.A.
+    '38888': DROGA RAIA
+    '38904': DROGASIL
+    '39130': ONOFRE
+  created_at_userid:
+    '3': Suporte
+client_sectors:
+  client_id:
+    '2308': SOUZA CRUZ LTDA
+client_units:
+  client_id:
+    '1046': VIA VAREJO S/A
+    '2024': CERVEJARIA PETRÓPOLIS
+    '2308': SOUZA CRUZ LTDA
+    '2732': CERVEJARIA PETROPOLIS DE PERNAMBUCO LTDA
+    '2740': COL - CENTRO OESTE LOGISTICA LTDA
+    '2741': CERVEJARIA PETROPOLIS DO CENTRO OESTE LTDA
+    '2742': CERVEJARIA PETROPOLIS DA BAHIA LTDA
+    '6625': COMPANHIA BRASILEIRA DE DISTRIBUIÇÃO
+    '9182': NOVA CASAS BAHIA
+    '9603': GLOBEX UTILIDADES SA
+    '27114': VVLOG LOGISTICA LTDA
+    '63613': GPA
+coligadas:
+  group_id:
+    '3784': GRUPO SADA
+    '6184': GRUPO FIAT
+    '51732': SADA LOGISTICA E ARMAZENS GERAIS LTDA
+    '6119': GRUPO ADLER
+    '6137': GRUPO PETROPÓLIS
+    '6257': GRUPO SHC
+    '6476': GRUPO PROMA BRASIL
+    '6477': GRUPO SILA
+    '6557': GRUPO VB EDITORA
+    '21445': GRUPO VIA VAREJO
+    '21446': GRUPO GPA
+    '27711': GRUPO SOUZA CRUZ
+    '29580': GRUPO NEWTON CARDOSO
+    '65006': GRUPO RAIA DROGASIL
+    '68067': PAUTA DE AUDIÊNCIA TRABALHISTA
+    '69460': GRUPO ASSAÍ ATACADISTA
+    '101421': Grupo Sada - Relatórios Adriana Torres
+    '107431': GRUPO CSN
+    '107432': GRUPO RAIA
+    '109013': GRUPO HUAWEI
+correspondent2state:
+  state_id:
+    '2': ALAGOAS
+    '5': BAHIA
+    '6': CEARÁ
+    '7': DISTRITO FEDERAL
+    '8': ESPÍRITO SANTO
+    '9': GOIÁS
+    '10': MARANHÃO
+    '11': MINAS GERAIS
+    '12': MATO GROSSO DO SUL
+    '13': MATO GROSSO
+    '15': PARAÍBA
+    '17': PIAUÍ
+    '18': PARANÁ
+    '19': RIO DE JANEIRO
+    '20': RIO GRANDE DO NORTE
+    '21': RONDÔNIA
+    '23': RIO GRANDE DO SUL
+    '24': SANTA CATARINA
+    '25': SERGIPE
+    '26': SÃO PAULO
+correspondent_requests:
+  busunit_id:
+    '1': Décio Freire e Advogados Associados - BH
+  city_id:
+    '94': RIO BRANCO
+  created_at_userid:
+    '326': Adriana
+correspondent_requests_actions:
+  created_at_userid:
+    '327': Naiara
+  correspondent_request_id:
+    '5': Indefinido
+correspondent_requests_messages:
+  created_at_userid:
+    '1': Dalton
+  correspondent_request_id:
+    '5': Indefinido
+correspondent_requests_refuse_reasons:
+  person_id:
+    '39598': NAIARA
+  correspondent_request_id:
+    '5': Indefinido
+extralawsuitformfields2person:
+  person_id:
+    '1046': VIA VAREJO S/A
+    '1074': LIGHT SERVIÇOS DE ELETRICIDADE S.A.
+    '3784': GRUPO SADA
+    '21445': GRUPO VIA VAREJO
+    '28586': MASTERCARD BRASIL SOLUÇÕES DE PAGAMENTO LTDA
+    '63613': GPA
+group2permission:
+  group_id:
+    '1': Grupo do administrador root
+    '2': Usuário comum
+    '3': Usuário responsável por um grupo de colaboradores
+    '4': Coordenador de grupo de clientes (núcleo)
+    '5': Usuario com permissao para tudo
+    '7': Grupo com acesso limitado
+  permission_id:
+    '1': Root administrator permission level
+    '2': Usuario comum do sistema
+    '3': Analista
+    '4': Coordenador de grupos de clientes (nucleo)
+    '5': Regional Administrator
+    '7': Cadastra cliente para analise de credito.
+instancia:
+  instancia:
+    '2': 2ª instância
+    '3': 3ª instância
+    '4': Extraordinária
+lawsuitnature2extralawsuitfields:
+  person_id:
+    '1046': VIA VAREJO S/A
+    '1074': LIGHT SERVIÇOS DE ELETRICIDADE S.A.
+    '21445': GRUPO VIA VAREJO
+    '28586': MASTERCARD BRASIL SOLUÇÕES DE PAGAMENTO LTDA
+    '63613': GPA
+lawsuits_jurify_clients:
+  client_id:
+    '6625': COMPANHIA BRASILEIRA DE DISTRIBUIÇÃO
+    '28586': MASTERCARD BRASIL SOLUÇÕES DE PAGAMENTO LTDA
+persons2project_prazos:
+  person_id:
+    '64506': LARISSA OLIVEIRA
+    '779': NAIARA MARQUES
+    '27701': GESSICA BERNARDO
+    '35154': ANA CHAVES
+    '37808': LARISSA VILELA
+    '65995': VANESSA COSTA
+  prazo_id:
+    '9': xxx
+    '4': Analisar Dashbord do cível
+    '5': Analisar e tratar processos duplicados no SAID
+    '3': Juntada de preposição e substabelecimento
+projectevents:
+  project_id:
+    '10': Resposta ofício (teste)
+    '13': CONSULTAS E PARECERES
+    '14': PAUTAS DIÁRIAS
+    '15': DEMANDAS E-MAIL
+    '16': OPERACIONAL CÍVEL
+    '17': REUNIÕES
+    '18': DEMANDAS RIO DE JANEIRO
+    '19': teste lgpd
+    '20': xxx
+    '27': xxx
+publication_classifications:
+  created_at_userid:
+    '1': Dalton
+related_lawsuits:
+  parent_lawsuit_id:
+    '83434': 'Motivo: ESBULHO/TURBAÇÃO/AMEAÇA'
+    '100770': INSTITUTO DE PROTEÇÃO AMBIENTAL DO AMAZONAS
+    '73340': Ações Conexas
+sentence2lawsuit_2:
+  sentence_amount_result:
+    '1': Procedente
+    '2': Improcedente
+    '3': Parcialmente procedente
+    '4': Acordo
+    '5': Extinto sem resolução do mérito
+    '6': Pagamentos por terceiros
+    '9': Não houve condenação
+    '23': Não provido
+    '24': Provido
+    '25': Pendente de julgamento
+    '26': Ilegitimidade acolhida
+    '32': Improcedência em relação ao cliente
+sentence2lawsuit_3:
+  sentence_amount_result:
+    '1': Procedente
+    '2': Improcedente
+    '3': Parcialmente procedente
+    '4': Acordo
+    '23': Não provido
+    '24': Provido
+sentence2lawsuit_stf:
+  sentence_amount_result:
+    '2': Improcedente
+    '3': Parcialmente procedente
+  user_id:
+    '1': AmericoBarroso
+state:
+  pais:
+    '1': Brasil
+subclients:
+  client_id:
+    '1046': VIA VAREJO S/A
+    '1058': CNOVA
+  subclient_id:
+    '1048': PONTO FRIO.COM COMERCIO ELETRONICO S.A
+    '1049': CASAS BAHIA
+tech_assistant2pericia_controls:
+  tech_assistant_id:
+    '619': CLAUDINÉIA
+    '620': IGOR MAGELA
+    '621': MILLER GOMES
+    '622': DANIELA CAROLINA
+    '623': ALESSANDRO FERREIRA
+    '624': PAULA CRISTINA
+    '625': DANIEL MAROTA
+    '626': ANA PAULA COSTA
+    '627': DR. MILLER
+    '629': FLORÊNCIO
+    '630': ROBERTO CARLOS
+    '631': DIEKSON
+    '632': MÁRCIA MARIA
+    '633': GERMANO
+    '634': FREDSON SANTOS
+    '635': VICENTE DE PAULA
+    '637': EULER RODRIGUES
+thirdpartyaccess:
+  user_id:
+    '15': Sada
+    '248': SADA
+    '258': Heloisa
+    '259': Walter
+    '260': Leonardo
+    '261': Geraldo
+    '262': Pamela
+    '263': Alline
+    '264': Eliza
+    '265': Vagner
+    '266': Diego
+    '267': Mayara
+    '441': Grupo NC
+    '492': Arantes e Serenini Cálculos Trabalhistas
+  client_id:
+    '1046': VIA VAREJO S/A
+    '1625': NEWTON CARDOSO
+    '6625': COMPANHIA BRASILEIRA DE DISTRIBUIÇÃO
+    '29581': BRATIL EMPREENDIMENTOS E PARTICIPAÇÕES S/A
+    '38375': ASSAI ATACADISTA
+    '63613': GPA
+    '67360': NEWTON CARDOSO JUNIOR
+  group_id:
+    '3784': GRUPO SADA
+user2group:
+  group_id:
+    '1': Grupo do administrador root
+    '2': Usuário comum
+    '4': Coordenador de grupo de clientes (núcleo)
+    '5': Usuario com permissao para tudo
+    '7': Grupo com acesso limitado
+varas_cartorios:
+  court_division_idcourt_division:
+    '3': TRT03 (MG)
+    '4': TJMG
+    '6': TRT01 (RJ)
+    '7': TRT02 (SP)
+    '8': TRT15 (Campinas)
+    '9': TRT05 (Bahia)
+    '10': TRT20 (Sergipe)
+    '11': TRT24 (MS)
+    '12': TRT08 (PA)
+    '13': TRT22 (Piauí)
+    '14': TRT09 (PR)
+    '15': TRT18 (GO)
+    '16': TRT06 (PE)
+acordo_nucleus:
+  resp_evaluation:
+    '7': Outro
+    '1': Ata de audiência
+    '9': Substabelecimento
+    '3': Certidão ou comprovante de indisponibilidade
+    '8': Publicação
+    '4': Comprovante pagamento
+    '5': Indefinido
+    '6': Orientações para audiência
+    '2': Autorização
+correspondent_requests_cancel_reasons:
+  correspondent_request_id:
+    '5': Indefinido
+groups:
+  group_id:
+    '1': Área comercial
+    '2': Área Operacional
+    '3': Área administrativa
+    '4': Área da diretoria
+publicationxml:
+  user_id:
+    '1': AmericoBarroso
+publicationxml_extra:
+  search_term_id:
+    '1': Execução Provisória
+    '2': Cumprimento Sentença (CumSen)
+    '3': Execução de Certidão de Crédito Judicial
+    '4': Ação de Cumprimento (ACum)
+    '5': Execução Fiscal
+    '6': Execução de Título Extrajudicial
+    '9': Carta Precatória (CP)
+    '10': Recurso de Julgamento Parcial
+    '12': Cumprimento Sentença (CumPrSe)
+    '13': Ação de Cumprimento (AC)
+    '14': Ofício Circular AR
+    '19': Recurso de Julgamento Parcial
+sentence2lawsuit:
+  sentence_amount_result:
+    '3': Parcialmente procedente
+    '5': Extinto sem resolução do mérito
+    '1': Procedente
+    '2': Improcedente
+    '4': Acordo
+    '26': Ilegitimidade acolhida
+    '21': Exclusão da lide
+    '23': Não provido
+    '20': Extinção da execução
+    '9': Não houve condenação
+    '25': Pendente de julgamento
+    '32': Improcedência em relação ao cliente
+    '24': Provido
+    '16': Laudo positivo
