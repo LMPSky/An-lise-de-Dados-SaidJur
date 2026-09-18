@@ -1,0 +1,17 @@
+2026-09-02 07:22:10,969 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-09-02 07:22:14,239 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.yaml (44 tabelas)
+2026-09-02 07:22:20,110 [INFO] saidjur.dados: Tabela 'accounts' | página 1 | filtros=None | total=56
+2026-09-02 07:22:47,175 [INFO] saidjur.dados: Tabela 'acordo_nucleus' | página 1 | filtros=None | total=6870
+2026-09-02 07:23:51,173 [INFO] saidjur: Servidor encerrado.
+2026-09-02 11:12:45,984 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-09-02 11:12:46,709 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.yaml (44 tabelas)
+2026-09-02 11:13:02,653 [INFO] saidjur.dados: Tabela 'automaticprazos_lawsuit_clients' | página 1 | filtros=None | total=349
+2026-09-02 11:13:14,630 [INFO] saidjur.dados: Tabela 'acordo_nucleus' | página 1 | filtros=None | total=6870
+2026-09-02 11:13:55,632 [INFO] saidjur.dados: Tabela 'busunitaccess_strategiclawsuits' | página 1 | filtros=None | total=5384
+2026-09-02 11:14:07,725 [INFO] saidjur.dados: Tabela 'busunitaccess_controllerlawsuits' | página 1 | filtros=None | total=2349
+2026-09-02 11:14:19,008 [INFO] saidjur.dados: Tabela 'clientsystem2lawsuit' | página 1 | filtros=None | total=55520
+2026-09-02 11:34:17,872 [INFO] saidjur.dados: Tabela 'correspondent_activities' | página 1 | filtros=None | total=18
+2026-09-02 11:34:37,023 [INFO] saidjur.dados: Tabela 'correspondent_state_activity_rates' | página 1 | filtros=None | total=387
+2026-09-02 11:35:07,069 [INFO] saidjur.dados: Tabela 'hearingcontrol' | página 1 | filtros=None | total=71547
+2026-09-02 11:51:20,789 [INFO] saidjur.dados: Tabela 'jurify_api_log_salvarprocessos' | página 1 | filtros=None | total=1167
+2026-09-02 11:54:13,473 [INFO] saidjur.dados: Tabela 'lawsuits' | página 1 | filtros=None | total=151608

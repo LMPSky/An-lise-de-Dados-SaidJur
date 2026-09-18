@@ -1,0 +1,48 @@
+gerado_em_utc: '2026-09-16T14:29:20.783638+00:00'
+resumo:
+  total_pendencias: 1
+  alta_confianca: 1
+  pista_unica: 0
+  sem_pista_encontrada: 0
+  sem_registros: 0
+  erros: 0
+investigacoes:
+- tabela: prazo2publication
+  coluna: client_sys_updated
+  valor: '1'
+  motivo_pendencia: investigacao_direta
+  colunas_pista:
+  - name
+  linhas_exemplo:
+  - codigo: 1
+    rotulo: DSC
+  sugestao:
+    status: alta_confianca
+    traducao_sugerida: DSC
+    justificativa: Tabela de referência 'client_sectors' detectada via schema; coluna
+      'id' mapeou o código '1' para 'DSC' usando o rótulo 'name'.
+    pistas:
+    - coluna: client_sectors.name
+      valores_frequentes:
+      - valor: DSC
+        ocorrencias: 1
+      valores_distintos: 1
+      ocorrencias_total: 1
+    fonte: tabela_referencia
+    alertas: []
+  tabela_referencia: client_sectors
+  distribuicao_codigo:
+    valores_distintos: 2
+    ocorrencias_total: 980381
+    ocorrencias_valor: 258
+    classificacao: enum_poucos_estados
+    valores_frequentes:
+    - valor: '0'
+      ocorrencias: 980123
+    - valor: '1'
+      ocorrencias: 258
+agrupado_por_confianca_e_tabela:
+  alta_confianca:
+    prazo2publication:
+    - client_sys_updated:1
+fonte_pendencias: colunas_diretas:prazo2publication.client_sys_updated:1
