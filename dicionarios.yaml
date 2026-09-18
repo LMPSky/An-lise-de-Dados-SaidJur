@@ -43,6 +43,22 @@ businessunit:
   deactivated:
     '0': Não
     '1': Sim
+  name:
+    DF - BH: Décio Freire e Advogados Associados - BH
+    DF - SP: Décio Freire e Advogados Associados - SP
+    DF - DF: Décio Freire e Advogados Associados - DF
+    DF - ES: Décio Freire e Advogados Associados - ES
+    DF - PE: Décio Freire e Advogados Associados - PE
+    DF - Varginha: Décio Freire e Advogados Associados - Varginha
+    DF - Ipatinga: Décio Freire e Advogados Associados - Ipatinga
+    DF - Uberlândia: Décio Freire e Advogados Associados - Uberlândia
+    Auditoria: Unidade criada para os processos da Lara Piau
+  description:
+    Décio Freire e Advogados Associados - BH: DF - BH
+    Décio Freire e Advogados Associados - SP: DF - SP
+    Décio Freire e Advogados Associados - DF: DF - DF
+    Décio Freire e Advogados Associados - ES: DF - ES
+    Décio Freire e Advogados Associados - PE: DF - PE
 chatmessages:
   recipienttype:
     s: Individual
@@ -473,6 +489,12 @@ accounts:
     d: Conta de despesas
     r: Conta de receita
     pl: Conta sistema auxiliar
+  description:
+    Conta de ativos: ATIVO
+    Conta de passivos: PASSIVO
+    Conta de despesas: DESPESAS
+    Conta de receita: RECEITAS
+    Conta sistema auxiliar: SISTEMA AUXILIAR
 clientsystem2lawsuit: {}
 expedients:
   lawsuit_id:
@@ -557,6 +579,16 @@ varas:
     '5': Vara do Trabalho
     '8': Vara Cível
     '4': Vara Federal
+  name:
+    Justiça do Trabalho: Labor Court
+    Justiça Estadual: Civil Court
+    Administrativo: Administrative
+    Justiça Federal: Federal Court
+  name_en:
+    Labor Court: Justiça do Trabalho
+    Civil Court: Justiça Estadual
+    Administrative: Administrativo
+    Federal Court: Justiça Federal
 hearingcontrol:
   needwitness:
     '0': Não
@@ -1044,6 +1076,18 @@ groups:
     '2': Área Operacional
     '3': Área administrativa
     '4': Área da diretoria
+  name:
+    root administrator: Grupo do administrador root
+    Colaborador: Usuário comum
+    Administrador: Usuario com permissao para tudo
+    Estagiário: Grupo com acesso limitado
+    Supervisor: Usuário responsável por um grupo de colaboradores
+    Coordenador: Coordenador de grupo de clientes (núcleo)
+  description:
+    Grupo do administrador root: root administrator
+    Usuário comum: Colaborador
+    Usuario com permissao para tudo: Administrador
+    Grupo com acesso limitado: Estagiário
 publicationxml:
   user_id:
     '1': AmericoBarroso
@@ -1077,3 +1121,36 @@ sentence2lawsuit:
     '32': Improcedência em relação ao cliente
     '24': Provido
     '16': Laudo positivo
+businessunitgroup:
+  name:
+    Comercial: Área comercial
+    Operacional: Área Operacional
+    Administrativa: Área administrativa
+    Diretoria: Área da diretoria
+  description:
+    Área comercial: Comercial
+    Área Operacional: Operacional
+    Área administrativa: Administrativa
+    Área da diretoria: Diretoria
+  operation:
+    '1': Área da diretoria
+permissions:
+  name:
+    root administrator: Root administrator permission level
+    Usuario: Usuario comum do sistema
+    Validator: Analista
+    Coordenador: Coordenador de grupos de clientes (nucleo)
+    Cadastrista: Cadastra cliente para analise de credito.
+  description:
+    Root administrator permission level: root administrator
+    Usuario comum do sistema: Usuario
+    Analista: Validator
+country:
+  sigla:
+    BR: Brasil
+tax:
+  rate:
+    '0.65': PIS
+    '3.00': COFINS
+    '1.50': IR
+    '1.00': CSLL
