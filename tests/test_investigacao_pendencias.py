@@ -1303,14 +1303,29 @@ def test_buscar_em_tabela_referencia_ignora_fk_declarada_de_coluna_booleana() ->
 
 
 def test_coluna_elegivel_para_descoberta_completa_exclui_apenas_blob() -> None:
-    """No modo completo, apenas BLOB é excluído de antemão; TEXT/JSON/VARCHAR
-    grande e nomes que sugerem texto livre seguem elegíveis (o filtro real
-    fica por conta da cardinalidade observada na amostragem)."""
+    """No modo completo, BLOB é excluído de antemão (junto dos tipos
+    temporais, cobertos em teste próprio); TEXT/JSON/VARCHAR grande e nomes
+    que sugerem texto livre seguem elegíveis (o filtro real fica por conta da
+    cardinalidade observada na amostragem)."""
     assert _coluna_elegivel_para_descoberta_completa(ColunaTabela("body", "text", 0)) is True
     assert _coluna_elegivel_para_descoberta_completa(ColunaTabela("observacao", "mediumtext", 0)) is True
     assert _coluna_elegivel_para_descoberta_completa(ColunaTabela("dados", "json", 0)) is True
     assert _coluna_elegivel_para_descoberta_completa(ColunaTabela("anexo", "blob", 0)) is False
     assert _coluna_elegivel_para_descoberta_completa(ColunaTabela("arquivo", "longblob", 0)) is False
+
+
+def test_coluna_elegivel_para_descoberta_completa_exclui_tipos_temporais() -> None:
+    """Colunas de data/hora nunca são código/ENUM — mesmo no modo completo,
+    devem ser excluídas de antemão. Em produção, deixar essas colunas
+    elegíveis fez `varas.timestamp` e
+    `lawsuitdocsmetadata.protocol_confirmed_date` virarem "pendências" e
+    receberem rótulos sem sentido (ex: "Consultivo", "Teste") por coincidência
+    de amostra pequena."""
+    assert _coluna_elegivel_para_descoberta_completa(ColunaTabela("criado_em", "date", 0)) is False
+    assert _coluna_elegivel_para_descoberta_completa(ColunaTabela("timestamp", "datetime", 0)) is False
+    assert _coluna_elegivel_para_descoberta_completa(ColunaTabela("protocol_confirmed_date", "timestamp", 0)) is False
+    assert _coluna_elegivel_para_descoberta_completa(ColunaTabela("hora_inicio", "time", 0)) is False
+    assert _coluna_elegivel_para_descoberta_completa(ColunaTabela("ano_fiscal", "year", 0)) is False
 
 
 def test_descobrir_pendencias_schema_modo_completo_encontra_codigo_em_coluna_text() -> None:
