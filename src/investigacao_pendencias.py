@@ -2563,6 +2563,11 @@ def gerar_template_decisoes(
     template (ex: ``apenas_status="pista_unica"``) — úteis para revisar em
     lotes menores relatórios grandes (milhares de itens), em vez de gerar um
     único arquivo com todas as pendências de uma vez.
+
+    O campo ``justificativa`` é incluído apenas como contexto de leitura (não
+    é usado por :func:`aplicar_decisoes_em_dicionario`) — explica por que a
+    sugestão foi feita (ex: "pista fraca — coluna booleana") e é essencial
+    para decidir manualmente itens de baixa confiança como ``pista_unica``.
     """
     itens = []
     for item in relatorio.get("investigacoes", []):
@@ -2578,11 +2583,13 @@ def gerar_template_decisoes(
                 "valor": item.get("valor"),
                 "status_sugestao": sugestao.get("status"),
                 "traducao_sugerida": sugestao.get("traducao_sugerida"),
+                "justificativa": sugestao.get("justificativa"),
                 "decisao": "pendente",  # aplicar | pular
                 "traducao_final": None,
             }
         )
     return {"decisoes": itens}
+
 
 
 

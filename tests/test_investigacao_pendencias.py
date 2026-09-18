@@ -1461,6 +1461,7 @@ def test_gerar_template_decisoes() -> None:
                 "sugestao": {
                     "status": "alta_confianca",
                     "traducao_sugerida": "Boleto",
+                    "justificativa": "Coluna 'label' concordou em todas as linhas.",
                 },
             }
         ]
@@ -1470,6 +1471,7 @@ def test_gerar_template_decisoes() -> None:
 
     assert template["decisoes"][0]["decisao"] == "pendente"
     assert template["decisoes"][0]["traducao_sugerida"] == "Boleto"
+    assert template["decisoes"][0]["justificativa"] == "Coluna 'label' concordou em todas as linhas."
 
 
 def test_gerar_template_decisoes_filtra_por_status_e_tabela() -> None:
