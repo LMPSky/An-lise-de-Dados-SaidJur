@@ -15,6 +15,7 @@ from sqlalchemy.engine import Engine
 import yaml
 
 from src.db import (
+    _COLUNAS_FK_IGNORADAS,
     conectar_com_timeout,
     criar_engine,
     executar_com_retry_db,
@@ -578,18 +579,24 @@ def _coluna_elegivel_para_descoberta_completa(coluna: ColunaTabela) -> bool:
     Ao contrário de :func:`_coluna_elegivel_para_descoberta_schema`, aqui só os
     tipos ``BLOB`` (binário, sem representação textual útil) e temporais
     (``DATE``/``DATETIME``/``TIMESTAMP``/``TIME``/``YEAR``) são descartados de
-    antemão. Colunas ``TEXT``/``JSON``/``VARCHAR`` grandes ou com nome que
-    sugere texto livre (``body``, ``observacao``...) não são mais excluídas
-    por heurística de tipo/nome: elas seguem para a amostragem normal, que já
-    descarta naturalmente colunas de texto livre verdadeiras — tanto por
-    cardinalidade (``_valores_distintos_coluna`` retorna vazio quando a coluna
-    tem mais valores distintos do que o limite) quanto por conteúdo
+    antemão, além da coluna ``id`` (convenção de chave primária: cada valor é
+    único por definição e nunca é um código/categoria — em produção,
+    `expedientfilemetadata.id` chegou a ser tratada como pendência e recebeu
+    o nome de um arquivo de outra linha como "tradução"). Colunas
+    ``TEXT``/``JSON``/``VARCHAR`` grandes ou com nome que sugere texto livre
+    (``body``, ``observacao``...) não são mais excluídas por heurística de
+    tipo/nome: elas seguem para a amostragem normal, que já descarta
+    naturalmente colunas de texto livre verdadeiras — tanto por cardinalidade
+    (``_valores_distintos_coluna`` retorna vazio quando a coluna tem mais
+    valores distintos do que o limite) quanto por conteúdo
     (``_pista_parece_texto_livre`` filtra valores longos/com muitas palavras).
     Isso amplia a cobertura da varredura para colunas mal tipadas que, na
     prática, guardam poucos códigos curtos (ex: um ``TEXT`` usado só para
     armazenar '0'/'1'/'2'), ao custo de mais consultas — aceitável no modo
     completo, pensado para rodar sem supervisão durante a noite.
     """
+    if coluna.nome.strip().lower() == "id":
+        return False
     tipo = coluna.tipo.lower()
     tipos_excluidos = _TIPOS_BINARIOS_SEMPRE_EXCLUIDOS + _TIPOS_TEMPORAIS_SEMPRE_EXCLUIDOS
     return not any(chave in tipo for chave in tipos_excluidos)
@@ -1886,6 +1893,32 @@ def _enriquecer_sugestao_com_alertas(sugestao: dict[str, Any]) -> dict[str, Any]
 
 
 
+def _coluna_e_id_opaco(nome_coluna: str) -> bool:
+    """Indica se a coluna é um identificador opaco (``id``, ``*_id``, ``*id``).
+
+    Esses valores não têm significado textual próprio — são referências a
+    outra linha/tabela, e sua tradução correta (se houver) deve vir de uma FK
+    real/inferida ou de ``tabela_referencia`` (já tentadas antes de chegar
+    em ``_analisar_pistas``). Quando essas fontes falham em resolver a coluna,
+    tentar "adivinhar" uma tradução a partir de uma pista textual de uma
+    linha de exemplo é sistematicamente não confiável em produção: o valor
+    encontrado tende a ser um dado específico daquela linha/registro (nome de
+    arquivo, comentário de caso, nome de pessoa) e não uma categoria — casos
+    reais observados incluem ``accounts.parent_id``,
+    ``expedientfilemetadata.expedient_id`` e ``acordo_nucleus.updated_at_userid``
+    recebendo texto de comentário de caso como se fosse tradução.
+
+    Reaproveita a mesma convenção de sufixo já validada em
+    ``fks_inferidas``/``_COLUNAS_FK_IGNORADAS`` (``src/db.py``): qualquer nome
+    terminado em "id", exceto palavras comuns do inglês que coincidentemente
+    terminam em "id" (``paid``, ``valid``, ``void``...) e não são referências.
+    """
+    nome = nome_coluna.strip().lower()
+    if nome in _COLUNAS_FK_IGNORADAS:
+        return False
+    return nome == "id" or nome.endswith("id")
+
+
 def _analisar_pistas(
     pendencia: PendenciaEnum,
     linhas: list[dict[str, Any]],
@@ -1896,6 +1929,21 @@ def _analisar_pistas(
             "status": "sem_registros",
             "traducao_sugerida": None,
             "justificativa": "Nenhuma linha encontrada para este valor.",
+            "pistas": [],
+        })
+
+    if _coluna_e_id_opaco(pendencia.coluna):
+        return _enriquecer_sugestao_com_alertas({
+            "status": "sem_pista_encontrada",
+            "traducao_sugerida": None,
+            "justificativa": (
+                f"Coluna '{pendencia.coluna}' é um identificador opaco (id/FK) — "
+                "não é seguro adivinhar sua tradução a partir de uma pista textual "
+                "de uma linha de exemplo (o valor tende a ser específico daquela "
+                "linha, não uma categoria). Resolva via FK real/inferida ou "
+                "tabela_referencia; se essas fontes já falharam, esta coluna "
+                "precisa de revisão manual."
+            ),
             "pistas": [],
         })
 

@@ -1424,6 +1424,44 @@ def test_investigar_pendencias_marca_pista_unica_quando_ha_apenas_uma_linha_util
     assert item["sugestao"]["traducao_sugerida"] == "Débito Direto"
 
 
+def test_analisar_pistas_recusa_coluna_id_opaca() -> None:
+    """Regressão: colunas identificadoras opacas (``id``/``*_id``) não devem
+    receber tradução adivinhada a partir de uma pista textual de exemplo —
+    em produção, `accounts.parent_id` e `expedientfilemetadata.expedient_id`
+    receberam texto de comentário/nome de arquivo de outra linha como se
+    fosse tradução, quando na verdade são apenas referências opacas a outra
+    linha/tabela (sem significado textual próprio)."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE acordo_nucleus (
+                id INTEGER PRIMARY KEY,
+                updated_at_userid INTEGER,
+                obs TEXT
+            )
+        """))
+        conn.execute(text(
+            "INSERT INTO acordo_nucleus (id, updated_at_userid, obs) "
+            "VALUES (1, 445, 'admissão 03/07/2017 - demissão 11/01/2022')"
+        ))
+        conn.commit()
+
+    relatorio = investigar_pendencias(engine, [PendenciaEnum("acordo_nucleus", "updated_at_userid", "445")])
+
+    item = relatorio["investigacoes"][0]
+    assert item["sugestao"]["status"] == "sem_pista_encontrada"
+    assert item["sugestao"]["traducao_sugerida"] is None
+
+
+def test_coluna_elegivel_para_descoberta_completa_exclui_coluna_id() -> None:
+    """A coluna `id` (convenção de chave primária) nunca é um código/categoria
+    — cada valor é único por definição — então deve ser excluída de antemão
+    mesmo no modo completo."""
+    assert _coluna_elegivel_para_descoberta_completa(ColunaTabela("id", "int", 0)) is False
+    assert _coluna_elegivel_para_descoberta_completa(ColunaTabela("ID", "int", 0)) is False
+    assert _coluna_elegivel_para_descoberta_completa(ColunaTabela("busunit_id", "int", 0)) is True
+
+
 def test_aplicar_decisoes_em_dicionario_aplica_somente_aprovadas() -> None:
     dicionarios = {"paymenttype": {"code": {"deb": "Débito"}}}
     decisoes = [
