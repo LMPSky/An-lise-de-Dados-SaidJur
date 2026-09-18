@@ -1,0 +1,415 @@
+decisoes:
+- tabela: lawsuitdocs
+  coluna: phase
+  valor: '0'
+  status_sugestao: pista_unica
+  traducao_sugerida: j
+  justificativa: Coluna 'processtype' (pista fraca — nome sem relação semântica) apresentou
+    valor único 'j' nas linhas de exemplo, mas isso não é evidência suficiente do
+    significado do código. Revise manualmente antes de aplicar.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: phase
+  valor: '1'
+  status_sugestao: pista_unica
+  traducao_sugerida: '0'
+  justificativa: Coluna 'contains_add' (pista fraca — coluna booleana) apresentou
+    valor único '0' nas linhas de exemplo, mas isso não é evidência suficiente do
+    significado do código. Revise manualmente antes de aplicar.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: phase
+  valor: '2'
+  status_sugestao: pista_unica
+  traducao_sugerida: '0'
+  justificativa: Coluna 'contains_add' (pista fraca — coluna booleana) apresentou
+    valor único '0' nas linhas de exemplo, mas isso não é evidência suficiente do
+    significado do código. Revise manualmente antes de aplicar.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: phase
+  valor: '3'
+  status_sugestao: pista_unica
+  traducao_sugerida: '0'
+  justificativa: Coluna 'contains_add' (pista fraca — coluna booleana) apresentou
+    valor único '0' nas linhas de exemplo, mas isso não é evidência suficiente do
+    significado do código. Revise manualmente antes de aplicar.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: phase
+  valor: '5'
+  status_sugestao: pista_unica
+  traducao_sugerida: '0'
+  justificativa: Coluna 'contains_add' (pista fraca — coluna booleana) apresentou
+    valor único '0' nas linhas de exemplo, mas isso não é evidência suficiente do
+    significado do código. Revise manualmente antes de aplicar.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: processtype
+  valor: j
+  status_sugestao: pista_unica
+  traducao_sugerida: '0'
+  justificativa: Coluna 'contains_add' (pista fraca — coluna booleana) apresentou
+    valor único '0' nas linhas de exemplo, mas isso não é evidência suficiente do
+    significado do código. Revise manualmente antes de aplicar.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: alvara
+  valor: '0'
+  status_sugestao: pista_unica
+  traducao_sugerida: j
+  justificativa: Coluna 'processtype' (pista fraca — nome sem relação semântica) apresentou
+    valor único 'j' nas linhas de exemplo, mas isso não é evidência suficiente do
+    significado do código. Revise manualmente antes de aplicar.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: alvara
+  valor: '1'
+  status_sugestao: pista_unica
+  traducao_sugerida: j
+  justificativa: Coluna 'processtype' (pista fraca — nome sem relação semântica) apresentou
+    valor único 'j' nas linhas de exemplo, mas isso não é evidência suficiente do
+    significado do código. Revise manualmente antes de aplicar.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: doctype
+  valor: '1'
+  status_sugestao: pista_unica
+  traducao_sugerida: '0'
+  justificativa: Coluna 'alvara' (pista fraca — coluna booleana) apresentou valor
+    único '0' nas linhas de exemplo, mas isso não é evidência suficiente do significado
+    do código. Revise manualmente antes de aplicar.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: doctype
+  valor: '2'
+  status_sugestao: pista_unica
+  traducao_sugerida: '0'
+  justificativa: Coluna 'alvara' (pista fraca — coluna booleana) apresentou valor
+    único '0' nas linhas de exemplo, mas isso não é evidência suficiente do significado
+    do código. Revise manualmente antes de aplicar.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: doctype
+  valor: '3'
+  status_sugestao: pista_unica
+  traducao_sugerida: '0'
+  justificativa: Coluna 'alvara' (pista fraca — coluna booleana) apresentou valor
+    único '0' nas linhas de exemplo, mas isso não é evidência suficiente do significado
+    do código. Revise manualmente antes de aplicar.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: doctype
+  valor: '4'
+  status_sugestao: pista_unica
+  traducao_sugerida: '0'
+  justificativa: Coluna 'alvara' (pista fraca — coluna booleana) apresentou valor
+    único '0' nas linhas de exemplo, mas isso não é evidência suficiente do significado
+    do código. Revise manualmente antes de aplicar.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: doctype
+  valor: '5'
+  status_sugestao: pista_unica
+  traducao_sugerida: Outros
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código '5'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: doctype
+  valor: '6'
+  status_sugestao: pista_unica
+  traducao_sugerida: '0'
+  justificativa: Coluna 'alvara' (pista fraca — coluna booleana) apresentou valor
+    único '0' nas linhas de exemplo, mas isso não é evidência suficiente do significado
+    do código. Revise manualmente antes de aplicar.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: doctype
+  valor: '7'
+  status_sugestao: alta_confianca
+  traducao_sugerida: Outro
+  justificativa: Tabela de referência 'correspondent_document_types' detectada via
+    schema; coluna 'id' mapeou o código '7' para 'Outro' usando o rótulo 'name'.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: doctype
+  valor: '8'
+  status_sugestao: pista_unica
+  traducao_sugerida: '0'
+  justificativa: Coluna 'alvara' (pista fraca — coluna booleana) apresentou valor
+    único '0' nas linhas de exemplo, mas isso não é evidência suficiente do significado
+    do código. Revise manualmente antes de aplicar.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: doctype
+  valor: '9'
+  status_sugestao: pista_unica
+  traducao_sugerida: '0'
+  justificativa: Coluna 'alvara' (pista fraca — coluna booleana) apresentou valor
+    único '0' nas linhas de exemplo, mas isso não é evidência suficiente do significado
+    do código. Revise manualmente antes de aplicar.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: doctype
+  valor: '10'
+  status_sugestao: alta_confianca
+  traducao_sugerida: TRCT
+  justificativa: Tabela de referência 'otherdocs' detectada via schema; coluna 'otherdoc_id'
+    mapeou o código '10' para 'TRCT' usando o rótulo 'name'.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: doctype
+  valor: '11'
+  status_sugestao: alta_confianca
+  traducao_sugerida: Aviso Prévio
+  justificativa: Tabela de referência 'otherdocs' detectada via schema; coluna 'otherdoc_id'
+    mapeou o código '11' para 'Aviso Prévio' usando o rótulo 'name'.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: doctype
+  valor: '12'
+  status_sugestao: alta_confianca
+  traducao_sugerida: Comprovante depósito FGTS
+  justificativa: Tabela de referência 'otherdocs' detectada via schema; coluna 'otherdoc_id'
+    mapeou o código '12' para 'Comprovante depósito FGTS' usando o rótulo 'name'.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: doctype
+  valor: '13'
+  status_sugestao: pista_unica
+  traducao_sugerida: Outros
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código '13'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: doctype
+  valor: '14'
+  status_sugestao: alta_confianca
+  traducao_sugerida: Descrição de Cargos
+  justificativa: Tabela de referência 'otherdocs' detectada via schema; coluna 'otherdoc_id'
+    mapeou o código '14' para 'Descrição de Cargos' usando o rótulo 'name'.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: doctype
+  valor: '15'
+  status_sugestao: alta_confianca
+  traducao_sugerida: Comprovante mudança de função
+  justificativa: Tabela de referência 'otherdocs' detectada via schema; coluna 'otherdoc_id'
+    mapeou o código '15' para 'Comprovante mudança de função' usando o rótulo 'name'.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: contains_add
+  valor: '0'
+  status_sugestao: pista_unica
+  traducao_sugerida: '1'
+  justificativa: Coluna 'alvara' (pista fraca — coluna booleana) apresentou valor
+    único '1' nas linhas de exemplo, mas isso não é evidência suficiente do significado
+    do código. Revise manualmente antes de aplicar.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: procuracao
+  valor: '0'
+  status_sugestao: pista_unica
+  traducao_sugerida: '1'
+  justificativa: Coluna 'alvara' (pista fraca — coluna booleana) apresentou valor
+    único '1' nas linhas de exemplo, mas isso não é evidência suficiente do significado
+    do código. Revise manualmente antes de aplicar.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: created_at
+  valor: '2021-09-23 07:55:13'
+  status_sugestao: pista_unica
+  traducao_sugerida: '0'
+  justificativa: Coluna 'procuracao' (pista fraca — coluna booleana) apresentou valor
+    único '0' nas linhas de exemplo, mas isso não é evidência suficiente do significado
+    do código. Revise manualmente antes de aplicar.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: created_at
+  valor: '2021-09-23 17:48:41'
+  status_sugestao: pista_unica
+  traducao_sugerida: Ata de Audiência
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código '2021-09-23 17:48:41'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: created_at
+  valor: '2021-09-23 17:49:45'
+  status_sugestao: pista_unica
+  traducao_sugerida: E-mail
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código '2021-09-23 17:49:45'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: created_at
+  valor: '2021-09-23 17:49:59'
+  status_sugestao: pista_unica
+  traducao_sugerida: Ata de Audiência
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código '2021-09-23 17:49:59'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: created_at
+  valor: '2021-09-23 17:50:36'
+  status_sugestao: pista_unica
+  traducao_sugerida: Outros
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código '2021-09-23 17:50:36'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: created_at
+  valor: '2021-09-23 17:51:18'
+  status_sugestao: pista_unica
+  traducao_sugerida: Decisão
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código '2021-09-23 17:51:18'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: created_at
+  valor: '2021-09-23 17:52:16'
+  status_sugestao: pista_unica
+  traducao_sugerida: Despacho
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código '2021-09-23 17:52:16'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: created_at
+  valor: '2021-09-24 11:11:41'
+  status_sugestao: pista_unica
+  traducao_sugerida: Apelação
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código '2021-09-24 11:11:41'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: created_at
+  valor: '2021-09-24 11:12:04'
+  status_sugestao: pista_unica
+  traducao_sugerida: Sentença
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código '2021-09-24 11:12:04'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: created_at
+  valor: '2021-09-24 11:12:20'
+  status_sugestao: pista_unica
+  traducao_sugerida: Sentença de Embargos
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código '2021-09-24 11:12:20'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: created_at
+  valor: '2021-09-24 11:18:26'
+  status_sugestao: pista_unica
+  traducao_sugerida: Certidão
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código '2021-09-24 11:18:26'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: created_at
+  valor: '2021-09-27 08:58:46'
+  status_sugestao: pista_unica
+  traducao_sugerida: Acórdão
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código '2021-09-27 08:58:46'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: created_at
+  valor: '2021-10-05 18:12:10'
+  status_sugestao: pista_unica
+  traducao_sugerida: Agravo de Instrumento
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código '2021-10-05 18:12:10'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: created_at
+  valor: '2021-10-05 18:12:26'
+  status_sugestao: pista_unica
+  traducao_sugerida: Agravo Interno
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código '2021-10-05 18:12:26'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: created_at
+  valor: '2021-12-01 16:24:36'
+  status_sugestao: pista_unica
+  traducao_sugerida: Informações
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código '2021-12-01 16:24:36'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: created_at_userid
+  valor: '1'
+  status_sugestao: pista_unica
+  traducao_sugerida: '0'
+  justificativa: Coluna 'procuracao' (pista fraca — coluna booleana) apresentou valor
+    único '0' nas linhas de exemplo, mas isso não é evidência suficiente do significado
+    do código. Revise manualmente antes de aplicar.
+  decisao: pendente
+  traducao_final: null
+- tabela: lawsuitdocs
+  coluna: created_at_userid
+  valor: '21'
+  status_sugestao: pista_unica
+  traducao_sugerida: '0'
+  justificativa: Coluna 'procuracao' (pista fraca — coluna booleana) apresentou valor
+    único '0' nas linhas de exemplo, mas isso não é evidência suficiente do significado
+    do código. Revise manualmente antes de aplicar.
+  decisao: pendente
+  traducao_final: null

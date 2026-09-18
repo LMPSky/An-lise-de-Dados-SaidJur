@@ -1,0 +1,215 @@
+decisoes:
+- tabela: prazos_log
+  coluna: finishtype
+  valor: adm
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pendente
+  traducao_final: null
+- tabela: pedidos2lawsuit
+  coluna: status
+  valor: '6'
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pendente
+  traducao_final: null
+- tabela: publicationxml
+  coluna: aut_event
+  valor: l
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: 'A query de amostragem retornou 0 linhas, mas COUNT(*) encontrou
+    1108 linha(s) com aut_event = ''l''. Possível incompatibilidade de tipo ou coluna
+    com nome diferente do esperado. Verifique o tipo real da coluna no schema (ex:
+    TEXT vs INT).'
+  decisao: pendente
+  traducao_final: null
+- tabela: publicationxml
+  coluna: av_clientid
+  valor: '1076'
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: 'A query de amostragem retornou 0 linhas, mas COUNT(*) encontrou
+    1 linha(s) com av_clientid = ''1076''. Possível incompatibilidade de tipo ou coluna
+    com nome diferente do esperado. Verifique o tipo real da coluna no schema (ex:
+    TEXT vs INT).'
+  decisao: pendente
+  traducao_final: null
+- tabela: publicationxml
+  coluna: av_clientid
+  valor: '28226'
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: 'A query de amostragem retornou 0 linhas, mas COUNT(*) encontrou
+    1 linha(s) com av_clientid = ''28226''. Possível incompatibilidade de tipo ou
+    coluna com nome diferente do esperado. Verifique o tipo real da coluna no schema
+    (ex: TEXT vs INT).'
+  decisao: pendente
+  traducao_final: null
+- tabela: publicationxml
+  coluna: lawyer
+  valor: 04940191000122
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: 'A query de amostragem retornou 0 linhas, mas COUNT(*) encontrou
+    16 linha(s) com lawyer = ''04940191000122''. Possível incompatibilidade de tipo
+    ou coluna com nome diferente do esperado. Verifique o tipo real da coluna no schema
+    (ex: TEXT vs INT).'
+  decisao: pendente
+  traducao_final: null
+- tabela: publicationxml
+  coluna: lawyer
+  valor: ABRADEE
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: 'A query de amostragem retornou 0 linhas, mas COUNT(*) encontrou
+    38 linha(s) com lawyer = ''ABRADEE''. Possível incompatibilidade de tipo ou coluna
+    com nome diferente do esperado. Verifique o tipo real da coluna no schema (ex:
+    TEXT vs INT).'
+  decisao: pendente
+  traducao_final: null
+- tabela: publicationxml
+  coluna: lawyer
+  valor: AFONSO RODRIGUES DE CARVALHO
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: 'A query de amostragem retornou 0 linhas, mas COUNT(*) encontrou
+    4 linha(s) com lawyer = ''AFONSO RODRIGUES DE CARVALHO''. Possível incompatibilidade
+    de tipo ou coluna com nome diferente do esperado. Verifique o tipo real da coluna
+    no schema (ex: TEXT vs INT).'
+  decisao: pendente
+  traducao_final: null
+- tabela: publicationxml
+  coluna: lawyer
+  valor: AGENCIA NACIONAL DE MINERAÇAO
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: 'A query de amostragem retornou 0 linhas, mas COUNT(*) encontrou
+    36 linha(s) com lawyer = ''AGENCIA NACIONAL DE MINERAÇAO''. Possível incompatibilidade
+    de tipo ou coluna com nome diferente do esperado. Verifique o tipo real da coluna
+    no schema (ex: TEXT vs INT).'
+  decisao: pendente
+  traducao_final: null
+- tabela: publicationxml
+  coluna: lawyer
+  valor: AGENCIA WILSON SONS
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: 'A query de amostragem retornou 0 linhas, mas COUNT(*) encontrou
+    5 linha(s) com lawyer = ''AGENCIA WILSON SONS''. Possível incompatibilidade de
+    tipo ou coluna com nome diferente do esperado. Verifique o tipo real da coluna
+    no schema (ex: TEXT vs INT).'
+  decisao: pendente
+  traducao_final: null
+- tabela: publicationxml
+  coluna: lawyer
+  valor: AGROPECUARIA SERRA AZUL DE JAIBA SA
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: 'A query de amostragem retornou 0 linhas, mas COUNT(*) encontrou
+    7 linha(s) com lawyer = ''AGROPECUARIA SERRA AZUL DE JAIBA SA''. Possível incompatibilidade
+    de tipo ou coluna com nome diferente do esperado. Verifique o tipo real da coluna
+    no schema (ex: TEXT vs INT).'
+  decisao: pendente
+  traducao_final: null
+- tabela: publicationxml
+  coluna: lawyer
+  valor: ALYSSON OLIVEIRA VILELA
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: 'A query de amostragem retornou 0 linhas, mas COUNT(*) encontrou
+    17 linha(s) com lawyer = ''ALYSSON OLIVEIRA VILELA''. Possível incompatibilidade
+    de tipo ou coluna com nome diferente do esperado. Verifique o tipo real da coluna
+    no schema (ex: TEXT vs INT).'
+  decisao: pendente
+  traducao_final: null
+- tabela: publicationxml
+  coluna: lawyer
+  valor: AMAZONAS DIST DE ENERGIA SA
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: 'A query de amostragem retornou 0 linhas, mas COUNT(*) encontrou
+    392 linha(s) com lawyer = ''AMAZONAS DIST DE ENERGIA SA''. Possível incompatibilidade
+    de tipo ou coluna com nome diferente do esperado. Verifique o tipo real da coluna
+    no schema (ex: TEXT vs INT).'
+  decisao: pendente
+  traducao_final: null
+- tabela: publicationxml
+  coluna: lawyer
+  valor: AMAZONAS DISTRIBUIDOR
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: 'A query de amostragem retornou 0 linhas, mas COUNT(*) encontrou
+    11794 linha(s) com lawyer = ''AMAZONAS DISTRIBUIDOR''. Possível incompatibilidade
+    de tipo ou coluna com nome diferente do esperado. Verifique o tipo real da coluna
+    no schema (ex: TEXT vs INT).'
+  decisao: pendente
+  traducao_final: null
+- tabela: publicationxml
+  coluna: lawyer
+  valor: AMAZONAS DISTRIBUIDORA DE ENERGIA SA
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: 'A query de amostragem retornou 0 linhas, mas COUNT(*) encontrou
+    183731 linha(s) com lawyer = ''AMAZONAS DISTRIBUIDORA DE ENERGIA SA''. Possível
+    incompatibilidade de tipo ou coluna com nome diferente do esperado. Verifique
+    o tipo real da coluna no schema (ex: TEXT vs INT).'
+  decisao: pendente
+  traducao_final: null
+- tabela: publicationxml
+  coluna: observations_userid
+  valor: '1'
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: 'A query de amostragem retornou 0 linhas, mas COUNT(*) encontrou
+    39169 linha(s) com observations_userid = ''1''. Possível incompatibilidade de
+    tipo ou coluna com nome diferente do esperado. Verifique o tipo real da coluna
+    no schema (ex: TEXT vs INT).'
+  decisao: pendente
+  traducao_final: null
+- tabela: publicationxml
+  coluna: observations_userid
+  valor: '3'
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: 'A query de amostragem retornou 0 linhas, mas COUNT(*) encontrou
+    1 linha(s) com observations_userid = ''3''. Possível incompatibilidade de tipo
+    ou coluna com nome diferente do esperado. Verifique o tipo real da coluna no schema
+    (ex: TEXT vs INT).'
+  decisao: pendente
+  traducao_final: null
+- tabela: publicationxml
+  coluna: observations_userid
+  valor: '14'
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: 'A query de amostragem retornou 0 linhas, mas COUNT(*) encontrou
+    1 linha(s) com observations_userid = ''14''. Possível incompatibilidade de tipo
+    ou coluna com nome diferente do esperado. Verifique o tipo real da coluna no schema
+    (ex: TEXT vs INT).'
+  decisao: pendente
+  traducao_final: null
+- tabela: publicationxml
+  coluna: observations_userid
+  valor: '19'
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: 'A query de amostragem retornou 0 linhas, mas COUNT(*) encontrou
+    43 linha(s) com observations_userid = ''19''. Possível incompatibilidade de tipo
+    ou coluna com nome diferente do esperado. Verifique o tipo real da coluna no schema
+    (ex: TEXT vs INT).'
+  decisao: pendente
+  traducao_final: null
+- tabela: publicationxml
+  coluna: observations_userid
+  valor: '65'
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: 'A query de amostragem retornou 0 linhas, mas COUNT(*) encontrou
+    214 linha(s) com observations_userid = ''65''. Possível incompatibilidade de tipo
+    ou coluna com nome diferente do esperado. Verifique o tipo real da coluna no schema
+    (ex: TEXT vs INT).'
+  decisao: pendente
+  traducao_final: null
