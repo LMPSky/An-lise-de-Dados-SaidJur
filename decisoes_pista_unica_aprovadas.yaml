@@ -1,0 +1,695 @@
+decisoes:
+- tabela: businessunit
+  coluna: name
+  valor: DF - BH
+  status_sugestao: pista_unica
+  traducao_sugerida: Décio Freire e Advogados Associados - BH
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'DF - BH'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: businessunit
+  coluna: name
+  valor: DF - SP
+  status_sugestao: pista_unica
+  traducao_sugerida: Décio Freire e Advogados Associados - SP
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'DF - SP'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: businessunit
+  coluna: name
+  valor: DF - DF
+  status_sugestao: pista_unica
+  traducao_sugerida: Décio Freire e Advogados Associados - DF
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'DF - DF'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: businessunit
+  coluna: name
+  valor: DF - ES
+  status_sugestao: pista_unica
+  traducao_sugerida: Décio Freire e Advogados Associados - ES
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'DF - ES'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: businessunit
+  coluna: name
+  valor: DF - PE
+  status_sugestao: pista_unica
+  traducao_sugerida: Décio Freire e Advogados Associados - PE
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'DF - PE'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: businessunit
+  coluna: description
+  valor: Décio Freire e Advogados Associados - BH
+  status_sugestao: pista_unica
+  traducao_sugerida: DF - BH
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Décio Freire e Advogados Associados - BH'. Sugestão útil para revisão,
+    mas sem confiança alta (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: businessunit
+  coluna: description
+  valor: Décio Freire e Advogados Associados - SP
+  status_sugestao: pista_unica
+  traducao_sugerida: DF - SP
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Décio Freire e Advogados Associados - SP'. Sugestão útil para revisão,
+    mas sem confiança alta (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: businessunit
+  coluna: description
+  valor: Décio Freire e Advogados Associados - DF
+  status_sugestao: pista_unica
+  traducao_sugerida: DF - DF
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Décio Freire e Advogados Associados - DF'. Sugestão útil para revisão,
+    mas sem confiança alta (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: businessunit
+  coluna: description
+  valor: Décio Freire e Advogados Associados - ES
+  status_sugestao: pista_unica
+  traducao_sugerida: DF - ES
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Décio Freire e Advogados Associados - ES'. Sugestão útil para revisão,
+    mas sem confiança alta (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: businessunit
+  coluna: description
+  valor: Décio Freire e Advogados Associados - PE
+  status_sugestao: pista_unica
+  traducao_sugerida: DF - PE
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Décio Freire e Advogados Associados - PE'. Sugestão útil para revisão,
+    mas sem confiança alta (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: businessunitgroup
+  coluna: name
+  valor: Comercial
+  status_sugestao: pista_unica
+  traducao_sugerida: Área comercial
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Comercial'. Sugestão útil para revisão, mas sem confiança alta
+    (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: businessunitgroup
+  coluna: name
+  valor: Operacional
+  status_sugestao: pista_unica
+  traducao_sugerida: Área Operacional
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Operacional'. Sugestão útil para revisão, mas sem confiança alta
+    (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: businessunitgroup
+  coluna: name
+  valor: Administrativa
+  status_sugestao: pista_unica
+  traducao_sugerida: Área administrativa
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Administrativa'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: businessunitgroup
+  coluna: name
+  valor: Diretoria
+  status_sugestao: pista_unica
+  traducao_sugerida: Área da diretoria
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Diretoria'. Sugestão útil para revisão, mas sem confiança alta
+    (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: businessunitgroup
+  coluna: description
+  valor: Área comercial
+  status_sugestao: pista_unica
+  traducao_sugerida: Comercial
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Área comercial'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: businessunitgroup
+  coluna: description
+  valor: Área Operacional
+  status_sugestao: pista_unica
+  traducao_sugerida: Operacional
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Área Operacional'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: businessunitgroup
+  coluna: description
+  valor: Área administrativa
+  status_sugestao: pista_unica
+  traducao_sugerida: Administrativa
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Área administrativa'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: businessunitgroup
+  coluna: description
+  valor: Área da diretoria
+  status_sugestao: pista_unica
+  traducao_sugerida: Diretoria
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Área da diretoria'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: groups
+  coluna: name
+  valor: root administrator
+  status_sugestao: pista_unica
+  traducao_sugerida: Grupo do administrador root
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'root administrator'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: groups
+  coluna: name
+  valor: Colaborador
+  status_sugestao: pista_unica
+  traducao_sugerida: Usuário comum
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Colaborador'. Sugestão útil para revisão, mas sem confiança alta
+    (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: groups
+  coluna: name
+  valor: Administrador
+  status_sugestao: pista_unica
+  traducao_sugerida: Usuario com permissao para tudo
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Administrador'. Sugestão útil para revisão, mas sem confiança alta
+    (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: groups
+  coluna: name
+  valor: Estagiário
+  status_sugestao: pista_unica
+  traducao_sugerida: Grupo com acesso limitado
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Estagiário'. Sugestão útil para revisão, mas sem confiança alta
+    (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: groups
+  coluna: description
+  valor: Grupo do administrador root
+  status_sugestao: pista_unica
+  traducao_sugerida: root administrator
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Grupo do administrador root'. Sugestão útil para revisão, mas sem
+    confiança alta (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: groups
+  coluna: description
+  valor: Usuário comum
+  status_sugestao: pista_unica
+  traducao_sugerida: Colaborador
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Usuário comum'. Sugestão útil para revisão, mas sem confiança alta
+    (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: groups
+  coluna: description
+  valor: Usuario com permissao para tudo
+  status_sugestao: pista_unica
+  traducao_sugerida: Administrador
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Usuario com permissao para tudo'. Sugestão útil para revisão, mas
+    sem confiança alta (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: groups
+  coluna: description
+  valor: Grupo com acesso limitado
+  status_sugestao: pista_unica
+  traducao_sugerida: Estagiário
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Grupo com acesso limitado'. Sugestão útil para revisão, mas sem
+    confiança alta (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: permissions
+  coluna: name
+  valor: root administrator
+  status_sugestao: pista_unica
+  traducao_sugerida: Root administrator permission level
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'root administrator'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: permissions
+  coluna: name
+  valor: Usuario
+  status_sugestao: pista_unica
+  traducao_sugerida: Usuario comum do sistema
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Usuario'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: permissions
+  coluna: name
+  valor: Validator
+  status_sugestao: pista_unica
+  traducao_sugerida: Analista
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Validator'. Sugestão útil para revisão, mas sem confiança alta
+    (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: permissions
+  coluna: description
+  valor: Root administrator permission level
+  status_sugestao: pista_unica
+  traducao_sugerida: root administrator
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Root administrator permission level'. Sugestão útil para revisão,
+    mas sem confiança alta (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: permissions
+  coluna: description
+  valor: Usuario comum do sistema
+  status_sugestao: pista_unica
+  traducao_sugerida: Usuario
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Usuario comum do sistema'. Sugestão útil para revisão, mas sem
+    confiança alta (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: permissions
+  coluna: description
+  valor: Analista
+  status_sugestao: pista_unica
+  traducao_sugerida: Validator
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Analista'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: varas
+  coluna: name
+  valor: Justiça do Trabalho
+  status_sugestao: pista_unica
+  traducao_sugerida: Labor Court
+  justificativa: Coluna 'name_en' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Justiça do Trabalho'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena). A pista veio de coluna em outro idioma; traduza/valide
+    manualmente antes de aplicar.
+  decisao: aplicar
+  traducao_final: null
+- tabela: varas
+  coluna: name
+  valor: Justiça Estadual
+  status_sugestao: pista_unica
+  traducao_sugerida: Civil Court
+  justificativa: Coluna 'name_en' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Justiça Estadual'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena). A pista veio de coluna em outro idioma; traduza/valide
+    manualmente antes de aplicar.
+  decisao: aplicar
+  traducao_final: null
+- tabela: varas
+  coluna: name
+  valor: Administrativo
+  status_sugestao: pista_unica
+  traducao_sugerida: Administrative
+  justificativa: Coluna 'name_en' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Administrativo'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena). A pista veio de coluna em outro idioma; traduza/valide
+    manualmente antes de aplicar.
+  decisao: aplicar
+  traducao_final: null
+- tabela: varas
+  coluna: name
+  valor: Justiça Federal
+  status_sugestao: pista_unica
+  traducao_sugerida: Federal Court
+  justificativa: Coluna 'name_en' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Justiça Federal'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena). A pista veio de coluna em outro idioma; traduza/valide
+    manualmente antes de aplicar.
+  decisao: aplicar
+  traducao_final: null
+- tabela: varas
+  coluna: name_en
+  valor: Labor Court
+  status_sugestao: pista_unica
+  traducao_sugerida: Justiça do Trabalho
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Labor Court'. Sugestão útil para revisão, mas sem confiança alta
+    (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: varas
+  coluna: name_en
+  valor: Civil Court
+  status_sugestao: pista_unica
+  traducao_sugerida: Justiça Estadual
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Civil Court'. Sugestão útil para revisão, mas sem confiança alta
+    (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: varas
+  coluna: name_en
+  valor: Administrative
+  status_sugestao: pista_unica
+  traducao_sugerida: Administrativo
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Administrative'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: varas
+  coluna: name_en
+  valor: Federal Court
+  status_sugestao: pista_unica
+  traducao_sugerida: Justiça Federal
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Federal Court'. Sugestão útil para revisão, mas sem confiança alta
+    (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: accounts
+  coluna: type
+  valor: a
+  status_sugestao: pista_unica
+  traducao_sugerida: Conta de ativos
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'a'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: accounts
+  coluna: type
+  valor: d
+  status_sugestao: pista_unica
+  traducao_sugerida: Conta de despesas
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'd'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: accounts
+  coluna: type
+  valor: p
+  status_sugestao: pista_unica
+  traducao_sugerida: Conta de passivos
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'p'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: accounts
+  coluna: type
+  valor: pl
+  status_sugestao: pista_unica
+  traducao_sugerida: Conta sistema auxiliar
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'pl'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: accounts
+  coluna: type
+  valor: r
+  status_sugestao: pista_unica
+  traducao_sugerida: Conta de receita
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'r'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: accounts
+  coluna: nature
+  valor: a
+  status_sugestao: pista_unica
+  traducao_sugerida: Conta de ativos
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'a'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: accounts
+  coluna: nature
+  valor: d
+  status_sugestao: pista_unica
+  traducao_sugerida: Conta de despesas
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'd'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: accounts
+  coluna: nature
+  valor: p
+  status_sugestao: pista_unica
+  traducao_sugerida: Conta de passivos
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'p'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: accounts
+  coluna: nature
+  valor: pl
+  status_sugestao: pista_unica
+  traducao_sugerida: Conta sistema auxiliar
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'pl'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: accounts
+  coluna: nature
+  valor: r
+  status_sugestao: pista_unica
+  traducao_sugerida: Conta de receita
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'r'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: accounts
+  coluna: description
+  valor: Conta de ativos
+  status_sugestao: pista_unica
+  traducao_sugerida: ATIVO
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Conta de ativos'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: accounts
+  coluna: description
+  valor: Conta de passivos
+  status_sugestao: pista_unica
+  traducao_sugerida: PASSIVO
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Conta de passivos'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: accounts
+  coluna: description
+  valor: Conta de despesas
+  status_sugestao: pista_unica
+  traducao_sugerida: DESPESAS
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Conta de despesas'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: accounts
+  coluna: description
+  valor: Conta de receita
+  status_sugestao: pista_unica
+  traducao_sugerida: RECEITAS
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Conta de receita'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: accounts
+  coluna: description
+  valor: Conta sistema auxiliar
+  status_sugestao: pista_unica
+  traducao_sugerida: SISTEMA AUXILIAR
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Conta sistema auxiliar'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: businessunit
+  coluna: name
+  valor: DF - Varginha
+  status_sugestao: pista_unica
+  traducao_sugerida: Décio Freire e Advogados Associados - Varginha
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'DF - Varginha'. Sugestão útil para revisão, mas sem confiança alta
+    (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: businessunit
+  coluna: name
+  valor: DF - Ipatinga
+  status_sugestao: pista_unica
+  traducao_sugerida: Décio Freire e Advogados Associados - Ipatinga
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'DF - Ipatinga'. Sugestão útil para revisão, mas sem confiança alta
+    (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: businessunit
+  coluna: name
+  valor: DF - Uberlândia
+  status_sugestao: pista_unica
+  traducao_sugerida: Décio Freire e Advogados Associados - Uberlândia
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'DF - Uberlândia'. Sugestão útil para revisão, mas sem confiança
+    alta (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: businessunit
+  coluna: name
+  valor: Auditoria
+  status_sugestao: pista_unica
+  traducao_sugerida: Unidade criada para os processos da Lara Piau
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Auditoria'. Sugestão útil para revisão, mas sem confiança alta
+    (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: country
+  coluna: sigla
+  valor: BR
+  status_sugestao: pista_unica
+  traducao_sugerida: Brasil
+  justificativa: Coluna 'nome' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'BR'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: groups
+  coluna: name
+  valor: Supervisor
+  status_sugestao: pista_unica
+  traducao_sugerida: Usuário responsável por um grupo de colaboradores
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Supervisor'. Sugestão útil para revisão, mas sem confiança alta
+    (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: groups
+  coluna: name
+  valor: Coordenador
+  status_sugestao: pista_unica
+  traducao_sugerida: Coordenador de grupo de clientes (núcleo)
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Coordenador'. Sugestão útil para revisão, mas sem confiança alta
+    (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: permissions
+  coluna: name
+  valor: Coordenador
+  status_sugestao: pista_unica
+  traducao_sugerida: Coordenador de grupos de clientes (nucleo)
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Coordenador'. Sugestão útil para revisão, mas sem confiança alta
+    (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: permissions
+  coluna: name
+  valor: Cadastrista
+  status_sugestao: pista_unica
+  traducao_sugerida: Cadastra cliente para analise de credito.
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código 'Cadastrista'. Sugestão útil para revisão, mas sem confiança alta
+    (amostra pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: businessunitgroup
+  coluna: operation
+  valor: '1'
+  status_sugestao: pista_unica
+  traducao_sugerida: Área da diretoria
+  justificativa: Coluna 'description' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código '1'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: tax
+  coluna: rate
+  valor: '0.65'
+  status_sugestao: pista_unica
+  traducao_sugerida: PIS
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código '0.65'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: tax
+  coluna: rate
+  valor: '3.00'
+  status_sugestao: pista_unica
+  traducao_sugerida: COFINS
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código '3.00'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: tax
+  coluna: rate
+  valor: '1.50'
+  status_sugestao: pista_unica
+  traducao_sugerida: IR
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código '1.50'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: aplicar
+  traducao_final: null
+- tabela: tax
+  coluna: rate
+  valor: '1.00'
+  status_sugestao: pista_unica
+  traducao_sugerida: CSLL
+  justificativa: Coluna 'name' (pista forte) tem apenas uma ocorrência de exemplo
+    para o código '1.00'. Sugestão útil para revisão, mas sem confiança alta (amostra
+    pequena).
+  decisao: aplicar
+  traducao_final: null
