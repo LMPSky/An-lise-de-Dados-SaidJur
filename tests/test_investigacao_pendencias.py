@@ -1472,6 +1472,45 @@ def test_gerar_template_decisoes() -> None:
     assert template["decisoes"][0]["traducao_sugerida"] == "Boleto"
 
 
+def test_gerar_template_decisoes_filtra_por_status_e_tabela() -> None:
+    """Relatórios grandes (milhares de itens) precisam ser revisados em lotes
+    menores — os filtros `apenas_status`/`apenas_tabela` permitem gerar um
+    template com só uma fatia do relatório (ex: apenas os itens
+    'pista_unica' de uma tabela específica)."""
+    relatorio = {
+        "investigacoes": [
+            {
+                "tabela": "paymenttype",
+                "coluna": "code",
+                "valor": "Bol",
+                "sugestao": {"status": "alta_confianca", "traducao_sugerida": "Boleto"},
+            },
+            {
+                "tabela": "usertasks",
+                "coluna": "status",
+                "valor": "3",
+                "sugestao": {"status": "pista_unica", "traducao_sugerida": "Concluída"},
+            },
+            {
+                "tabela": "projects",
+                "coluna": "status",
+                "valor": "1",
+                "sugestao": {"status": "pista_unica", "traducao_sugerida": "Ativo"},
+            },
+        ]
+    }
+
+    apenas_pista_unica = gerar_template_decisoes(relatorio, apenas_status="pista_unica")
+    assert len(apenas_pista_unica["decisoes"]) == 2
+    assert {item["tabela"] for item in apenas_pista_unica["decisoes"]} == {"usertasks", "projects"}
+
+    apenas_usertasks = gerar_template_decisoes(
+        relatorio, apenas_status="pista_unica", apenas_tabela="usertasks"
+    )
+    assert len(apenas_usertasks["decisoes"]) == 1
+    assert apenas_usertasks["decisoes"][0]["tabela"] == "usertasks"
+
+
 # ---------------------------------------------------------------------------
 # Testes para os bugs corrigidos (Bug 1/2 — filtro por valor numérico,
 # Bug 3 — heurística de confiança mais rigorosa)

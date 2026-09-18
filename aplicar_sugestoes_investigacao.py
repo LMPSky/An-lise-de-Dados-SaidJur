@@ -38,6 +38,29 @@ def _parser() -> argparse.ArgumentParser:
         help="Gera um arquivo YAML de decisões e encerra (modo não-interativo)",
     )
     parser.add_argument(
+        "--apenas-status",
+        choices=(
+            "alta_confianca",
+            "pista_unica",
+            "sem_pista_encontrada",
+            "sem_registros",
+            "erro",
+        ),
+        help=(
+            "Usado com --gerar-template-decisoes: inclui no template apenas itens "
+            "cujo status da sugestão bata com o valor informado. Útil para "
+            "revisar em lotes menores relatórios grandes (ex: apenas 'pista_unica')."
+        ),
+    )
+    parser.add_argument(
+        "--apenas-tabela",
+        help=(
+            "Usado com --gerar-template-decisoes: inclui no template apenas itens "
+            "da tabela informada. Pode ser combinado com --apenas-status para gerar "
+            "lotes ainda menores (ex: só os 'pista_unica' de uma tabela específica)."
+        ),
+    )
+    parser.add_argument(
         "--aplicar-decisoes",
         help="Aplica decisões de um arquivo YAML (modo não-interativo)",
     )
@@ -188,9 +211,14 @@ def main() -> None:
     relatorio = carregar_yaml(args.relatorio_investigacao)
 
     if args.gerar_template_decisoes:
-        template = gerar_template_decisoes(relatorio)
+        template = gerar_template_decisoes(
+            relatorio,
+            apenas_status=args.apenas_status,
+            apenas_tabela=args.apenas_tabela,
+        )
         salvar_yaml(template, args.gerar_template_decisoes)
-        print(f"✅ Template de decisões gerado em: {args.gerar_template_decisoes}")
+        quantidade = len(template["decisoes"])
+        print(f"✅ Template de decisões gerado em: {args.gerar_template_decisoes} ({quantidade} item(ns))")
         return
 
     if args.aplicar_decisoes:

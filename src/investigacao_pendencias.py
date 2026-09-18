@@ -2551,11 +2551,26 @@ def carregar_yaml(caminho: str | Path) -> dict[str, Any]:
 
 
 
-def gerar_template_decisoes(relatorio: dict[str, Any]) -> dict[str, Any]:
-    """Gera template de decisões para modo não interativo."""
+def gerar_template_decisoes(
+    relatorio: dict[str, Any],
+    *,
+    apenas_status: str | None = None,
+    apenas_tabela: str | None = None,
+) -> dict[str, Any]:
+    """Gera template de decisões para modo não interativo.
+
+    ``apenas_status`` e ``apenas_tabela`` filtram os itens incluídos no
+    template (ex: ``apenas_status="pista_unica"``) — úteis para revisar em
+    lotes menores relatórios grandes (milhares de itens), em vez de gerar um
+    único arquivo com todas as pendências de uma vez.
+    """
     itens = []
     for item in relatorio.get("investigacoes", []):
         sugestao = item.get("sugestao", {})
+        if apenas_status is not None and sugestao.get("status") != apenas_status:
+            continue
+        if apenas_tabela is not None and item.get("tabela") != apenas_tabela:
+            continue
         itens.append(
             {
                 "tabela": item.get("tabela"),
