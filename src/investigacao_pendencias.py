@@ -558,12 +558,26 @@ def _coluna_elegivel_para_descoberta_schema(coluna: ColunaTabela) -> bool:
 
 _TIPOS_BINARIOS_SEMPRE_EXCLUIDOS: tuple[str, ...] = ("blob",)
 
+# Tipos temporais sempre excluídos do modo completo: um valor de data/hora não
+# é um código/ENUM (cada linha tende a ter um valor distinto ou quase-distinto
+# de verdade), então tratá-lo como "pendência" e sugerir uma tradução textual
+# para ele é sempre um falso positivo por coincidência de amostra pequena —
+# constatado em produção com `varas.timestamp` e
+# `lawsuitdocsmetadata.protocol_confirmed_date` recebendo rótulos sem sentido
+# (ex: "Teste", "RO") vindos de `_analisar_pistas`/`multiplas_pistas`.
+_TIPOS_TEMPORAIS_SEMPRE_EXCLUIDOS: tuple[str, ...] = (
+    "date",
+    "time",
+    "year",
+)
+
 
 def _coluna_elegivel_para_descoberta_completa(coluna: ColunaTabela) -> bool:
     """Elegibilidade ampliada usada pelo "modo completo" (``--completo``).
 
-    Ao contrário de :func:`_coluna_elegivel_para_descoberta_schema`, aqui só o
-    tipo ``BLOB`` (binário, sem representação textual útil) é descartado de
+    Ao contrário de :func:`_coluna_elegivel_para_descoberta_schema`, aqui só os
+    tipos ``BLOB`` (binário, sem representação textual útil) e temporais
+    (``DATE``/``DATETIME``/``TIMESTAMP``/``TIME``/``YEAR``) são descartados de
     antemão. Colunas ``TEXT``/``JSON``/``VARCHAR`` grandes ou com nome que
     sugere texto livre (``body``, ``observacao``...) não são mais excluídas
     por heurística de tipo/nome: elas seguem para a amostragem normal, que já
@@ -577,7 +591,8 @@ def _coluna_elegivel_para_descoberta_completa(coluna: ColunaTabela) -> bool:
     completo, pensado para rodar sem supervisão durante a noite.
     """
     tipo = coluna.tipo.lower()
-    return not any(chave in tipo for chave in _TIPOS_BINARIOS_SEMPRE_EXCLUIDOS)
+    tipos_excluidos = _TIPOS_BINARIOS_SEMPRE_EXCLUIDOS + _TIPOS_TEMPORAIS_SEMPRE_EXCLUIDOS
+    return not any(chave in tipo for chave in tipos_excluidos)
 
 
 def _tamanho_varchar(tipo: str) -> int | None:
