@@ -1462,6 +1462,17 @@ def test_coluna_elegivel_para_descoberta_completa_exclui_coluna_id() -> None:
     assert _coluna_elegivel_para_descoberta_completa(ColunaTabela("busunit_id", "int", 0)) is True
 
 
+def test_coluna_elegivel_para_descoberta_completa_exclui_colunas_sensiveis() -> None:
+    """Colunas de credenciais/segredos (senha, token...) nunca devem ser
+    tratadas como código/ENUM a traduzir — em produção, `users_api.password`
+    recebeu o nome de um usuário como "tradução" por coincidência de amostra
+    pequena via `_analisar_pistas`."""
+    assert _coluna_elegivel_para_descoberta_completa(ColunaTabela("password", "varchar(255)", 0)) is False
+    assert _coluna_elegivel_para_descoberta_completa(ColunaTabela("senha", "varchar(255)", 0)) is False
+    assert _coluna_elegivel_para_descoberta_completa(ColunaTabela("api_token", "varchar(255)", 0)) is False
+    assert _coluna_elegivel_para_descoberta_completa(ColunaTabela("status", "varchar(20)", 0)) is True
+
+
 def test_aplicar_decisoes_em_dicionario_aplica_somente_aprovadas() -> None:
     dicionarios = {"paymenttype": {"code": {"deb": "Débito"}}}
     decisoes = [
@@ -1644,7 +1655,6 @@ def test_coluna_tem_nome_semantico_verdadeiro() -> None:
     assert _coluna_tem_nome_semantico("description") is True
     assert _coluna_tem_nome_semantico("hearing_title") is True
     assert _coluna_tem_nome_semantico("label_id") is True
-    assert _coluna_tem_nome_semantico("observacao") is True
 
 
 def test_coluna_tem_nome_semantico_falso() -> None:
@@ -1653,6 +1663,30 @@ def test_coluna_tem_nome_semantico_falso() -> None:
     assert _coluna_tem_nome_semantico("dispensed") is False
     assert _coluna_tem_nome_semantico("correspondent") is False
     assert _coluna_tem_nome_semantico("status") is False
+
+
+def test_coluna_tem_nome_semantico_exclui_colunas_de_nota_livre() -> None:
+    """Regressão: colunas de nota/observação de texto livre (``obs``,
+    ``observacao``) não devem contar como "pista forte" — na prática, são
+    campos narrativos por linha (comentário de caso, motivo, etc.), não
+    rótulos de categoria. Confirmado ao revisar manualmente 2.126 itens
+    ``pista_unica``: colunas como ``markup_observation`` e ``observations``
+    bateram, por coincidência, com códigos e sugeriram texto específico de
+    um caso/pessoa (ex: nome de funcionário) como se fosse tradução."""
+    assert _coluna_tem_nome_semantico("observacao") is False
+    assert _coluna_tem_nome_semantico("observations") is False
+    assert _coluna_tem_nome_semantico("markup_observation") is False
+    assert _coluna_tem_nome_semantico("obs") is False
+
+
+def test_coluna_tem_nome_semantico_exclui_name_em_identificador_de_arquivo() -> None:
+    """Regressão: ``filename`` contém "name" como substring mas não é um
+    rótulo de categoria — é o nome de um arquivo específico daquela linha.
+    Em produção, ``expedientfilemetadata.filename`` foi classificado como
+    "pista forte" só por conter "name", batendo por coincidência com uma
+    coluna de observação e produzindo sugestões inúteis."""
+    assert _coluna_tem_nome_semantico("filename") is False
+    assert _coluna_tem_nome_semantico("username") is False
 
 
 def test_pista_e_booleana_apenas_zero_um() -> None:
