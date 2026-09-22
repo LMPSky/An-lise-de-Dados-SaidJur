@@ -2053,6 +2053,62 @@ def test_executar_investigacao_respeita_limite_linhas_em_colunas_diretas(tmp_pat
     assert len(item["linhas_exemplo"]) == 4
 
 
+def test_executar_investigacao_colunas_diretas_ignora_descoberta_via_schema(tmp_path: Path) -> None:
+    """``--colunas`` deve investigar apenas as especificações pedidas.
+
+    Bug reproduzido: combinar ``--colunas`` com ``--completo`` (que implica
+    ``descobrir_schema=True``) disparava uma varredura do banco inteiro além
+    do item direcionado, transformando uma checagem de 1 pendência em
+    milhares e causando uma bateria de timeouts desnecessária em tabelas
+    colossais.
+    """
+    import src.investigacao_pendencias as mod
+
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE paymenttype (
+                id INTEGER PRIMARY KEY,
+                code TEXT,
+                name TEXT
+            )
+        """))
+        conn.execute(text("""
+            INSERT INTO paymenttype (id, code, name) VALUES (1, 'Bol', 'Boleto')
+        """))
+        # Outra tabela com um código curto sem tradução, elegível para
+        # descoberta via schema — não deve aparecer no relatório quando
+        # colunas_diretas é usado, mesmo com descobrir_schema=True.
+        conn.execute(text("""
+            CREATE TABLE outra_tabela (
+                id INTEGER PRIMARY KEY,
+                status TEXT
+            )
+        """))
+        conn.execute(text("""
+            INSERT INTO outra_tabela (id, status) VALUES (1, 'X')
+        """))
+        conn.commit()
+
+    caminho_saida = tmp_path / "relatorio.yaml"
+    caminho_dicionarios = tmp_path / "dicionarios.yaml"
+    caminho_dicionarios.write_text("traducoes: {}\n", encoding="utf-8")
+
+    with patch.object(mod, "criar_engine", return_value=engine):
+        relatorio = executar_investigacao(
+            caminho_saida=caminho_saida,
+            caminho_dicionarios=caminho_dicionarios,
+            colunas_diretas=["paymenttype.code:Bol"],
+            descobrir_schema=True,
+            modo_completo=True,
+        )
+
+    assert relatorio["fonte_pendencias"] == "colunas_diretas:paymenttype.code:Bol"
+    assert len(relatorio["investigacoes"]) == 1
+    assert relatorio["investigacoes"][0]["tabela"] == "paymenttype"
+    assert "descoberta_schema" not in relatorio
+
+
 # ---------------------------------------------------------------------------
 # Testes Parte 0 — Bug de rótulo nulo em tabela de referência
 # ---------------------------------------------------------------------------
