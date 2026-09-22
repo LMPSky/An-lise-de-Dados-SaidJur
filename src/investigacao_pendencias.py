@@ -2783,9 +2783,15 @@ def executar_investigacao(
     engine = criar_engine()
     try:
         resumo_descoberta_schema: dict[str, Any] | None = None
-        if caminho_pendencias_markdown:
+        # Quando colunas_diretas é informado, a investigação deve se restringir
+        # apenas às especificações fornecidas (ver docstring acima) — expandir
+        # domínio ou disparar a descoberta via schema aqui faria uma varredura
+        # do banco inteiro "de graça" sempre que --colunas fosse combinado com
+        # --completo/--lote/--descobrir-schema, o que já causou uma investigação
+        # completa acidental (2.540 pendências) em vez das 20 pedidas.
+        if caminho_pendencias_markdown and not colunas_diretas:
             pendencias = expandir_pendencias_com_dominio(engine, pendencias)
-        if descobrir_schema:
+        if descobrir_schema and not colunas_diretas:
             pendencias_schema, resumo_descoberta_schema = descobrir_pendencias_schema(
                 engine, carregar_yaml(caminho_dicionarios), modo_completo=modo_completo
             )
