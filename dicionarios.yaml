@@ -330,6 +330,8 @@ lawsuits_log:
   result_instance:
     '2': 2ª instância
     '1': 1ª instância
+  finalpayment_type:
+    '3': Não recebimento do produto contratado
 paymentguarantee2lawsuit:
   status:
     '0': Inativo
@@ -499,7 +501,22 @@ clientsystem2lawsuit: {}
 expedients:
   lawsuit_id:
     '76248': 'Motivo: indenização'
-lawsuitdocs: {}
+  prazo_owner_id:
+    '24409': VISTA DOS COMPROVANTES DISPONIBILIZADOS
+    '26314': VISTAS/MANISFESTAÇÃO
+    '27701': ACOMPANHAR EXPEDIÇÃO DE CITAÇÃO
+    '28746': ANALISE DO PRAZO
+    '39724': CIENCIA DE PERICIA SUSPENSA
+    '6169': IMPUGNAR CALCULOS PERITO
+    '64571': OUTRAS ATIVIDADES - FGV REUNIÃO FGV AGRO X ICS
+    '778': comprovar pagamento do débito exequendo
+lawsuitdocs:
+  doctype:
+    '10': TRCT
+    '11': Aviso Prévio
+    '12': Comprovante depósito FGTS
+    '14': Descrição de Cargos
+    '15': Comprovante mudança de função
 otherdocs: {}
 pedidos2lawsuit: {}
 person2lawsuit:
