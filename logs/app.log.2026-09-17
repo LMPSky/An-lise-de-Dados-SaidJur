@@ -1,0 +1,5 @@
+2026-09-17 07:07:40,963 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-09-17 07:07:52,022 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.yaml (46 tabelas)
+2026-09-17 07:08:00,203 [INFO] saidjur.dados: Tabela 'accountspaylimits' | página 1 | filtros=None | total=3
+2026-09-17 07:08:17,329 [INFO] saidjur.dados: Tabela 'acordo_nucleus' | página 1 | filtros=None | total=6870
+2026-09-17 07:09:02,227 [INFO] saidjur: Servidor encerrado.
