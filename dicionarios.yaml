@@ -218,6 +218,8 @@ lawsuits_additional_info:
   solidarity_payment:
     '1': Acordo
     '2': Bacenjud
+  supplier_flow:
+    n: Não
 lawsuitdocsmetadata:
   prazophase:
     '1': RETIFICAR CTPS
@@ -289,6 +291,8 @@ lawsuits:
     '2': 2ª instância
     '1': 1ª instância
     '3': 3ª instância
+  deferred_protection:
+    n: Não
 lawsuits_log:
   status:
     '0': Inativo
@@ -579,6 +583,7 @@ prazos_log:
     '2': ENVIAR CTPS P/ ANOTAÇÃO
     '3': Juntada de preposição e substabelecimento
     '4': Encerramento
+    '0': Sem prazo em curso
   finishtype:
     p: processo físico
 projects:
@@ -1084,6 +1089,10 @@ acordo_nucleus:
     '5': Indefinido
     '6': Orientações para audiência
     '2': Autorização
+  markup_necessary:
+    n: Não
+    na: Não aplicável
+    y: Sim
 correspondent_requests_cancel_reasons:
   correspondent_request_id:
     '5': Indefinido
