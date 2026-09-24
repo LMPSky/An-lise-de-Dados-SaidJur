@@ -61,6 +61,21 @@ def _parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--incluir-contexto",
+        action="store_true",
+        help=(
+            "Usado com --gerar-template-decisoes: inclui em cada item, quando "
+            "disponíveis no relatório de origem, os campos 'distribuicao_codigo' "
+            "(frequência do código na coluna) e 'contexto_obs' (amostras de uma "
+            "coluna de observação/texto-livre correlacionada). Recomendado ao "
+            "gerar um template para revisão manual de itens 'sem_pista_encontrada' "
+            "(ex: --apenas-status sem_pista_encontrada --incluir-contexto), pois "
+            "esses itens não têm 'traducao_sugerida' nem 'pistas' — esse contexto "
+            "auxiliar já coletado durante a investigação costuma ser a única pista "
+            "disponível para uma decisão manual embasada."
+        ),
+    )
+    parser.add_argument(
         "--aplicar-decisoes",
         help="Aplica decisões de um arquivo YAML (modo não-interativo)",
     )
@@ -215,6 +230,15 @@ def main() -> None:
             relatorio,
             apenas_status=args.apenas_status,
             apenas_tabela=args.apenas_tabela,
+            incluir_contexto=args.incluir_contexto,
+        )
+        template["decisoes"] = sorted(
+            template["decisoes"],
+            key=lambda item: (
+                str(item.get("tabela") or ""),
+                str(item.get("coluna") or ""),
+                str(item.get("valor") or ""),
+            ),
         )
         salvar_yaml(template, args.gerar_template_decisoes)
         quantidade = len(template["decisoes"])

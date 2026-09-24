@@ -1562,6 +1562,58 @@ def test_gerar_template_decisoes_filtra_por_status_e_tabela() -> None:
     assert apenas_usertasks["decisoes"][0]["tabela"] == "usertasks"
 
 
+def test_gerar_template_decisoes_incluir_contexto() -> None:
+    """``incluir_contexto=True`` propaga 'distribuicao_codigo'/'contexto_obs' do
+    item de origem para o template — essencial para revisar manualmente itens
+    'sem_pista_encontrada', que não têm 'traducao_sugerida' nem 'pistas'."""
+    relatorio = {
+        "investigacoes": [
+            {
+                "tabela": "prazos_log",
+                "coluna": "pzphase",
+                "valor": "0",
+                "sugestao": {
+                    "status": "sem_pista_encontrada",
+                    "traducao_sugerida": None,
+                    "justificativa": "Nenhuma coluna vizinha candidata a pista foi identificada.",
+                },
+                "distribuicao_codigo": {
+                    "valores_distintos": 3,
+                    "ocorrencias_total": 1000,
+                    "ocorrencias_valor": 400,
+                    "classificacao": "enum_poucos_estados",
+                    "valores_frequentes": [{"valor": "0", "ocorrencias": 400}],
+                },
+                "contexto_obs": {
+                    "coluna_obs": "prazoobs",
+                    "total_ocorrencias": 12,
+                    "valores_distintos": 2,
+                    "amostras": [{"valor": "aguardando revisão", "ocorrencias": 8}],
+                },
+            },
+            {
+                "tabela": "paymenttype",
+                "coluna": "code",
+                "valor": "Bol",
+                "sugestao": {"status": "alta_confianca", "traducao_sugerida": "Boleto"},
+            },
+        ]
+    }
+
+    sem_contexto = gerar_template_decisoes(relatorio)
+    assert "distribuicao_codigo" not in sem_contexto["decisoes"][0]
+    assert "contexto_obs" not in sem_contexto["decisoes"][0]
+
+    com_contexto = gerar_template_decisoes(relatorio, incluir_contexto=True)
+    item_sem_pista = com_contexto["decisoes"][0]
+    assert item_sem_pista["distribuicao_codigo"]["ocorrencias_valor"] == 400
+    assert item_sem_pista["contexto_obs"]["coluna_obs"] == "prazoobs"
+    # Item sem esses campos no relatório de origem não ganha chaves vazias.
+    item_alta_confianca = com_contexto["decisoes"][1]
+    assert "distribuicao_codigo" not in item_alta_confianca
+    assert "contexto_obs" not in item_alta_confianca
+
+
 # ---------------------------------------------------------------------------
 # Testes para os bugs corrigidos (Bug 1/2 — filtro por valor numérico,
 # Bug 3 — heurística de confiança mais rigorosa)
