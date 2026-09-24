@@ -2666,6 +2666,7 @@ def gerar_template_decisoes(
     *,
     apenas_status: str | None = None,
     apenas_tabela: str | None = None,
+    incluir_contexto: bool = False,
 ) -> dict[str, Any]:
     """Gera template de decisões para modo não interativo.
 
@@ -2678,6 +2679,17 @@ def gerar_template_decisoes(
     é usado por :func:`aplicar_decisoes_em_dicionario`) — explica por que a
     sugestão foi feita (ex: "pista fraca — coluna booleana") e é essencial
     para decidir manualmente itens de baixa confiança como ``pista_unica``.
+
+    ``incluir_contexto=True`` inclui também, quando presentes no item de
+    origem, os campos ``distribuicao_codigo`` (frequência do código na
+    coluna — ver :func:`_coletar_distribuicao_codigo`) e ``contexto_obs``
+    (amostras de uma coluna de observação/texto-livre correlacionada — ver
+    :func:`_coletar_contexto_coluna_obs`). Esses sinais já são coletados
+    durante a investigação como contexto auxiliar, mas são normalmente
+    descartados no template enxuto; para itens ``sem_pista_encontrada`` —
+    que não têm ``traducao_sugerida`` nem ``pistas`` — eles costumam ser a
+    única informação disponível para uma revisão manual embasada, evitando
+    que o revisor precise abrir o relatório completo e estruturado à parte.
     """
     itens = []
     for item in relatorio.get("investigacoes", []):
@@ -2686,18 +2698,22 @@ def gerar_template_decisoes(
             continue
         if apenas_tabela is not None and item.get("tabela") != apenas_tabela:
             continue
-        itens.append(
-            {
-                "tabela": item.get("tabela"),
-                "coluna": item.get("coluna"),
-                "valor": item.get("valor"),
-                "status_sugestao": sugestao.get("status"),
-                "traducao_sugerida": sugestao.get("traducao_sugerida"),
-                "justificativa": sugestao.get("justificativa"),
-                "decisao": "pendente",  # aplicar | pular
-                "traducao_final": None,
-            }
-        )
+        decisao_item = {
+            "tabela": item.get("tabela"),
+            "coluna": item.get("coluna"),
+            "valor": item.get("valor"),
+            "status_sugestao": sugestao.get("status"),
+            "traducao_sugerida": sugestao.get("traducao_sugerida"),
+            "justificativa": sugestao.get("justificativa"),
+            "decisao": "pendente",  # aplicar | pular
+            "traducao_final": None,
+        }
+        if incluir_contexto:
+            if item.get("distribuicao_codigo") is not None:
+                decisao_item["distribuicao_codigo"] = item["distribuicao_codigo"]
+            if item.get("contexto_obs") is not None:
+                decisao_item["contexto_obs"] = item["contexto_obs"]
+        itens.append(decisao_item)
     return {"decisoes": itens}
 
 
