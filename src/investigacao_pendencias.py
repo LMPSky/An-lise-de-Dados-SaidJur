@@ -1424,22 +1424,47 @@ def _consultar_rotulo_para_codigo(
     tabela_sql = _identificador(tabela_ref, engine.dialect.name)
     coluna_codigo_sql = _identificador(coluna_codigo, engine.dialect.name)
     coluna_rotulo_sql = _identificador(coluna_rotulo, engine.dialect.name)
-    sql = text(
+
+    # Comparação direta (sem CAST na coluna): quando `coluna_codigo` é a
+    # chave primária (ou outra coluna indexada) de uma tabela colossal (ex:
+    # ``publicationxml``, ~8,4M linhas), envolver a coluna em CAST(... AS
+    # CHAR) impede o otimizador de usar o índice, forçando uma varredura
+    # completa da tabela e estourando o timeout — mesmo buscando por um
+    # único valor de PK. Tentamos primeiro a comparação tipada (que permite
+    # index seek) e só caímos para a versão com CAST — mais lenta, porém
+    # tolerante a colunas TEXT que armazenam números com formatação
+    # diferente (ex: zeros à esquerda) — se a primeira não encontrar nada.
+    param_valor = _converter_valor_para_param(pendencia.valor)
+    sql_direta = text(
+        f"SELECT {coluna_codigo_sql} AS codigo, {coluna_rotulo_sql} AS rotulo "
+        f"FROM {tabela_sql} "
+        f"WHERE {coluna_codigo_sql} = :valor "
+        "LIMIT 5"
+    )
+    sql_cast = text(
         f"SELECT {coluna_codigo_sql} AS codigo, {coluna_rotulo_sql} AS rotulo "
         f"FROM {tabela_sql} "
         f"WHERE CAST({coluna_codigo_sql} AS CHAR) = CAST(:valor AS CHAR) "
         "LIMIT 5"
     )
 
-    def _executar() -> list[dict[str, Any]]:
+    def _executar(sql: Any, valor: Any) -> list[dict[str, Any]]:
         with conectar_com_timeout(engine) as conn:
-            res = conn.execute(sql, {"valor": str(pendencia.valor)})
+            res = conn.execute(sql, {"valor": valor})
             return [dict(row._mapping) for row in res.fetchall()]
 
     linhas = executar_com_retry_db(
-        _executar,
+        lambda: _executar(sql_direta, param_valor),
         descricao=f"Investigar catálogo {tabela_ref} para {pendencia.tabela}.{pendencia.coluna}",
     )
+    if not linhas:
+        linhas = executar_com_retry_db(
+            lambda: _executar(sql_cast, str(pendencia.valor)),
+            descricao=(
+                f"Investigar (fallback texto) catálogo {tabela_ref} para "
+                f"{pendencia.tabela}.{pendencia.coluna}"
+            ),
+        )
     rotulos = []
     for linha in linhas:
         valor_rotulo = linha.get("rotulo")
