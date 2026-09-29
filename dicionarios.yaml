@@ -1,4 +1,7 @@
-activitynature: {}
+activitynature:
+  type:
+    com: Comercial / Desenvolvimento de Negócios
+    con: Consultivo / Assessoria Jurídica
 automaticprazos_lawsuits:
   hearing_type:
     all: Todos
@@ -190,6 +193,10 @@ hearings_log:
     '10': Testemunhas
     '3': Parcialmente procedente
     '13': Ausência de preposto - revelia
+  hearingstatus:
+    '0': Agendada / Marcada
+    '1': Realizada
+    '2': Cancelada / Adiada / Redesignada
 jqcalendar:
   IsAllDayEvent:
     '0': Não
@@ -226,6 +233,9 @@ lawsuitdocsmetadata:
     '2': ENVIAR CTPS P/ ANOTAÇÃO
     '3': Juntada de preposição e substabelecimento
     '4': Encerramento
+  protocolstatus:
+    '0': Pendente / Não Protocolado
+    '2': Protocolado com Sucesso / Confirmado
 lawsuits:
   status:
     '0': Inativo
@@ -293,6 +303,12 @@ lawsuits:
     '3': 3ª instância
   deferred_protection:
     n: Não
+  clientcond:
+    d: Réu
+    n: Neutro
+    p: Autor
+  contract_type:
+    co: Contrato de Êxito
 lawsuits_log:
   status:
     '0': Inativo
@@ -336,6 +352,12 @@ lawsuits_log:
     '1': 1ª instância
   finalpayment_type:
     '3': Não recebimento do produto contratado
+  clientcond:
+    d: Réu
+    n: Neutro
+    p: Autor
+  contract_type:
+    co: Contrato de Êxito
 paymentguarantee2lawsuit:
   status:
     '0': Inativo
@@ -501,6 +523,12 @@ accounts:
     Conta de despesas: DESPESAS
     Conta de receita: RECEITAS
     Conta sistema auxiliar: SISTEMA AUXILIAR
+  level:
+    '1': Classe / Grupo
+    '2': Subgrupo
+    '3': Conta Sintética / Conta-Mãe
+    '4': Subconta / Conta Analítica
+    '5': Item / Conta Corrente / Centro
 clientsystem2lawsuit: {}
 expedients:
   lawsuit_id:
@@ -522,7 +550,17 @@ lawsuitdocs:
     '14': Descrição de Cargos
     '15': Comprovante mudança de função
 otherdocs: {}
-pedidos2lawsuit: {}
+pedidos2lawsuit:
+  instance01:
+    '3': 3ª Instância / Tribunais Superiores (STJ/TST)
+    '4': Supremo Tribunal Federal (STF)
+    '5': Instância Administrativa / Órgãos Públicos
+    '7': Turma Recursal (Recursos dos Juizados)
+    '8': Arbitragem / Câmaras Arbitrais
+  instance02:
+    '3': 3ª Instância / Tribunais Superiores (STJ/TST)
+    '6': Juizados Especiais (JEC/JEF/JECRIM)
+    '8': Arbitragem / Câmaras Arbitrais
 person2lawsuit:
   link_type:
     u: SEM JUSTA CAUSA
@@ -590,7 +628,11 @@ projects:
   coordinator_id:
     '779': NAIARA MARQUES
     '27701': GESSICA BERNARDO
-tasks2publication: {}
+tasks2publication:
+  status:
+    '0': Pendente / Não Vinculada
+    '1': Em Andamento / Vinculada
+    '2': Concluída / Cumprida
 timesheet_tasks:
   lawyer_id:
     '89029': ISABELA OLIVEIRA
@@ -695,6 +737,9 @@ hearingcontrol:
     '11': Arquivamento - Ausência reclamante
     '13': Ausência de preposto - revelia
     '17': Solicitado pelo pool
+  hearingstatus:
+    '0': Agendada / Marcada
+    '1': Realizada
 final_payments:
   payment_type:
     '1': Acordo
@@ -800,6 +845,10 @@ claims_pericias_control:
     '7': Gabriela
     '8': Gabriel
     '71': Pietro
+  pericia_result:
+    n: Negativa / Improcedente / Favorável à Empresa
+    p: Positiva / Procedente / Desfavorável à Empresa
+    pe: Parcial / Concorrência de Culpa
 client_publication_search_terms:
   client_id:
     '1074': LIGHT SERVIÇOS DE ELETRICIDADE S.A.
@@ -987,6 +1036,11 @@ sentence2lawsuit_2:
     '25': Pendente de julgamento
     '26': Ilegitimidade acolhida
     '32': Improcedência em relação ao cliente
+  sentence_amount_risk:
+    '1': Remoto
+    '2': Possível
+    '3': Provável
+    '4': Praticamente certo
 sentence2lawsuit_3:
   sentence_amount_result:
     '1': Procedente
@@ -995,12 +1049,19 @@ sentence2lawsuit_3:
     '4': Acordo
     '23': Não provido
     '24': Provido
+  sentence_amount_risk:
+    '1': Remoto
+    '3': Provável
+    '4': Praticamente certo
 sentence2lawsuit_stf:
   sentence_amount_result:
     '2': Improcedente
     '3': Parcialmente procedente
   user_id:
     '1': AmericoBarroso
+  sentence_amount_risk:
+    '3': Provável
+    '4': Praticamente certo
 state:
   pais:
     '1': Brasil
@@ -1093,6 +1154,14 @@ acordo_nucleus:
     n: Não
     na: Não aplicável
     y: Sim
+  agreement_in_hearing:
+    '1': Sim, feito em Audiência
+    '3': Feito em Mutirão de Conciliação
+    '4': Feito em Câmara de Mediação / Arbitragem
+  non_agreement_reason:
+    '1': Divergência de Valores / Proposta Recusada
+    '2': Ausência ou Inércia da Outra Parte
+    '6': Política de Alçada / Sem Autorização da Empresa
 correspondent_requests_cancel_reasons:
   correspondent_request_id:
     '5': Indefinido
@@ -1147,6 +1216,11 @@ sentence2lawsuit:
     '32': Improcedência em relação ao cliente
     '24': Provido
     '16': Laudo positivo
+  sentence_amount_risk:
+    '1': Remoto
+    '2': Possível
+    '3': Provável
+    '4': Praticamente certo
 businessunitgroup:
   name:
     Comercial: Área comercial
@@ -1180,3 +1254,23 @@ tax:
     '3.00': COFINS
     '1.50': IR
     '1.00': CSLL
+claims:
+  lawsuittype:
+    j: Judicial
+projecteventtypes:
+  type:
+    con: Consultivo / Assessoria Jurídica
+templatesubject:
+  type:
+    '0': Interno
+    '1': Externo / Processual
+totalprov2lawsuit:
+  risk:
+    '1': Remoto
+    '2': Possível
+    '3': Provável
+    '4': Praticamente certo
+turmas:
+  turma:
+    '1': 1ª Turma/Câmara
+    '2': 2ª Turma/Câmara
