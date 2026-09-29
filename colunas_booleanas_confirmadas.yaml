@@ -1,4 +1,4 @@
-atualizado_em: '2026-09-29T14:42:26.597553+00:00'
+atualizado_em: '2026-09-29T14:46:28.781126+00:00'
 confirmadas:
   automaticprazos_jurify.all_prazos:
     tabela: automaticprazos_jurify
@@ -132,10 +132,6 @@ confirmadas:
     tabela: users
     coluna: active
     confirmado_em: '2026-09-29T14:41:37.166311+00:00'
-  usertasks.purchaseorderlimit:
-    tabela: usertasks
-    coluna: purchaseorderlimit
-    confirmado_em: '2026-09-29T14:41:59.803809+00:00'
   usertasks.type_bank:
     tabela: usertasks
     coluna: type_bank
@@ -185,3 +181,7 @@ rejeitadas:
     tabela: usertasks
     coluna: paymentlimit_id
     rejeitado_em: '2026-09-29T14:41:51.588572+00:00'
+  usertasks.purchaseorderlimit:
+    tabela: usertasks
+    coluna: purchaseorderlimit
+    rejeitado_em: '2026-09-29T14:46:28.781107+00:00'
