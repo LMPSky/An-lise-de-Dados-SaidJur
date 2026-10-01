@@ -926,7 +926,7 @@ decisoes:
   status_sugestao: sem_pista_encontrada
   justificativa_original: As pistas disponíveis tinham aparência de texto livre específico
     (conteúdo de registro real) e foram descartadas por segurança.
-  decisao: pendente
+  decisao: pular
   traducao_final: null
   distribuicao_codigo:
     valores_distintos: 4
@@ -942,6 +942,7 @@ decisoes:
       ocorrencias: 38
     - valor: '2'
       ocorrencias: 4
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01
 - tabela: acordo_nucleus
   coluna: non_agreement_reason
   valor: '1'
@@ -1023,8 +1024,8 @@ decisoes:
   status_sugestao: sem_pista_encontrada
   justificativa_original: Há pistas textuais, mas sem consistência suficiente para
     alta confiança.
-  decisao: pendente
-  traducao_final: null
+  decisao: aplicar
+  traducao_final: Petição de acordo
   distribuicao_codigo:
     valores_distintos: 12
     ocorrencias_total: 251
@@ -1041,6 +1042,7 @@ decisoes:
       ocorrencias: 14
     - valor: '1'
       ocorrencias: 13
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01
 - tabela: acordo_nucleus
   coluna: updated_at_userid
   valor: '163'
@@ -3284,7 +3286,7 @@ decisoes:
   valor: '1'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Nenhuma coluna vizinha candidata a pista foi identificada.
-  decisao: pendente
+  decisao: pular
   traducao_final: null
   distribuicao_codigo:
     valores_distintos: 18
@@ -3302,12 +3304,13 @@ decisoes:
       ocorrencias: 10
     - valor: '6'
       ocorrencias: 5
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_campo_numerico_nao_categorico
 - tabela: cartorios
   coluna: cartoriosmax
   valor: '10'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Nenhuma coluna vizinha candidata a pista foi identificada.
-  decisao: pendente
+  decisao: pular
   traducao_final: null
   distribuicao_codigo:
     valores_distintos: 18
@@ -3325,12 +3328,13 @@ decisoes:
       ocorrencias: 10
     - valor: '6'
       ocorrencias: 5
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_campo_numerico_nao_categorico
 - tabela: cartorios
   coluna: cartoriosmax
   valor: '100'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Nenhuma coluna vizinha candidata a pista foi identificada.
-  decisao: pendente
+  decisao: pular
   traducao_final: null
   distribuicao_codigo:
     valores_distintos: 18
@@ -3348,12 +3352,13 @@ decisoes:
       ocorrencias: 10
     - valor: '6'
       ocorrencias: 5
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_campo_numerico_nao_categorico
 - tabela: cartorios
   coluna: cartoriosmax
   valor: '13'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Nenhuma coluna vizinha candidata a pista foi identificada.
-  decisao: pendente
+  decisao: pular
   traducao_final: null
   distribuicao_codigo:
     valores_distintos: 18
@@ -3371,12 +3376,13 @@ decisoes:
       ocorrencias: 10
     - valor: '6'
       ocorrencias: 5
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_campo_numerico_nao_categorico
 - tabela: cartorios
   coluna: cartoriosmax
   valor: '14'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Nenhuma coluna vizinha candidata a pista foi identificada.
-  decisao: pendente
+  decisao: pular
   traducao_final: null
   distribuicao_codigo:
     valores_distintos: 18
@@ -3394,12 +3400,13 @@ decisoes:
       ocorrencias: 10
     - valor: '6'
       ocorrencias: 5
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_campo_numerico_nao_categorico
 - tabela: cartorios
   coluna: cartoriosmax
   valor: '17'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Nenhuma coluna vizinha candidata a pista foi identificada.
-  decisao: pendente
+  decisao: pular
   traducao_final: null
   distribuicao_codigo:
     valores_distintos: 18
@@ -3417,12 +3424,13 @@ decisoes:
       ocorrencias: 10
     - valor: '6'
       ocorrencias: 5
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_campo_numerico_nao_categorico
 - tabela: cartorios
   coluna: cartoriosmax
   valor: '2'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Nenhuma coluna vizinha candidata a pista foi identificada.
-  decisao: pendente
+  decisao: pular
   traducao_final: null
   distribuicao_codigo:
     valores_distintos: 18
@@ -3440,12 +3448,13 @@ decisoes:
       ocorrencias: 10
     - valor: '6'
       ocorrencias: 5
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_campo_numerico_nao_categorico
 - tabela: cartorios
   coluna: cartoriosmax
   valor: '20'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Nenhuma coluna vizinha candidata a pista foi identificada.
-  decisao: pendente
+  decisao: pular
   traducao_final: null
   distribuicao_codigo:
     valores_distintos: 18
@@ -3463,12 +3472,13 @@ decisoes:
       ocorrencias: 10
     - valor: '6'
       ocorrencias: 5
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_campo_numerico_nao_categorico
 - tabela: cartorios
   coluna: cartoriosmax
   valor: '3'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Nenhuma coluna vizinha candidata a pista foi identificada.
-  decisao: pendente
+  decisao: pular
   traducao_final: null
   distribuicao_codigo:
     valores_distintos: 18
@@ -3486,12 +3496,13 @@ decisoes:
       ocorrencias: 10
     - valor: '6'
       ocorrencias: 5
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_campo_numerico_nao_categorico
 - tabela: cartorios
   coluna: cartoriosmax
   valor: '39'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Nenhuma coluna vizinha candidata a pista foi identificada.
-  decisao: pendente
+  decisao: pular
   traducao_final: null
   distribuicao_codigo:
     valores_distintos: 18
@@ -3509,12 +3520,13 @@ decisoes:
       ocorrencias: 10
     - valor: '6'
       ocorrencias: 5
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_campo_numerico_nao_categorico
 - tabela: cartorios
   coluna: cartoriosmax
   valor: '4'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Nenhuma coluna vizinha candidata a pista foi identificada.
-  decisao: pendente
+  decisao: pular
   traducao_final: null
   distribuicao_codigo:
     valores_distintos: 18
@@ -3532,12 +3544,13 @@ decisoes:
       ocorrencias: 10
     - valor: '6'
       ocorrencias: 5
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_campo_numerico_nao_categorico
 - tabela: cartorios
   coluna: cartoriosmax
   valor: '48'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Nenhuma coluna vizinha candidata a pista foi identificada.
-  decisao: pendente
+  decisao: pular
   traducao_final: null
   distribuicao_codigo:
     valores_distintos: 18
@@ -3555,12 +3568,13 @@ decisoes:
       ocorrencias: 10
     - valor: '6'
       ocorrencias: 5
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_campo_numerico_nao_categorico
 - tabela: cartorios
   coluna: cartoriosmax
   valor: '5'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Nenhuma coluna vizinha candidata a pista foi identificada.
-  decisao: pendente
+  decisao: pular
   traducao_final: null
   distribuicao_codigo:
     valores_distintos: 18
@@ -3578,12 +3592,13 @@ decisoes:
       ocorrencias: 10
     - valor: '6'
       ocorrencias: 5
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_campo_numerico_nao_categorico
 - tabela: cartorios
   coluna: cartoriosmax
   valor: '6'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Nenhuma coluna vizinha candidata a pista foi identificada.
-  decisao: pendente
+  decisao: pular
   traducao_final: null
   distribuicao_codigo:
     valores_distintos: 18
@@ -3601,12 +3616,13 @@ decisoes:
       ocorrencias: 10
     - valor: '6'
       ocorrencias: 5
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_campo_numerico_nao_categorico
 - tabela: cartorios
   coluna: cartoriosmax
   valor: '7'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Nenhuma coluna vizinha candidata a pista foi identificada.
-  decisao: pendente
+  decisao: pular
   traducao_final: null
   distribuicao_codigo:
     valores_distintos: 18
@@ -3624,12 +3640,13 @@ decisoes:
       ocorrencias: 10
     - valor: '6'
       ocorrencias: 5
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_campo_numerico_nao_categorico
 - tabela: cartorios
   coluna: cartoriosmax
   valor: '8'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Nenhuma coluna vizinha candidata a pista foi identificada.
-  decisao: pendente
+  decisao: pular
   traducao_final: null
   distribuicao_codigo:
     valores_distintos: 18
@@ -3647,12 +3664,13 @@ decisoes:
       ocorrencias: 10
     - valor: '6'
       ocorrencias: 5
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_campo_numerico_nao_categorico
 - tabela: cartorios
   coluna: cartoriosmax
   valor: '9'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Nenhuma coluna vizinha candidata a pista foi identificada.
-  decisao: pendente
+  decisao: pular
   traducao_final: null
   distribuicao_codigo:
     valores_distintos: 18
@@ -3670,12 +3688,13 @@ decisoes:
       ocorrencias: 10
     - valor: '6'
       ocorrencias: 5
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_campo_numerico_nao_categorico
 - tabela: cartorios
   coluna: cartoriosmax
   valor: '90'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Nenhuma coluna vizinha candidata a pista foi identificada.
-  decisao: pendente
+  decisao: pular
   traducao_final: null
   distribuicao_codigo:
     valores_distintos: 18
@@ -3693,6 +3712,7 @@ decisoes:
       ocorrencias: 10
     - valor: '6'
       ocorrencias: 5
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_campo_numerico_nao_categorico
 - tabela: cartorios
   coluna: varaid
   valor: '1'
@@ -5534,7 +5554,7 @@ decisoes:
   valor: TM&D
   status_sugestao: sem_pista_encontrada
   justificativa_original: Nenhuma coluna vizinha candidata a pista foi identificada.
-  decisao: pendente
+  decisao: pular
   traducao_final: null
   distribuicao_codigo:
     valores_distintos: 5
@@ -5552,6 +5572,7 @@ decisoes:
       ocorrencias: 1
     - valor: NÃO INFORMADO
       ocorrencias: 1
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01
 - tabela: client_systems
   coluna: system
   valor: CPJ
@@ -5707,8 +5728,8 @@ decisoes:
   status_sugestao: sem_pista_encontrada
   justificativa_original: Há pistas textuais, mas sem consistência suficiente para
     alta confiança.
-  decisao: pendente
-  traducao_final: null
+  decisao: aplicar
+  traducao_final: Erro técnico (falha de comunicação)
   distribuicao_codigo:
     valores_distintos: 6
     ocorrencias_total: 28076
@@ -5725,6 +5746,7 @@ decisoes:
       ocorrencias: 150
     - valor: '5'
       ocorrencias: 25
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01
 - tabela: cnj_required_lawsuitnatures
   coluna: vara_id
   valor: '1'
@@ -7532,8 +7554,8 @@ decisoes:
   status_sugestao: sem_pista_encontrada
   justificativa_original: As pistas disponíveis tinham aparência de texto livre específico
     (conteúdo de registro real) e foram descartadas por segurança.
-  decisao: pendente
-  traducao_final: null
+  decisao: aplicar
+  traducao_final: Cancelado
   distribuicao_codigo:
     valores_distintos: 1
     ocorrencias_total: 1
@@ -7542,6 +7564,7 @@ decisoes:
     valores_frequentes:
     - valor: '3'
       ocorrencias: 1
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01
 - tabela: correspondent_requests
   coluna: updated_at_userid
   valor: '326'
@@ -7567,8 +7590,8 @@ decisoes:
   valor: refuse_request
   status_sugestao: sem_pista_encontrada
   justificativa_original: Nenhuma coluna vizinha candidata a pista foi identificada.
-  decisao: pendente
-  traducao_final: null
+  decisao: aplicar
+  traducao_final: Recusar solicitação
   distribuicao_codigo:
     valores_distintos: 1
     ocorrencias_total: 1
@@ -7577,6 +7600,7 @@ decisoes:
     valores_frequentes:
     - valor: refuse_request
       ocorrencias: 1
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01
 - tabela: correspondent_requests_cancel_reasons
   coluna: cancel_reason
   valor: Teste
@@ -7614,8 +7638,8 @@ decisoes:
   valor: refused_by_email
   status_sugestao: sem_pista_encontrada
   justificativa_original: Nenhuma coluna vizinha candidata a pista foi identificada.
-  decisao: pendente
-  traducao_final: null
+  decisao: aplicar
+  traducao_final: Recusado por e-mail
   distribuicao_codigo:
     valores_distintos: 1
     ocorrencias_total: 1
@@ -7624,6 +7648,7 @@ decisoes:
     valores_frequentes:
     - valor: refused_by_email
       ocorrencias: 1
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01
 - tabela: correspondent_state_activity_rates
   coluna: activity_id
   valor: '1'
@@ -8522,8 +8547,8 @@ decisoes:
   status_sugestao: sem_pista_encontrada
   justificativa_original: Há pistas textuais, mas sem consistência suficiente para
     alta confiança.
-  decisao: pendente
-  traducao_final: null
+  decisao: aplicar
+  traducao_final: Entrada (recebido)
   distribuicao_codigo:
     valores_distintos: 1
     ocorrencias_total: 19203
@@ -8532,6 +8557,7 @@ decisoes:
     valores_frequentes:
     - valor: i
       ocorrencias: 19203
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01
 - tabela: employee2hearing
   coluna: confirmed
   valor: '0'
@@ -16891,8 +16917,8 @@ decisoes:
   status_sugestao: sem_pista_encontrada
   justificativa_original: Há pistas textuais, mas sem consistência suficiente para
     alta confiança.
-  decisao: pendente
-  traducao_final: null
+  decisao: aplicar
+  traducao_final: Finalizado
   distribuicao_codigo:
     valores_distintos: 6
     ocorrencias_total: 751711
@@ -16909,14 +16935,15 @@ decisoes:
       ocorrencias: 63579
     - valor: f
       ocorrencias: 2256
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01
 - tabela: lawsuitdocsmetadata
   coluna: protocol_location
   valor: '1'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Há pistas textuais, mas sem consistência suficiente para
     alta confiança.
-  decisao: pendente
-  traducao_final: null
+  decisao: aplicar
+  traducao_final: Eletrônico (digital)
   distribuicao_codigo:
     valores_distintos: 2
     ocorrencias_total: 322
@@ -16927,6 +16954,7 @@ decisoes:
       ocorrencias: 315
     - valor: '2'
       ocorrencias: 7
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01
 - tabela: lawsuitdocsmetadata
   coluna: protocolrequested
   valor: '0'
@@ -21127,8 +21155,8 @@ decisoes:
   valor: '2'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Foram encontradas linhas, mas sem pista textual clara.
-  decisao: pendente
-  traducao_final: null
+  decisao: aplicar
+  traducao_final: Cálculo manual / customizado
   distribuicao_codigo:
     valores_distintos: 2
     ocorrencias_total: 9659
@@ -21139,6 +21167,7 @@ decisoes:
       ocorrencias: 9658
     - valor: '2'
       ocorrencias: 1
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01
 - tabela: lawsuits
   coluna: vara_id
   valor: '1'
@@ -25373,8 +25402,8 @@ decisoes:
   valor: '1'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Foram encontradas linhas, mas sem pista textual clara.
-  decisao: pendente
-  traducao_final: null
+  decisao: aplicar
+  traducao_final: Atraso na entrega
   distribuicao_codigo:
     valores_distintos: 3
     ocorrencias_total: 7
@@ -25387,14 +25416,15 @@ decisoes:
       ocorrencias: 1
     - valor: '2'
       ocorrencias: 1
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01
 - tabela: lawsuits_log
   coluna: impact
   valor: '2'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Há pistas textuais, mas sem consistência suficiente para
     alta confiança.
-  decisao: pendente
-  traducao_final: null
+  decisao: aplicar
+  traducao_final: Médio
   distribuicao_codigo:
     valores_distintos: 1
     ocorrencias_total: 16
@@ -25403,6 +25433,7 @@ decisoes:
     valores_frequentes:
     - valor: '2'
       ocorrencias: 16
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01
 - tabela: lawsuits_log
   coluna: judicial_area_id
   valor: '1'
@@ -26481,8 +26512,8 @@ decisoes:
   status_sugestao: sem_pista_encontrada
   justificativa_original: Há pistas textuais, mas sem consistência suficiente para
     alta confiança.
-  decisao: pendente
-  traducao_final: null
+  decisao: aplicar
+  traducao_final: Alvará expedido
   distribuicao_codigo:
     valores_distintos: 6
     ocorrencias_total: 58
@@ -26499,6 +26530,7 @@ decisoes:
       ocorrencias: 4
     - valor: '4'
       ocorrencias: 1
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01
 - tabela: paymentguarantee_types
   coluna: created_at_userid
   valor: '1'
@@ -31762,8 +31794,8 @@ decisoes:
   status_sugestao: sem_pista_encontrada
   justificativa_original: Há pistas textuais, mas sem consistência suficiente para
     alta confiança.
-  decisao: pendente
-  traducao_final: null
+  decisao: aplicar
+  traducao_final: A revisar
   distribuicao_codigo:
     valores_distintos: 16
     ocorrencias_total: 4842
@@ -31780,6 +31812,7 @@ decisoes:
       ocorrencias: 611
     - valor: '5'
       ocorrencias: 531
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01
 - tabela: sentence2lawsuit
   coluna: sentence_amount_risk
   valor: '1'
@@ -31932,8 +31965,8 @@ decisoes:
   status_sugestao: sem_pista_encontrada
   justificativa_original: Há pistas textuais, mas sem consistência suficiente para
     alta confiança.
-  decisao: pendente
-  traducao_final: null
+  decisao: aplicar
+  traducao_final: A revisar
   distribuicao_codigo:
     valores_distintos: 13
     ocorrencias_total: 702
@@ -31950,6 +31983,7 @@ decisoes:
       ocorrencias: 43
     - valor: '26'
       ocorrencias: 31
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01
 - tabela: sentence2lawsuit_2
   coluna: sentence_amount_risk
   valor: '1'
@@ -33870,8 +33904,8 @@ decisoes:
   valor: i
   status_sugestao: sem_pista_encontrada
   justificativa_original: Foram encontradas linhas, mas sem pista textual clara.
-  decisao: pendente
-  traducao_final: null
+  decisao: aplicar
+  traducao_final: Interno
   distribuicao_codigo:
     valores_distintos: 1
     ocorrencias_total: 2
@@ -33880,6 +33914,7 @@ decisoes:
     valores_frequentes:
     - valor: i
       ocorrencias: 2
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01
 - tabela: totalprov2lawsuit
   coluna: risk
   valor: '1'

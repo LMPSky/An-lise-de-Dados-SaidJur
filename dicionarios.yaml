@@ -233,9 +233,12 @@ lawsuitdocsmetadata:
     '2': ENVIAR CTPS P/ ANOTAÇÃO
     '3': Juntada de preposição e substabelecimento
     '4': Encerramento
+    f: Finalizado
   protocolstatus:
     '0': Pendente / Não Protocolado
     '2': Protocolado com Sucesso / Confirmado
+  protocol_location:
+    '1': Eletrônico (digital)
 lawsuits:
   status:
     '0': Inativo
@@ -322,6 +325,7 @@ lawsuits_log:
   updated_values_calculation:
     '0': Não
     '1': Sim
+    '2': Cálculo manual / customizado
   result_old:
     '1': Procedente
     '2': Improcedente
@@ -351,7 +355,10 @@ lawsuits_log:
     '2': 2ª instância
     '1': 1ª instância
   finalpayment_type:
+    '1': Atraso na entrega
     '3': Não recebimento do produto contratado
+  impact:
+    '2': Médio
   clientcond:
     d: Réu
     n: Neutro
@@ -365,6 +372,8 @@ paymentguarantee2lawsuit:
   containstypefile:
     '0': Não
     '1': Sim
+  levantamento:
+    '3': Alvará expedido
   payment_type:
     '1': Acordo
     '12': Seguro Garantia
@@ -529,7 +538,12 @@ accounts:
     '3': Conta Sintética / Conta-Mãe
     '4': Subconta / Conta Analítica
     '5': Item / Conta Corrente / Centro
-clientsystem2lawsuit: {}
+clientsystem2lawsuit:
+  status:
+    '5': Erro técnico (falha de comunicação)
+emails:
+  flow:
+    i: Entrada (recebido)
 expedients:
   lawsuit_id:
     '76248': 'Motivo: indenização'
@@ -638,6 +652,8 @@ timesheet_tasks:
     '89029': ISABELA OLIVEIRA
   created_at_userid:
     '563': Isabela
+  type:
+    i: Interno
 varas:
   code:
     '5': Vara do Trabalho
@@ -938,11 +954,15 @@ correspondent_requests:
     '94': RIO BRANCO
   created_at_userid:
     '326': Adriana
+  status:
+    '3': Cancelado
 correspondent_requests_actions:
   created_at_userid:
     '327': Naiara
   correspondent_request_id:
     '5': Indefinido
+  action:
+    refuse_request: Recusar solicitação
 correspondent_requests_messages:
   created_at_userid:
     '1': Dalton
@@ -953,6 +973,8 @@ correspondent_requests_refuse_reasons:
     '39598': NAIARA
   correspondent_request_id:
     '5': Indefinido
+  refuse_reason:
+    refused_by_email: Recusado por e-mail
 extralawsuitformfields2person:
   person_id:
     '1046': VIA VAREJO S/A
@@ -1041,6 +1063,7 @@ sentence2lawsuit_2:
     '24': Provido
     '25': Pendente de julgamento
     '26': Ilegitimidade acolhida
+    '30': A revisar
     '32': Improcedência em relação ao cliente
   sentence_amount_risk:
     '1': Remoto
@@ -1222,6 +1245,7 @@ sentence2lawsuit:
     '32': Improcedência em relação ao cliente
     '24': Provido
     '16': Laudo positivo
+    '30': A revisar
   sentence_amount_risk:
     '1': Remoto
     '2': Possível
