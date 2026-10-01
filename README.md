@@ -524,6 +524,16 @@ O programa **já vem pronto** para aceitar conexões remotas. Não precisa fazer
 
 ```powershell
 New-NetFirewallRule -DisplayName "Visualizador SaidJur" -Direction Inbound -LocalPort 8000 -Protocol TCP -Action Allow
+```
+
+### ✅ Passo 3 — Acessar de outro computador
+
+No computador do colega, abra o navegador em `http://<seu-IP-na-rede>:8000`
+(descubra seu IP com `ipconfig` no PowerShell).
+
+> 💡 **Quer um computador dedicado só para isso**, para a equipe acessar sem
+> depender do seu computador pessoal ficar ligado? Veja o guia completo de
+> migração em [MIGRACAO_SERVIDOR_DEDICADO.md](MIGRACAO_SERVIDOR_DEDICADO.md).
 
 ## ⚡ Dicas para importação mais rápida (opcional)
 
