@@ -21086,8 +21086,8 @@ decisoes:
   valor: '2'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Foram encontradas linhas, mas sem pista textual clara.
-  decisao: pendente
-  traducao_final: null
+  decisao: aplicar
+  traducao_final: DF - SP
   distribuicao_codigo:
     valores_distintos: 11
     ocorrencias_total: 256
@@ -21104,13 +21104,14 @@ decisoes:
       ocorrencias: 16
     - valor: '9'
       ocorrencias: 15
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_categoria5_df_regional
 - tabela: lawsuits
   coluna: unit
   valor: '3'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Foram encontradas linhas, mas sem pista textual clara.
-  decisao: pendente
-  traducao_final: null
+  decisao: aplicar
+  traducao_final: DF - Varginha
   distribuicao_codigo:
     valores_distintos: 11
     ocorrencias_total: 256
@@ -21127,13 +21128,14 @@ decisoes:
       ocorrencias: 16
     - valor: '9'
       ocorrencias: 15
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_categoria5_df_regional
 - tabela: lawsuits
   coluna: unit
   valor: '4'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Foram encontradas linhas, mas sem pista textual clara.
-  decisao: pendente
-  traducao_final: null
+  decisao: aplicar
+  traducao_final: DF - DF
   distribuicao_codigo:
     valores_distintos: 11
     ocorrencias_total: 256
@@ -21150,6 +21152,7 @@ decisoes:
       ocorrencias: 16
     - valor: '9'
       ocorrencias: 15
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_categoria5_df_regional
 - tabela: lawsuits
   coluna: updated_values_calculation
   valor: '2'
@@ -26748,7 +26751,7 @@ decisoes:
   valor: '3'
   status_sugestao: sem_pista_encontrada
   justificativa_original: Foram encontradas linhas, mas sem pista textual clara.
-  decisao: pendente
+  decisao: pular
   traducao_final: null
   distribuicao_codigo:
     valores_distintos: 3
@@ -26762,6 +26765,7 @@ decisoes:
       ocorrencias: 8948
     - valor: '1'
       ocorrencias: 3459
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_categoria6_sigla_interna_desconhecida_aguardando_reuniao_analista_negocio
 - tabela: pedidos2lawsuit
   coluna: instance01
   valor: '3'

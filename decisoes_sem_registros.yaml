@@ -5,16 +5,18 @@ decisoes:
   status_sugestao: sem_registros
   traducao_sugerida: null
   justificativa: Nenhuma linha encontrada para este valor.
-  decisao: pendente
+  decisao: pular
   traducao_final: null
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_categoria8_ausencia_confirmada_sem_registros
 - tabela: pedidos2lawsuit
   coluna: status
   valor: '6'
   status_sugestao: sem_registros
   traducao_sugerida: null
   justificativa: Nenhuma linha encontrada para este valor.
-  decisao: pendente
+  decisao: pular
   traducao_final: null
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_categoria8_ausencia_confirmada_sem_registros
 - tabela: publicationxml
   coluna: aut_event
   valor: l
@@ -24,8 +26,9 @@ decisoes:
     1108 linha(s) com aut_event = ''l''. Possível incompatibilidade de tipo ou coluna
     com nome diferente do esperado. Verifique o tipo real da coluna no schema (ex:
     TEXT vs INT).'
-  decisao: pendente
+  decisao: pular
   traducao_final: null
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_categoria8_ausencia_confirmada_sem_registros
 - tabela: publicationxml
   coluna: av_clientid
   valor: '1076'
@@ -35,8 +38,9 @@ decisoes:
     1 linha(s) com av_clientid = ''1076''. Possível incompatibilidade de tipo ou coluna
     com nome diferente do esperado. Verifique o tipo real da coluna no schema (ex:
     TEXT vs INT).'
-  decisao: pendente
+  decisao: pular
   traducao_final: null
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_categoria8_ausencia_confirmada_sem_registros
 - tabela: publicationxml
   coluna: av_clientid
   valor: '28226'
@@ -46,8 +50,9 @@ decisoes:
     1 linha(s) com av_clientid = ''28226''. Possível incompatibilidade de tipo ou
     coluna com nome diferente do esperado. Verifique o tipo real da coluna no schema
     (ex: TEXT vs INT).'
-  decisao: pendente
+  decisao: pular
   traducao_final: null
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_categoria8_ausencia_confirmada_sem_registros
 - tabela: publicationxml
   coluna: lawyer
   valor: 04940191000122
@@ -57,8 +62,9 @@ decisoes:
     16 linha(s) com lawyer = ''04940191000122''. Possível incompatibilidade de tipo
     ou coluna com nome diferente do esperado. Verifique o tipo real da coluna no schema
     (ex: TEXT vs INT).'
-  decisao: pendente
+  decisao: pular
   traducao_final: null
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_categoria8_ausencia_confirmada_sem_registros
 - tabela: publicationxml
   coluna: lawyer
   valor: ABRADEE
@@ -68,8 +74,9 @@ decisoes:
     38 linha(s) com lawyer = ''ABRADEE''. Possível incompatibilidade de tipo ou coluna
     com nome diferente do esperado. Verifique o tipo real da coluna no schema (ex:
     TEXT vs INT).'
-  decisao: pendente
+  decisao: pular
   traducao_final: null
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_categoria8_ausencia_confirmada_sem_registros
 - tabela: publicationxml
   coluna: lawyer
   valor: AFONSO RODRIGUES DE CARVALHO
@@ -79,8 +86,9 @@ decisoes:
     4 linha(s) com lawyer = ''AFONSO RODRIGUES DE CARVALHO''. Possível incompatibilidade
     de tipo ou coluna com nome diferente do esperado. Verifique o tipo real da coluna
     no schema (ex: TEXT vs INT).'
-  decisao: pendente
+  decisao: pular
   traducao_final: null
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_categoria8_ausencia_confirmada_sem_registros
 - tabela: publicationxml
   coluna: lawyer
   valor: AGENCIA NACIONAL DE MINERAÇAO
@@ -90,8 +98,9 @@ decisoes:
     36 linha(s) com lawyer = ''AGENCIA NACIONAL DE MINERAÇAO''. Possível incompatibilidade
     de tipo ou coluna com nome diferente do esperado. Verifique o tipo real da coluna
     no schema (ex: TEXT vs INT).'
-  decisao: pendente
+  decisao: pular
   traducao_final: null
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_categoria8_ausencia_confirmada_sem_registros
 - tabela: publicationxml
   coluna: lawyer
   valor: AGENCIA WILSON SONS
@@ -101,8 +110,9 @@ decisoes:
     5 linha(s) com lawyer = ''AGENCIA WILSON SONS''. Possível incompatibilidade de
     tipo ou coluna com nome diferente do esperado. Verifique o tipo real da coluna
     no schema (ex: TEXT vs INT).'
-  decisao: pendente
+  decisao: pular
   traducao_final: null
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_categoria8_ausencia_confirmada_sem_registros
 - tabela: publicationxml
   coluna: lawyer
   valor: AGROPECUARIA SERRA AZUL DE JAIBA SA
@@ -112,8 +122,9 @@ decisoes:
     7 linha(s) com lawyer = ''AGROPECUARIA SERRA AZUL DE JAIBA SA''. Possível incompatibilidade
     de tipo ou coluna com nome diferente do esperado. Verifique o tipo real da coluna
     no schema (ex: TEXT vs INT).'
-  decisao: pendente
+  decisao: pular
   traducao_final: null
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_categoria8_ausencia_confirmada_sem_registros
 - tabela: publicationxml
   coluna: lawyer
   valor: ALYSSON OLIVEIRA VILELA
@@ -123,8 +134,9 @@ decisoes:
     17 linha(s) com lawyer = ''ALYSSON OLIVEIRA VILELA''. Possível incompatibilidade
     de tipo ou coluna com nome diferente do esperado. Verifique o tipo real da coluna
     no schema (ex: TEXT vs INT).'
-  decisao: pendente
+  decisao: pular
   traducao_final: null
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_categoria8_ausencia_confirmada_sem_registros
 - tabela: publicationxml
   coluna: lawyer
   valor: AMAZONAS DIST DE ENERGIA SA
@@ -134,8 +146,9 @@ decisoes:
     392 linha(s) com lawyer = ''AMAZONAS DIST DE ENERGIA SA''. Possível incompatibilidade
     de tipo ou coluna com nome diferente do esperado. Verifique o tipo real da coluna
     no schema (ex: TEXT vs INT).'
-  decisao: pendente
+  decisao: pular
   traducao_final: null
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_categoria8_ausencia_confirmada_sem_registros
 - tabela: publicationxml
   coluna: lawyer
   valor: AMAZONAS DISTRIBUIDOR
@@ -145,8 +158,9 @@ decisoes:
     11794 linha(s) com lawyer = ''AMAZONAS DISTRIBUIDOR''. Possível incompatibilidade
     de tipo ou coluna com nome diferente do esperado. Verifique o tipo real da coluna
     no schema (ex: TEXT vs INT).'
-  decisao: pendente
+  decisao: pular
   traducao_final: null
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_categoria8_ausencia_confirmada_sem_registros
 - tabela: publicationxml
   coluna: lawyer
   valor: AMAZONAS DISTRIBUIDORA DE ENERGIA SA
@@ -156,8 +170,9 @@ decisoes:
     183731 linha(s) com lawyer = ''AMAZONAS DISTRIBUIDORA DE ENERGIA SA''. Possível
     incompatibilidade de tipo ou coluna com nome diferente do esperado. Verifique
     o tipo real da coluna no schema (ex: TEXT vs INT).'
-  decisao: pendente
+  decisao: pular
   traducao_final: null
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_categoria8_ausencia_confirmada_sem_registros
 - tabela: publicationxml
   coluna: observations_userid
   valor: '1'
@@ -167,8 +182,9 @@ decisoes:
     39169 linha(s) com observations_userid = ''1''. Possível incompatibilidade de
     tipo ou coluna com nome diferente do esperado. Verifique o tipo real da coluna
     no schema (ex: TEXT vs INT).'
-  decisao: pendente
+  decisao: pular
   traducao_final: null
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_categoria8_ausencia_confirmada_sem_registros
 - tabela: publicationxml
   coluna: observations_userid
   valor: '3'
@@ -178,8 +194,9 @@ decisoes:
     1 linha(s) com observations_userid = ''3''. Possível incompatibilidade de tipo
     ou coluna com nome diferente do esperado. Verifique o tipo real da coluna no schema
     (ex: TEXT vs INT).'
-  decisao: pendente
+  decisao: pular
   traducao_final: null
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_categoria8_ausencia_confirmada_sem_registros
 - tabela: publicationxml
   coluna: observations_userid
   valor: '14'
@@ -189,8 +206,9 @@ decisoes:
     1 linha(s) com observations_userid = ''14''. Possível incompatibilidade de tipo
     ou coluna com nome diferente do esperado. Verifique o tipo real da coluna no schema
     (ex: TEXT vs INT).'
-  decisao: pendente
+  decisao: pular
   traducao_final: null
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_categoria8_ausencia_confirmada_sem_registros
 - tabela: publicationxml
   coluna: observations_userid
   valor: '19'
@@ -200,8 +218,9 @@ decisoes:
     43 linha(s) com observations_userid = ''19''. Possível incompatibilidade de tipo
     ou coluna com nome diferente do esperado. Verifique o tipo real da coluna no schema
     (ex: TEXT vs INT).'
-  decisao: pendente
+  decisao: pular
   traducao_final: null
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_categoria8_ausencia_confirmada_sem_registros
 - tabela: publicationxml
   coluna: observations_userid
   valor: '65'
@@ -211,5 +230,6 @@ decisoes:
     214 linha(s) com observations_userid = ''65''. Possível incompatibilidade de tipo
     ou coluna com nome diferente do esperado. Verifique o tipo real da coluna no schema
     (ex: TEXT vs INT).'
-  decisao: pendente
+  decisao: pular
   traducao_final: null
+  motivo_classificacao: confirmado_pelo_usuario_2026-10-01_categoria8_ausencia_confirmada_sem_registros
