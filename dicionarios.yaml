@@ -755,6 +755,9 @@ agenda_busunits:
 automaticprazos_jurify:
   created_at_userid:
     '21': Naiara
+  all_prazos:
+    '0': 'Não'
+    '1': 'Sim'
 automaticprazos_jurify_clients:
   client_id:
     '6625': COMPANHIA BRASILEIRA DE DISTRIBUIÇÃO
@@ -978,6 +981,9 @@ instancia:
     '2': 2ª instância
     '3': 3ª instância
     '4': Extraordinária
+  turma_4:
+    '0': 'Não'
+    '1': 'Sim'
 lawsuitnature2extralawsuitfields:
   person_id:
     '1046': VIA VAREJO S/A
