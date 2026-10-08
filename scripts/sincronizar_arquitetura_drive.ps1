@@ -24,17 +24,32 @@ $ErrorActionPreference = "Stop"
 $raizProjeto = Split-Path -Parent $PSScriptRoot
 $arquivoDestino = Join-Path $raizProjeto "drive_backup_destino.txt"
 
+# Remove aspas (caso o caminho tenha sido colado com aspas, ex: copiado
+# da barra de enderecos do Explorer) e espacos/barra final, que nao
+# fazem parte do caminho real e fariam o PowerShell tentar interpretar
+# o trecho entre aspas como nome de unidade (ex: '"G').
+function Limpar-Caminho([string]$caminho) {
+    $c = $caminho.Trim()
+    $c = $c.Trim('"', "'")
+    $c = $c.TrimEnd('\')
+    return $c
+}
+
 if (-not (Test-Path $arquivoDestino)) {
     Write-Host ""
     Write-Host "Primeira vez configurando o espelhamento para o Google Drive."
     Write-Host "Informe o caminho completo da pasta do Google Drive compartilhado"
     Write-Host "onde a copia da arquitetura deve ficar (ex: G:\Drives compartilhados\SaidJur\codigo-fonte)."
     Write-Host "Essa pasta sera criada automaticamente se nao existir."
+    Write-Host "(Nao precisa colocar aspas, mesmo se o caminho tiver espacos.)"
     Write-Host ""
-    $destino = Read-Host "Caminho da pasta no Google Drive"
+    $destino = Limpar-Caminho (Read-Host "Caminho da pasta no Google Drive")
     Set-Content -Path $arquivoDestino -Value $destino -Encoding UTF8
 } else {
-    $destino = Get-Content -Path $arquivoDestino -Raw | ForEach-Object { $_.Trim() }
+    $destino = Limpar-Caminho (Get-Content -Path $arquivoDestino -Raw)
+    # Auto-corrige o arquivo salvo caso tenha sido gravado com aspas
+    # numa execucao anterior (self-heal).
+    Set-Content -Path $arquivoDestino -Value $destino -Encoding UTF8
 }
 
 if (-not (Test-Path $destino)) {
