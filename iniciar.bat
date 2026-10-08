@@ -36,7 +36,10 @@ echo.
 REM Abre o navegador após 2 segundos
 start /b cmd /c "timeout /t 2 >nul && start http://127.0.0.1:8000"
 
-REM Inicia o servidor
-python -m uvicorn src.api.main:app --host 127.0.0.1 --port 8000
+REM Inicia o servidor usando o host/porta definidos em config.yaml
+REM (python -m src.api.main executa o bloco "if __name__ == '__main__'",
+REM que le CONFIG["servidor"] - diferente de "uvicorn ... --host 127.0.0.1",
+REM que ignorava o config.yaml e sempre travava o acesso em localhost)
+python -m src.api.main
 
 pause
