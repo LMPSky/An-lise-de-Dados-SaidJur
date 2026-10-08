@@ -73,10 +73,22 @@ try {
     }
 
     $copiados = 0
+    $ignorados = 0
     foreach ($arquivoRelativo in $arquivosVersionados) {
         $origem = Join-Path $raizProjeto $arquivoRelativo
-        $destinoArquivo = Join-Path $destino $arquivoRelativo
 
+        # Alguns arquivos podem estar no indice do git (ex: 'git ls-files')
+        # mas ja nao existirem mais fisicamente no disco - por exemplo,
+        # logs rotativos commitados no passado e depois apagados/rotacionados
+        # manualmente sem um 'git rm'. Pula com um aviso em vez de travar
+        # o espelhamento inteiro.
+        if (-not (Test-Path $origem)) {
+            Write-Host "[AVISO] Arquivo listado pelo git mas ausente no disco - pulando: $arquivoRelativo"
+            $ignorados++
+            continue
+        }
+
+        $destinoArquivo = Join-Path $destino $arquivoRelativo
         $pastaDestino = Split-Path -Parent $destinoArquivo
         if ($pastaDestino -and -not (Test-Path $pastaDestino)) {
             New-Item -ItemType Directory -Path $pastaDestino -Force | Out-Null
@@ -87,6 +99,9 @@ try {
     }
 
     Write-Host "[OK] $copiados arquivos copiados/atualizados."
+    if ($ignorados -gt 0) {
+        Write-Host "[AVISO] $ignorados arquivo(s) ignorado(s) por nao existir mais no disco (veja avisos acima)."
+    }
 
     # Remove do destino arquivos que nao existem mais entre os
     # versionados (ex: arquivos renomeados ou apagados do projeto),
