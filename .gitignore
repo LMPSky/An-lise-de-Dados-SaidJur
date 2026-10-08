@@ -19,6 +19,9 @@ env/
 # Configuração local (contém senhas)
 config.yaml
 
+# Caminho local do backup no Google Drive (varia por computador)
+drive_backup_destino.txt
+
 # Dados e logs
 dados/*.sql
 dados/*.SQL
