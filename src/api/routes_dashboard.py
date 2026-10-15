@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 
 from fastapi import APIRouter, HTTPException, Request
+from starlette.concurrency import run_in_threadpool
 
 from src.db import dados_dashboard, executar_com_retry_db
 
@@ -16,7 +17,11 @@ logger = logging.getLogger("saidjur.dashboard")
 async def get_dashboard(request: Request) -> dict:
     engine = request.app.state.engine
     try:
-        return executar_com_retry_db(
+        # Delegado para uma thread: é uma chamada síncrona/bloqueante ao
+        # banco, e rodar direto no handler async travaria o event loop
+        # único do Uvicorn para todos os clientes conectados.
+        return await run_in_threadpool(
+            executar_com_retry_db,
             lambda: dados_dashboard(engine),
             logger_retry=logger,
             descricao="Montagem do dashboard",

@@ -490,10 +490,18 @@ class TestExportacaoBusca:
         resp = client.get("/api/tabelas/clientes/linhas")
         assert resp.json()["total"] == 3
 
+    def test_sem_filtro_usa_contagem_aproximada(self, client: TestClient) -> None:
+        """Sem filtros, a contagem vem de information_schema (rápida mesmo em
+        tabelas colossais), não de um COUNT(*) completo — evita que abrir uma
+        tabela enorme trave esperando a contagem exata."""
+        resp = client.get("/api/tabelas/clientes/linhas")
+        assert resp.json()["total_aproximado"] is True
+
     def test_filtro_contem(self, client: TestClient) -> None:
         filtros = json.dumps({"nome": {"op": "contem", "valor": "João"}})
         resp = client.get(f"/api/tabelas/clientes/linhas?filtros={filtros}")
         assert resp.json()["total"] == 1
+        assert resp.json()["total_aproximado"] is False
 
 
 class TestRotaBusca:
@@ -522,6 +530,46 @@ class TestRotaBusca:
         assert resp.status_code == 200
         assert "\"tipo\": \"progress\"" in resp.text
         assert "\"tipo\": \"done\"" in resp.text
+
+    def test_busca_lenta_nao_bloqueia_outras_requisicoes_concorrentes(
+        self, client: TestClient, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Regressão: uma busca lenta não pode congelar o servidor para os
+        demais usuários. Antes da correção, `_iter_busca_global` rodava
+        síncrono dentro do handler async e travava o único event loop do
+        Uvicorn até terminar — qualquer outra requisição concorrente (ex:
+        clicar numa tabela) ficava "pendurada" até a busca acabar.
+        """
+        import time
+        from concurrent.futures import ThreadPoolExecutor
+
+        from src.api import routes_search
+
+        original = routes_search._buscar_em_tabela
+
+        def _buscar_devagar(*args, **kwargs):
+            time.sleep(0.5)
+            return original(*args, **kwargs)
+
+        monkeypatch.setattr(routes_search, "_buscar_em_tabela", _buscar_devagar)
+
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            inicio = time.monotonic()
+            futuro_busca = pool.submit(client.get, "/api/busca?q=João")
+            # Dá tempo da busca lenta começar antes de disparar a 2ª requisição.
+            time.sleep(0.05)
+            futuro_tabelas = pool.submit(client.get, "/api/tabelas")
+
+            resp_tabelas = futuro_tabelas.result(timeout=5)
+            duracao_tabelas = time.monotonic() - inicio
+            resp_busca = futuro_busca.result(timeout=5)
+
+        assert resp_tabelas.status_code == 200
+        assert resp_busca.status_code == 200
+        # A listagem de tabelas deve responder bem antes da busca lenta
+        # terminar — se o event loop estivesse bloqueado, ficaria presa
+        # pelo mesmo tempo da busca (>= 0.5s por tabela buscada).
+        assert duracao_tabelas < 0.5
 
 
 class TestRotaExportar:

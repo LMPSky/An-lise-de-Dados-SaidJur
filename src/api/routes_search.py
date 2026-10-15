@@ -5,19 +5,62 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Any, Generator
+from typing import Any, AsyncGenerator, Generator
 
 from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy import text
 from sqlalchemy.engine import Engine
+from starlette.concurrency import run_in_threadpool
 
 from src.config import CONFIG
 from src.db import colunas_texto, listar_colunas, listar_tabelas
 
 router = APIRouter(tags=["Busca"])
 logger = logging.getLogger("saidjur.busca")
+
+
+async def _stream_generator_sincrono(
+    fabrica_generator,
+) -> AsyncGenerator[Any, None]:
+    """Converte um generator síncrono/bloqueante em um generator assíncrono.
+
+    ``_iter_busca_global`` é síncrono (reflexão de schema + ThreadPoolExecutor
+    + ``as_completed``) e, se consumido diretamente dentro de um ``async
+    def``, bloqueia o único event loop do Uvicorn até a busca inteira
+    terminar — congelando o servidor para TODOS os clientes conectados
+    (inclusive requisições sem nenhuma relação com a busca, como clicar em
+    uma tabela na barra lateral). Aqui o generator roda em uma thread
+    separada e seus itens são repassados ao event loop por uma fila
+    assíncrona, deixando o loop livre para atender outras requisições
+    enquanto a busca está em andamento.
+    """
+    loop = asyncio.get_event_loop()
+    fila: asyncio.Queue = asyncio.Queue()
+    _FIM = object()
+
+    def _worker() -> None:
+        try:
+            for item in fabrica_generator():
+                loop.call_soon_threadsafe(fila.put_nowait, ("item", item))
+        except Exception as exc:  # pragma: no cover - defensivo
+            loop.call_soon_threadsafe(fila.put_nowait, ("erro", exc))
+        finally:
+            loop.call_soon_threadsafe(fila.put_nowait, ("fim", None))
+
+    thread = threading.Thread(target=_worker, daemon=True)
+    thread.start()
+
+    while True:
+        tipo, payload = await fila.get()
+        if tipo == "item":
+            yield payload
+        elif tipo == "erro":
+            raise payload
+        else:
+            break
 
 
 def _buscar_em_tabela(
@@ -169,7 +212,7 @@ async def busca_global(
     if len(q.strip()) == 0:
         raise HTTPException(status_code=400, detail="O termo de busca não pode ser vazio.")
 
-    try:
+    def _executar_busca_sincrona() -> list[dict[str, Any]]:
         eventos = _iter_busca_global(
             engine,
             q,
@@ -182,6 +225,14 @@ async def busca_global(
         for evento in eventos:
             if evento.get("tipo") == "result":
                 resultados.extend(evento.get("items", []))
+        return resultados
+
+    try:
+        # Delegado para uma thread: a busca percorre todas as tabelas do
+        # banco de forma síncrona/bloqueante e, se rodasse direto aqui,
+        # travaria o event loop único do Uvicorn para todos os clientes
+        # conectados até terminar.
+        resultados = await run_in_threadpool(_executar_busca_sincrona)
     except Exception as exc:
         logger.exception("Falha ao executar busca global")
         raise HTTPException(status_code=503, detail=f"Não foi possível acessar o banco: {exc}") from exc
@@ -212,21 +263,25 @@ async def busca_global_stream(
         raise HTTPException(status_code=400, detail="O termo de busca não pode ser vazio.")
 
     async def gerar_eventos() -> Any:
+        fabrica = lambda: _iter_busca_global(
+            engine,
+            q,
+            limite_efetivo,
+            timeout,
+            parallelism,
+            incluir_colunas_grandes,
+        )
         try:
-            for evento in _iter_busca_global(
-                engine,
-                q,
-                limite_efetivo,
-                timeout,
-                parallelism,
-                incluir_colunas_grandes,
-            ):
+            # _stream_generator_sincrono roda a busca em uma thread separada,
+            # para a busca não bloquear o event loop (e assim não travar as
+            # requisições de outros usuários) enquanto os eventos são
+            # repassados ao cliente incrementalmente.
+            async for evento in _stream_generator_sincrono(fabrica):
                 if await request.is_disconnected():
                     logger.info("Busca streaming cancelada pelo cliente")
                     break
                 payload = json.dumps(evento, ensure_ascii=False, default=str)
                 yield f"data: {payload}\n\n"
-                await asyncio.sleep(0)
         except Exception as exc:
             logger.exception("Falha na busca streaming")
             erro = json.dumps({"tipo": "error", "mensagem": "Falha interna durante a busca."}, ensure_ascii=False)

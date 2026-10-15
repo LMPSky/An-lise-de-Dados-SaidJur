@@ -7,6 +7,7 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
+from starlette.concurrency import run_in_threadpool
 
 from src.db import executar_sql_somente_leitura
 
@@ -22,7 +23,10 @@ class SQLPayload(BaseModel):
 async def executar_sql(payload: SQLPayload, request: Request) -> dict[str, Any]:
     engine = request.app.state.engine
     try:
-        return executar_sql_somente_leitura(
+        # Delegado para uma thread: chamada síncrona/bloqueante ao banco,
+        # que travaria o event loop único do Uvicorn se rodasse direto aqui.
+        return await run_in_threadpool(
+            executar_sql_somente_leitura,
             engine,
             query=payload.query,
             limite=5000,

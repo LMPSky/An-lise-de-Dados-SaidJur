@@ -7,11 +7,13 @@ import logging
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query, Request
-from sqlalchemy import MetaData, Table, func, select, and_, asc, desc
+from sqlalchemy import MetaData, Table, func, select, and_, asc, desc, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
+from starlette.concurrency import run_in_threadpool
 
-from src.db import tabelas_validas, colunas_validas
+from src.config import CONFIG
+from src.db import tabelas_validas, colunas_validas, listar_tabelas
 
 router = APIRouter(tags=["Dados"])
 logger = logging.getLogger("saidjur.dados")
@@ -87,6 +89,125 @@ def _montar_where_exprs(
     return exprs
 
 
+def _contagem_total(
+    engine: Engine,
+    conn,
+    nome_tabela: str,
+    count_stmt,
+    tem_filtros: bool,
+) -> tuple[int, bool]:
+    """Calcula o total de linhas para fins de paginação.
+
+    Sem filtros, usa a contagem aproximada já disponível em
+    ``information_schema`` (``TABLE_ROWS``) — muito mais rápida que um
+    ``COUNT(*)`` completo e suficiente para paginar. Isso evita que abrir uma
+    tabela colossal (milhões de linhas, ex: ``publicationxml``) trave
+    "para sempre" esperando a contagem exata.
+
+    Com filtros, mantém a contagem exata (necessária para o filtro fazer
+    sentido), mas limitada por ``max_execution_time`` de sessão para nunca
+    bloquear indefinidamente.
+    """
+    if not tem_filtros:
+        for t in listar_tabelas(engine):
+            if t["nome"] == nome_tabela:
+                return int(t.get("linhas_aprox") or 0), True
+        return 0, True
+
+    cfg_banco = CONFIG.get("banco", {})
+    timeout_segundos = int(cfg_banco.get("timeout_contagem_segundos", 15))
+    try:
+        conn.execute(text("SET SESSION max_execution_time=:ms"), {"ms": timeout_segundos * 1000})
+    except Exception:
+        pass
+    return int(conn.execute(count_stmt).scalar_one()), False
+
+
+def _consultar_linhas_sincrono(
+    engine: Engine,
+    nome: str,
+    pagina: int,
+    por_pagina: int,
+    ordenar_por: str | None,
+    direcao: str,
+    filtros: str | None,
+) -> dict[str, Any]:
+    """Executa toda a consulta paginada de forma síncrona/bloqueante.
+
+    Roda fora do event loop (via run_in_threadpool no handler) para que uma
+    tabela lenta não congele o servidor para os demais usuários conectados.
+    """
+    # Valida nome da tabela contra whitelist do banco
+    tabelas_ok = tabelas_validas(engine)
+    if nome not in tabelas_ok:
+        raise HTTPException(status_code=404, detail=f"Tabela '{nome}' não encontrada.")
+
+    cols_ok = colunas_validas(engine, nome)
+
+    # Obtém objeto Table via reflexão (usa metadados do banco, não input do usuário)
+    tbl = _get_table(engine, nome)
+
+    # Monta expressões de filtro (totalmente parametrizadas)
+    where_exprs = _montar_where_exprs(tbl, filtros, cols_ok)
+
+    # Monta expressão de ordenação (coluna validada contra whitelist)
+    order_expr = None
+    if ordenar_por:
+        if ordenar_por not in cols_ok:
+            raise HTTPException(
+                status_code=400, detail=f"Coluna de ordenação desconhecida: '{ordenar_por}'"
+            )
+        col_ord = tbl.c[ordenar_por]
+        order_expr = asc(col_ord) if direcao.lower() == "asc" else desc(col_ord)
+
+    offset = (pagina - 1) * por_pagina
+
+    with engine.connect() as conn:
+        # Contagem total (exata ou aproximada, ver _contagem_total)
+        count_stmt = select(func.count()).select_from(tbl)
+        if where_exprs:
+            count_stmt = count_stmt.where(and_(*where_exprs))
+
+        try:
+            total, aproximado = _contagem_total(engine, conn, nome, count_stmt, bool(where_exprs))
+        except Exception as exc:
+            logger.warning("COUNT(*) filtrado em '%s' excedeu o tempo limite: %s", nome, exc)
+            raise HTTPException(
+                status_code=503,
+                detail="A contagem de registros filtrados demorou demais. Tente um filtro mais específico.",
+            ) from exc
+
+        # Dados paginados
+        data_stmt = select(tbl)
+        if where_exprs:
+            data_stmt = data_stmt.where(and_(*where_exprs))
+        if order_expr is not None:
+            data_stmt = data_stmt.order_by(order_expr)
+        data_stmt = data_stmt.limit(por_pagina).offset(offset)
+
+        resultado = conn.execute(data_stmt)
+        colunas = list(resultado.keys())
+        linhas = [dict(zip(colunas, row)) for row in resultado]
+
+    logger.info(
+        "Tabela '%s' | página %d | filtros=%s | total=%d%s",
+        nome,
+        pagina,
+        filtros,
+        total,
+        " (aproximado)" if aproximado else "",
+    )
+
+    return {
+        "total": total,
+        "total_aproximado": aproximado,
+        "pagina": pagina,
+        "por_pagina": por_pagina,
+        "linhas": linhas,
+        "colunas": colunas,
+    }
+
+
 @router.get(
     "/tabelas/{nome}/linhas",
     summary="Consulta registros de uma tabela com paginação e filtros",
@@ -114,59 +235,13 @@ async def get_linhas(
     - Queries 100% parametrizadas via SQLAlchemy (sem interpolação de valores do usuário)
     """
     engine = request.app.state.engine
-
-    # Valida nome da tabela contra whitelist do banco
-    tabelas_ok = tabelas_validas(engine)
-    if nome not in tabelas_ok:
-        raise HTTPException(status_code=404, detail=f"Tabela '{nome}' não encontrada.")
-
-    cols_ok = colunas_validas(engine, nome)
-
-    # Obtém objeto Table via reflexão (usa metadados do banco, não input do usuário)
-    tbl = _get_table(engine, nome)
-
-    # Monta expressões de filtro (totalmente parametrizadas)
-    where_exprs = _montar_where_exprs(tbl, filtros, cols_ok)
-
-    # Monta expressão de ordenação (coluna validada contra whitelist)
-    order_expr = None
-    if ordenar_por:
-        if ordenar_por not in cols_ok:
-            raise HTTPException(
-                status_code=400, detail=f"Coluna de ordenação desconhecida: '{ordenar_por}'"
-            )
-        col_ord = tbl.c[ordenar_por]
-        order_expr = asc(col_ord) if direcao.lower() == "asc" else desc(col_ord)
-
-    offset = (pagina - 1) * por_pagina
-
-    with engine.connect() as conn:
-        # Contagem total
-        count_stmt = select(func.count()).select_from(tbl)
-        if where_exprs:
-            count_stmt = count_stmt.where(and_(*where_exprs))
-        total: int = conn.execute(count_stmt).scalar_one()
-
-        # Dados paginados
-        data_stmt = select(tbl)
-        if where_exprs:
-            data_stmt = data_stmt.where(and_(*where_exprs))
-        if order_expr is not None:
-            data_stmt = data_stmt.order_by(order_expr)
-        data_stmt = data_stmt.limit(por_pagina).offset(offset)
-
-        resultado = conn.execute(data_stmt)
-        colunas = list(resultado.keys())
-        linhas = [dict(zip(colunas, row)) for row in resultado]
-
-    logger.info(
-        "Tabela '%s' | página %d | filtros=%s | total=%d", nome, pagina, filtros, total
+    return await run_in_threadpool(
+        _consultar_linhas_sincrono,
+        engine,
+        nome,
+        pagina,
+        por_pagina,
+        ordenar_por,
+        direcao,
+        filtros,
     )
-
-    return {
-        "total": total,
-        "pagina": pagina,
-        "por_pagina": por_pagina,
-        "linhas": linhas,
-        "colunas": colunas,
-    }
