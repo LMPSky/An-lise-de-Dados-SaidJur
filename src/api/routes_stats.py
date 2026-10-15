@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 
 from fastapi import APIRouter, HTTPException, Request
+from starlette.concurrency import run_in_threadpool
 
 from src.db import colunas_validas, estatisticas_coluna, tabelas_validas
 
@@ -19,17 +20,19 @@ logger = logging.getLogger("saidjur.stats")
 async def get_stats_coluna(nome: str, coluna: str, request: Request) -> dict:
     engine = request.app.state.engine
 
-    if nome not in tabelas_validas(engine):
+    if nome not in await run_in_threadpool(tabelas_validas, engine):
         raise HTTPException(status_code=404, detail=f"Tabela '{nome}' não encontrada.")
 
-    if coluna not in colunas_validas(engine, nome):
+    if coluna not in await run_in_threadpool(colunas_validas, engine, nome):
         raise HTTPException(
             status_code=404,
             detail=f"Coluna '{coluna}' não encontrada na tabela '{nome}'.",
         )
 
     try:
-        return estatisticas_coluna(engine, nome, coluna)
+        # Delegado para uma thread: chamada síncrona/bloqueante ao banco,
+        # que travaria o event loop único do Uvicorn se rodasse direto aqui.
+        return await run_in_threadpool(estatisticas_coluna, engine, nome, coluna)
     except Exception as exc:
         logger.exception("Falha ao calcular estatísticas de %s.%s", nome, coluna)
         raise HTTPException(status_code=500, detail=f"Falha ao calcular estatísticas: {exc}") from exc

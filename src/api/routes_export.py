@@ -12,6 +12,7 @@ import csv
 import json
 from sqlalchemy import select, and_, text, MetaData, Table
 from sqlalchemy.orm import Session
+from starlette.concurrency import run_in_threadpool
 
 from src.traducoes_colunas import (
     traduzir_nome_coluna,
@@ -121,6 +122,127 @@ def _serializar_valor(valor: Any) -> str:
     return str(valor)
 
 
+def _exportar_tabela_sincrono(
+    engine,
+    dicionarios: dict,
+    tabela: str,
+    formato: str,
+    filtros_dict: dict,
+) -> StreamingResponse:
+    """Monta o arquivo exportado (consulta + geração de CSV/Excel).
+
+    Tudo aqui é síncrono/bloqueante (consulta ao banco + montagem do
+    arquivo em memória), por isso roda em uma thread separada (ver
+    run_in_threadpool no handler), para não travar o event loop do Uvicorn
+    — e assim as demais requisições de outros usuários — durante a
+    exportação de tabelas grandes.
+    """
+    table, stmt = _construir_query_com_filtros(
+        engine=engine,
+        tabela_nome=tabela,
+        filtros=filtros_dict,
+    )
+
+    with Session(engine) as session:
+        resultado = session.execute(stmt).fetchall()
+        colunas = [col.name for col in table.columns]
+
+        if formato.lower() == "csv":
+            # Exportar como CSV
+            output = io.StringIO()
+            writer = csv.writer(output, delimiter=",", quoting=csv.QUOTE_ALL)
+            
+            # Cabeçalho
+            writer.writerow([traduzir_nome_coluna(coluna) for coluna in colunas])
+            
+            # Dados com tradução
+            for row in resultado:
+                row_dict = row._mapping
+                linha_traduzida = []
+                for col_nome in colunas:
+                    valor_original = row_dict.get(col_nome)
+                    valor_traduzido = _traduzir_valor(
+                        valor_original,
+                        tabela,
+                        col_nome,
+                        dicionarios,
+                    )
+                    linha_traduzida.append(valor_traduzido)
+                writer.writerow(linha_traduzida)
+            
+            # Preparar resposta
+            output.seek(0)
+            return StreamingResponse(
+                iter([output.getvalue()]),
+                media_type="text/csv; charset=utf-8",
+                headers={"Content-Disposition": f"attachment; filename={tabela}.csv"},
+            )
+        
+        else:  # excel/xlsx
+            try:
+                import openpyxl
+                from openpyxl.styles import Font, PatternFill, Alignment
+            except ImportError:
+                raise HTTPException(
+                    status_code=500,
+                    detail="Biblioteca openpyxl não instalada. Execute: pip install openpyxl"
+                )
+            
+            # Criar workbook
+            wb = openpyxl.Workbook()
+            ws = wb.active
+            ws.title = traduzir_nome_tabela_exportacao(tabela)[:31]
+            
+            # Cabeçalho com estilo
+            header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
+            header_font = Font(bold=True, color="FFFFFF")
+            
+            for col_idx, col_nome in enumerate(colunas, 1):
+                cell = ws.cell(row=1, column=col_idx)
+                cell.value = traduzir_nome_coluna(col_nome)
+                cell.fill = header_fill
+                cell.font = header_font
+                cell.alignment = Alignment(horizontal="center", vertical="center")
+            
+            # Dados com tradução
+            for row_idx, row in enumerate(resultado, 2):
+                row_dict = row._mapping
+                for col_idx, col_nome in enumerate(colunas, 1):
+                    valor_original = row_dict.get(col_nome)
+                    valor_traduzido = _traduzir_valor(
+                        valor_original,
+                        tabela,
+                        col_nome,
+                        dicionarios,
+                    )
+                    
+                    cell = ws.cell(row=row_idx, column=col_idx)
+                    cell.value = valor_traduzido
+                    cell.alignment = Alignment(wrap_text=True, vertical="top")
+            
+            # Ajustar largura das colunas
+            for col_idx, col_nome in enumerate(colunas, 1):
+                max_length = len(traduzir_nome_coluna(col_nome))
+                for row in ws.iter_rows(min_col=col_idx, max_col=col_idx):
+                    for cell in row:
+                        if cell.value:
+                            max_length = max(max_length, len(str(cell.value)))
+                
+                adjusted_width = min(max_length + 2, 50)
+                ws.column_dimensions[openpyxl.utils.get_column_letter(col_idx)].width = adjusted_width
+            
+            # Salvar em memória
+            output = io.BytesIO()
+            wb.save(output)
+            output.seek(0)
+            
+            return StreamingResponse(
+                iter([output.getvalue()]),
+                media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                headers={"Content-Disposition": f"attachment; filename={tabela}.xlsx"},
+            )
+
+
 @router.get("/exportar/{tabela}")
 async def exportar_tabela(
     tabela: str,
@@ -158,111 +280,17 @@ async def exportar_tabela(
             raise HTTPException(status_code=400, detail="Filtros JSON inválido")
     
     try:
-        table, stmt = _construir_query_com_filtros(
-            engine=engine,
-            tabela_nome=tabela,
-            filtros=filtros_dict,
+        # Delegado para uma thread: consulta ao banco + montagem do
+        # arquivo são bloqueantes e, para tabelas grandes, travariam o
+        # event loop único do Uvicorn para todos os clientes conectados.
+        return await run_in_threadpool(
+            _exportar_tabela_sincrono,
+            engine,
+            dicionarios,
+            tabela,
+            formato,
+            filtros_dict,
         )
-        
-        with Session(engine) as session:
-            resultado = session.execute(stmt).fetchall()
-            colunas = [col.name for col in table.columns]
-            
-            if formato.lower() == "csv":
-                # Exportar como CSV
-                output = io.StringIO()
-                writer = csv.writer(output, delimiter=",", quoting=csv.QUOTE_ALL)
-                
-                # Cabeçalho
-                writer.writerow([traduzir_nome_coluna(coluna) for coluna in colunas])
-                
-                # Dados com tradução
-                for row in resultado:
-                    row_dict = row._mapping
-                    linha_traduzida = []
-                    for col_nome in colunas:
-                        valor_original = row_dict.get(col_nome)
-                        valor_traduzido = _traduzir_valor(
-                            valor_original,
-                            tabela,
-                            col_nome,
-                            dicionarios,
-                        )
-                        linha_traduzida.append(valor_traduzido)
-                    writer.writerow(linha_traduzida)
-                
-                # Preparar resposta
-                output.seek(0)
-                return StreamingResponse(
-                    iter([output.getvalue()]),
-                    media_type="text/csv; charset=utf-8",
-                    headers={"Content-Disposition": f"attachment; filename={tabela}.csv"},
-                )
-            
-            else:  # excel/xlsx
-                try:
-                    import openpyxl
-                    from openpyxl.styles import Font, PatternFill, Alignment
-                except ImportError:
-                    raise HTTPException(
-                        status_code=500,
-                        detail="Biblioteca openpyxl não instalada. Execute: pip install openpyxl"
-                    )
-                
-                # Criar workbook
-                wb = openpyxl.Workbook()
-                ws = wb.active
-                ws.title = traduzir_nome_tabela_exportacao(tabela)[:31]
-                
-                # Cabeçalho com estilo
-                header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
-                header_font = Font(bold=True, color="FFFFFF")
-                
-                for col_idx, col_nome in enumerate(colunas, 1):
-                    cell = ws.cell(row=1, column=col_idx)
-                    cell.value = traduzir_nome_coluna(col_nome)
-                    cell.fill = header_fill
-                    cell.font = header_font
-                    cell.alignment = Alignment(horizontal="center", vertical="center")
-                
-                # Dados com tradução
-                for row_idx, row in enumerate(resultado, 2):
-                    row_dict = row._mapping
-                    for col_idx, col_nome in enumerate(colunas, 1):
-                        valor_original = row_dict.get(col_nome)
-                        valor_traduzido = _traduzir_valor(
-                            valor_original,
-                            tabela,
-                            col_nome,
-                            dicionarios,
-                        )
-                        
-                        cell = ws.cell(row=row_idx, column=col_idx)
-                        cell.value = valor_traduzido
-                        cell.alignment = Alignment(wrap_text=True, vertical="top")
-                
-                # Ajustar largura das colunas
-                for col_idx, col_nome in enumerate(colunas, 1):
-                    max_length = len(traduzir_nome_coluna(col_nome))
-                    for row in ws.iter_rows(min_col=col_idx, max_col=col_idx):
-                        for cell in row:
-                            if cell.value:
-                                max_length = max(max_length, len(str(cell.value)))
-                    
-                    adjusted_width = min(max_length + 2, 50)
-                    ws.column_dimensions[openpyxl.utils.get_column_letter(col_idx)].width = adjusted_width
-                
-                # Salvar em memória
-                output = io.BytesIO()
-                wb.save(output)
-                output.seek(0)
-                
-                return StreamingResponse(
-                    iter([output.getvalue()]),
-                    media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    headers={"Content-Disposition": f"attachment; filename={tabela}.xlsx"},
-                )
-    
     except HTTPException:
         raise
     except Exception as e:

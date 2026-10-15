@@ -6,6 +6,7 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
+from starlette.concurrency import run_in_threadpool
 
 from src.db import resolver_labels, tabelas_validas, colunas_validas
 
@@ -22,13 +23,12 @@ class BodyResolucao(BaseModel):
     resolucoes: list[ItemResolucao]
 
 
-@router.post("/labels/resolver", summary="Resolve labels de IDs em lote")
-async def post_resolver_labels(body: BodyResolucao, request: Request) -> dict[str, Any]:
-    """Recebe pedidos de resolução e devolve mapa de id → label por tabela."""
-    engine = request.app.state.engine
+def _resolver_labels_sincrono(engine, resolucoes: list[ItemResolucao]) -> dict[str, Any]:
+    """Valida tabelas/colunas e resolve os labels — tudo síncrono/bloqueante,
+    por isso deve rodar fora do event loop (ver run_in_threadpool abaixo)."""
     validas = tabelas_validas(engine)
 
-    for item in body.resolucoes:
+    for item in resolucoes:
         if item.tabela not in validas:
             raise HTTPException(
                 status_code=404,
@@ -41,5 +41,12 @@ async def post_resolver_labels(body: BodyResolucao, request: Request) -> dict[st
                 detail=f"Coluna '{item.coluna_chave}' não existe na tabela '{item.tabela}'.",
             )
 
-    resolucoes_dict = [item.model_dump() for item in body.resolucoes]
+    resolucoes_dict = [item.model_dump() for item in resolucoes]
     return resolver_labels(engine, resolucoes_dict)
+
+
+@router.post("/labels/resolver", summary="Resolve labels de IDs em lote")
+async def post_resolver_labels(body: BodyResolucao, request: Request) -> dict[str, Any]:
+    """Recebe pedidos de resolução e devolve mapa de id → label por tabela."""
+    engine = request.app.state.engine
+    return await run_in_threadpool(_resolver_labels_sincrono, engine, body.resolucoes)
