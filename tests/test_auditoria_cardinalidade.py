@@ -166,3 +166,41 @@ def test_auditoria_ignora_coluna_fk_mesmo_com_cardinalidade_moderada() -> None:
 
     tabelas_com_pendencia = {p["tabela"] for p in relatorio["pendencias"]}
     assert "accounts" not in tabelas_com_pendencia
+
+
+def test_coluna_elegivel_cardinalidade_exclui_flag_de_permissao_por_nome() -> None:
+    for nome in ["read_users", "write_clients", "approve_contracts", "del_lawsuit"]:
+        coluna = ColunaTabela(nome=nome, tipo="tinyint(1)", posicao=1)
+        assert not _coluna_elegivel_cardinalidade(coluna), f"{nome} deveria ser excluida"
+
+
+def test_coluna_elegivel_cardinalidade_exclui_duplicata_em_ingles() -> None:
+    for nome in ["name_en", "subject_en", "motive_en"]:
+        coluna = ColunaTabela(nome=nome, tipo="varchar(255)", posicao=1)
+        assert not _coluna_elegivel_cardinalidade(coluna), f"{nome} deveria ser excluida"
+
+
+def test_coluna_elegivel_cardinalidade_substring_cobre_variantes_do_denylist() -> None:
+    """Comparação por substring deve cobrir `markup_observation`/`non_agreement_reason`."""
+    for nome in ["markup_observation", "non_agreement_reason", "acordo_amount", "totalsentenceamount"]:
+        coluna = ColunaTabela(nome=nome, tipo="varchar(255)", posicao=1)
+        assert not _coluna_elegivel_cardinalidade(coluna), f"{nome} deveria ser excluida"
+
+
+def test_auditoria_ignora_flag_booleana_sem_prefixo_reconhecido() -> None:
+    """Checagem factual: coluna com valores exatamente {'0', '1'} é descartada."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE usertasks (id INTEGER, finishtype TEXT)"))
+        for indice in range(500):
+            conn.execute(
+                text("INSERT INTO usertasks (id, finishtype) VALUES (:id, :finishtype)"),
+                {"id": indice, "finishtype": "1" if indice % 3 == 0 else "0"},
+            )
+        conn.commit()
+
+    with patch("src.auditoria_cardinalidade.dicionario_de_coluna", return_value={}):
+        relatorio = auditar_cobertura_por_cardinalidade(engine)
+
+    tabelas_com_pendencia = {p["tabela"] for p in relatorio["pendencias"]}
+    assert "usertasks" not in tabelas_com_pendencia
