@@ -77,6 +77,19 @@ amostra":
    contenha ``amount``/``valor``/``total`` — checagem factual complementar
    (``_coluna_parece_monetaria_no_banco``), no mesmo espírito da checagem de
    flag booleana.
+7. **FK sem underscore (``idcourt``, ``idcourt_division``) e mais alguns
+   casos pontuais confirmados em produção**: um quarto relatório real
+   mostrou que ``court.idcourt``/``court_division.idcourt_division``
+   guardavam ids sequenciais pequenos ('1', '2', '3'...) — o padrão de
+   identificador foi ampliado para cobrir nomes que começam com ``id``
+   seguido direto de letra, sem exigir underscore. Também confirmados por
+   valor real: ``employees.oab`` (número de registro único por pessoa, ao
+   contrário de ``persons.oab_uf`` — cardinalidade 27, compatível com as 27
+   UFs do Brasil, provável FK categórica legítima), ``user_del`` (id de
+   usuário), ``jurify_pasta`` (identificador de pasta em formato livre),
+   ``issuer`` (id numérico de emissor), ``cost_center_1`` (nome de empresa
+   guardado como "centro de custo") e ``final_agreement_proposal`` (texto
+   livre longo, mesmo quando mistura valor monetário com descrição).
 """
 
 from __future__ import annotations
@@ -132,12 +145,16 @@ _TAMANHO_MAXIMO_VALOR = 60
 LIMITE_LINHAS_TABELA_GRANDE = 500_000
 
 # Padrão de nome de coluna identificadora (FK/PK por convenção): termina em
-# "id"/"_id"/"_pk" ou começa com "id_" (mesma convenção usada em
-# `src.db.fks_inferidas`). Aplicado independente do tipo da coluna e mesmo
-# quando a tabela referenciada não é encontrada por nome (ex: `idcomarca`,
-# `busunitid`) — o nome já é evidência suficiente de que o valor identifica
-# uma linha de outra tabela, não uma categoria.
-_PADRAO_COLUNA_IDENTIFICADORA = re.compile(r"(?:_id|_pk|id)$|^id_", re.IGNORECASE)
+# "id"/"_id"/"_pk", começa com "id_" ou começa com "id" seguido direto de
+# letra sem separador (``idcourt``, ``idcourt_division``, ``idcomarca`` —
+# convenção observada nesta base para nomear FK sem underscore). Aplicado
+# independente do tipo da coluna e mesmo quando a tabela referenciada não é
+# encontrada por nome (ex: ``idcomarca``, ``busunitid``) — o nome já é
+# evidência suficiente de que o valor identifica uma linha de outra tabela,
+# não uma categoria. Confirmado em produção: ``court.idcourt`` e
+# ``court_division.idcourt_division`` guardavam ids pequenos sequenciais
+# ('1', '2', '3'...), não códigos/ENUM.
+_PADRAO_COLUNA_IDENTIFICADORA = re.compile(r"(?:_id|_pk|id)$|^id[_a-z]", re.IGNORECASE)
 
 # Dois únicos valores possíveis para uma coluna booleana — qualquer coluna
 # cujo conjunto de valores coletados seja exatamente este é descartada da
@@ -223,6 +240,19 @@ _NOMES_COLUNA_SEMPRE_EXCLUIDOS_CARDINALIDADE: tuple[str, ...] = (
     "num_bank",
     # Horário do dia (``usertasks.login_time/logout_time``), não um código.
     "_time",
+    # Quarta rodada de ajuste (relatório real pós-fix de identificador/
+    # endereço/pessoa): proposta de acordo em texto livre longo, mesmo
+    # quando mistura valor monetário com texto descritivo
+    # (``acordo_nucleus.final_agreement_proposal``: "sem acordo", "R$
+    # 10.000,00 com verbas indenizatórias"...).
+    "proposal",
+    # Nome de empresa/cliente guardado como "centro de custo" em texto livre
+    # (``clientsystem2lawsuit.cost_center_1``), não um código de centro de
+    # custo de verdade.
+    "cost_center",
+    # Id numérico de emissor/entidade relacionada, sem sufixo *_id
+    # (``lawsuits_log.issuer``: '572', '1808', '9608'...).
+    "issuer",
 )
 
 # Nomes de coluna excluídos por correspondência EXATA (não substring): termos
@@ -242,6 +272,17 @@ _NOMES_COLUNA_EXATOS_SEMPRE_EXCLUIDOS_CARDINALIDADE: tuple[str, ...] = (
     "witness_2",
     "preposto_1",
     "legal_assistant",
+    # Quarta rodada de ajuste: número de registro profissional único
+    # (``employees.oab``: '228.659', '197766'...) — note que ``oab_uf`` NÃO
+    # entra aqui: tem cardinalidade 27 (== número de UFs do Brasil), é
+    # provavelmente uma FK categórica para um código de estado, não um
+    # identificador único por pessoa.
+    "oab",
+    # Id numérico de usuário que apagou o registro (``lawsuitdocsmetadata.user_del``).
+    "user_del",
+    # Identificador de pasta/processo em formato livre, não um código
+    # (``publicationxml_extra.jurify_pasta``: '8000000910', '700000128'...).
+    "jurify_pasta",
 )
 
 # Valor com cara de quantia monetária (``R$ 14.500,00``, ``14500,00``,
