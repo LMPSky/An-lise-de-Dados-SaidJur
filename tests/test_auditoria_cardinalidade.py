@@ -9,9 +9,12 @@ from sqlalchemy import create_engine, text
 from src.auditoria_cardinalidade import (
     CARDINALIDADE_MAXIMA_PADRAO,
     _coletar_valores_distintos,
+    _coluna_elegivel_cardinalidade,
+    _coluna_parece_identificadora,
     _contar_valores_distintos,
     auditar_cobertura_por_cardinalidade,
 )
+from src.investigacao_pendencias import ColunaTabela
 
 
 def _popular_tabela_tipos_documento(engine, total_tipos: int = 30) -> None:
@@ -117,3 +120,49 @@ def test_auditoria_falha_isolada_em_coluna_nao_interrompe_demais() -> None:
 def test_cardinalidade_maxima_padrao_bem_acima_do_teto_das_outras_ferramentas() -> None:
     """A faixa padrão deve ser maior que o teto de 20 das outras ferramentas."""
     assert CARDINALIDADE_MAXIMA_PADRAO > 20
+
+
+def test_coluna_parece_identificadora_reconhece_convencoes_de_fk() -> None:
+    for nome in ["account_id", "userid", "busunitid", "client_id", "id_tipo"]:
+        assert _coluna_parece_identificadora(nome), f"{nome} deveria parecer identificador"
+
+
+def test_coluna_parece_identificadora_ignora_falsos_positivos_de_sufixo() -> None:
+    """Palavras que terminam em 'id' mas não são FK (lista de exceções de src.db)."""
+    for nome in ["valid", "paid", "said", "void"]:
+        assert not _coluna_parece_identificadora(nome), f"{nome} nao deveria parecer identificador"
+
+
+def test_coluna_elegivel_cardinalidade_exclui_coluna_identificadora() -> None:
+    coluna = ColunaTabela(nome="account_id", tipo="int(11)", posicao=1)
+    assert not _coluna_elegivel_cardinalidade(coluna)
+
+
+def test_coluna_elegivel_cardinalidade_exclui_denylist_estrutural() -> None:
+    for nome in ["lft", "rgt", "level", "name", "path", "reason"]:
+        coluna = ColunaTabela(nome=nome, tipo="varchar(255)", posicao=1)
+        assert not _coluna_elegivel_cardinalidade(coluna), f"{nome} deveria ser excluida"
+
+
+def test_coluna_elegivel_cardinalidade_aceita_codigo_legitimo() -> None:
+    coluna = ColunaTabela(nome="doctype", tipo="varchar(60)", posicao=1)
+    assert _coluna_elegivel_cardinalidade(coluna)
+
+
+def test_auditoria_ignora_coluna_fk_mesmo_com_cardinalidade_moderada() -> None:
+    """Reproduz o falso positivo real: accounts.account_id (56 ids, 1..650)."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE accounts (id INTEGER, account_id INTEGER)"))
+        for indice in range(1, 57):
+            conn.execute(
+                text("INSERT INTO accounts (id, account_id) VALUES (:id, :account_id)"),
+                {"id": indice, "account_id": indice},
+            )
+        conn.commit()
+
+    with patch("src.auditoria_cardinalidade.dicionario_de_coluna", return_value={}):
+        relatorio = auditar_cobertura_por_cardinalidade(engine)
+
+    tabelas_com_pendencia = {p["tabela"] for p in relatorio["pendencias"]}
+    assert "accounts" not in tabelas_com_pendencia

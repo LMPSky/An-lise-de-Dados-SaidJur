@@ -22,16 +22,30 @@ os seus valores distintos (não apenas os primeiros 20) comparados ao
 ``auditar_traducoes.avaliar_pendencias_enum`` (sem entrada no dicionário,
 placeholder ``[valor]`` pendente, ou tradução que parece estar em inglês).
 
-A elegibilidade de coluna reaproveita
+A elegibilidade de coluna parte de
 ``src.investigacao_pendencias._coluna_elegivel_para_descoberta_completa``
 (mesma lista enxuta de exclusões: ``BLOB``, tipos temporais, ``id`` e colunas
-sensíveis de credenciais) — ou seja, nenhum filtro adicional por nome de
-coluna é aplicado aqui: a decisão de auditar ou não uma coluna depende
-exclusivamente da cardinalidade observada no banco, não do nome dela.
+sensíveis de credenciais), mas — diferente da primeira versão deste módulo —
+soma dois filtros adicionais, necessários porque a cardinalidade sozinha
+não diferencia "código/ENUM" de "coluna identificadora" ou "texto livre
+curto por coincidência de amostra":
+
+1. **Colunas identificadoras (FK/PK)**: qualquer coluna cujo nome pareça
+   referenciar outra linha (``account_id``, ``userid``, ``busunitid``,
+   ``client_id``...) é excluída, mesmo sem exceder 500 valores distintos —
+   um ``*_id`` com 56 valores distintos é só uma tabela pequena sendo
+   referenciada, não uma categoria a traduzir. Constatado em produção: a
+   primeira versão deste módulo sugeriu ``accounts.account_id`` (ids 1, 2,
+   3... 650) como "pendência de tradução".
+2. **Colunas estruturais/texto-livre conhecidas**: nomes que indicam nested
+   set (``lft``/``rgt``/``level``), texto livre curto (``name``/``path``/
+   ``reason``/``amount``...) ou os mesmos termos já excluídos pela
+   descoberta via schema (``_NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA``).
 """
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any
@@ -40,19 +54,21 @@ from sqlalchemy import inspect, text
 from sqlalchemy.engine import Engine
 
 from auditar_traducoes import avaliar_pendencias_enum
-from src.db import conectar_com_timeout
+from src.db import _COLUNAS_FK_IGNORADAS, conectar_com_timeout, fks_inferidas, listar_chaves_estrangeiras
 from src.dicionarios import dicionario_de_coluna
 from src.investigacao_pendencias import (
     ColunaTabela,
     _coluna_elegivel_para_descoberta_completa,
     _identificador,
     _linhas_estimadas_tabela,
+    _NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA,
     _pista_parece_texto_livre,
     listar_colunas_tabela,
 )
 from src.tabelas_grandes import (
     LIMITE_LINHAS_TABELA_COLOSSAL,
     LIMITE_MINIMO_SUBSELECAO_TABELA_COLOSSAL,
+    LIMITE_SUBSELECAO_TABELA_COLOSSAL,
     LIMITE_SUBSELECAO_TABELA_COLOSSAL_MODO_COMPLETO,
 )
 
@@ -70,6 +86,79 @@ CARDINALIDADE_MAXIMA_PADRAO = 500
 # critério de `descobrir_pendencias_schema`): acima disso, mesmo com poucos
 # valores distintos, provavelmente não é um código/ENUM de verdade.
 _TAMANHO_MAXIMO_VALOR = 60
+
+# Acima deste número de linhas estimadas (mas ainda abaixo do limiar de
+# tabela colossal), a tabela já pode ser grande o bastante para um
+# `COUNT(DISTINCT)`/`DISTINCT` sem índice travar — constatado em produção
+# com `publications_duplicate_info` (ordinária, não colossal). Mesmo valor
+# usado em `auditar_traducoes.py` para a mesma decisão.
+LIMITE_LINHAS_TABELA_GRANDE = 500_000
+
+# Padrão de nome de coluna identificadora (FK/PK por convenção): termina em
+# "id"/"_id"/"_pk" ou começa com "id_" (mesma convenção usada em
+# `src.db.fks_inferidas`). Aplicado independente do tipo da coluna e mesmo
+# quando a tabela referenciada não é encontrada por nome (ex: `idcomarca`,
+# `busunitid`) — o nome já é evidência suficiente de que o valor identifica
+# uma linha de outra tabela, não uma categoria.
+_PADRAO_COLUNA_IDENTIFICADORA = re.compile(r"(?:_id|_pk|id)$|^id_", re.IGNORECASE)
+
+# Nomes de coluna estrutural (nested set, ordenação) ou de texto livre curto
+# que, na prática, não são código/ENUM mesmo com poucos valores distintos na
+# amostra — complementa `_NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA` (que já
+# cobre texto livre longo como `body`/`observacao`) com termos mais curtos
+# observados em produção (`accounts.lft/rgt/level/path`, `description`,
+# `name`, `reason`...).
+_NOMES_COLUNA_SEMPRE_EXCLUIDOS_CARDINALIDADE: tuple[str, ...] = (
+    "lft",
+    "rgt",
+    "level",
+    "nivel",
+    "path",
+    "caminho",
+    "position",
+    "posicao",
+    "ordem",
+    "order",
+    "name",
+    "nome",
+    "reason",
+    "motivo",
+    "amount",
+    "valor",
+    "total",
+    "quantidade",
+    "search",
+    "busca",
+)
+
+
+def _coluna_parece_identificadora(nome: str) -> bool:
+    """Indica se o nome da coluna parece um identificador (FK/PK), não um código."""
+    nome_lower = nome.strip().lower()
+    if nome_lower in _COLUNAS_FK_IGNORADAS:
+        return False
+    return bool(_PADRAO_COLUNA_IDENTIFICADORA.search(nome_lower))
+
+
+def _coluna_elegivel_cardinalidade(coluna: ColunaTabela) -> bool:
+    """Elegibilidade de coluna para a auditoria de cardinalidade.
+
+    Parte da elegibilidade ampliada do modo completo
+    (``_coluna_elegivel_para_descoberta_completa``) e soma a exclusão de
+    colunas identificadoras (FK/PK por nome) e de nomes estruturais/texto
+    livre curto conhecidos — ver docstring do módulo para o raciocínio
+    completo por trás de cada filtro.
+    """
+    if not _coluna_elegivel_para_descoberta_completa(coluna):
+        return False
+    nome = coluna.nome.strip().lower()
+    if _coluna_parece_identificadora(nome):
+        return False
+    if nome in _NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA:
+        return False
+    if nome in _NOMES_COLUNA_SEMPRE_EXCLUIDOS_CARDINALIDADE:
+        return False
+    return True
 
 
 @dataclass
@@ -204,6 +293,7 @@ def auditar_cobertura_por_cardinalidade(
             print(f"⚠️  Falha ao estimar linhas de {tabela}, tratando como tabela normal: {exc}")
 
         tabela_colossal = linhas_estimadas > LIMITE_LINHAS_TABELA_COLOSSAL
+        tabela_grande = linhas_estimadas > LIMITE_LINHAS_TABELA_GRANDE
         if tabela_colossal:
             tabelas_colossais.append(tabela)
             limite_subselecao = limite_subselecao_colossal
@@ -211,12 +301,30 @@ def auditar_cobertura_por_cardinalidade(
                 f"ℹ️  Tabela colossal '{tabela}' (~{linhas_estimadas:,} linhas): "
                 f"estimando cardinalidade sobre amostra de até {limite_subselecao:,} linhas."
             )
+        elif tabela_grande:
+            limite_subselecao = LIMITE_SUBSELECAO_TABELA_COLOSSAL
+            print(
+                f"ℹ️  Tabela grande '{tabela}' (~{linhas_estimadas:,} linhas): "
+                f"estimando cardinalidade sobre amostra de até {limite_subselecao:,} linhas."
+            )
         else:
             limite_subselecao = None
 
+        # Colunas FK declaradas/inferidas por convenção: referenciam outra
+        # linha, não são código/ENUM. Reforça (não substitui) a exclusão por
+        # nome em `_coluna_parece_identificadora`, cobrindo também FKs
+        # declaradas no schema cujo nome não segue a convenção *id/_id.
+        try:
+            colunas_fk = {fk["coluna"] for fk in listar_chaves_estrangeiras(engine, tabela)}
+            colunas_fk |= {fk["coluna"] for fk in fks_inferidas(engine, tabela)}
+        except Exception:  # noqa: BLE001 - detecção de FK é best-effort
+            colunas_fk = set()
+
         colunas: list[ColunaTabela] = listar_colunas_tabela(engine, tabela)
         for coluna in colunas:
-            if not _coluna_elegivel_para_descoberta_completa(coluna):
+            if not _coluna_elegivel_cardinalidade(coluna):
+                continue
+            if coluna.nome in colunas_fk:
                 continue
 
             try:
