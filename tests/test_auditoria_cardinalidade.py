@@ -11,6 +11,7 @@ from src.auditoria_cardinalidade import (
     _coletar_valores_distintos,
     _coluna_elegivel_cardinalidade,
     _coluna_parece_identificadora,
+    _coluna_parece_monetaria_no_banco,
     _contar_valores_distintos,
     auditar_cobertura_por_cardinalidade,
 )
@@ -204,3 +205,90 @@ def test_auditoria_ignora_flag_booleana_sem_prefixo_reconhecido() -> None:
 
     tabelas_com_pendencia = {p["tabela"] for p in relatorio["pendencias"]}
     assert "usertasks" not in tabelas_com_pendencia
+
+
+def test_coluna_elegivel_cardinalidade_exclui_numero_referencia_e_endereco() -> None:
+    """Número de referência/identificador em formato livre e campos de endereço."""
+    nomes = [
+        "lawsuitnumber",
+        "vara_number",
+        "register_number",
+        "stnumber",
+        "address",
+        "cep",
+        "district",
+        "compliment",
+        "clientcode",
+        "client_reference",
+    ]
+    for nome in nomes:
+        coluna = ColunaTabela(nome=nome, tipo="varchar(255)", posicao=1)
+        assert not _coluna_elegivel_cardinalidade(coluna), f"{nome} deveria ser excluida"
+
+
+def test_coluna_elegivel_cardinalidade_exclui_remetente_e_descricao_livre() -> None:
+    """E-mail/remetente e descrição livre longa não são código/ENUM."""
+    nomes = ["sender", "instructions_sender", "client_receiver", "proof_object", "required_todo"]
+    for nome in nomes:
+        coluna = ColunaTabela(nome=nome, tipo="varchar(255)", posicao=1)
+        assert not _coluna_elegivel_cardinalidade(coluna), f"{nome} deveria ser excluida"
+
+
+def test_coluna_elegivel_cardinalidade_exclui_resp_by_e_horario() -> None:
+    """Coluna 'responsável por'/'enviado por' e horário do dia não são código/ENUM."""
+    nomes = ["hearing_resp", "instructions_resp", "closed_by", "login_time", "logout_time"]
+    for nome in nomes:
+        coluna = ColunaTabela(nome=nome, tipo="varchar(255)", posicao=1)
+        assert not _coluna_elegivel_cardinalidade(coluna), f"{nome} deveria ser excluida"
+
+
+def test_coluna_elegivel_cardinalidade_exclui_nome_de_pessoa_por_nome_exato() -> None:
+    """Nome de pessoa/parte (correspondência exata, não substring)."""
+    nomes = ["nd", "pta", "defendant", "plaintiff", "lawyer", "witness_1", "preposto_1"]
+    for nome in nomes:
+        coluna = ColunaTabela(nome=nome, tipo="varchar(255)", posicao=1)
+        assert not _coluna_elegivel_cardinalidade(coluna), f"{nome} deveria ser excluida"
+
+
+def test_coluna_elegivel_cardinalidade_nome_exato_nao_afeta_variante_categorica() -> None:
+    """`defendant_classification`/`witness_performance` não colidem com o nome exato."""
+    for nome in ["defendant_classification", "witness_performance"]:
+        coluna = ColunaTabela(nome=nome, tipo="varchar(255)", posicao=1)
+        assert _coluna_elegivel_cardinalidade(coluna), f"{nome} deveria continuar elegivel"
+
+
+def test_coluna_parece_monetaria_no_banco_reconhece_formatos_de_moeda() -> None:
+    """Valores como 'R$ 14.500,00'/'5000.00' são quantia monetária."""
+    assert _coluna_parece_monetaria_no_banco(["5000.00", "0.00", "2234.39"])
+    assert _coluna_parece_monetaria_no_banco(
+        ["2000", "R$ 14.500,00", "14500,00", "4200,00", "R$ 10.000,00", "R$ 1.800,00"]
+    )
+    assert _coluna_parece_monetaria_no_banco(["0.00", "100.00", "29.50", "45.68", "10.85", "66.89"])
+
+
+def test_coluna_parece_monetaria_no_banco_ignora_codigo_numerico() -> None:
+    """Códigos numéricos (OAB, código de vara, filial) não são falsamente marcados."""
+    assert not _coluna_parece_monetaria_no_banco(["228.659", "197766", "172.112", "53.748", "154381"])
+    assert not _coluna_parece_monetaria_no_banco(["0001", "0002", "0003", "0024", "0004"])
+    assert not _coluna_parece_monetaria_no_banco(["1205", "226", "1026", "1344", "1059", "1093"])
+
+
+def test_auditoria_ignora_coluna_monetaria_sem_termo_reconhecido_no_nome() -> None:
+    """Checagem factual: coluna com valores de quantia monetária é descartada mesmo
+    sem termo reconhecido (amount/valor/total) no nome."""
+    engine = create_engine("sqlite:///:memory:")
+    valores = ["5000.00", "0.00", "2234.39"]
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE lawsuits (id INTEGER, legal_fees TEXT)"))
+        for indice in range(100):
+            conn.execute(
+                text("INSERT INTO lawsuits (id, legal_fees) VALUES (:id, :legal_fees)"),
+                {"id": indice, "legal_fees": valores[indice % len(valores)]},
+            )
+        conn.commit()
+
+    with patch("src.auditoria_cardinalidade.dicionario_de_coluna", return_value={}):
+        relatorio = auditar_cobertura_por_cardinalidade(engine)
+
+    tabelas_com_pendencia = {p["tabela"] for p in relatorio["pendencias"]}
+    assert "lawsuits" not in tabelas_com_pendencia

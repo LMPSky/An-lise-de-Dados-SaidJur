@@ -57,6 +57,26 @@ amostra":
 4. **Colunas ``_en`` (duplicata em inglês de outra coluna)**: ``name_en``,
    ``subject_en``, ``motive_en``... são a própria tradução de uma coluna
    irmã, não um código a traduzir.
+5. **Número de referência/identificador em formato livre, endereço, e-mail
+   e nome de pessoa/parte**: constatado em um segundo relatório real (já com
+   os filtros 1-4 aplicados), o grupo dominante de falso positivo
+   remanescente era este: números de processo/conta/registro
+   (``lawsuitnumber``, ``register_number``, ``num_acc``...), campos de
+   endereço (``address``/``cep``/``district``), e-mail/remetente
+   (``emails.sender``), e nome de pessoa/parte
+   (``defendant``/``plaintiff``/``witness_1``/``preposto_1``) — exclusão por
+   substring (``number``, ``address``, ``sender``...) ou, quando o termo é
+   curto demais para substring sem colidir com coluna legítima (ex: ``nd``
+   dentro de ``fundamento``, ``witness`` dentro de
+   ``witness_performance`` que é uma nota numérica categórica), por
+   correspondência exata de nome
+   (``_NOMES_COLUNA_EXATOS_SEMPRE_EXCLUIDOS_CARDINALIDADE``).
+6. **Valor monetário sem termo reconhecido no nome da coluna**: colunas como
+   ``lawsuits.legal_fees`` ou ``lawsuits_log.buyer_resp``/``seller_resp``
+   guardam valores como ``"5000.00"``/``"R$ 14.500,00"`` sem que o nome
+   contenha ``amount``/``valor``/``total`` — checagem factual complementar
+   (``_coluna_parece_monetaria_no_banco``), no mesmo espírito da checagem de
+   flag booleana.
 """
 
 from __future__ import annotations
@@ -163,7 +183,88 @@ _NOMES_COLUNA_SEMPRE_EXCLUIDOS_CARDINALIDADE: tuple[str, ...] = (
     "index_value",
     "email",
     "pwd",
+    # Terceira rodada de ajuste (relatório real pós-flags booleanas): número
+    # de referência/identificador em formato livre (``lawsuitnumber``,
+    # ``vara_number``, ``register_number``, ``stnumber``) — sempre um valor
+    # único por registro, nunca um código/ENUM.
+    "number",
+    # Campos de endereço (``persons.address/cep/district/compliment``).
+    "address",
+    "cep",
+    "district",
+    "compliment",
+    # Referência interna em texto livre, não um código (``lawsuits_log.clientcode``:
+    # valores como "Proc. 888"; ``lawsuits_additional_info.client_reference``:
+    # nome do cliente/empresa).
+    "clientcode",
+    "reference",
+    # Nome de pessoa/remetente em campo de e-mail ou de quem enviou/recebeu
+    # (``emails.sender``, ``expedients.instructions_sender``,
+    # ``lawsuits_additional_info.client_receiver``).
+    "sender",
+    "receiver",
+    # Descrição livre longa, não categórica, mesmo com poucos valores na
+    # amostra (``hearingcontrol.proof_object``/``required_todo``).
+    "proof_object",
+    "required_todo",
+    # Quantidade numérica (``projectevents.hours``), não código/ENUM.
+    "hours",
+    "horas",
+    # Valor monetário calculado (``lawsuits_calculos.*_calcs``).
+    "calcs",
+    # Coluna "responsável por"/"enviado por": guarda id de funcionário/usuário
+    # (``hearing_resp``, ``instructions_resp``, ``lawsuit_resp``) ou valor
+    # monetário (``buyer_resp``/``seller_resp``), nunca um código/ENUM.
+    "_resp",
+    "_by",
+    # Número de conta/agência/banco (``persons.num_acc/num_ag/num_bank``).
+    "num_acc",
+    "num_ag",
+    "num_bank",
+    # Horário do dia (``usertasks.login_time/logout_time``), não um código.
+    "_time",
 )
+
+# Nomes de coluna excluídos por correspondência EXATA (não substring): termos
+# curtos demais para substring sem colidir com colunas legítimas (ex: ``nd``
+# apareceria dentro de ``fundamento``) ou nomes de pessoa/parte que têm uma
+# variante irmã legítima e categórica (ex: ``witness_performance`` guarda uma
+# nota numérica, não o nome da testemunha, então ``witness`` não pode ser
+# substring — só ``witness_1``/``witness_2`` são excluídos).
+_NOMES_COLUNA_EXATOS_SEMPRE_EXCLUIDOS_CARDINALIDADE: tuple[str, ...] = (
+    "nd",
+    "pta",
+    "defendant",
+    "plaintiff",
+    "lawyer",
+    "cartoriosmax",
+    "witness_1",
+    "witness_2",
+    "preposto_1",
+    "legal_assistant",
+)
+
+# Valor com cara de quantia monetária (``R$ 14.500,00``, ``14500,00``,
+# ``5000.00``): colunas como ``lawsuits.legal_fees`` ou
+# ``lawsuits_log.buyer_resp``/``seller_resp`` guardam esse tipo de valor sem
+# que o nome contenha um termo monetário reconhecido (``amount``/``valor``/
+# ``total``) — checagem factual complementar à exclusão por nome, no mesmo
+# espírito de `_VALORES_BOOLEANOS`.
+_PADRAO_VALOR_MONETARIO = re.compile(
+    r"^-?(r\$\s*)?\d+(\.\d{3})*,\d{2}$|^-?\d+\.\d{2}$",
+    re.IGNORECASE,
+)
+
+
+def _coluna_parece_monetaria_no_banco(valores: list[str]) -> bool:
+    """Indica se a maioria dos valores coletados parece quantia monetária."""
+    valores_nao_vazios = [valor for valor in valores if valor.strip()]
+    if not valores_nao_vazios:
+        return False
+    quantidade_monetaria = sum(
+        1 for valor in valores_nao_vazios if _PADRAO_VALOR_MONETARIO.match(valor.strip())
+    )
+    return quantidade_monetaria / len(valores_nao_vazios) >= 0.5
 
 
 def _coluna_parece_duplicata_em_ingles(nome: str) -> bool:
@@ -202,6 +303,8 @@ def _coluna_elegivel_cardinalidade(coluna: ColunaTabela) -> bool:
     if any(chave in nome for chave in _NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA):
         return False
     if any(chave in nome for chave in _NOMES_COLUNA_SEMPRE_EXCLUIDOS_CARDINALIDADE):
+        return False
+    if nome in _NOMES_COLUNA_EXATOS_SEMPRE_EXCLUIDOS_CARDINALIDADE:
         return False
     return True
 
@@ -410,6 +513,13 @@ def auditar_cobertura_por_cardinalidade(
             # `_coluna_e_booleana_no_banco`, sem round-trip extra ao banco
             # pois os valores já foram coletados acima.
             if set(valores) == _VALORES_BOOLEANOS:
+                continue
+
+            # Checagem factual complementar à exclusão por nome
+            # (amount/valor/total/calcs/_resp): valores como "R$ 14.500,00"
+            # ou "5000.00" são quantia monetária mesmo quando o nome da
+            # coluna não contém um termo monetário reconhecido.
+            if _coluna_parece_monetaria_no_banco(valores):
                 continue
 
             valores_curtos = [
