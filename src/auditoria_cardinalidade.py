@@ -26,9 +26,10 @@ A elegibilidade de coluna parte de
 ``src.investigacao_pendencias._coluna_elegivel_para_descoberta_completa``
 (mesma lista enxuta de exclusões: ``BLOB``, tipos temporais, ``id`` e colunas
 sensíveis de credenciais), mas — diferente da primeira versão deste módulo —
-soma dois filtros adicionais, necessários porque a cardinalidade sozinha
-não diferencia "código/ENUM" de "coluna identificadora" ou "texto livre
-curto por coincidência de amostra":
+soma vários filtros adicionais, necessários porque a cardinalidade sozinha
+não diferencia "código/ENUM" de "coluna identificadora", "flag booleana de
+permissão" ou "texto livre/valor monetário curto por coincidência de
+amostra":
 
 1. **Colunas identificadoras (FK/PK)**: qualquer coluna cujo nome pareça
    referenciar outra linha (``account_id``, ``userid``, ``busunitid``,
@@ -37,10 +38,25 @@ curto por coincidência de amostra":
    referenciada, não uma categoria a traduzir. Constatado em produção: a
    primeira versão deste módulo sugeriu ``accounts.account_id`` (ids 1, 2,
    3... 650) como "pendência de tradução".
-2. **Colunas estruturais/texto-livre conhecidas**: nomes que indicam nested
-   set (``lft``/``rgt``/``level``), texto livre curto (``name``/``path``/
-   ``reason``/``amount``...) ou os mesmos termos já excluídos pela
-   descoberta via schema (``_NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA``).
+2. **Flags booleanas de permissão/ação** (``read_users``, ``write_clients``,
+   ``approve_contracts``...): seguem a mesma convenção de prefixo já
+   detectada em ``src.investigacao_pendencias._coluna_parece_flag_de_acao``
+   e, de fato, no primeiro relatório real pós-filtro de FK/ID, **226 das 264
+   colunas com cardinalidade 2** eram flags ``{'0', '1'}`` sem nenhuma
+   entrada no dicionário — a maior fonte isolada de falso positivo
+   remanescente. Reforçado por uma checagem factual (qualquer coluna cujos
+   valores coletados sejam exatamente ``{'0', '1'}`` é descartada, mesmo sem
+   prefixo reconhecido por nome).
+3. **Colunas estruturais/texto-livre/monetárias conhecidas**: nomes que
+   indicam nested set (``lft``/``rgt``/``level``), texto livre curto
+   (``name``/``path``/``reason``/``motive``...) ou valores numéricos/
+   monetários (``amount``/``total``/``rate``...) — comparação por
+   substring, no mesmo padrão de
+   ``_NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA`` (ex: ``obs`` já cobre
+   ``markup_observation``).
+4. **Colunas ``_en`` (duplicata em inglês de outra coluna)**: ``name_en``,
+   ``subject_en``, ``motive_en``... são a própria tradução de uma coluna
+   irmã, não um código a traduzir.
 """
 
 from __future__ import annotations
@@ -59,6 +75,7 @@ from src.dicionarios import dicionario_de_coluna
 from src.investigacao_pendencias import (
     ColunaTabela,
     _coluna_elegivel_para_descoberta_completa,
+    _coluna_parece_flag_de_acao,
     _identificador,
     _linhas_estimadas_tabela,
     _NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA,
@@ -102,12 +119,21 @@ LIMITE_LINHAS_TABELA_GRANDE = 500_000
 # uma linha de outra tabela, não uma categoria.
 _PADRAO_COLUNA_IDENTIFICADORA = re.compile(r"(?:_id|_pk|id)$|^id_", re.IGNORECASE)
 
-# Nomes de coluna estrutural (nested set, ordenação) ou de texto livre curto
-# que, na prática, não são código/ENUM mesmo com poucos valores distintos na
-# amostra — complementa `_NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA` (que já
-# cobre texto livre longo como `body`/`observacao`) com termos mais curtos
-# observados em produção (`accounts.lft/rgt/level/path`, `description`,
-# `name`, `reason`...).
+# Dois únicos valores possíveis para uma coluna booleana — qualquer coluna
+# cujo conjunto de valores coletados seja exatamente este é descartada da
+# auditoria: um flag "ativo/inativo" sem entrada no dicionário não é uma
+# pendência de tradução de código/ENUM no mesmo sentido de um catálogo real
+# (mesmo raciocínio de `_coluna_e_booleana_no_banco`, reaproveitado aqui sem
+# consulta extra pois os valores já foram coletados).
+_VALORES_BOOLEANOS = frozenset({"0", "1"})
+
+# Nomes de coluna estrutural (nested set, ordenação), texto livre curto ou
+# valor numérico/monetário que, na prática, não são código/ENUM mesmo com
+# poucos valores distintos na amostra — complementa
+# `_NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA` (que já cobre texto livre
+# longo como `body`/`observacao`, com o mesmo critério de substring) com
+# termos mais curtos observados em produção (`accounts.lft/rgt/level/path`,
+# `description`, `name`, `reason`, `amount`...).
 _NOMES_COLUNA_SEMPRE_EXCLUIDOS_CARDINALIDADE: tuple[str, ...] = (
     "lft",
     "rgt",
@@ -123,13 +149,26 @@ _NOMES_COLUNA_SEMPRE_EXCLUIDOS_CARDINALIDADE: tuple[str, ...] = (
     "nome",
     "reason",
     "motivo",
+    "motive",
+    "justification",
     "amount",
     "valor",
     "total",
     "quantidade",
     "search",
     "busca",
+    "rate",
+    "salary",
+    "invoice_number",
+    "index_value",
+    "email",
+    "pwd",
 )
+
+
+def _coluna_parece_duplicata_em_ingles(nome: str) -> bool:
+    """Indica se a coluna é a duplicata em inglês de outra (ex: ``name_en``)."""
+    return nome.endswith("_en")
 
 
 def _coluna_parece_identificadora(nome: str) -> bool:
@@ -145,18 +184,24 @@ def _coluna_elegivel_cardinalidade(coluna: ColunaTabela) -> bool:
 
     Parte da elegibilidade ampliada do modo completo
     (``_coluna_elegivel_para_descoberta_completa``) e soma a exclusão de
-    colunas identificadoras (FK/PK por nome) e de nomes estruturais/texto
-    livre curto conhecidos — ver docstring do módulo para o raciocínio
-    completo por trás de cada filtro.
+    colunas identificadoras (FK/PK por nome), flags booleanas de
+    permissão/ação por nome e nomes estruturais/texto-livre/monetários
+    conhecidos (comparação por substring, igual a
+    ``_NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA``) — ver docstring do
+    módulo para o raciocínio completo por trás de cada filtro.
     """
     if not _coluna_elegivel_para_descoberta_completa(coluna):
         return False
     nome = coluna.nome.strip().lower()
     if _coluna_parece_identificadora(nome):
         return False
-    if nome in _NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA:
+    if _coluna_parece_flag_de_acao(nome):
         return False
-    if nome in _NOMES_COLUNA_SEMPRE_EXCLUIDOS_CARDINALIDADE:
+    if _coluna_parece_duplicata_em_ingles(nome):
+        return False
+    if any(chave in nome for chave in _NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA):
+        return False
+    if any(chave in nome for chave in _NOMES_COLUNA_SEMPRE_EXCLUIDOS_CARDINALIDADE):
         return False
     return True
 
@@ -356,6 +401,15 @@ def auditar_cobertura_por_cardinalidade(
                     {"tabela_coluna": f"{tabela}.{coluna.nome}", "etapa": "valores", "erro": str(exc)}
                 )
                 print(f"⚠️  Falha ao coletar valores de {tabela}.{coluna.nome}: {exc}")
+                continue
+
+            # Checagem factual complementar à exclusão por nome
+            # (_coluna_parece_flag_de_acao): mesmo sem prefixo verbal
+            # reconhecido, uma coluna cujos únicos valores reais são '0'/'1'
+            # é um flag booleano, não um código/ENUM — mesmo raciocínio de
+            # `_coluna_e_booleana_no_banco`, sem round-trip extra ao banco
+            # pois os valores já foram coletados acima.
+            if set(valores) == _VALORES_BOOLEANOS:
                 continue
 
             valores_curtos = [
