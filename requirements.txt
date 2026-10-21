@@ -2,6 +2,7 @@ fastapi==0.111.0
 uvicorn[standard]==0.29.0
 sqlalchemy>=2.0.40
 pymysql==1.1.1
+cryptography>=42.0.0
 pyyaml==6.0.3
 openpyxl==3.1.2
 pytest==8.2.0
