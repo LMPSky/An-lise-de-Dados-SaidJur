@@ -75,6 +75,18 @@ def _parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--relatorio-cardinalidade",
+        default=None,
+        metavar="ARQUIVO.yaml",
+        help=(
+            "Investiga diretamente todas as pendências (coluna + valor) do relatório "
+            "gerado por auditar_cardinalidade.py (esquema plano, diferente do "
+            "--relatorio-auditoria padrão). Ignora o relatório de auditoria padrão e "
+            "--colunas. Como os valores já vêm resolvidos pela auditoria, não há a "
+            "limitação de ter que listar cada 'tabela.coluna:valor' manualmente."
+        ),
+    )
+    parser.add_argument(
         "--intervalo-checkpoint",
         type=int,
         default=25,
@@ -95,6 +107,10 @@ def main() -> None:
         print("🔎 Iniciando investigação direcionada das colunas especificadas...")
         print(f"📌 Colunas: {', '.join(args.colunas)}")
         print(f"📏 Limite de linhas por item: {max(2, args.limite_linhas)}")
+    elif args.relatorio_cardinalidade:
+        print("🔎 Iniciando investigação direcionada do relatório de auditoria de cardinalidade...")
+        print(f"📌 Relatório: {args.relatorio_cardinalidade}")
+        print(f"📏 Limite de linhas por item: {max(2, args.limite_linhas)}")
     elif args.completo:
         print("🔎 Iniciando investigação EXAUSTIVA do banco inteiro (modo completo)...")
         print("⏳ Pode levar muito mais tempo que o modo normal — recomendado para rodar durante a noite.")
@@ -110,6 +126,7 @@ def main() -> None:
             caminho_saida=args.saida,
             limite_linhas=max(2, args.limite_linhas),
             colunas_diretas=args.colunas,
+            caminho_relatorio_cardinalidade=args.relatorio_cardinalidade,
             caminho_pendencias_markdown=(
                 args.pendencias_markdown
                 or (ARQUIVO_PENDENCIAS_MARKDOWN_PADRAO if (args.lote or args.completo) else None)

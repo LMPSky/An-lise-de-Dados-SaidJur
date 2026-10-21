@@ -335,6 +335,46 @@ def carregar_pendencias_enum(caminho_relatorio: str | Path) -> list[PendenciaEnu
     return dedup
 
 
+def carregar_pendencias_cardinalidade(caminho_relatorio: str | Path) -> list[PendenciaEnum]:
+    """Carrega pendências do relatório YAML de ``auditoria_cardinalidade.py``.
+
+    Esse relatório usa um esquema diferente do consumido por
+    :func:`carregar_pendencias_enum` (que espera o formato aninhado de
+    ``auditar_traducoes.py``, ``pendencias: {tabela: {enums: [...]}}``):
+    aqui ``pendencias`` é uma lista plana de
+    ``{tabela, coluna, valores_pendentes: [{valor, ...}]}``.
+
+    Diferente do modo ``--colunas`` (sentinela ``*``), os valores aqui já
+    vêm resolvidos pela auditoria — nenhuma expansão de domínio é necessária
+    nem executada, então não há risco de reproduzir o incidente de
+    "investigação completa acidental" que levou a desativar a expansão de
+    domínio para ``colunas_diretas``.
+    """
+    caminho = Path(caminho_relatorio)
+    if not caminho.exists():
+        raise FileNotFoundError(f"Arquivo de auditoria de cardinalidade não encontrado: {caminho}")
+
+    dados = yaml.safe_load(caminho.read_text(encoding="utf-8")) or {}
+    pendencias = dados.get("pendencias", [])
+
+    resultado: list[PendenciaEnum] = []
+    for bloco in pendencias:
+        if not isinstance(bloco, dict):
+            continue
+        tabela = str(bloco.get("tabela", "")).strip()
+        coluna = str(bloco.get("coluna", "")).strip()
+        if not tabela or not coluna:
+            continue
+        for item in bloco.get("valores_pendentes", []):
+            valor = str(item.get("valor", "")).strip()
+            if not valor:
+                continue
+            motivo = str(item.get("motivo", "sem_entrada_no_dicionario"))
+            resultado.append(PendenciaEnum(tabela=tabela, coluna=coluna, valor=valor, motivo=motivo))
+
+    return _deduplicar_pendencias(resultado)
+
+
 def _deduplicar_pendencias(pendencias: list[PendenciaEnum]) -> list[PendenciaEnum]:
     """Remove pendências repetidas, mantendo a ordem da primeira ocorrência."""
     vistos: set[tuple[str, str, str]] = set()
@@ -2766,6 +2806,7 @@ def executar_investigacao(
     *,
     limite_linhas: int = 5,
     colunas_diretas: list[str] | None = None,
+    caminho_relatorio_cardinalidade: str | Path | None = None,
     caminho_pendencias_markdown: str | Path | None = None,
     descobrir_schema: bool = False,
     caminho_dicionarios: str | Path = ARQUIVO_DICIONARIOS_PADRAO,
@@ -2777,7 +2818,8 @@ def executar_investigacao(
     Parâmetros
     ----------
     caminho_relatorio_auditoria:
-        Arquivo YAML de auditoria (ignorado quando ``colunas_diretas`` é fornecido).
+        Arquivo YAML de auditoria (ignorado quando ``colunas_diretas`` ou
+        ``caminho_relatorio_cardinalidade`` é fornecido).
     caminho_saida:
         Arquivo YAML de saída. Também usado como destino dos checkpoints
         parciais salvos periodicamente durante a investigação (ver
@@ -2795,6 +2837,16 @@ def executar_investigacao(
                 "hearingcontrol.hearingtype:11",
                 "pedidos2lawsuit.status:6",
             ])
+    caminho_relatorio_cardinalidade:
+        Quando informado, ignora o relatório de auditoria e ``colunas_diretas``
+        e investiga diretamente todas as pendências já resolvidas (coluna +
+        valor) do relatório gerado por ``auditoria_cardinalidade.py``
+        (esquema plano ``pendencias: [{tabela, coluna, valores_pendentes}]``,
+        diferente do esquema aninhado de ``auditar_traducoes.py``). Como os
+        valores já vêm resolvidos pela auditoria, nenhuma expansão de domínio
+        é necessária — mesma lógica de ``colunas_diretas``, mas sem a
+        limitação prática de ter que listar manualmente cada
+        ``tabela.coluna:valor`` na linha de comando.
     intervalo_checkpoint:
         Quantidade de pendências processadas entre cada checkpoint salvo em
         ``caminho_saida``. Use ``0`` para desativar o checkpoint incremental.
@@ -2809,6 +2861,9 @@ def executar_investigacao(
     if colunas_diretas:
         pendencias = parsear_colunas_diretas(colunas_diretas)
         fonte = "colunas_diretas:" + ",".join(colunas_diretas)
+    elif caminho_relatorio_cardinalidade:
+        pendencias = carregar_pendencias_cardinalidade(caminho_relatorio_cardinalidade)
+        fonte = "relatorio_cardinalidade:" + str(caminho_relatorio_cardinalidade)
     elif caminho_pendencias_markdown or descobrir_schema:
         pendencias = []
         fontes = []
@@ -2824,15 +2879,16 @@ def executar_investigacao(
     engine = criar_engine()
     try:
         resumo_descoberta_schema: dict[str, Any] | None = None
-        # Quando colunas_diretas é informado, a investigação deve se restringir
-        # apenas às especificações fornecidas (ver docstring acima) — expandir
-        # domínio ou disparar a descoberta via schema aqui faria uma varredura
-        # do banco inteiro "de graça" sempre que --colunas fosse combinado com
+        # Quando colunas_diretas/caminho_relatorio_cardinalidade é informado, a
+        # investigação deve se restringir apenas às especificações fornecidas
+        # (ver docstring acima) — expandir domínio ou disparar a descoberta via
+        # schema aqui faria uma varredura do banco inteiro "de graça" sempre
+        # que --colunas/--relatorio-cardinalidade fosse combinado com
         # --completo/--lote/--descobrir-schema, o que já causou uma investigação
         # completa acidental (2.540 pendências) em vez das 20 pedidas.
-        if caminho_pendencias_markdown and not colunas_diretas:
+        if caminho_pendencias_markdown and not colunas_diretas and not caminho_relatorio_cardinalidade:
             pendencias = expandir_pendencias_com_dominio(engine, pendencias)
-        if descobrir_schema and not colunas_diretas:
+        if descobrir_schema and not colunas_diretas and not caminho_relatorio_cardinalidade:
             pendencias_schema, resumo_descoberta_schema = descobrir_pendencias_schema(
                 engine, carregar_yaml(caminho_dicionarios), modo_completo=modo_completo
             )
