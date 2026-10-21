@@ -280,6 +280,39 @@ def test_coluna_elegivel_cardinalidade_idcourt_sem_underscore_e_excluido() -> No
         assert not _coluna_elegivel_cardinalidade(coluna), f"{nome} deveria ser excluida"
 
 
+def test_coluna_elegivel_cardinalidade_exclui_instrucoes_em_texto_livre() -> None:
+    """Quinta rodada: instrução em texto livre não é código/ENUM."""
+    nomes = ["instructions"]
+    for nome in nomes:
+        coluna = ColunaTabela(nome=nome, tipo="varchar(255)", posicao=1)
+        assert not _coluna_elegivel_cardinalidade(coluna), f"{nome} deveria ser excluida"
+
+
+def test_coluna_elegivel_cardinalidade_exclui_localizacao_titulo_e_vara_por_nome_exato() -> None:
+    """Quinta rodada: descrição de localização de tribunal/cidade, título/objeto de
+    tarefa em texto livre, campo concatenado de vara e id numérico de usuário que
+    alterou o registro - todos por correspondência exata."""
+    nomes = [
+        "location",
+        "current_location",
+        "title",
+        "object",
+        "vara",
+        "user_changed_lawsuit",
+    ]
+    for nome in nomes:
+        coluna = ColunaTabela(nome=nome, tipo="varchar(255)", posicao=1)
+        assert not _coluna_elegivel_cardinalidade(coluna), f"{nome} deveria ser excluida"
+
+
+def test_coluna_elegivel_cardinalidade_exato_nao_afeta_protocol_location_e_objecttype() -> None:
+    """`protocol_location`/`objecttype` não devem colidir com a exclusão exata de
+    `location`/`object`."""
+    for nome in ["protocol_location", "objecttype"]:
+        coluna = ColunaTabela(nome=nome, tipo="varchar(255)", posicao=1)
+        assert _coluna_elegivel_cardinalidade(coluna), f"{nome} deveria continuar elegivel"
+
+
 def test_coluna_elegivel_cardinalidade_exclui_nome_de_pessoa_por_nome_exato() -> None:
     """Nome de pessoa/parte (correspondência exata, não substring)."""
     nomes = ["nd", "pta", "defendant", "plaintiff", "lawyer", "witness_1", "preposto_1"]

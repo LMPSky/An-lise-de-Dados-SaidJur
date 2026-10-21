@@ -90,6 +90,25 @@ amostra":
    ``issuer`` (id numérico de emissor), ``cost_center_1`` (nome de empresa
    guardado como "centro de custo") e ``final_agreement_proposal`` (texto
    livre longo, mesmo quando mistura valor monetário com descrição).
+8. **Instruções em texto livre e descrição de localização de tribunal**: um
+   quinto relatório real (já com os filtros 1-7 aplicados, 100 colunas
+   pendentes) mostrou ``expedients.instructions`` com valores como "Baixar
+   ID6D72435"/"cópia dos autos" (texto livre de instrução, não um código),
+   ``lawsuits``/``lawsuits_log.current_location`` e
+   ``jqcalendar.Location`` com nomes de tribunal/cidade em texto livre
+   formatado de forma inconsistente (``"TRF1 (8ª Turma)"`` vs ``"TRF1 - 7ª
+   Turma"``), ``publications_duplicate_info.vara`` com valores
+   concatenados sem separador (``"5ª Vara do Trabalho de
+   ContagemSentença"``, dois campos colados por erro de dado), e
+   ``projects.title``/``projects.object`` com título/descrição de tarefa em
+   texto livre curto por coincidência de amostra (inclusive valor de teste
+   como ``"xxxx"``). Também confirmado ``publicationxml.user_changed_lawsuit``
+   como id numérico de usuário sem sufixo ``_id`` (mesmo padrão de
+   ``user_del``). ``location``/``current_location``/``title``/``object`` são
+   excluídos por correspondência EXATA para não colidir com
+   ``lawsuitdocsmetadata.protocol_location`` (cardinalidade 2, plausível
+   categoria legítima, não excluída) nem com ``publicationxml.objecttype``
+   (catálogo real de tipo de documento).
 """
 
 from __future__ import annotations
@@ -253,6 +272,9 @@ _NOMES_COLUNA_SEMPRE_EXCLUIDOS_CARDINALIDADE: tuple[str, ...] = (
     # Id numérico de emissor/entidade relacionada, sem sufixo *_id
     # (``lawsuits_log.issuer``: '572', '1808', '9608'...).
     "issuer",
+    # Quinta rodada de ajuste: instrução em texto livre, não um código
+    # (``expedients.instructions``: "Baixar ID6D72435", "cópia dos autos"...).
+    "instructions",
 )
 
 # Nomes de coluna excluídos por correspondência EXATA (não substring): termos
@@ -283,6 +305,29 @@ _NOMES_COLUNA_EXATOS_SEMPRE_EXCLUIDOS_CARDINALIDADE: tuple[str, ...] = (
     # Identificador de pasta/processo em formato livre, não um código
     # (``publicationxml_extra.jurify_pasta``: '8000000910', '700000128'...).
     "jurify_pasta",
+    # Quinta rodada de ajuste: descrição de localização de tribunal/cidade
+    # em texto livre, formatação inconsistente entre registros
+    # (``lawsuits``/``lawsuits_log.current_location``: "TRF1 (8ª Turma)" vs
+    # "TRF1 - 7ª Turma"; ``jqcalendar.Location``: "BELO HORIZONTE",
+    # "Contagem"). Exato (não substring) para preservar
+    # ``lawsuitdocsmetadata.protocol_location`` (cardinalidade 2, plausível
+    # categoria legítima).
+    "location",
+    "current_location",
+    # Título/descrição de tarefa em texto livre curto por coincidência de
+    # amostra, inclusive valor de teste (``projects.title``: "Resposta
+    # ofício (teste)"; ``projects.object``: "xxxx", "bbbbbbbb"). ``object``
+    # é exato para não colidir com ``publicationxml.objecttype`` (catálogo
+    # real de tipo de documento).
+    "title",
+    "object",
+    # Valores concatenados sem separador, erro de dado em texto livre
+    # (``publications_duplicate_info.vara``: "5ª Vara do Trabalho de
+    # ContagemSentença" - nome de vara e tipo de evento colados).
+    "vara",
+    # Id numérico de usuário que alterou o registro, sem sufixo *_id
+    # (``publicationxml.user_changed_lawsuit``: '1', '3', '7'...).
+    "user_changed_lawsuit",
 )
 
 # Valor com cara de quantia monetária (``R$ 14.500,00``, ``14500,00``,
