@@ -128,6 +128,12 @@ def test_coluna_parece_identificadora_reconhece_convencoes_de_fk() -> None:
         assert _coluna_parece_identificadora(nome), f"{nome} deveria parecer identificador"
 
 
+def test_coluna_parece_identificadora_reconhece_id_sem_underscore() -> None:
+    """``idcourt``/``idcourt_division``/``idcomarca``: 'id' seguido direto de letra."""
+    for nome in ["idcourt", "idcourt_division", "idcomarca"]:
+        assert _coluna_parece_identificadora(nome), f"{nome} deveria parecer identificador"
+
+
 def test_coluna_parece_identificadora_ignora_falsos_positivos_de_sufixo() -> None:
     """Palavras que terminam em 'id' mas não são FK (lista de exceções de src.db)."""
     for nome in ["valid", "paid", "said", "void"]:
@@ -239,6 +245,38 @@ def test_coluna_elegivel_cardinalidade_exclui_resp_by_e_horario() -> None:
     nomes = ["hearing_resp", "instructions_resp", "closed_by", "login_time", "logout_time"]
     for nome in nomes:
         coluna = ColunaTabela(nome=nome, tipo="varchar(255)", posicao=1)
+        assert not _coluna_elegivel_cardinalidade(coluna), f"{nome} deveria ser excluida"
+
+
+def test_coluna_elegivel_cardinalidade_exclui_proposta_centro_custo_e_emissor() -> None:
+    """Quarta rodada: proposta de acordo em texto livre, 'centro de custo' com nome
+    de empresa e id numérico de emissor sem sufixo *_id."""
+    nomes = ["final_agreement_proposal", "cost_center_1", "issuer"]
+    for nome in nomes:
+        coluna = ColunaTabela(nome=nome, tipo="varchar(255)", posicao=1)
+        assert not _coluna_elegivel_cardinalidade(coluna), f"{nome} deveria ser excluida"
+
+
+def test_coluna_elegivel_cardinalidade_exclui_oab_user_del_e_jurify_pasta() -> None:
+    """Quarta rodada: registro profissional único, id de usuário e identificador de
+    pasta (correspondência exata)."""
+    nomes = ["oab", "user_del", "jurify_pasta"]
+    for nome in nomes:
+        coluna = ColunaTabela(nome=nome, tipo="varchar(255)", posicao=1)
+        assert not _coluna_elegivel_cardinalidade(coluna), f"{nome} deveria ser excluida"
+
+
+def test_coluna_elegivel_cardinalidade_oab_exato_preserva_oab_uf() -> None:
+    """`oab_uf` (cardinalidade compatível com as 27 UFs do Brasil) não deve ser
+    excluída pela exclusão exata de `oab`."""
+    coluna = ColunaTabela(nome="oab_uf", tipo="varchar(10)", posicao=1)
+    assert _coluna_elegivel_cardinalidade(coluna)
+
+
+def test_coluna_elegivel_cardinalidade_idcourt_sem_underscore_e_excluido() -> None:
+    """`idcourt`/`idcourt_division` guardam ids sequenciais, confirmados em produção."""
+    for nome in ["idcourt", "idcourt_division"]:
+        coluna = ColunaTabela(nome=nome, tipo="int(11)", posicao=1)
         assert not _coluna_elegivel_cardinalidade(coluna), f"{nome} deveria ser excluida"
 
 
