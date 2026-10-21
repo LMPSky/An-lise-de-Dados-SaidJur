@@ -507,7 +507,7 @@ def test_coletar_linhas_exemplo_com_limite_subselecao_usa_subconsulta_limitada()
     assert linhas_fora == []
 
 
-def test_investigar_pendencias_salva_checkpoint_parcial_periodicamente(tmp_path: Path) -> None:
+def test_investigar_pendencias_salva_checkpoint_parcial_periodicamente(tmp_path: Path, capsys) -> None:
     engine = create_engine("sqlite:///:memory:")
     with engine.connect() as conn:
         conn.execute(text("CREATE TABLE sucesso (codigo TEXT, name TEXT)"))
@@ -536,6 +536,13 @@ def test_investigar_pendencias_salva_checkpoint_parcial_periodicamente(tmp_path:
     assert checkpoint["em_andamento"] is True
     assert checkpoint["total_pendencias_esperado"] == 5
     assert checkpoint["resumo"]["total_pendencias"] in (2, 4)
+
+    # Cada checkpoint deve imprimir uma linha de progresso no console — sem
+    # isso, uma investigação longa (centenas/milhares de pendências) fica em
+    # silêncio total até o fim, o que pode ser confundido com processo travado.
+    saida = capsys.readouterr().out
+    assert "💾 Checkpoint: 2/5" in saida
+    assert "💾 Checkpoint: 4/5" in saida
 
     # O relatório final (retornado, não necessariamente salvo em disco por
     # investigar_pendencias) não deve ter marcação de "em andamento".

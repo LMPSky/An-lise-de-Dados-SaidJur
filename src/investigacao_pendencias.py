@@ -2492,7 +2492,10 @@ def investigar_pendencias(
     true``) a cada ``intervalo_checkpoint`` pendências processadas — assim,
     caso o processo trave numa pendência específica ou seja interrompido
     (``Ctrl+C``), o progresso até a última pendência concluída antes da
-    interrupção não é perdido.
+    interrupção não é perdido. Cada checkpoint também imprime uma linha de
+    progresso no console (``💾 Checkpoint: N/total ...``) — sem isso, uma
+    investigação com muitas pendências (centenas/milhares) fica em silêncio
+    total até o fim, o que pode ser confundido com o processo travado.
 
     Quando ``modo_completo=True``, tabelas colossais usam a amostra inicial
     maior de ``LIMITE_SUBSELECAO_TABELA_COLOSSAL_MODO_COMPLETO`` em vez de
@@ -2680,6 +2683,11 @@ def investigar_pendencias(
 
         if caminho_checkpoint and indice % max(1, intervalo_checkpoint) == 0:
             _salvar_checkpoint()
+            percentual = (indice / total_pendencias * 100) if total_pendencias else 100.0
+            print(
+                f"💾 Checkpoint: {indice}/{total_pendencias} pendências processadas "
+                f"({percentual:.0f}%) — salvo em {caminho_checkpoint}"
+            )
 
     return _construir_relatorio(investigacoes)
 
