@@ -15,6 +15,7 @@ from src.investigacao_pendencias import (
     PendenciaEnum,
     aplicar_decisoes_em_dicionario,
     carregar_pendencias_markdown,
+    carregar_pendencias_cardinalidade,
     carregar_pendencias_enum,
     descobrir_pendencias_schema,
     executar_investigacao,
@@ -70,6 +71,60 @@ def test_carregar_pendencias_enum_do_relatorio_yaml(tmp_path: Path) -> None:
         PendenciaEnum("paymenttype", "code", "Bol", "sem_entrada_no_dicionario"),
         PendenciaEnum("paymenttype", "code", "chq", "sem_entrada_no_dicionario"),
     ]
+
+
+def test_carregar_pendencias_cardinalidade_do_relatorio_plano_yaml(tmp_path: Path) -> None:
+    """``auditoria_cardinalidade.py`` usa esquema plano (lista), não aninhado.
+
+    Diferente de ``carregar_pendencias_enum`` (esquema aninhado de
+    ``auditar_traducoes.py``), aqui ``pendencias`` é uma lista de
+    ``{tabela, coluna, valores_pendentes}`` — exercita essa diferença de
+    esquema e confirma que os valores já resolvidos pela auditoria (sem
+    sentinela ``*``) são carregados corretamente, sem duplicatas.
+    """
+    caminho = tmp_path / "relatorio_auditoria_cardinalidade.yaml"
+    caminho.write_text(
+        yaml.safe_dump(
+            {
+                "pendencias": [
+                    {
+                        "tabela": "varas_cartorios",
+                        "coluna": "codigo",
+                        "cardinalidade": 391,
+                        "valores_pendentes": [
+                            {"valor": "101", "traducao_atual": "", "motivo": "sem_entrada_no_dicionario"},
+                            {"valor": "102", "traducao_atual": "", "motivo": "sem_entrada_no_dicionario"},
+                            {"valor": "102", "traducao_atual": "", "motivo": "sem_entrada_no_dicionario"},
+                        ],
+                    },
+                    {
+                        "tabela": "lawsuits_additional_info",
+                        "coluna": "filial",
+                        "cardinalidade": 168,
+                        "valores_pendentes": [
+                            {"valor": "1205", "traducao_atual": "", "motivo": "sem_entrada_no_dicionario"},
+                        ],
+                    },
+                ]
+            },
+            allow_unicode=True,
+            sort_keys=False,
+        ),
+        encoding="utf-8",
+    )
+
+    pendencias = carregar_pendencias_cardinalidade(caminho)
+
+    assert pendencias == [
+        PendenciaEnum("varas_cartorios", "codigo", "101", "sem_entrada_no_dicionario"),
+        PendenciaEnum("varas_cartorios", "codigo", "102", "sem_entrada_no_dicionario"),
+        PendenciaEnum("lawsuits_additional_info", "filial", "1205", "sem_entrada_no_dicionario"),
+    ]
+
+
+def test_carregar_pendencias_cardinalidade_arquivo_inexistente_levanta_erro(tmp_path: Path) -> None:
+    with pytest.raises(FileNotFoundError):
+        carregar_pendencias_cardinalidade(tmp_path / "nao_existe.yaml")
 
 
 def test_carregar_pendencias_markdown_extrai_referencias_e_valor(tmp_path: Path) -> None:
@@ -2159,6 +2214,73 @@ def test_executar_investigacao_colunas_diretas_ignora_descoberta_via_schema(tmp_
     assert len(relatorio["investigacoes"]) == 1
     assert relatorio["investigacoes"][0]["tabela"] == "paymenttype"
     assert "descoberta_schema" not in relatorio
+
+
+def test_executar_investigacao_relatorio_cardinalidade_investiga_valores_ja_resolvidos(tmp_path: Path) -> None:
+    """``--relatorio-cardinalidade`` deve investigar os valores reais do relatório.
+
+    Bug reproduzido na prática: passar ``--colunas tabela.coluna`` (sem
+    ``:valor``) não expande mais o sentinela ``*`` para os valores reais do
+    banco (expansão de domínio foi desativada para ``colunas_diretas`` após
+    o incidente de varredura acidental completa) — a busca acabava rodando
+    ``WHERE coluna = '*'`` literalmente e retornando "sem_registros" para
+    quase tudo. O caminho ``--relatorio-cardinalidade`` evita isso: os
+    valores já vêm resolvidos do relatório de ``auditar_cardinalidade.py``,
+    sem precisar de expansão de domínio nem de listar cada valor na CLI.
+    """
+    import src.investigacao_pendencias as mod
+
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE varas_cartorios (
+                id INTEGER PRIMARY KEY,
+                codigo TEXT,
+                nome TEXT
+            )
+        """))
+        conn.execute(text("""
+            INSERT INTO varas_cartorios (id, codigo, nome) VALUES
+            (1, '101', '1a Vara Civel'),
+            (2, '102', '2a Vara Civel')
+        """))
+        conn.commit()
+
+    caminho_relatorio = tmp_path / "relatorio_auditoria_cardinalidade.yaml"
+    caminho_relatorio.write_text(
+        yaml.safe_dump(
+            {
+                "pendencias": [
+                    {
+                        "tabela": "varas_cartorios",
+                        "coluna": "codigo",
+                        "cardinalidade": 2,
+                        "valores_pendentes": [
+                            {"valor": "101", "traducao_atual": "", "motivo": "sem_entrada_no_dicionario"},
+                            {"valor": "102", "traducao_atual": "", "motivo": "sem_entrada_no_dicionario"},
+                        ],
+                    },
+                ]
+            },
+            allow_unicode=True,
+            sort_keys=False,
+        ),
+        encoding="utf-8",
+    )
+
+    caminho_saida = tmp_path / "relatorio.yaml"
+    with patch.object(mod, "criar_engine", return_value=engine):
+        relatorio = executar_investigacao(
+            caminho_saida=caminho_saida,
+            caminho_relatorio_cardinalidade=caminho_relatorio,
+        )
+
+    assert relatorio["fonte_pendencias"] == f"relatorio_cardinalidade:{caminho_relatorio}"
+    assert len(relatorio["investigacoes"]) == 2
+    valores_investigados = {item["valor"] for item in relatorio["investigacoes"]}
+    assert valores_investigados == {"101", "102"}
+    # Nenhuma pendência deve ter ficado com o valor sentinela "*" literal.
+    assert "*" not in valores_investigados
 
 
 # ---------------------------------------------------------------------------
