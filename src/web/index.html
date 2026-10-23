@@ -462,15 +462,6 @@
                   <input type="search" x-model="termoBusca" placeholder="Digite o nome do cliente ou número do processo que você procura" class="flex-1 px-5 py-4 text-lg border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-400 focus:outline-none" />
                   <button type="submit" :disabled="buscandoGlobal" class="bg-primary hover:bg-primary-dark text-white px-6 py-4 rounded-2xl text-lg font-semibold shadow disabled:opacity-60">Buscar agora</button>
                 </form>
-
-                <div class="bg-white border rounded-2xl p-5 text-left">
-                  <h3 class="text-lg font-semibold text-gray-900 mb-3">Sugestões de pesquisa</h3>
-                  <div class="flex flex-wrap gap-3">
-                    <button @click="termoBusca='Sila do Brasil'; buscarGlobal()" class="simple-chip">Sila do Brasil</button>
-                    <button @click="termoBusca='ATIVO'; buscarGlobal()" class="simple-chip">ATIVO</button>
-                    <button @click="termoBusca='2024'; buscarGlobal()" class="simple-chip">2024</button>
-                  </div>
-                </div>
               </div>
             </div>
           </template>
