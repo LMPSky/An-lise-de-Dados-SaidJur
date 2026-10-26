@@ -42,6 +42,9 @@ automaticprazos_lawsuits:
   user_updated:
     '21': Naiara
     '659': Rodson
+  prazo_days:
+    '1': RETIFICAR CTPS
+    '2': ENVIAR CTPS P/ ANOTAÇÃO
 businessunit:
   deactivated:
     '0': Não
@@ -368,6 +371,36 @@ lawsuits_log:
     p: Autor
   contract_type:
     co: Contrato de Êxito
+  lawsuit_phase:
+    '33': Agravo de Petição
+    '37': GRU
+  result:
+    '1': Procedente
+    '2': Improcedente
+    '3': Parcialmente procedente
+    '4': Acordo
+    '5': Extinto sem resolução do mérito
+    '6': Pagamentos por terceiros
+    '7': Sem custo
+    '8': Documento que comprove o alegado
+    '9': Não houve condenação
+    '10': Testemunhas
+    '11': Arquivamento - Ausência reclamante
+    '12': Ausência de documentos
+    '15': Duplicidade
+    '16': Laudo positivo
+    '17': Solicitado pelo pool
+    '20': Extinção da execução
+    '21': Exclusão da lide
+    '22': Carta Precatória cumprida
+    '23': Não provido
+    '24': Provido
+    '25': Pendente de julgamento
+    '26': Ilegitimidade acolhida
+    '27': Sentença homologatória de acordo
+    '28': Arquivar
+    '29': Arquivado
+    '32': Improcedência em relação ao cliente
 paymentguarantee2lawsuit:
   status:
     '0': Inativo
@@ -566,6 +599,7 @@ lawsuitdocs:
     '12': Comprovante depósito FGTS
     '14': Descrição de Cargos
     '15': Comprovante mudança de função
+    '7': Outro
 otherdocs: {}
 pedidos2lawsuit:
   instance01:
@@ -775,8 +809,8 @@ automaticprazos_jurify:
   created_at_userid:
     '21': Naiara
   all_prazos:
-    '0': 'Não'
-    '1': 'Sim'
+    '0': Não
+    '1': Sim
 automaticprazos_jurify_clients:
   client_id:
     '6625': COMPANHIA BRASILEIRA DE DISTRIBUIÇÃO
@@ -1007,8 +1041,8 @@ instancia:
     '3': 3ª instância
     '4': Extraordinária
   turma_4:
-    '0': 'Não'
-    '1': 'Sim'
+    '0': Não
+    '1': Sim
 lawsuitnature2extralawsuitfields:
   person_id:
     '1046': VIA VAREJO S/A
@@ -1307,3 +1341,78 @@ turmas:
   turma:
     '1': 1ª Turma/Câmara
     '2': 2ª Turma/Câmara
+court_division:
+  court_division_code:
+    '03': Juizado Especial
+    '13': Conselho Regional de Administração
+    '25': Secretária do Meio Ambiente
+    '01': Tribunal Regional
+    '02': Tribunal de Justiça
+    '15': Delegacia
+    '05': Procon
+    '20': Tribunal de Contas do Estado
+    '24': MPF
+    08: Ministério Público
+    '22': IPAAM
+    09: CARF
+    '18': Superintendência de Administração Tributária
+    '06': MPT
+    '04': Superior
+    '07': SEF
+    '10': CART
+    '12': Conselho de Contribuinte
+    '16': Juizado Especial Federal
+    '17': Superintendência Regional do Trabalho e Emprego
+    '19': Agência Nacional de Aviação Civil
+    '21': TRE
+    '23': IMAC
+    '11': Receita Federal
+    '14': Tribunal de Contas da União
+lawsuits_phase_log:
+  lawsuit_phase:
+    '33': Agravo de Petição
+    '37': GRU
+lawsuits_result_log:
+  result:
+    '3': Parcialmente procedente
+    '2': Improcedente
+    '4': Acordo
+    '1': Procedente
+    '15': Duplicidade
+    '25': Pendente de julgamento
+    '21': Exclusão da lide
+    '23': Não provido
+    '9': Não houve condenação
+    '20': Extinção da execução
+    '26': Ilegitimidade acolhida
+    '6': Pagamentos por terceiros
+    '29': Arquivado
+    '5': Extinto sem resolução do mérito
+    '32': Improcedência em relação ao cliente
+    '24': Provido
+    '22': Carta Precatória cumprida
+    '7': Sem custo
+    '8': Documento que comprove o alegado
+    '14': Depoimento da testemunha do reclamante
+    '10': Testemunhas
+    '19': Confissão de preposto
+    '16': Laudo positivo
+    '28': Arquivar
+    '27': Sentença homologatória de acordo
+    '11': Arquivamento - Ausência reclamante
+    '13': Ausência de preposto - revelia
+    '17': Solicitado pelo pool
+print_reports_options_order:
+  print_option:
+    '104': basegeral
+    '139': pedidos
+    '140': Padrão CV
+    '180': Sustentação Oral
+    '20': Relatório Geral audiências
+    '38': Bruno
+    '56': Renata
+    '6': REL. SADA TRABALHISTA
+    '75': BASE
+    '76': SANEAMENTO SAIDJUR
+    '77': ff
+    '8': Processos migrados
