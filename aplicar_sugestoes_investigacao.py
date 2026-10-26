@@ -86,13 +86,25 @@ def _parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--aprovar-fonte",
-        choices=("fk_declarada", "fk_inferida", "tabela_referencia", "tabela_irma", "multiplas_pistas"),
+        choices=(
+            "fk_declarada",
+            "fk_inferida",
+            "tabela_referencia",
+            "tabela_irma",
+            "multiplas_pistas",
+            "coluna_descritiva",
+        ),
         help=(
             "Aprova explicitamente, em lote, sugestões de alta confiança desta fonte. "
             "'fk_declarada' (chave estrangeira real do schema) e 'fk_inferida' (FK "
             "detectada por convenção de nome, mesma heurística já usada na interface "
             "web) são as fontes mais confiáveis, pois a tabela/coluna de referência "
-            "não é adivinhada por radical de nome como em 'tabela_referencia'."
+            "não é adivinhada por radical de nome como em 'tabela_referencia'. "
+            "'coluna_descritiva' vem de uma coluna-irmã com nome semântico (ex: "
+            "'description'/'typename') que apresentou valor único e consistente em "
+            "múltiplas linhas reais da mesma tabela — não depende de lookup em outra "
+            "tabela, mas revise itens com alerta de 'coluna em outro idioma' antes de "
+            "aplicar."
         ),
     )
     parser.add_argument(
