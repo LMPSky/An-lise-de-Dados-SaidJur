@@ -2149,6 +2149,7 @@ def _analisar_pistas(
                 "traducao_sugerida": unico,
                 "justificativa": justificativa,
                 "pistas": pistas,
+                "fonte": "coluna_descritiva",
             })
 
     for pista in pistas:

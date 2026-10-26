@@ -150,3 +150,46 @@ def test_aprovar_fonte_excluir_coluna_manualmente(tmp_path: Path, capsys: pytest
     assert "Colunas excluídas manualmente" in saida
     assert "hearingcontrol.hearingtype" in saida
     assert "Traduções aplicadas: 1" in saida
+
+
+def test_aprovar_fonte_coluna_descritiva_aplica_sugestoes(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    """Regressão: sugestões de alta_confianca vindas de 'coluna_descritiva'
+    (coluna-irmã com nome semântico, ex: 'typename') precisam ter a fonte
+    marcada para que --aprovar-fonte consiga selecioná-las em lote — antes
+    dessa correção, o ramo de código que gera essas sugestões não preenchia
+    'fonte', então nenhum valor de --aprovar-fonte conseguia capturá-las."""
+    import yaml
+
+    relatorio = {
+        "investigacoes": [
+            _item(
+                "hearingcontrol",
+                "hearingtype",
+                "11",
+                "Instrução",
+                tabela_referencia=None,
+                fonte="coluna_descritiva",
+            ),
+        ]
+    }
+    caminho_relatorio = tmp_path / "relatorio.yaml"
+    caminho_relatorio.write_text(yaml.safe_dump(relatorio), encoding="utf-8")
+    caminho_dicionarios = tmp_path / "dicionarios.yaml"
+
+    import sys
+    argv_original = sys.argv
+    try:
+        sys.argv = [
+            "aplicar_sugestoes_investigacao.py",
+            "--relatorio-investigacao", str(caminho_relatorio),
+            "--dicionarios", str(caminho_dicionarios),
+            "--aprovar-fonte", "coluna_descritiva",
+            "--dry-run",
+        ]
+        main()
+    finally:
+        sys.argv = argv_original
+
+    saida = capsys.readouterr().out
+    assert "1 sugestão(ões)" in saida
+    assert "Traduções aplicadas: 1" in saida

@@ -1883,6 +1883,10 @@ def test_investigar_pendencias_coluna_semantica_gera_alta_confianca() -> None:
     item = relatorio["investigacoes"][0]
     assert item["sugestao"]["status"] == "alta_confianca"
     assert item["sugestao"]["traducao_sugerida"] == "Instrução"
+    # A fonte precisa estar marcada como "coluna_descritiva" para que
+    # aplicar_sugestoes_investigacao.py --aprovar-fonte consiga selecionar
+    # esse item em lote (sem fonte, ele só pode ser revisado manualmente).
+    assert item["sugestao"]["fonte"] == "coluna_descritiva"
 
 
 def test_pista_parece_texto_livre_detecta_texto_longo() -> None:
