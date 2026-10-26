@@ -1,0 +1,344 @@
+decisoes:
+- tabela: publication_text_search_terms
+  coluna: term
+  valor: ExProvAS
+  status_sugestao: pista_unica
+  traducao_sugerida: Execução Provisória
+  decisao: aplicar
+  traducao_final: null
+- tabela: publication_text_search_terms
+  coluna: term
+  valor: CumSen
+  status_sugestao: pista_unica
+  traducao_sugerida: Cumprimento Sentença (CumSen)
+  decisao: aplicar
+  traducao_final: null
+- tabela: publication_text_search_terms
+  coluna: term
+  valor: ExCCj
+  status_sugestao: pista_unica
+  traducao_sugerida: Execução de Certidão de Crédito Judicial
+  decisao: aplicar
+  traducao_final: null
+- tabela: publication_text_search_terms
+  coluna: term
+  valor: ACum
+  status_sugestao: pista_unica
+  traducao_sugerida: Ação de Cumprimento (ACum)
+  decisao: aplicar
+  traducao_final: null
+- tabela: publication_text_search_terms
+  coluna: term
+  valor: ExFis
+  status_sugestao: pista_unica
+  traducao_sugerida: Execução Fiscal
+  decisao: aplicar
+  traducao_final: null
+- tabela: publication_text_search_terms
+  coluna: term
+  valor: ExTiEx
+  status_sugestao: pista_unica
+  traducao_sugerida: Execução de Título Extrajudicial
+  decisao: aplicar
+  traducao_final: null
+- tabela: publication_text_search_terms
+  coluna: term
+  valor: CartPrecCiv
+  status_sugestao: pista_unica
+  traducao_sugerida: Carta Precatória (CartPrecCiv)
+  decisao: aplicar
+  traducao_final: null
+- tabela: publication_text_search_terms
+  coluna: term
+  valor: CartPrec
+  status_sugestao: pista_unica
+  traducao_sugerida: Carta Precatória (CartPrec)
+  decisao: aplicar
+  traducao_final: null
+- tabela: publication_text_search_terms
+  coluna: term
+  valor: CPre
+  status_sugestao: pista_unica
+  traducao_sugerida: Carta Precatória (CP)
+  decisao: aplicar
+  traducao_final: null
+- tabela: publication_text_search_terms
+  coluna: term
+  valor: Mandado de Segurança
+  status_sugestao: pista_unica
+  traducao_sugerida: Mandado de Segurança (Mandado de Segurança)
+  decisao: aplicar
+  traducao_final: null
+- tabela: publication_text_search_terms
+  coluna: term
+  valor: CumPrSe
+  status_sugestao: pista_unica
+  traducao_sugerida: Cumprimento Sentença (CumPrSe)
+  decisao: aplicar
+  traducao_final: null
+- tabela: publication_text_search_terms
+  coluna: term
+  valor: A Cum
+  status_sugestao: pista_unica
+  traducao_sugerida: Ação de Cumprimento (AC)
+  decisao: aplicar
+  traducao_final: null
+- tabela: publication_text_search_terms
+  coluna: term
+  valor: tema 1046
+  status_sugestao: pista_unica
+  traducao_sugerida: Recurso de Julgamento Parcial
+  decisao: aplicar
+  traducao_final: null
+- tabela: publication_text_search_terms
+  coluna: term
+  valor: tema 1.046
+  status_sugestao: pista_unica
+  traducao_sugerida: Recurso de Julgamento Parcial
+  decisao: aplicar
+  traducao_final: null
+- tabela: publication_text_search_terms
+  coluna: term
+  valor: MSCiv
+  status_sugestao: pista_unica
+  traducao_sugerida: Mandado de Segurança
+  decisao: aplicar
+  traducao_final: null
+- tabela: publication_text_search_terms
+  coluna: term
+  valor: Execucao Provisoria
+  status_sugestao: pista_unica
+  traducao_sugerida: Execução Provisória
+  decisao: aplicar
+  traducao_final: null
+- tabela: publication_text_search_terms
+  coluna: term
+  valor: Execucao Fiscal
+  status_sugestao: pista_unica
+  traducao_sugerida: Execução Fiscal
+  decisao: aplicar
+  traducao_final: null
+- tabela: publication_text_search_terms
+  coluna: term
+  valor: Execucao de Titulo Extrajudicial
+  status_sugestao: pista_unica
+  traducao_sugerida: Execução de Título Extrajudicial
+  decisao: aplicar
+  traducao_final: null
+- tabela: publication_text_search_terms
+  coluna: term
+  valor: CCCiv
+  status_sugestao: pista_unica
+  traducao_sugerida: Conflito de Competência
+  decisao: aplicar
+  traducao_final: null
+- tabela: publication_text_search_terms
+  coluna: term
+  valor: TutCautAnt
+  status_sugestao: pista_unica
+  traducao_sugerida: Tutela Cautelar Antecedente
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: AC
+  status_sugestao: pista_unica
+  traducao_sugerida: ACRE
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: AL
+  status_sugestao: pista_unica
+  traducao_sugerida: ALAGOAS
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: AM
+  status_sugestao: pista_unica
+  traducao_sugerida: AMAZONAS
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: AP
+  status_sugestao: pista_unica
+  traducao_sugerida: AMAPÁ
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: BA
+  status_sugestao: pista_unica
+  traducao_sugerida: BAHIA
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: CE
+  status_sugestao: pista_unica
+  traducao_sugerida: CEARÁ
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: DF
+  status_sugestao: pista_unica
+  traducao_sugerida: DISTRITO FEDERAL
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: ES
+  status_sugestao: pista_unica
+  traducao_sugerida: ESPÍRITO SANTO
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: GO
+  status_sugestao: pista_unica
+  traducao_sugerida: GOIÁS
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: MA
+  status_sugestao: pista_unica
+  traducao_sugerida: MARANHÃO
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: MG
+  status_sugestao: pista_unica
+  traducao_sugerida: MINAS GERAIS
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: MS
+  status_sugestao: pista_unica
+  traducao_sugerida: MATO GROSSO DO SUL
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: MT
+  status_sugestao: pista_unica
+  traducao_sugerida: MATO GROSSO
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: PA
+  status_sugestao: pista_unica
+  traducao_sugerida: PARÁ
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: PB
+  status_sugestao: pista_unica
+  traducao_sugerida: PARAÍBA
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: PE
+  status_sugestao: pista_unica
+  traducao_sugerida: PERNAMBUCO
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: PI
+  status_sugestao: pista_unica
+  traducao_sugerida: PIAUÍ
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: PR
+  status_sugestao: pista_unica
+  traducao_sugerida: PARANÁ
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: RJ
+  status_sugestao: pista_unica
+  traducao_sugerida: RIO DE JANEIRO
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: RN
+  status_sugestao: pista_unica
+  traducao_sugerida: RIO GRANDE DO NORTE
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: RO
+  status_sugestao: pista_unica
+  traducao_sugerida: RONDÔNIA
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: RR
+  status_sugestao: pista_unica
+  traducao_sugerida: RORAIMA
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: RS
+  status_sugestao: pista_unica
+  traducao_sugerida: RIO GRANDE DO SUL
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: SC
+  status_sugestao: pista_unica
+  traducao_sugerida: SANTA CATARINA
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: SE
+  status_sugestao: pista_unica
+  traducao_sugerida: SERGIPE
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: SP
+  status_sugestao: pista_unica
+  traducao_sugerida: SÃO PAULO
+  decisao: aplicar
+  traducao_final: null
+- tabela: state
+  coluna: uf
+  valor: TO
+  status_sugestao: pista_unica
+  traducao_sugerida: TOCANTINS
+  decisao: aplicar
+  traducao_final: null
+- tabela: templatesubject
+  coluna: type
+  valor: '2'
+  status_sugestao: pista_unica
+  traducao_sugerida: Ação Rescisória
+  decisao: aplicar
+  traducao_final: null
+- tabela: templatesubject
+  coluna: type
+  valor: '6'
+  status_sugestao: pista_unica
+  traducao_sugerida: Obrigação de fazer
+  decisao: aplicar
+  traducao_final: null
