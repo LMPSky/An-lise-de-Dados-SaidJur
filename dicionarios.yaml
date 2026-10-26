@@ -1131,6 +1131,34 @@ sentence2lawsuit_stf:
 state:
   pais:
     '1': Brasil
+  uf:
+    AC: ACRE
+    AL: ALAGOAS
+    AM: AMAZONAS
+    AP: AMAPÁ
+    BA: BAHIA
+    CE: CEARÁ
+    DF: DISTRITO FEDERAL
+    ES: ESPÍRITO SANTO
+    GO: GOIÁS
+    MA: MARANHÃO
+    MG: MINAS GERAIS
+    MS: MATO GROSSO DO SUL
+    MT: MATO GROSSO
+    PA: PARÁ
+    PB: PARAÍBA
+    PE: PERNAMBUCO
+    PI: PIAUÍ
+    PR: PARANÁ
+    RJ: RIO DE JANEIRO
+    RN: RIO GRANDE DO NORTE
+    RO: RONDÔNIA
+    RR: RORAIMA
+    RS: RIO GRANDE DO SUL
+    SC: SANTA CATARINA
+    SE: SERGIPE
+    SP: SÃO PAULO
+    TO: TOCANTINS
 subclients:
   client_id:
     '1046': VIA VAREJO S/A
@@ -1331,6 +1359,8 @@ templatesubject:
   type:
     '0': Interno
     '1': Externo / Processual
+    '2': Ação Rescisória
+    '6': Obrigação de fazer
 totalprov2lawsuit:
   risk:
     '1': Remoto
@@ -1416,3 +1446,25 @@ print_reports_options_order:
     '76': SANEAMENTO SAIDJUR
     '77': ff
     '8': Processos migrados
+publication_text_search_terms:
+  term:
+    ExProvAS: Execução Provisória
+    CumSen: Cumprimento Sentença (CumSen)
+    ExCCj: Execução de Certidão de Crédito Judicial
+    ACum: Ação de Cumprimento (ACum)
+    ExFis: Execução Fiscal
+    ExTiEx: Execução de Título Extrajudicial
+    CartPrecCiv: Carta Precatória (CartPrecCiv)
+    CartPrec: Carta Precatória (CartPrec)
+    CPre: Carta Precatória (CP)
+    Mandado de Segurança: Mandado de Segurança (Mandado de Segurança)
+    CumPrSe: Cumprimento Sentença (CumPrSe)
+    A Cum: Ação de Cumprimento (AC)
+    tema 1046: Recurso de Julgamento Parcial
+    tema 1.046: Recurso de Julgamento Parcial
+    MSCiv: Mandado de Segurança
+    Execucao Provisoria: Execução Provisória
+    Execucao Fiscal: Execução Fiscal
+    Execucao de Titulo Extrajudicial: Execução de Título Extrajudicial
+    CCCiv: Conflito de Competência
+    TutCautAnt: Tutela Cautelar Antecedente
