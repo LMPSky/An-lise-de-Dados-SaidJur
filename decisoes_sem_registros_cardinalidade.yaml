@@ -1,0 +1,4055 @@
+decisoes:
+- tabela: claims_pericias_control
+  coluna: result_fundamento
+  valor: Ausencia de nexo concausal
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_descritivo_nao_enum
+- tabela: claims_pericias_control
+  coluna: result_fundamento
+  valor: Constatado o nexo concausal
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_descritivo_nao_enum
+- tabela: claims_pericias_control
+  coluna: result_fundamento
+  valor: Caracterizada periculosidade
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_descritivo_nao_enum
+- tabela: lawsuits_log
+  coluna: lawsuit_object
+  valor: ICMS/RJ - energia elétrica
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_descritivo_nao_enum
+- tabela: lawsuits_log
+  coluna: lawsuit_object
+  valor: ICMS na base de cálculo da CPRB
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_descritivo_nao_enum
+- tabela: lawsuits_log
+  coluna: lawsuit_object
+  valor: ISS/ Imposto sobre Serviços
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_descritivo_nao_enum
+- tabela: lawsuits_log
+  coluna: lawsuit_object
+  valor: Anulação de ato jurídico
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_descritivo_nao_enum
+- tabela: lawsuits_log
+  coluna: lawsuit_object
+  valor: ISSQN
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_descritivo_nao_enum
+- tabela: lawsuits_log
+  coluna: lawsuit_object
+  valor: IPTU - EXERCICIO DE 2000 A 2004.
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_descritivo_nao_enum
+- tabela: lawsuits_log
+  coluna: lawsuit_object
+  valor: Débitos Previdenciários
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_descritivo_nao_enum
+- tabela: publicationxml
+  coluna: aut_event
+  valor: l
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: 'A query de amostragem retornou 0 linhas, mas COUNT(*) encontrou 1108 linha(s) com aut_event
+    = ''l''. Possível incompatibilidade de tipo ou coluna com nome diferente do esperado. Verifique o
+    tipo real da coluna no schema (ex: TEXT vs INT).'
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_amostragem_nao_encontrou_linhas_em_tabela_colossal_ja_confirmado_pelo_usuario_anteriormente
+- tabela: publicationxml
+  coluna: aut_event
+  valor: h
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: 'A query de amostragem retornou 0 linhas, mas COUNT(*) encontrou 51821 linha(s) com aut_event
+    = ''h''. Possível incompatibilidade de tipo ou coluna com nome diferente do esperado. Verifique o
+    tipo real da coluna no schema (ex: TEXT vs INT).'
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_amostragem_nao_encontrou_linhas_em_tabela_colossal_ja_confirmado_pelo_usuario_anteriormente
+- tabela: publicationxml
+  coluna: objecttype
+  valor: IMPUGNAR LAUDO
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_ja_e_rotulo_legivel_nao_enum_codificado
+- tabela: publicationxml
+  coluna: objecttype
+  valor: Enviar Alvará à Empresa
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_ja_e_rotulo_legivel_nao_enum_codificado
+- tabela: publicationxml
+  coluna: objecttype
+  valor: Prazo Reclamante
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_ja_e_rotulo_legivel_nao_enum_codificado
+- tabela: publicationxml
+  coluna: objecttype
+  valor: VISTA EXEQUENTE
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_ja_e_rotulo_legivel_nao_enum_codificado
+- tabela: publicationxml
+  coluna: objecttype
+  valor: Ata de Audiência de Instrução
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_ja_e_rotulo_legivel_nao_enum_codificado
+- tabela: publicationxml
+  coluna: objecttype
+  valor: ENVIO DA PRECATÓRIA PARA AMERICA SP
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_ja_e_rotulo_legivel_nao_enum_codificado
+- tabela: publicationxml
+  coluna: objecttype
+  valor: RO
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_ja_e_rotulo_legivel_nao_enum_codificado
+- tabela: publicationxml
+  coluna: objecttype
+  valor: MCPA
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_ja_e_rotulo_legivel_nao_enum_codificado
+- tabela: publicationxml
+  coluna: objecttype
+  valor: RR
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_ja_e_rotulo_legivel_nao_enum_codificado
+- tabela: publicationxml
+  coluna: objecttype
+  valor: CRRO
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_ja_e_rotulo_legivel_nao_enum_codificado
+- tabela: publicationxml
+  coluna: objecttype
+  valor: Apresentar cálculos
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_ja_e_rotulo_legivel_nao_enum_codificado
+- tabela: publicationxml
+  coluna: objecttype
+  valor: Vista ao embargado
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_ja_e_rotulo_legivel_nao_enum_codificado
+- tabela: publicationxml
+  coluna: objecttype
+  valor: Audiência Una
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_ja_e_rotulo_legivel_nao_enum_codificado
+- tabela: publicationxml
+  coluna: objecttype
+  valor: Manifestação
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_ja_e_rotulo_legivel_nao_enum_codificado
+- tabela: publicationxml
+  coluna: objecttype
+  valor: NOTIFICAÇÃO RECEBIDA POR E-MAIL NESTA DATA
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_ja_e_rotulo_legivel_nao_enum_codificado
+- tabela: publicationxml
+  coluna: objecttype
+  valor: PROCESSO CADASTRADO APOS REVELIA
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_ja_e_rotulo_legivel_nao_enum_codificado
+- tabela: publicationxml
+  coluna: objecttype
+  valor: RRAP
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_ja_e_rotulo_legivel_nao_enum_codificado
+- tabela: publicationxml
+  coluna: objecttype
+  valor: VALIDADE DE DOCUMENTOS - CARTA EXECUTORIA
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_ja_e_rotulo_legivel_nao_enum_codificado
+- tabela: publicationxml
+  coluna: objecttype
+  valor: Audiência
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_ja_e_rotulo_legivel_nao_enum_codificado
+- tabela: publicationxml
+  coluna: objecttype
+  valor: 08/09/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_ja_e_rotulo_legivel_nao_enum_codificado
+- tabela: publicationxml
+  coluna: objecttype
+  valor: Sentença
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_ja_e_rotulo_legivel_nao_enum_codificado
+- tabela: publicationxml
+  coluna: paper
+  valor: 2468/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2470/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2471/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2472/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2474/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2473/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2475/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2476/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2477/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2478/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2479/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2480/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2481/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2482/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2483/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2484/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2485/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2487/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2488/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2489/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2490/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2491/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2492/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2493/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2495/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2496/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2497/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2498/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2499/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2500/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2501/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2502/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2504/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2505/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2506/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2507/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2508/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2509/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2510/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2511/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2512/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2514/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2515/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2516/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2517/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2518/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2519/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2520/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2521/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2522/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2523/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2524/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2525/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2526/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2527/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2528/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2529/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2532/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2533/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2535/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2536/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2537/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2538/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2539/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2541/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2542/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2543/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2544/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2545/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2546/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2548/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2550/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2551/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2552/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2553/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2554/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2555/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2556/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2557/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2558/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2559/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2560/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2561/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2562/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2563/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2564/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2565/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2566/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2567/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2568/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2571/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2572/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2573/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2574/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2575/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2576/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2577/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2578/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2579/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2580/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2581/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2582/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2583/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2584/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2585/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2586/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2587/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2588/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2589/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2590/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2591/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2592/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2593/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2594/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2595/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2596/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2597/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2598/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2599/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2601/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2603/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2604/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2605/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2606/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2607/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2608/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2609/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2610/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2611/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2612/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2615/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2616/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2617/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2619/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2620/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2621/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2622/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2623/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2624/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2625/2018
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2638/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2639/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2641/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2642/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2643/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2644/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2645/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2646/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2647/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2648/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2649/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2652/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2653/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2654/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2655/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2656/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2657/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2658/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2659/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2660/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2662/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2663/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2664/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2665/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2667/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2668/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2669/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2671/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2672/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2673/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2674/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2675/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2677/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2678/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2679/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2680/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2681/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2682/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2684/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2685/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2686/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2687/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2688/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2689/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2690/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2691/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2692/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2694/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2695/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2696/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2697/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2698/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2699/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2700/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2701/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2702/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2703/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2704/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2705/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2706/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2707/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2708/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2709/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2710/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2711/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2713/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2714/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2715/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2716/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2717/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2718/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2719/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2721/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2722/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2723/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2724/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2725/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2726/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2727/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2728/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2729/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2730/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2731/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2732/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2733/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2734/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2735/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2736/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2737/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2738/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2739/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2740/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2741/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2742/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2743/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2744/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2745/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2746/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2747/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2749/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2750/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2751/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2752/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2753/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2754/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2755/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2756/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2757/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2758/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2759/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2760/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2761/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2762/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2763/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2764/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2765/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2766/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2767/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2768/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2769/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2770/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2771/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2772/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2773/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2774/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2775/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2776/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2777/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2778/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2779/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2780/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2781/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2782/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2783/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2784/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2785/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2786/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2787/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2789/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2790/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2791/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2792/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2793/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2794/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2795/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2796/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2797/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2798/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2799/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2800/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2801/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2802/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2803/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2804/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2805/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2806/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2807/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2808/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2809/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2810/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2811/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2812/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2813/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2814/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2815/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2816/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2817/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2818/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2819/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2820/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2821/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2822/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2823/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2824/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2825/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2826/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2827/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2828/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2829/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2830/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2831/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2832/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2833/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2834/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2835/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2836/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2837/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2838/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2839/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2840/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2841/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2842/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2844/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2845/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2846/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2847/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2848/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2849/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2850/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2851/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2852/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2853/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2854/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2855/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2856/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2857/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2858/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2859/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2860/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2861/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2862/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2863/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2864/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2865/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2866/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2867/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2868/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2869/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2870/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2871/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2872/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2873/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2874/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2875/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2876/2019
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2887/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2888/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2889/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2890/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2891/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2892/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2893/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2894/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2895/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2896/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2897/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2898/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2899/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2900/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2901/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2902/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2903/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2904/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2905/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2906/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2907/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2908/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2909/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2910/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2911/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2912/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2913/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2914/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2915/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2916/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2917/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2918/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2919/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2920/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2922/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2923/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2924/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2925/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2926/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2927/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2928/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2929/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2930/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2931/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2932/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2933/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2934/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2935/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2936/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2937/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2939/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
+- tabela: publicationxml
+  coluna: paper
+  valor: 2940/2020
+  status_sugestao: sem_registros
+  traducao_sugerida: null
+  justificativa: Nenhuma linha encontrada para este valor.
+  decisao: pular
+  traducao_final: null
+  motivo_classificacao: revisao_cardinalidade_2025_categoria_sem_registros_valor_texto_livre_identificador_documento_nao_enum
