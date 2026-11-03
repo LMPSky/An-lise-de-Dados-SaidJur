@@ -9,8 +9,16 @@ fora do radar.
 
 Este script usa ``COUNT(DISTINCT coluna)`` para decidir, por cardinalidade
 real (não por nome de coluna nem por um teto de amostra), se uma coluna é
-categórica — por padrão, entre 2 e 500 valores distintos. Colunas aprovadas
-têm **todos** os seus valores comparados ao ``dicionarios.yaml``.
+categórica. Colunas aprovadas têm **todos** os seus valores comparados ao
+``dicionarios.yaml``.
+
+Por padrão, roda apenas sobre a faixa de catálogos grandes (cardinalidade
+501–5.000): a faixa 2–500 já foi varrida e revisada manualmente numa rodada
+anterior (``relatorio_investigacao_cardinalidade.yaml``), então repeti-la do
+zero desperdiçaria tempo nesse banco de ~50GB sem encontrar nada novo. Para
+refazer a faixa já revisada (ex: validar o efeito de uma mudança nos
+filtros), passe explicitamente ``--cardinalidade-minima 2
+--cardinalidade-maxima 500``.
 
 Por varrer o banco inteiro coluna a coluna (``COUNT(DISTINCT)`` em cada uma),
 pode demorar bastante num banco de ~50GB — recomendado rodar em segundo
@@ -23,8 +31,8 @@ import argparse
 
 from src.auditoria_cardinalidade import (
     ARQUIVO_AUDITORIA_CARDINALIDADE_PADRAO,
-    CARDINALIDADE_MAXIMA_PADRAO,
-    CARDINALIDADE_MINIMA_PADRAO,
+    CARDINALIDADE_MAXIMA_CATALOGOS_GRANDES,
+    CARDINALIDADE_MINIMA_CATALOGOS_GRANDES,
     auditar_cobertura_por_cardinalidade,
 )
 from src.db import criar_engine
@@ -37,20 +45,24 @@ def _parser() -> argparse.ArgumentParser:
             "Audita o banco inteiro por cardinalidade real de coluna "
             "(COUNT(DISTINCT)), encontrando colunas de código/ENUM com mais "
             "valores distintos do que o teto fixo (20) usado pelas demais "
-            "ferramentas de descoberta."
+            "ferramentas de descoberta. Por padrão, foca em catálogos "
+            "grandes (acima da faixa 2-500 já revisada)."
         )
     )
     parser.add_argument(
         "--cardinalidade-minima",
         type=int,
-        default=CARDINALIDADE_MINIMA_PADRAO,
-        help=f"Cardinalidade mínima para considerar a coluna categórica (padrão: {CARDINALIDADE_MINIMA_PADRAO}).",
+        default=CARDINALIDADE_MINIMA_CATALOGOS_GRANDES,
+        help=(
+            "Cardinalidade mínima para considerar a coluna categórica "
+            f"(padrão: {CARDINALIDADE_MINIMA_CATALOGOS_GRANDES}, logo acima da faixa já revisada 2-500)."
+        ),
     )
     parser.add_argument(
         "--cardinalidade-maxima",
         type=int,
-        default=CARDINALIDADE_MAXIMA_PADRAO,
-        help=f"Cardinalidade máxima para considerar a coluna categórica (padrão: {CARDINALIDADE_MAXIMA_PADRAO}).",
+        default=CARDINALIDADE_MAXIMA_CATALOGOS_GRANDES,
+        help=f"Cardinalidade máxima para considerar a coluna categórica (padrão: {CARDINALIDADE_MAXIMA_CATALOGOS_GRANDES}).",
     )
     parser.add_argument(
         "--saida",

@@ -151,6 +151,29 @@ ARQUIVO_AUDITORIA_CARDINALIDADE_PADRAO = "relatorio_auditoria_cardinalidade.yaml
 CARDINALIDADE_MINIMA_PADRAO = 2
 CARDINALIDADE_MAXIMA_PADRAO = 500
 
+# Faixa dedicada a uma segunda rodada de auditoria, focada em catálogos
+# grandes (cardinalidade acima do teto padrão) sem repetir a varredura de
+# cardinalidade 2–500 já revisada manualmente numa rodada anterior. O piso
+# começa logo após o teto padrão (501) e o teto é bem mais generoso (5.000)
+# — ainda baixo o bastante para não degenerar em identificador/texto livre
+# de altíssima cardinalidade (que tende a ficar na casa das centenas de
+# milhares, perto do total de linhas da tabela). Usada como padrão do
+# script `auditar_cardinalidade.py` (não da função desta biblioteca, para
+# não alterar o comportamento/testes da faixa 2–500 já validada).
+CARDINALIDADE_MINIMA_CATALOGOS_GRANDES = CARDINALIDADE_MAXIMA_PADRAO + 1
+CARDINALIDADE_MAXIMA_CATALOGOS_GRANDES = 5_000
+
+# Acima deste teto (o mesmo teto padrão da faixa já revisada), uma coluna
+# categórica legítima (catálogo real) deve ter cardinalidade MUITO menor que
+# o total de linhas da tabela: um catálogo de ~600 tipos de documento numa
+# tabela de 8 milhões de linhas tem proporção ínfima. Já um identificador em
+# formato livre ou texto praticamente único por linha (não capturado pelos
+# filtros por nome) tem cardinalidade próxima do total de linhas. Esse
+# limite de proporção só é aplicado quando a cardinalidade já ultrapassa
+# `CARDINALIDADE_MAXIMA_PADRAO` — não muda o comportamento da faixa 2–500
+# já revisada/testada.
+PROPORCAO_MAXIMA_CARDINALIDADE_CATALOGO_GRANDE = 0.5
+
 # Tamanho máximo de valor individual ainda considerado rótulo curto (mesmo
 # critério de `descobrir_pendencias_schema`): acima disso, mesmo com poucos
 # valores distintos, provavelmente não é um código/ENUM de verdade.
@@ -573,6 +596,21 @@ def auditar_cobertura_por_cardinalidade(
                 continue
 
             if cardinalidade < cardinalidade_minima or cardinalidade > cardinalidade_maxima:
+                colunas_fora_do_intervalo += 1
+                continue
+
+            # Complementa o teto fixo para a faixa acima do padrão histórico
+            # (2-500, já revisada): uma coluna com cardinalidade alta mas
+            # próxima do total de linhas da tabela é, na prática, um
+            # identificador ou texto livre quase único por linha, não um
+            # catálogo real — mesmo com poucas centenas/milhares de valores
+            # distintos. Não se aplica dentro da faixa 2-500 (não altera o
+            # comportamento já validado).
+            if (
+                cardinalidade > CARDINALIDADE_MAXIMA_PADRAO
+                and linhas_estimadas
+                and (cardinalidade / linhas_estimadas) > PROPORCAO_MAXIMA_CARDINALIDADE_CATALOGO_GRANDE
+            ):
                 colunas_fora_do_intervalo += 1
                 continue
 
