@@ -7,7 +7,9 @@ from unittest.mock import patch
 from sqlalchemy import create_engine, text
 
 from src.auditoria_cardinalidade import (
+    CARDINALIDADE_MAXIMA_CATALOGOS_GRANDES,
     CARDINALIDADE_MAXIMA_PADRAO,
+    CARDINALIDADE_MINIMA_CATALOGOS_GRANDES,
     _coletar_valores_distintos,
     _coluna_elegivel_cardinalidade,
     _coluna_parece_identificadora,
@@ -271,6 +273,105 @@ def test_coluna_elegivel_cardinalidade_oab_exato_preserva_oab_uf() -> None:
     excluída pela exclusão exata de `oab`."""
     coluna = ColunaTabela(nome="oab_uf", tipo="varchar(10)", posicao=1)
     assert _coluna_elegivel_cardinalidade(coluna)
+
+
+def test_auditoria_catalogo_grande_legitimo_nao_e_descartado_por_proporcao() -> None:
+    """Catálogo real acima do teto padrão (ex: 600 tipos de documento, cada um
+    repetido várias vezes numa tabela maior) deve ser encontrado: proporção
+    baixa não aciona o filtro de identificador/texto livre."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE lawsuitdocs (id INTEGER, doctype TEXT)"))
+        indice = 0
+        for tipo in range(600):
+            for _repeticao in range(20):
+                conn.execute(
+                    text("INSERT INTO lawsuitdocs (id, doctype) VALUES (:id, :doctype)"),
+                    {"id": indice, "doctype": f"tipo_{tipo}"},
+                )
+                indice += 1
+        conn.commit()
+
+    # SQLite (usado nos testes) não tem TABLE_ROWS do information_schema, então
+    # `_linhas_estimadas_tabela` sempre retorna 0 nesse dialeto — simula a
+    # estimativa real (12.000 linhas) para exercitar o filtro de proporção.
+    with (
+        patch("src.auditoria_cardinalidade.dicionario_de_coluna", return_value={}),
+        patch("src.auditoria_cardinalidade._linhas_estimadas_tabela", return_value=12_000),
+    ):
+        relatorio = auditar_cobertura_por_cardinalidade(
+            engine,
+            cardinalidade_minima=CARDINALIDADE_MINIMA_CATALOGOS_GRANDES,
+            cardinalidade_maxima=CARDINALIDADE_MAXIMA_CATALOGOS_GRANDES,
+        )
+
+    pendencia = next(
+        p for p in relatorio["pendencias"] if p["tabela"] == "lawsuitdocs" and p["coluna"] == "doctype"
+    )
+    assert pendencia["cardinalidade"] == 600
+
+
+def test_auditoria_descarta_coluna_de_alta_cardinalidade_proxima_do_total_de_linhas() -> None:
+    """Coluna acima do teto padrão com cardinalidade quase igual ao total de
+    linhas (ex: identificador/texto livre não capturado por nome) é
+    descartada mesmo dentro da faixa configurada, por proporção alta."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE lawsuitdocs (id INTEGER, doctype TEXT)"))
+        for indice in range(600):
+            conn.execute(
+                text("INSERT INTO lawsuitdocs (id, doctype) VALUES (:id, :doctype)"),
+                # Quase um valor distinto por linha (proporção ~99%).
+                {"id": indice, "doctype": f"unico_{indice}"},
+            )
+        conn.commit()
+
+    with (
+        patch("src.auditoria_cardinalidade.dicionario_de_coluna", return_value={}),
+        patch("src.auditoria_cardinalidade._linhas_estimadas_tabela", return_value=600),
+    ):
+        relatorio = auditar_cobertura_por_cardinalidade(
+            engine,
+            cardinalidade_minima=CARDINALIDADE_MINIMA_CATALOGOS_GRANDES,
+            cardinalidade_maxima=CARDINALIDADE_MAXIMA_CATALOGOS_GRANDES,
+        )
+
+    tabelas_com_pendencia = {p["tabela"] for p in relatorio["pendencias"]}
+    assert "lawsuitdocs" not in tabelas_com_pendencia
+    assert relatorio["resumo"]["colunas_fora_do_intervalo_cardinalidade"] >= 1
+
+
+def test_auditoria_faixa_padrao_2_500_nao_e_afetada_pelo_filtro_de_proporcao() -> None:
+    """O filtro de proporção só vale acima de CARDINALIDADE_MAXIMA_PADRAO: uma
+    coluna dentro da faixa 2-500 já revisada continua funcionando como antes,
+    mesmo com proporção alta (poucas linhas, muitos valores distintos)."""
+    engine = create_engine("sqlite:///:memory:")
+    _popular_tabela_tipos_documento(engine, total_tipos=30)
+
+    with patch("src.auditoria_cardinalidade.dicionario_de_coluna", return_value={}):
+        relatorio = auditar_cobertura_por_cardinalidade(engine)
+
+    pendencia = next(
+        p for p in relatorio["pendencias"] if p["tabela"] == "lawsuitdocs" and p["coluna"] == "doctype"
+    )
+    assert pendencia["cardinalidade"] == 30
+
+
+def test_cardinalidade_catalogos_grandes_comeca_logo_apos_teto_padrao() -> None:
+    """O piso da faixa de catálogos grandes não deve reabrir a faixa já revisada."""
+    assert CARDINALIDADE_MINIMA_CATALOGOS_GRANDES == CARDINALIDADE_MAXIMA_PADRAO + 1
+    assert CARDINALIDADE_MAXIMA_CATALOGOS_GRANDES > CARDINALIDADE_MAXIMA_PADRAO
+
+
+def test_cli_auditar_cardinalidade_usa_faixa_de_catalogos_grandes_por_padrao() -> None:
+    """Rodar o script sem flags não deve repetir a varredura da faixa 2-500 já
+    revisada: o padrão passa a ser a faixa de catálogos grandes."""
+    import auditar_cardinalidade
+
+    args = auditar_cardinalidade._parser().parse_args([])
+
+    assert args.cardinalidade_minima == CARDINALIDADE_MINIMA_CATALOGOS_GRANDES
+    assert args.cardinalidade_maxima == CARDINALIDADE_MAXIMA_CATALOGOS_GRANDES
 
 
 def test_coluna_elegivel_cardinalidade_idcourt_sem_underscore_e_excluido() -> None:
