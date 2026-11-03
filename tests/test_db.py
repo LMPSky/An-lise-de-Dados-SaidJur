@@ -765,6 +765,65 @@ class TestFksInferidasPubtype:
         assert ref["tabela_referenciada"] == "pubtypes"
 
 
+class TestFksInferidasLawsuitPhase:
+    """Testes para resolução de FK de lawsuit_phase → lawsuit_phases (sem sufixo _id).
+
+    Cobre o caso de ``lawsuits_log.lawsuit_phase``/``lawsuits_phase_log.lawsuit_phase``
+    (códigos numéricos '1'..'47' que referenciam ``lawsuit_phases.phase``),
+    identificado na revisão da categoria ``sem_pista_encontrada`` do relatório
+    de auditoria de cardinalidade: antes desta entrada, esses códigos eram
+    tratados como pendência de tradução manual, mas na verdade são uma FK
+    implícita.
+    """
+
+    def _engine_com_tipo(self, tipo_coluna: str) -> Engine:
+        import src.db as db_module
+        db_module._CACHE_COLUNA_LABEL.clear()
+        db_module._CACHE_FKS_INFERIDAS.clear()
+
+        engine = create_engine("sqlite:///:memory:")
+        with engine.connect() as conn:
+            conn.execute(text("""
+                CREATE TABLE lawsuit_phases (
+                    id    INTEGER PRIMARY KEY,
+                    phase TEXT NOT NULL
+                )
+            """))
+            conn.execute(text(f"""
+                CREATE TABLE lawsuits_log (
+                    id            INTEGER PRIMARY KEY,
+                    lawsuit_phase {tipo_coluna}
+                )
+            """))
+            conn.execute(text("INSERT INTO lawsuit_phases VALUES (1, 'Conhecimento')"))
+            conn.execute(text("INSERT INTO lawsuits_log (id, lawsuit_phase) VALUES (1, '1')"))
+            conn.commit()
+        return engine
+
+    def test_lawsuit_phase_mapeia_para_lawsuit_phases_coluna_numerica(self) -> None:
+        """lawsuit_phase (INTEGER) deve ser detectado como FK para lawsuit_phases."""
+        engine = self._engine_com_tipo("INTEGER")
+        resultado = fks_inferidas(engine, "lawsuits_log")
+        colunas = [r["coluna"] for r in resultado]
+        assert "lawsuit_phase" in colunas, (
+            "lawsuit_phase deve ser detectado como FK implícita para lawsuit_phases"
+        )
+        ref = next(r for r in resultado if r["coluna"] == "lawsuit_phase")
+        assert ref["tabela_referenciada"] == "lawsuit_phases"
+
+    def test_lawsuit_phase_mapeia_mesmo_com_coluna_textual(self) -> None:
+        """lawsuit_phase (VARCHAR) também deve ser detectado — sistemas legados
+        às vezes guardam o código como texto mesmo sendo uma FK."""
+        engine = self._engine_com_tipo("VARCHAR(10)")
+        resultado = fks_inferidas(engine, "lawsuits_log")
+        colunas = [r["coluna"] for r in resultado]
+        assert "lawsuit_phase" in colunas, (
+            "lawsuit_phase deve ser detectado como FK implícita mesmo com tipo textual"
+        )
+        ref = next(r for r in resultado if r["coluna"] == "lawsuit_phase")
+        assert ref["tabela_referenciada"] == "lawsuit_phases"
+
+
 class TestFksInferidasUsuarioAtualizador:
     """Testes para resolução de FK de 'updateduserid'/'useratualizadorid' → employees.
 

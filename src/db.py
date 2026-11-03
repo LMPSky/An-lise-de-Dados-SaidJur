@@ -501,6 +501,9 @@ _COLUNAS_FK_EXTRAS: dict[str, str] = {
     "pub_type": "pubtypes",         # variante com underscore
     "publicationtype": "pubtypes",  # nome mais descritivo
     "publication_type": "pubtypes", # variante com underscore
+    "lawsuit_phase": "lawsuit_phases",  # Fase do processo — FK sem sufixo _id
+                                        # (ex: lawsuits_log.lawsuit_phase,
+                                        # lawsuits_phase_log.lawsuit_phase)
 }
 
 
@@ -537,10 +540,11 @@ def fks_inferidas(engine: Engine, nome_tabela: str) -> list[dict[str, str]]:
             continue
         if nome_col.lower() in _COLUNAS_FK_IGNORADAS:
             continue
-        if tipo_col not in _TIPOS_NUMERICOS:
-            continue
 
-        # Verificar primeiro as colunas FK extras (sem sufixo id)
+        # Verificar primeiro as colunas FK extras (sem sufixo id) — essas
+        # entradas são mapeamentos explícitos e confiáveis por convenção do
+        # SaidJur, então não exigimos tipo numérico: sistemas legados às
+        # vezes guardam o código como CHAR/VARCHAR mesmo sendo uma FK.
         nome_col_lower = nome_col.lower()
         if nome_col_lower in _COLUNAS_FK_EXTRAS:
             tabela_candidata = _COLUNAS_FK_EXTRAS[nome_col_lower]
@@ -555,6 +559,9 @@ def fks_inferidas(engine: Engine, nome_tabela: str) -> list[dict[str, str]]:
                         "tabela_referenciada": tabela_candidata,
                         "coluna_referenciada": "id",
                     })
+            continue
+
+        if tipo_col not in _TIPOS_NUMERICOS:
             continue
 
         # deve terminar em _id, id, _pk ou começar com id_
