@@ -647,6 +647,15 @@ def _valores_distintos_coluna(
     Nesse caso, a consulta é tentada de novo com um ``LIMIT`` cada vez menor
     (reduzido pela metade a cada tentativa) até ``limite_minimo_subselecao``,
     antes de desistir e propagar o erro.
+
+    Tabelas que não são classificadas como colossais (abaixo de
+    ``LIMITE_LINHAS_TABELA_COLOSSAL`` linhas estimadas) tentam primeiro o
+    ``GROUP BY`` sem subseleção (mais simples e, em geral, rápido o
+    suficiente). Só se essa consulta direta falhar — ex: coluna larga com
+    muitas linhas mesmo numa tabela "normal", como
+    ``publications_duplicate_info.lawsuitnumber`` — é que caímos na mesma
+    estratégia de subseleção+retry usada para tabelas colossais, em vez de
+    desistir e pular a coluna por completo.
     """
     tabela_sql = _identificador(tabela, engine.dialect.name)
     coluna_sql = _identificador(coluna, engine.dialect.name)
@@ -659,9 +668,12 @@ def _valores_distintos_coluna(
             f"GROUP BY CAST({coluna_sql} AS CHAR) "
             f"LIMIT {int(limite) + 1}"
         )
-        with conectar_com_timeout(engine) as conn:
-            valores = [str(row[0]).strip() for row in conn.execute(sql).fetchall()]
-        return valores if len(valores) <= limite else []
+        try:
+            with conectar_com_timeout(engine) as conn:
+                valores = [str(row[0]).strip() for row in conn.execute(sql).fetchall()]
+            return valores if len(valores) <= limite else []
+        except Exception:  # noqa: BLE001 - cai para a subseleção em vez de desistir
+            limite_subselecao = LIMITE_SUBSELECAO_TABELA_COLOSSAL
 
     limite_atual = int(limite_subselecao)
     while True:

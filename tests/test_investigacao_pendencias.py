@@ -378,6 +378,46 @@ def test_valores_distintos_coluna_reduz_limite_subselecao_apos_falha() -> None:
     assert chamadas == [1000, 500]
 
 
+def test_valores_distintos_coluna_sem_subselecao_cai_para_subconsulta_apos_falha() -> None:
+    """Tabela não-colossal (``limite_subselecao=None``): se a consulta direta falhar
+    (ex: timeout em ``publications_duplicate_info.lawsuitnumber``), cai para a mesma
+    estratégia de subseleção+retry das tabelas colossais, em vez de propagar o erro e
+    a coluna ser descartada da descoberta.
+    """
+    import src.investigacao_pendencias as mod
+
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE grande (codigo TEXT)"))
+        conn.execute(text("INSERT INTO grande (codigo) VALUES ('a'), ('b')"))
+        conn.commit()
+
+    conectar_original = mod.conectar_com_timeout
+    chamadas: list[str] = []
+
+    @contextlib.contextmanager
+    def _conectar_instrumentado(engine_arg, *args, **kwargs):
+        with conectar_original(engine_arg, *args, **kwargs) as conn:
+            execute_original = conn.execute
+
+            def _execute_instrumentado(sql, *a, **kw):
+                texto_sql = str(sql)
+                if "GROUP BY" in texto_sql and "FROM (" not in texto_sql:
+                    chamadas.append("direta")
+                    raise TimeoutError("Lost connection to MySQL server during query (timed out)")
+                chamadas.append("subconsulta")
+                return execute_original(sql, *a, **kw)
+
+            conn.execute = _execute_instrumentado
+            yield conn
+
+    with patch.object(mod, "conectar_com_timeout", side_effect=_conectar_instrumentado):
+        valores = mod._valores_distintos_coluna(engine, "grande", "codigo", limite_subselecao=None)
+
+    assert set(valores) == {"a", "b"}
+    assert chamadas == ["direta", "subconsulta"]
+
+
 def test_valores_distintos_coluna_propaga_erro_apos_atingir_piso() -> None:
     """Se todas as tentativas (até o piso) falharem, o erro é propagado, não engolido."""
     import src.investigacao_pendencias as mod
