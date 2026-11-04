@@ -769,6 +769,65 @@ def test_descobrir_pendencias_schema_exclusao_de_parte_e_exata_nao_substring() -
     assert ("lawsuits", "defendant_classification") in tabelas_colunas
 
 
+def test_descobrir_pendencias_schema_exclui_coluna_com_valores_booleanos_0_1() -> None:
+    """Colunas com valores observados == {'0', '1'} não geram pendência.
+
+    Confirmado em produção: colunas de flag de permissão/ação como
+    `usertasks.read_users`/`persons.role_client` (0/1) eram investigadas por
+    pista_unica, que "traduzia" cada flag usando o valor de outra coluna
+    booleana correlacionada por coincidência na amostra — ruído sem sentido,
+    já que esse tipo de coluna é coberto pelo dicionário booleano genérico do
+    projeto, não por tradução individual de código/ENUM.
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE usertasks (
+                id INTEGER PRIMARY KEY,
+                code VARCHAR(20),
+                read_users VARCHAR(1)
+            )
+        """))
+        conn.execute(text(
+            "INSERT INTO usertasks (id, code, read_users) VALUES (1, 'A', '1'), (2, 'B', '0')"
+        ))
+        conn.commit()
+
+    pendencias, resumo = descobrir_pendencias_schema(engine, {})
+
+    tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
+    assert ("usertasks", "read_users") not in tabelas_colunas
+    assert ("usertasks", "code") in tabelas_colunas
+
+    excluidas = {item["tabela_coluna"]: item["motivo"] for item in resumo["colunas_excluidas"]}
+    assert excluidas["usertasks.read_users"] == "flag_booleana_0_1"
+
+
+def test_descobrir_pendencias_schema_nao_exclui_coluna_com_unico_valor_0_ou_1() -> None:
+    """Um único valor '0' isolado não deve ser tratado como flag booleana.
+
+    É preciso confirmar a real bimodalidade 0/1 (dois valores distintos) —
+    um único código '0' observado pode ser apenas o primeiro valor de um
+    domínio maior ainda não amostrado, mesmo cuidado já tomado em
+    `_coluna_e_booleana_no_banco`.
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE lawsuits (
+                id INTEGER PRIMARY KEY,
+                status VARCHAR(1)
+            )
+        """))
+        conn.execute(text("INSERT INTO lawsuits (id, status) VALUES (1, '0')"))
+        conn.commit()
+
+    pendencias, _resumo = descobrir_pendencias_schema(engine, {})
+
+    tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
+    assert ("lawsuits", "status") in tabelas_colunas
+
+
 def test_descobrir_pendencias_schema_falha_isolada_nao_interrompe_demais_colunas() -> None:
     """Uma falha (timeout/erro SQL) ao consultar uma coluna não deve derrubar o lote."""
     import src.investigacao_pendencias as mod
