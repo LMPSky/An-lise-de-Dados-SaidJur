@@ -12,6 +12,7 @@ from src.auditoria_cardinalidade import (
     CARDINALIDADE_MINIMA_CATALOGOS_GRANDES,
     _coletar_valores_distintos,
     _coluna_elegivel_cardinalidade,
+    _coluna_parece_identificador_numerico_no_banco,
     _coluna_parece_identificadora,
     _coluna_parece_monetaria_no_banco,
     _contar_valores_distintos,
@@ -355,6 +356,87 @@ def test_auditoria_faixa_padrao_2_500_nao_e_afetada_pelo_filtro_de_proporcao() -
         p for p in relatorio["pendencias"] if p["tabela"] == "lawsuitdocs" and p["coluna"] == "doctype"
     )
     assert pendencia["cardinalidade"] == 30
+
+
+def test_coluna_elegivel_cardinalidade_colunas_texto_livre_confirmadas_sao_excluidas() -> None:
+    """Nona rodada de ajuste: colunas confirmadas em produção como texto
+    livre/identificador na faixa de catálogos grandes (cidade, documento,
+    telefone, anotação, campo "outro, especifique", nome de vara manual)
+    devem ser excluídas por nome, sem precisar de round-trip ao banco."""
+    nomes_excluidos = [
+        "city",
+        "cidade",
+        "cnpj",
+        "cpf",
+        "phone01",
+        "telefone",
+        "complement",
+        "annotations",
+        "agreement_viable_other",
+        "lawsuit",
+        "lawsuit_object",
+        "vara_cartorio_manual",
+        "agent",
+    ]
+    for nome in nomes_excluidos:
+        coluna = ColunaTabela(nome=nome, tipo="varchar(255)", posicao=1)
+        assert not _coluna_elegivel_cardinalidade(coluna), f"{nome} deveria ser excluído"
+
+
+def test_coluna_elegivel_cardinalidade_lawsuit_type_nao_e_excluida_por_nome() -> None:
+    """``lawsuit_type`` não segue a convenção de nome de identificador
+    (*_id/id*), então a exclusão por nome não se aplica — é descartada à
+    parte pela checagem factual de valores puramente numéricos."""
+    coluna = ColunaTabela(nome="lawsuit_type", tipo="varchar(10)", posicao=1)
+    assert _coluna_elegivel_cardinalidade(coluna)
+
+
+def test_coluna_parece_identificador_numerico_no_banco_detecta_ids_sequenciais() -> None:
+    """Confirmado em produção: ``lawsuits_log.lawsuit_type`` guarda ids
+    sequenciais ('1', '2', ..., '884') sem seguir a convenção de nome de FK —
+    a checagem factual sobre os valores reais deve detectar isso."""
+    valores = [str(n) for n in [1, 2, 3, 11, 12, 15, 23, 24, 852, 884]]
+    assert _coluna_parece_identificador_numerico_no_banco(valores)
+
+
+def test_coluna_parece_identificador_numerico_no_banco_preserva_catalogo_legitimo() -> None:
+    """Um catálogo real de código/ENUM (valores não puramente numéricos, ou
+    com texto) não deve ser descartado por este filtro."""
+    assert not _coluna_parece_identificador_numerico_no_banco(["ativo", "inativo", "pendente"])
+    assert not _coluna_parece_identificador_numerico_no_banco(["R$ 100,00", "R$ 200,00"])
+
+
+def test_auditoria_descarta_fk_numerica_sem_convencao_de_nome_na_faixa_de_catalogos_grandes() -> None:
+    """Reprodução do caso real ``lawsuits_log.lawsuit_type``: ids sequenciais
+    numéricos (sem convenção de nome *_id/id*) não devem virar pendência de
+    tradução na faixa de catálogos grandes. Cada id é repetido 10 vezes
+    (proporção cardinalidade/linhas baixa, ~0.1) para isolar o novo filtro
+    factual de identificador numérico do filtro de proporção já existente."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE lawsuits_log (id INTEGER, lawsuit_type TEXT)"))
+        indice = 0
+        for tipo in range(600):
+            for _repeticao in range(10):
+                conn.execute(
+                    text("INSERT INTO lawsuits_log (id, lawsuit_type) VALUES (:id, :lawsuit_type)"),
+                    {"id": indice, "lawsuit_type": str(tipo + 1)},
+                )
+                indice += 1
+        conn.commit()
+
+    with (
+        patch("src.auditoria_cardinalidade.dicionario_de_coluna", return_value={}),
+        patch("src.auditoria_cardinalidade._linhas_estimadas_tabela", return_value=6_000),
+    ):
+        relatorio = auditar_cobertura_por_cardinalidade(
+            engine,
+            cardinalidade_minima=CARDINALIDADE_MINIMA_CATALOGOS_GRANDES,
+            cardinalidade_maxima=CARDINALIDADE_MAXIMA_CATALOGOS_GRANDES,
+        )
+
+    tabelas_com_pendencia = {p["tabela"] for p in relatorio["pendencias"]}
+    assert "lawsuits_log" not in tabelas_com_pendencia
 
 
 def test_cardinalidade_catalogos_grandes_comeca_logo_apos_teto_padrao() -> None:
