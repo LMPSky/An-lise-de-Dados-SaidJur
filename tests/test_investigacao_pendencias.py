@@ -816,6 +816,40 @@ def test_descobrir_pendencias_schema_exclui_delete_log() -> None:
     assert excluidas["lawsuits.delete_log"] == "nome_indica_texto_livre"
 
 
+def test_descobrir_pendencias_schema_exclui_invoice_number() -> None:
+    """invoice_number guarda rótulo de parcela digitado manualmente, não código.
+
+    Confirmado em produção: `paymentguarantee2lawsuit.invoice_number` é uma
+    coluna esparsa (só 4 linhas preenchidas na tabela inteira), o que criou
+    baixa cardinalidade coincidente e fez a investigação tratar texto livre
+    (ex: `'ENTRADA'`, `'1ª PARCELA'`, até um valor de teste `'teste 3'`)
+    como se fosse código/ENUM.
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE paymentguarantee2lawsuit (
+                id INTEGER PRIMARY KEY,
+                code VARCHAR(20),
+                invoice_number VARCHAR(50)
+            )
+        """))
+        conn.execute(text(
+            "INSERT INTO paymentguarantee2lawsuit (id, code, invoice_number) "
+            "VALUES (1, 'A', '1\u00aa PARCELA')"
+        ))
+        conn.commit()
+
+    pendencias, resumo = descobrir_pendencias_schema(engine, {})
+
+    tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
+    assert ("paymentguarantee2lawsuit", "invoice_number") not in tabelas_colunas
+    assert ("paymentguarantee2lawsuit", "code") in tabelas_colunas
+
+    excluidas = {item["tabela_coluna"]: item["motivo"] for item in resumo["colunas_excluidas"]}
+    assert excluidas["paymentguarantee2lawsuit.invoice_number"] == "nome_indica_texto_livre"
+
+
 def test_descobrir_pendencias_schema_exclui_login_logout_time() -> None:
     """login_time/logout_time guardam horário HH:MM, não código/ENUM.
 
