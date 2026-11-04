@@ -132,6 +132,14 @@ amostra":
    mesmo espírito de ``_coluna_e_booleana_no_banco``) descarta colunas cujos
    valores coletados são quase todos dígitos puros, complementando a
    exclusão por nome quando o padrão de nomenclatura não é seguido.
+10. **Segunda rodada na faixa de catálogos grandes (após o filtro acima)**:
+    restou uma única pendência, ``publicationxml.paper`` (670 valores,
+    417 pendentes), com **todos** os valores no formato "número/ano" de
+    edição de diário oficial (``"2468/2018"``, ``"2470/2018"``...) — um
+    identificador de publicação, não um código/ENUM. Checagem factual
+    complementar (``_coluna_parece_numero_edicao_no_banco``) descarta
+    colunas cujos valores são quase todos nesse formato, reforçada por
+    exclusão exata de nome (``paper``).
 """
 
 from __future__ import annotations
@@ -413,6 +421,11 @@ _NOMES_COLUNA_EXATOS_SEMPRE_EXCLUIDOS_CARDINALIDADE: tuple[str, ...] = (
     # Mistura percentual/nota livre sobre o agente/parte, não um código
     # (``pedidos2lawsuit.agent``: "3% sobre o salário base", "TERCEIRIZADO"...).
     "agent",
+    # Décima rodada de ajuste: identificador de edição de diário oficial em
+    # formato "número/ano" (``publicationxml.paper``: "2468/2018"...), não
+    # um código/ENUM. Exato para não colidir com eventuais colunas futuras
+    # que contenham "paper" como parte de um termo mais longo.
+    "paper",
 )
 
 # Valor com cara de quantia monetária (``R$ 14.500,00``, ``14500,00``,
@@ -463,6 +476,35 @@ def _coluna_parece_identificador_numerico_no_banco(valores: list[str]) -> bool:
     return (
         quantidade_numerica / len(valores_nao_vazios)
         >= _PROPORCAO_MINIMA_VALORES_NUMERICOS_IDENTIFICADOR
+    )
+
+
+# Formato "número/ano" de identificador de edição de diário oficial
+# (``publicationxml.paper``: "2468/2018", "2470/2018"...) — número
+# sequencial de edição, não um código/ENUM. Mesmo limiar de proporção da
+# checagem de identificador numérico (0.95).
+_PADRAO_NUMERO_EDICAO = re.compile(r"^\d+/\d{4}$")
+_PROPORCAO_MINIMA_VALORES_NUMERO_EDICAO = 0.95
+
+
+def _coluna_parece_numero_edicao_no_banco(valores: list[str]) -> bool:
+    """Indica se quase todos os valores coletados seguem o formato "número/ano".
+
+    Confirmado em produção: ``publicationxml.paper`` guarda identificador de
+    edição de diário oficial nesse formato (670 valores distintos, 417
+    pendentes, todos "número/ano") — reforça a exclusão por nome exata
+    (``paper``) com uma checagem factual, no mesmo espírito de
+    `_coluna_parece_identificador_numerico_no_banco`.
+    """
+    valores_nao_vazios = [valor.strip() for valor in valores if valor.strip()]
+    if not valores_nao_vazios:
+        return False
+    quantidade_numero_edicao = sum(
+        1 for valor in valores_nao_vazios if _PADRAO_NUMERO_EDICAO.match(valor)
+    )
+    return (
+        quantidade_numero_edicao / len(valores_nao_vazios)
+        >= _PROPORCAO_MINIMA_VALORES_NUMERO_EDICAO
     )
 
 
@@ -747,6 +789,16 @@ def auditar_cobertura_por_cardinalidade(
             if (
                 cardinalidade > CARDINALIDADE_MAXIMA_PADRAO
                 and _coluna_parece_identificador_numerico_no_banco(valores)
+            ):
+                continue
+
+            # Checagem factual complementar à exclusão por nome exata
+            # (``paper``): identificador de edição em formato "número/ano",
+            # não um código/ENUM — mesmo raciocínio e mesma faixa de
+            # aplicação do filtro de identificador numérico acima.
+            if (
+                cardinalidade > CARDINALIDADE_MAXIMA_PADRAO
+                and _coluna_parece_numero_edicao_no_banco(valores)
             ):
                 continue
 

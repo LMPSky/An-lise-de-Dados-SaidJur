@@ -15,6 +15,7 @@ from src.auditoria_cardinalidade import (
     _coluna_parece_identificador_numerico_no_banco,
     _coluna_parece_identificadora,
     _coluna_parece_monetaria_no_banco,
+    _coluna_parece_numero_edicao_no_banco,
     _contar_valores_distintos,
     auditar_cobertura_por_cardinalidade,
 )
@@ -437,6 +438,58 @@ def test_auditoria_descarta_fk_numerica_sem_convencao_de_nome_na_faixa_de_catalo
 
     tabelas_com_pendencia = {p["tabela"] for p in relatorio["pendencias"]}
     assert "lawsuits_log" not in tabelas_com_pendencia
+
+
+def test_coluna_elegivel_cardinalidade_paper_e_excluida_por_nome() -> None:
+    """Décima rodada de ajuste: ``publicationxml.paper`` guarda identificador
+    de edição de diário oficial em formato "número/ano", não um código."""
+    coluna = ColunaTabela(nome="paper", tipo="varchar(20)", posicao=1)
+    assert not _coluna_elegivel_cardinalidade(coluna)
+
+
+def test_coluna_parece_numero_edicao_no_banco_detecta_formato_numero_ano() -> None:
+    """Confirmado em produção: ``publicationxml.paper`` tem 417 valores, todos
+    no formato "número/ano" (``"2468/2018"``...)."""
+    valores = ["2468/2018", "2470/2018", "2471/2018", "3/2019", "10/2020"]
+    assert _coluna_parece_numero_edicao_no_banco(valores)
+
+
+def test_coluna_parece_numero_edicao_no_banco_preserva_catalogo_legitimo() -> None:
+    """Um catálogo real de código/ENUM (sem o formato "número/ano") não deve
+    ser descartado por este filtro."""
+    assert not _coluna_parece_numero_edicao_no_banco(["ativo", "inativo", "pendente"])
+    assert not _coluna_parece_numero_edicao_no_banco(["1", "2", "3"])
+
+
+def test_auditoria_descarta_numero_edicao_na_faixa_de_catalogos_grandes() -> None:
+    """Reprodução do caso real ``publicationxml.paper``: identificador de
+    edição "número/ano" não deve virar pendência de tradução, mesmo com
+    proporção baixa (cada edição repetida várias vezes numa tabela maior)."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE publicationxml (id INTEGER, paper TEXT)"))
+        indice = 0
+        for edicao in range(600):
+            for _repeticao in range(10):
+                conn.execute(
+                    text("INSERT INTO publicationxml (id, paper) VALUES (:id, :paper)"),
+                    {"id": indice, "paper": f"{edicao + 1}/2018"},
+                )
+                indice += 1
+        conn.commit()
+
+    with (
+        patch("src.auditoria_cardinalidade.dicionario_de_coluna", return_value={}),
+        patch("src.auditoria_cardinalidade._linhas_estimadas_tabela", return_value=6_000),
+    ):
+        relatorio = auditar_cobertura_por_cardinalidade(
+            engine,
+            cardinalidade_minima=CARDINALIDADE_MINIMA_CATALOGOS_GRANDES,
+            cardinalidade_maxima=CARDINALIDADE_MAXIMA_CATALOGOS_GRANDES,
+        )
+
+    tabelas_com_pendencia = {p["tabela"] for p in relatorio["pendencias"]}
+    assert "publicationxml" not in tabelas_com_pendencia
 
 
 def test_cardinalidade_catalogos_grandes_comeca_logo_apos_teto_padrao() -> None:
