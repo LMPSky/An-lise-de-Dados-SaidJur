@@ -704,6 +704,71 @@ def test_descobrir_pendencias_schema_exclui_por_nome_mesmo_com_tipo_curto() -> N
     assert excluidas["publicacoes.content"] == "nome_indica_texto_livre"
 
 
+def test_descobrir_pendencias_schema_exclui_colunas_de_nome_de_parte() -> None:
+    """lawyer/plaintiff/defendant guardam nome de parte (texto livre), não código.
+
+    Confirmado em produção: `publicationxml.lawyer='ABRADEE'` virou pendência
+    porque, dentro da amostra reduzida de uma tabela colossal, o nome se repetiu
+    poucas vezes na janela amostrada e pareceu um código de poucos estados.
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE publicationxml (
+                id INTEGER PRIMARY KEY,
+                code VARCHAR(20),
+                lawyer VARCHAR(100),
+                plaintiff VARCHAR(100),
+                defendant VARCHAR(100)
+            )
+        """))
+        conn.execute(text(
+            "INSERT INTO publicationxml (id, code, lawyer, plaintiff, defendant) "
+            "VALUES (1, 'A', 'ABRADEE', 'Fulano de Tal', 'Empresa XYZ')"
+        ))
+        conn.commit()
+
+    pendencias, resumo = descobrir_pendencias_schema(engine, {})
+
+    tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
+    assert ("publicationxml", "lawyer") not in tabelas_colunas
+    assert ("publicationxml", "plaintiff") not in tabelas_colunas
+    assert ("publicationxml", "defendant") not in tabelas_colunas
+    assert ("publicationxml", "code") in tabelas_colunas
+
+    excluidas = {item["tabela_coluna"]: item["motivo"] for item in resumo["colunas_excluidas"]}
+    assert excluidas["publicationxml.lawyer"] == "nome_indica_texto_livre"
+    assert excluidas["publicationxml.plaintiff"] == "nome_indica_texto_livre"
+    assert excluidas["publicationxml.defendant"] == "nome_indica_texto_livre"
+
+
+def test_descobrir_pendencias_schema_exclusao_de_parte_e_exata_nao_substring() -> None:
+    """`defendant_classification` não deve colidir com a exclusão exata de `defendant`.
+
+    A exclusão de nome de parte precisa ser por correspondência EXATA (não
+    substring) para não derrubar uma eventual variante categórica legítima
+    que apenas compartilha o prefixo — mesmo cuidado já tomado em
+    `auditoria_cardinalidade._NOMES_COLUNA_EXATOS_SEMPRE_EXCLUIDOS_CARDINALIDADE`.
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE lawsuits (
+                id INTEGER PRIMARY KEY,
+                defendant_classification VARCHAR(20)
+            )
+        """))
+        conn.execute(text(
+            "INSERT INTO lawsuits (id, defendant_classification) VALUES (1, 'PESSOA_FISICA')"
+        ))
+        conn.commit()
+
+    pendencias, _resumo = descobrir_pendencias_schema(engine, {})
+
+    tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
+    assert ("lawsuits", "defendant_classification") in tabelas_colunas
+
+
 def test_descobrir_pendencias_schema_falha_isolada_nao_interrompe_demais_colunas() -> None:
     """Uma falha (timeout/erro SQL) ao consultar uma coluna não deve derrubar o lote."""
     import src.investigacao_pendencias as mod

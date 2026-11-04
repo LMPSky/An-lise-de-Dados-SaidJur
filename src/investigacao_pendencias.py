@@ -161,6 +161,13 @@ _TAMANHO_MAXIMO_VARCHAR_DESCOBERTA_SCHEMA = 150
 # descoberta via schema antes de qualquer consulta de valores distintos.
 # Constante nomeada para facilitar expansão futura, no mesmo padrão de
 # `_COLUNAS_OBSERVACAO_PADRAO`/`_PREFIXOS_ABREVIADOS`.
+#
+# IMPORTANTE: esta constante também é reaproveitada por substring em
+# ``auditoria_cardinalidade._coluna_elegivel_cardinalidade``. Não adicionar
+# aqui nomes curtos/genéricos que colidiriam como substring com uma variante
+# categórica legítima (ex: ``defendant`` dentro de
+# ``defendant_classification``) — para esse caso, usar correspondência EXATA
+# em ``_NOMES_COLUNA_EXATOS_TEXTO_LIVRE_DESCOBERTA_SCHEMA`` abaixo.
 _NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA: tuple[str, ...] = (
     "body",
     "content",
@@ -180,6 +187,25 @@ _NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA: tuple[str, ...] = (
     "json",
     "note",
     "notes",
+)
+
+# Nomes de coluna excluídos por correspondência EXATA (não substring): nomes
+# de pessoa/parte que têm variantes irmãs legítimas e categóricas, então não
+# podem entrar na lista de substring acima sem derrubar essas variantes
+# também (mesmo padrão/motivação de
+# ``auditoria_cardinalidade._NOMES_COLUNA_EXATOS_SEMPRE_EXCLUIDOS_CARDINALIDADE``).
+#
+# Confirmado em produção: `publicationxml.lawyer`/`.plaintiff`/`.defendant`
+# guardam nome de advogado/autor/réu (texto livre de altíssima
+# cardinalidade), mas dentro da amostra reduzida de uma tabela colossal
+# (LIMIT na subseleção) alguns nomes que se repetem poucas vezes na janela
+# amostrada passam pelo filtro de "poucos estados distintos" e viram
+# pendência de tradução (ex: `publicationxml.lawyer='ABRADEE'`) — não é um
+# código/ENUM, é nome de parte.
+_NOMES_COLUNA_EXATOS_TEXTO_LIVRE_DESCOBERTA_SCHEMA: tuple[str, ...] = (
+    "lawyer",
+    "plaintiff",
+    "defendant",
 )
 
 # Nomes de colunas de observação/texto-livre usadas como contexto complementar.
@@ -698,6 +724,9 @@ def _motivo_exclusao_descoberta_schema(coluna: ColunaTabela) -> str | None:
         return "varchar_acima_do_limite"
 
     if any(chave in nome for chave in _NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA):
+        return "nome_indica_texto_livre"
+
+    if nome in _NOMES_COLUNA_EXATOS_TEXTO_LIVRE_DESCOBERTA_SCHEMA:
         return "nome_indica_texto_livre"
 
     return None
