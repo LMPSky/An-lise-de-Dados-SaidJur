@@ -131,6 +131,15 @@ _PREFIXOS_COLUNA_ACAO_BOOLEANA: tuple[str, ...] = (
     "no_receive_",
 )
 
+# Dois únicos valores possíveis para uma coluna booleana — qualquer coluna
+# cujo conjunto de valores distintos observados seja exatamente este não é
+# uma pendência de tradução de código/ENUM: é um flag 0/1 (ativo/inativo,
+# permissão, etc.) já coberto pelo dicionário booleano genérico do projeto
+# (ver ``colunas_booleanas_confirmadas.yaml``/``GET /api/dicionarios/booleanas``).
+# Mesmo critério de ``_coluna_e_booleana_no_banco`` e de
+# ``auditoria_cardinalidade._VALORES_BOOLEANOS``, reaproveitado aqui.
+_VALORES_BOOLEANOS = frozenset({"0", "1"})
+
 # Número máximo de colunas que uma tabela pode ter para ser considerada uma
 # tabela de catálogo/enum plausível em _buscar_em_tabela_referencia. Tabelas
 # de catálogo genuínas são estreitas (id + 1-3 colunas de rótulo/descrição).
@@ -777,6 +786,13 @@ def descobrir_pendencias_schema(
     coluna ou ao estimar linhas de uma tabela são capturadas e reportadas no
     resumo, sem interromper a descoberta das demais colunas/tabelas.
 
+    Colunas cujos valores distintos observados sejam exatamente ``{'0', '1'}``
+    são descartadas (motivo ``flag_booleana_0_1``), em ambos os modos — são
+    flags booleanas (ex: ``usertasks.read_users``, ``persons.role_client``) já
+    cobertas pelo dicionário booleano genérico do projeto, não pendências de
+    código/ENUM. Como os valores já foram buscados para montar as pendências,
+    essa checagem não custa nenhuma consulta extra ao banco.
+
     Quando ``modo_completo=True`` (varredura exaustiva do banco inteiro,
     pensada para rodar sem supervisão durante a noite — ver ``--completo``
     em ``investigar_pendencias.py``), a elegibilidade de coluna é ampliada
@@ -854,6 +870,19 @@ def descobrir_pendencias_schema(
                 print(
                     f"⚠️  Descoberta via schema: falha ao consultar {tabela}.{coluna.nome}, "
                     f"pulando esta coluna: {exc}"
+                )
+                continue
+
+            # Coluna confirmada como flag booleana (valores observados == {'0', '1'}):
+            # os valores já foram buscados acima, então essa checagem não custa uma
+            # consulta extra. Esse tipo de coluna (ex: ``usertasks.read_users``,
+            # ``persons.role_client``) já é coberto pelo dicionário booleano genérico
+            # do projeto — investigá-la por correlação de pistas produz apenas ruído
+            # (uma flag "traduzindo" outra flag correlacionada por coincidência na
+            # amostra, não uma tradução real).
+            if len(valores) == 2 and set(valores) == _VALORES_BOOLEANOS:
+                colunas_excluidas.append(
+                    {"tabela_coluna": f"{tabela}.{coluna.nome}", "motivo": "flag_booleana_0_1"}
                 )
                 continue
 
@@ -1936,7 +1965,7 @@ def _coluna_e_booleana_no_banco(
         )
     except Exception:  # noqa: BLE001 - filtro extra opcional, não pode travar a busca
         return False
-    return len(valores) == 2 and set(valores) == {"0", "1"}
+    return len(valores) == 2 and set(valores) == _VALORES_BOOLEANOS
 
 
 def _valor_parece_nome_arquivo(valor: str) -> bool:
