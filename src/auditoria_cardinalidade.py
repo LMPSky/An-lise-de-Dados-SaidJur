@@ -109,6 +109,29 @@ amostra":
    ``lawsuitdocsmetadata.protocol_location`` (cardinalidade 2, plausível
    categoria legítima, não excluída) nem com ``publicationxml.objecttype``
    (catálogo real de tipo de documento).
+9. **Primeira rodada na nova faixa de catálogos grandes (501-5.000)**: o
+   primeiro relatório real nessa faixa (13 colunas pendentes) mostrou que o
+   filtro de proporção (item acima) sozinho não é suficiente — colunas como
+   ``lawsuits``/``lawsuits_log``/``publicationxml.city`` (nome de cidade em
+   texto livre, formatação inconsistente: ``"BETIM"`` vs ``"Betim"``),
+   ``persons.cnpj``/``phone01`` (documento/telefone, identificador único por
+   pessoa/empresa), ``otherdocsmetadata.complement`` e
+   ``prazo2publication.annotations`` (anotação livre), ``pedidos2lawsuit.agent``
+   (mistura percentual/nota livre) e ``lawsuits_log.vara_cartorio_manual``
+   (nome de vara digitado manualmente, formatação inconsistente) têm
+   cardinalidade baixa o bastante em relação ao total de linhas para escapar
+   do filtro de proporção, mas ainda são texto livre, não catálogo. Também
+   confirmado ``acordo_nucleus.agreement_viable_other`` (campo "outro,
+   especifique" que acompanha um flag booleano) e
+   ``hearings_log``/``lawsuits.lawsuit``/``lawsuits.lawsuit_object``
+   (número de processo e descrição livre, não um código). Por fim,
+   ``lawsuits_log.lawsuit_type`` (631 valores, todos puramente numéricos:
+   '1', '2', ..., '884') é quase certamente uma FK para uma tabela de tipos
+   de processo que não segue a convenção de nome ``*_id``/``id*`` — uma
+   nova checagem factual (``_coluna_parece_identificador_numerico_no_banco``,
+   mesmo espírito de ``_coluna_e_booleana_no_banco``) descarta colunas cujos
+   valores coletados são quase todos dígitos puros, complementando a
+   exclusão por nome quando o padrão de nomenclatura não é seguido.
 """
 
 from __future__ import annotations
@@ -298,7 +321,30 @@ _NOMES_COLUNA_SEMPRE_EXCLUIDOS_CARDINALIDADE: tuple[str, ...] = (
     # Quinta rodada de ajuste: instrução em texto livre, não um código
     # (``expedients.instructions``: "Baixar ID6D72435", "cópia dos autos"...).
     "instructions",
+    # Nona rodada de ajuste (primeiro relatório real na faixa de catálogos
+    # grandes, 501-5.000): nome de cidade em texto livre, formatação
+    # inconsistente entre tabelas/registros (``lawsuits``/``lawsuits_log``/
+    # ``publicationxml.city``: "BETIM" vs "Betim").
+    "city",
+    "cidade",
+    # Documento/telefone, identificador único por pessoa/empresa, não um
+    # código/ENUM (``persons.cnpj``/``phone01``).
+    "cnpj",
+    "cpf",
+    "phone",
+    "telefone",
+    "celular",
+    # Anotação/complemento em texto livre
+    # (``otherdocsmetadata.complement``/``prazo2publication.annotations``).
+    "complement",
+    "annotation",
+    "anotac",
 )
+
+# Sufixos de coluna "outro, especifique" (campo de texto livre que
+# acompanha um flag/enum, só preenchido quando nenhuma opção fixa se aplica)
+# — confirmado em produção: ``acordo_nucleus.agreement_viable_other``.
+_SUFIXOS_COLUNA_OUTRO_ESPECIFIQUE_CARDINALIDADE: tuple[str, ...] = ("_other", "_outro")
 
 # Nomes de coluna excluídos por correspondência EXATA (não substring): termos
 # curtos demais para substring sem colidir com colunas legítimas (ex: ``nd``
@@ -351,6 +397,22 @@ _NOMES_COLUNA_EXATOS_SEMPRE_EXCLUIDOS_CARDINALIDADE: tuple[str, ...] = (
     # Id numérico de usuário que alterou o registro, sem sufixo *_id
     # (``publicationxml.user_changed_lawsuit``: '1', '3', '7'...).
     "user_changed_lawsuit",
+    # Nona rodada de ajuste (primeiro relatório real na faixa de catálogos
+    # grandes): número de processo em formato livre
+    # (``hearings_log.lawsuit``), exato para preservar colunas com
+    # cardinalidade legítima como ``lawsuits.lawsuit_type`` por nome (a FK
+    # sem convenção de nome é descartada à parte, por checagem factual de
+    # valores — ver `_coluna_parece_identificador_numerico_no_banco`).
+    "lawsuit",
+    # Descrição livre de objeto do processo, não um código
+    # (``lawsuits.lawsuit_object``: "Acao teste", "Cumprimento de Sentença"...).
+    "lawsuit_object",
+    # Nome de vara/cartório digitado manualmente, formatação inconsistente
+    # (``lawsuits_log.vara_cartorio_manual``: "4ª Vara de Contagem", "1ª"...).
+    "vara_cartorio_manual",
+    # Mistura percentual/nota livre sobre o agente/parte, não um código
+    # (``pedidos2lawsuit.agent``: "3% sobre o salário base", "TERCEIRIZADO"...).
+    "agent",
 )
 
 # Valor com cara de quantia monetária (``R$ 14.500,00``, ``14500,00``,
@@ -374,6 +436,34 @@ def _coluna_parece_monetaria_no_banco(valores: list[str]) -> bool:
         1 for valor in valores_nao_vazios if _PADRAO_VALOR_MONETARIO.match(valor.strip())
     )
     return quantidade_monetaria / len(valores_nao_vazios) >= 0.5
+
+
+# Proporção mínima de valores puramente numéricos para considerar uma coluna
+# um identificador (FK sem a convenção de nome *_id/id*) em vez de um
+# código/ENUM literal — ver `_coluna_parece_identificador_numerico_no_banco`.
+_PROPORCAO_MINIMA_VALORES_NUMERICOS_IDENTIFICADOR = 0.95
+
+
+def _coluna_parece_identificador_numerico_no_banco(valores: list[str]) -> bool:
+    """Indica se quase todos os valores coletados são puramente numéricos.
+
+    Complementa a exclusão por nome (`_coluna_parece_identificadora`), que
+    depende de convenção de nomenclatura (``*_id``/``id*``): confirmado em
+    produção que ``lawsuits_log.lawsuit_type`` guarda ids sequenciais ('1',
+    '2', ..., '884', 631 valores distintos) sem seguir essa convenção —
+    provavelmente uma FK para uma tabela de tipos de processo, não um
+    código/ENUM literal a comparar com `dicionarios.yaml`. Mesmo espírito de
+    `_coluna_e_booleana_no_banco`: checagem factual sobre os valores reais,
+    não apenas o nome da coluna.
+    """
+    valores_nao_vazios = [valor.strip() for valor in valores if valor.strip()]
+    if not valores_nao_vazios:
+        return False
+    quantidade_numerica = sum(1 for valor in valores_nao_vazios if valor.isdigit())
+    return (
+        quantidade_numerica / len(valores_nao_vazios)
+        >= _PROPORCAO_MINIMA_VALORES_NUMERICOS_IDENTIFICADOR
+    )
 
 
 def _coluna_parece_duplicata_em_ingles(nome: str) -> bool:
@@ -414,6 +504,8 @@ def _coluna_elegivel_cardinalidade(coluna: ColunaTabela) -> bool:
     if any(chave in nome for chave in _NOMES_COLUNA_SEMPRE_EXCLUIDOS_CARDINALIDADE):
         return False
     if nome in _NOMES_COLUNA_EXATOS_SEMPRE_EXCLUIDOS_CARDINALIDADE:
+        return False
+    if nome.endswith(_SUFIXOS_COLUNA_OUTRO_ESPECIFIQUE_CARDINALIDADE):
         return False
     return True
 
@@ -644,6 +736,18 @@ def auditar_cobertura_por_cardinalidade(
             # ou "5000.00" são quantia monetária mesmo quando o nome da
             # coluna não contém um termo monetário reconhecido.
             if _coluna_parece_monetaria_no_banco(valores):
+                continue
+
+            # Checagem factual complementar à exclusão por nome
+            # (_coluna_parece_identificadora): só aplicada acima do teto
+            # padrão (não muda o comportamento da faixa 2-500 já revisada).
+            # Uma coluna cujos valores são quase todos dígitos puros é
+            # provavelmente uma FK sem a convenção de nome *_id/id* (ex:
+            # ``lawsuits_log.lawsuit_type``), não um código/ENUM literal.
+            if (
+                cardinalidade > CARDINALIDADE_MAXIMA_PADRAO
+                and _coluna_parece_identificador_numerico_no_banco(valores)
+            ):
                 continue
 
             valores_curtos = [
