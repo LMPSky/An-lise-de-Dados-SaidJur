@@ -742,6 +742,46 @@ def test_descobrir_pendencias_schema_exclui_colunas_de_nome_de_parte() -> None:
     assert excluidas["publicationxml.defendant"] == "nome_indica_texto_livre"
 
 
+def test_descobrir_pendencias_schema_exclui_colunas_de_identificador_pessoal() -> None:
+    """compliment/num_acc/num_ag são identificadores únicos por pessoa, não código.
+
+    Confirmado em produção: `persons.compliment='AP 304 BL B'` virava
+    pendência "traduzida" com o nome da própria pessoa (coluna `name`), já
+    que cada valor aparece uma única vez na amostra — além de ruído, expunha
+    nome real vinculado a endereço/conta bancária como se fosse tradução.
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE persons (
+                id INTEGER PRIMARY KEY,
+                code VARCHAR(20),
+                name VARCHAR(100),
+                compliment VARCHAR(50),
+                num_acc VARCHAR(20),
+                num_ag VARCHAR(20)
+            )
+        """))
+        conn.execute(text(
+            "INSERT INTO persons (id, code, name, compliment, num_acc, num_ag) "
+            "VALUES (1, 'A', 'GERALDO JOSE DO CARMO', 'AP 304 BL B', '67049654-8', '0001')"
+        ))
+        conn.commit()
+
+    pendencias, resumo = descobrir_pendencias_schema(engine, {})
+
+    tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
+    assert ("persons", "compliment") not in tabelas_colunas
+    assert ("persons", "num_acc") not in tabelas_colunas
+    assert ("persons", "num_ag") not in tabelas_colunas
+    assert ("persons", "code") in tabelas_colunas
+
+    excluidas = {item["tabela_coluna"]: item["motivo"] for item in resumo["colunas_excluidas"]}
+    assert excluidas["persons.compliment"] == "nome_indica_texto_livre"
+    assert excluidas["persons.num_acc"] == "nome_indica_texto_livre"
+    assert excluidas["persons.num_ag"] == "nome_indica_texto_livre"
+
+
 def test_descobrir_pendencias_schema_exclui_login_logout_time() -> None:
     """login_time/logout_time guardam horário HH:MM, não código/ENUM.
 

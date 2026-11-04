@@ -211,10 +211,22 @@ _NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA: tuple[str, ...] = (
 # amostrada passam pelo filtro de "poucos estados distintos" e viram
 # pendência de tradução (ex: `publicationxml.lawyer='ABRADEE'`) — não é um
 # código/ENUM, é nome de parte.
+#
+# Confirmado em produção (persons): `compliment` (complemento de endereço),
+# `num_acc`/`num_ag` (conta/agência bancária) são identificadores únicos por
+# pessoa — cada valor aparece uma única vez na amostra e, por isso, a
+# investigação de pista_unica os "traduzia" usando o nome da própria pessoa
+# (coluna `name`) como se fosse o rótulo do código (ex:
+# `compliment='AP 304 BL B'` → traducao `'GERALDO JOSE DO CARMO'`,
+# `num_ag='0001'` → traducao `'260'`) — além de ruído, expõe nome real
+# vinculado a dado bancário/endereço como se fosse tradução de código.
 _NOMES_COLUNA_EXATOS_TEXTO_LIVRE_DESCOBERTA_SCHEMA: tuple[str, ...] = (
     "lawyer",
     "plaintiff",
     "defendant",
+    "compliment",
+    "num_acc",
+    "num_ag",
 )
 
 # Nomes de coluna (correspondência EXATA) que guardam um valor já formatado e
