@@ -242,6 +242,14 @@ _NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA: tuple[str, ...] = (
 # distintos apareceram em 15 ocorrências (cardinalidade total), e a pista
 # `observations` trazia um nome de pessoa diferente por valor, gerando
 # "traduções" absurdas como `'228.659'` -> `'Bárbara Isabely Lima Oliveira'`.
+#
+# Confirmado em produção (lawsuits_additional_info): `client_reference` e
+# `client_receiver` guardam nome de cliente/empresa em texto livre (ex:
+# `'Companhia Brasileira De Distribuição'`, `'ASSAÍ'`, `'CBD MULTIVAREJO'` —
+# variações/typos do mesmo cliente), não um código/ENUM. A baixa
+# cardinalidade coincidente (poucos valores distintos) fez a investigação
+# tratar nome de empresa como código e sugerir nome de pessoa como
+# "tradução" (ex: `'CBD MULTIVAREJO'` -> `'THAIS TUBERO DE CARVALHO'`).
 _NOMES_COLUNA_EXATOS_TEXTO_LIVRE_DESCOBERTA_SCHEMA: tuple[str, ...] = (
     "lawyer",
     "plaintiff",
@@ -252,6 +260,8 @@ _NOMES_COLUNA_EXATOS_TEXTO_LIVRE_DESCOBERTA_SCHEMA: tuple[str, ...] = (
     "delete_log",
     "invoice_number",
     "oab",
+    "client_reference",
+    "client_receiver",
 )
 
 # Nomes de coluna (correspondência EXATA) que guardam um valor já formatado e

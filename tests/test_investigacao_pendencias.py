@@ -884,6 +884,45 @@ def test_descobrir_pendencias_schema_exclui_oab() -> None:
     assert excluidas["employees.oab"] == "nome_indica_texto_livre"
 
 
+def test_descobrir_pendencias_schema_exclui_client_reference_e_receiver() -> None:
+    """client_reference/client_receiver guardam nome de cliente/empresa, não código.
+
+    Confirmado em produção: `lawsuits_additional_info.client_reference`
+    guarda variações/typos do mesmo nome de empresa (ex: `'Companhia
+    Brasileira De Distribuição'`, `'ASSAÍ'`, `'CBD MULTIVAREJO'`), não um
+    código/ENUM. A baixa cardinalidade coincidente fez a investigação
+    tratar nome de empresa como código e sugerir nome de pessoa como
+    "tradução" (ex: `'CBD MULTIVAREJO'` -> `'THAIS TUBERO DE CARVALHO'`).
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE lawsuits_additional_info (
+                id INTEGER PRIMARY KEY,
+                code VARCHAR(20),
+                client_reference VARCHAR(100),
+                client_receiver VARCHAR(100)
+            )
+        """))
+        conn.execute(text(
+            "INSERT INTO lawsuits_additional_info "
+            "(id, code, client_reference, client_receiver) "
+            "VALUES (1, 'A', 'CBD MULTIVAREJO', 'LUCIANO ALVES DE ALMEIDA SANTOS')"
+        ))
+        conn.commit()
+
+    pendencias, resumo = descobrir_pendencias_schema(engine, {})
+
+    tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
+    assert ("lawsuits_additional_info", "client_reference") not in tabelas_colunas
+    assert ("lawsuits_additional_info", "client_receiver") not in tabelas_colunas
+    assert ("lawsuits_additional_info", "code") in tabelas_colunas
+
+    excluidas = {item["tabela_coluna"]: item["motivo"] for item in resumo["colunas_excluidas"]}
+    assert excluidas["lawsuits_additional_info.client_reference"] == "nome_indica_texto_livre"
+    assert excluidas["lawsuits_additional_info.client_receiver"] == "nome_indica_texto_livre"
+
+
 def test_descobrir_pendencias_schema_exclui_login_logout_time() -> None:
     """login_time/logout_time guardam horário HH:MM, não código/ENUM.
 
