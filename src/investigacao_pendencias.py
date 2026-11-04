@@ -68,6 +68,22 @@ _CHAVES_SEMANTICAS = ("name", "nome", "desc", "descricao", "description", "title
 # classificado (erroneamente) como "pista forte" só por conter "name".
 _COLUNAS_NOME_IGNORADAS = frozenset({"filename", "username", "hostname", "pathname", "surname", "nickname"})
 
+# Pares (tabela, coluna) em que uma coluna com nome semântico (ex: "description")
+# na verdade guarda narrativa livre específica do registro, não um rótulo de
+# categoria curto — ao contrário de outras tabelas onde o mesmo nome de coluna
+# É um rótulo legítimo (ex: ``paymenttype.description`` = "Pagamento por boleto
+# bancário", corretamente uma pista forte). Por isso a exclusão é por tabela,
+# não pelo nome da coluna isoladamente.
+#
+# Confirmado em produção: ``lawsuits.description`` guarda a narrativa do caso
+# (ex: "Motivo: INDENIZAÇÃO DANOS MORAIS", "JAC BH BARÃO"). Como cada valor é
+# curto o bastante para escapar do limiar de texto livre
+# (``_TEXTO_LIVRE_COMPRIMENTO_MIN``/10 palavras), a coluna foi tratada como
+# "pista forte" e gerou sugestões sem sentido para ``department``/
+# ``finalpayment_type`` (ex: código '6' de ``department`` → "Motivo:
+# INDENIZAÇÃO DANOS MORAIS").
+_COLUNAS_PISTA_NARRATIVA_LIVRE_POR_TABELA = frozenset({("lawsuits", "description")})
+
 _TEXTO_LIVRE_COMPRIMENTO_MIN = 50
 _EXTENSOES_ARQUIVO_IGNORADAS = (
     ".yaml",
@@ -1982,7 +1998,7 @@ def _coletar_linhas_exemplo(
 
 
 
-def _coluna_tem_nome_semantico(nome: str) -> bool:
+def _coluna_tem_nome_semantico(nome: str, tabela: str | None = None) -> bool:
     """Retorna True quando o nome da coluna sugere que ela é um rótulo/descrição.
 
     Colunas com nomes como ``name``, ``descricao``, ``title`` etc. são candidatas
@@ -1993,10 +2009,15 @@ def _coluna_tem_nome_semantico(nome: str) -> bool:
     Colunas em ``_COLUNAS_NOME_IGNORADAS`` (ex: ``filename``) são descartadas
     mesmo contendo "name" como substring — não são rótulos de categoria, e
     sim identificadores específicos de cada linha (ver docstring da
-    constante).
+    constante). Da mesma forma, pares (tabela, coluna) em
+    ``_COLUNAS_PISTA_NARRATIVA_LIVRE_POR_TABELA`` são descartados quando
+    ``tabela`` é informada — mesmo nome semântico, mas guardam narrativa
+    livre específica do registro nessa tabela em particular.
     """
     nome_lower = nome.lower()
     if nome_lower in _COLUNAS_NOME_IGNORADAS:
+        return False
+    if tabela is not None and (tabela, nome_lower) in _COLUNAS_PISTA_NARRATIVA_LIVRE_POR_TABELA:
         return False
     return any(chave in nome_lower for chave in _CHAVES_SEMANTICAS)
 
@@ -2245,7 +2266,7 @@ def _analisar_pistas(
         if (
             _pista_parece_texto_livre(unico)
             or _pista_e_booleana(pista["valores_frequentes"])
-            or not _coluna_tem_nome_semantico(pista["coluna"])
+            or not _coluna_tem_nome_semantico(pista["coluna"], pendencia.tabela)
         ):
             continue
         evidencias_por_rotulo.setdefault(unico, []).append(pista)
@@ -2272,7 +2293,7 @@ def _analisar_pistas(
         if _pista_parece_texto_livre(unico):
             descartou_texto_livre = True
             continue
-        tem_nome_semantico = _coluna_tem_nome_semantico(pista["coluna"])
+        tem_nome_semantico = _coluna_tem_nome_semantico(pista["coluna"], pendencia.tabela)
         e_booleana = _pista_e_booleana(pista["valores_frequentes"])
         if tem_nome_semantico and not e_booleana:
             justificativa = (
@@ -2308,7 +2329,7 @@ def _analisar_pistas(
                 descartou_texto_livre = True
                 continue
             e_booleana = _pista_e_booleana(pista["valores_frequentes"])
-            tem_nome_semantico = _coluna_tem_nome_semantico(pista["coluna"])
+            tem_nome_semantico = _coluna_tem_nome_semantico(pista["coluna"], pendencia.tabela)
             if e_booleana or not tem_nome_semantico:
                 justificativa = (
                     f"Coluna '{pista['coluna']}' (pista fraca — "
