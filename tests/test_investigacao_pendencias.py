@@ -2196,6 +2196,7 @@ def test_coluna_tem_nome_semantico_exclui_coluna_narrativa_por_tabela() -> None:
     nesta tabela. Em outras tabelas (ex: ``paymenttype.description``), o
     mesmo nome de coluna continua sendo pista forte legítima."""
     assert _coluna_tem_nome_semantico("description", "lawsuits") is False
+    assert _coluna_tem_nome_semantico("description", "lawsuits_log") is False
     assert _coluna_tem_nome_semantico("description", "paymenttype") is True
     assert _coluna_tem_nome_semantico("description") is True
 

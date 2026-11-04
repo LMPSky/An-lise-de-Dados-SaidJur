@@ -82,7 +82,17 @@ _COLUNAS_NOME_IGNORADAS = frozenset({"filename", "username", "hostname", "pathna
 # "pista forte" e gerou sugestões sem sentido para ``department``/
 # ``finalpayment_type`` (ex: código '6' de ``department`` → "Motivo:
 # INDENIZAÇÃO DANOS MORAIS").
-_COLUNAS_PISTA_NARRATIVA_LIVRE_POR_TABELA = frozenset({("lawsuits", "description")})
+#
+# ``lawsuits_log.description`` apresenta o mesmo padrão (ex: "Conflito de
+# Competência.", "MOTIVO: Acordo Tácito / Expresso", "CARGA P / PGE") — é a
+# tabela de histórico/log de ``lawsuits`` e guarda a mesma narrativa livre do
+# caso, só que com amostras ainda menores (1 ocorrência por valor), o que já
+# mantinha o status em ``pista_unica`` nos casos observados, mas o rótulo
+# incorreto de "pista forte" poderia escalar para falso positivo de alta
+# confiança caso o mesmo texto se repetisse por coincidência em mais linhas.
+_COLUNAS_PISTA_NARRATIVA_LIVRE_POR_TABELA = frozenset(
+    {("lawsuits", "description"), ("lawsuits_log", "description")}
+)
 
 _TEXTO_LIVRE_COMPRIMENTO_MIN = 50
 _EXTENSOES_ARQUIVO_IGNORADAS = (
