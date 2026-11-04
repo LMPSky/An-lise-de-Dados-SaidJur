@@ -782,6 +782,40 @@ def test_descobrir_pendencias_schema_exclui_colunas_de_identificador_pessoal() -
     assert excluidas["persons.num_ag"] == "nome_indica_texto_livre"
 
 
+def test_descobrir_pendencias_schema_exclui_delete_log() -> None:
+    """delete_log guarda nome de função interna (log técnico), não código.
+
+    Confirmado em produção: `lawsuits.delete_log` tem apenas 2 valores
+    distintos na tabela inteira (`'deleteLawsuit function'`,
+    `'cleanUpNewLawsuitLeftOverInformation function'`) — poucos estados o
+    suficiente para a investigação tentar "traduzi-lo" usando outra
+    coluna-pista, gerando ruído sem sentido (ex: `'Espécies de Contratos'`).
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE lawsuits (
+                id INTEGER PRIMARY KEY,
+                code VARCHAR(20),
+                delete_log VARCHAR(100)
+            )
+        """))
+        conn.execute(text(
+            "INSERT INTO lawsuits (id, code, delete_log) "
+            "VALUES (1, 'A', 'deleteLawsuit function')"
+        ))
+        conn.commit()
+
+    pendencias, resumo = descobrir_pendencias_schema(engine, {})
+
+    tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
+    assert ("lawsuits", "delete_log") not in tabelas_colunas
+    assert ("lawsuits", "code") in tabelas_colunas
+
+    excluidas = {item["tabela_coluna"]: item["motivo"] for item in resumo["colunas_excluidas"]}
+    assert excluidas["lawsuits.delete_log"] == "nome_indica_texto_livre"
+
+
 def test_descobrir_pendencias_schema_exclui_login_logout_time() -> None:
     """login_time/logout_time guardam horário HH:MM, não código/ENUM.
 
