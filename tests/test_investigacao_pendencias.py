@@ -742,6 +742,42 @@ def test_descobrir_pendencias_schema_exclui_colunas_de_nome_de_parte() -> None:
     assert excluidas["publicationxml.defendant"] == "nome_indica_texto_livre"
 
 
+def test_descobrir_pendencias_schema_exclui_login_logout_time() -> None:
+    """login_time/logout_time guardam horário HH:MM, não código/ENUM.
+
+    Confirmado em produção: `usertasks.login_time='07:00'` virava pendência
+    de pista_unica, "traduzida" com o valor de outra coluna booleana
+    correlacionada por coincidência na amostra (ex: sugestão `'0'`) — ruído
+    sem sentido, já que um horário não precisa de tradução.
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE usertasks (
+                id INTEGER PRIMARY KEY,
+                code VARCHAR(20),
+                login_time VARCHAR(5),
+                logout_time VARCHAR(5)
+            )
+        """))
+        conn.execute(text(
+            "INSERT INTO usertasks (id, code, login_time, logout_time) "
+            "VALUES (1, 'A', '07:00', '19:00')"
+        ))
+        conn.commit()
+
+    pendencias, resumo = descobrir_pendencias_schema(engine, {})
+
+    tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
+    assert ("usertasks", "login_time") not in tabelas_colunas
+    assert ("usertasks", "logout_time") not in tabelas_colunas
+    assert ("usertasks", "code") in tabelas_colunas
+
+    excluidas = {item["tabela_coluna"]: item["motivo"] for item in resumo["colunas_excluidas"]}
+    assert excluidas["usertasks.login_time"] == "valor_ja_formatado_nao_e_codigo"
+    assert excluidas["usertasks.logout_time"] == "valor_ja_formatado_nao_e_codigo"
+
+
 def test_descobrir_pendencias_schema_exclusao_de_parte_e_exata_nao_substring() -> None:
     """`defendant_classification` não deve colidir com a exclusão exata de `defendant`.
 

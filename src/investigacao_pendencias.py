@@ -217,6 +217,22 @@ _NOMES_COLUNA_EXATOS_TEXTO_LIVRE_DESCOBERTA_SCHEMA: tuple[str, ...] = (
     "defendant",
 )
 
+# Nomes de coluna (correspondência EXATA) que guardam um valor já formatado e
+# autoexplicativo — não um código/ENUM que precise de tradução.
+#
+# Confirmado em produção: `usertasks.login_time`/`.logout_time` guardam
+# horário no formato `HH:MM` (ex: `'22:00'`, `'07:00'`). Como cada valor tem
+# poucas ocorrências dentro da amostra de uma tabela, a investigação de
+# pista_unica tentava "traduzir" o horário usando o valor de outra coluna
+# correlacionada por coincidência na amostra (ex: `logout_time='22:00'` →
+# sugestão `'0'`, vindo de uma flag booleana não relacionada) — ruído sem
+# sentido, já que um horário não precisa de tradução, só de formatação na
+# exibição.
+_NOMES_COLUNA_EXATOS_VALOR_FORMATADO_DESCOBERTA_SCHEMA: tuple[str, ...] = (
+    "login_time",
+    "logout_time",
+)
+
 # Nomes de colunas de observação/texto-livre usadas como contexto complementar.
 # Quando a coluna investigada não obtém tradução de alta confiança, a ferramenta
 # agrega os valores dessas colunas correlacionadas para ajudar o usuário a inferir
@@ -737,6 +753,9 @@ def _motivo_exclusao_descoberta_schema(coluna: ColunaTabela) -> str | None:
 
     if nome in _NOMES_COLUNA_EXATOS_TEXTO_LIVRE_DESCOBERTA_SCHEMA:
         return "nome_indica_texto_livre"
+
+    if nome in _NOMES_COLUNA_EXATOS_VALOR_FORMATADO_DESCOBERTA_SCHEMA:
+        return "valor_ja_formatado_nao_e_codigo"
 
     return None
 
