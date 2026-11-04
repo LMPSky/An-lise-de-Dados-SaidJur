@@ -235,6 +235,13 @@ _NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA: tuple[str, ...] = (
 # o que gerou uma baixa cardinalidade coincidente e fez a investigação
 # tratar texto livre (ex: `'ENTRADA'`, `'1ª PARCELA'`, `'2ª PARCELA'`, até
 # um valor de teste `'teste 3'`) como se fosse código/ENUM.
+#
+# Confirmado em produção (employees): `oab` guarda o número de inscrição na
+# Ordem dos Advogados do Brasil — um identificador cadastral único por
+# advogado, nunca um código de domínio compartilhado. Na amostra, 15 valores
+# distintos apareceram em 15 ocorrências (cardinalidade total), e a pista
+# `observations` trazia um nome de pessoa diferente por valor, gerando
+# "traduções" absurdas como `'228.659'` -> `'Bárbara Isabely Lima Oliveira'`.
 _NOMES_COLUNA_EXATOS_TEXTO_LIVRE_DESCOBERTA_SCHEMA: tuple[str, ...] = (
     "lawyer",
     "plaintiff",
@@ -244,6 +251,7 @@ _NOMES_COLUNA_EXATOS_TEXTO_LIVRE_DESCOBERTA_SCHEMA: tuple[str, ...] = (
     "num_ag",
     "delete_log",
     "invoice_number",
+    "oab",
 )
 
 # Nomes de coluna (correspondência EXATA) que guardam um valor já formatado e

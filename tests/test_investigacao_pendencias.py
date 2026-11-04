@@ -850,6 +850,40 @@ def test_descobrir_pendencias_schema_exclui_invoice_number() -> None:
     assert excluidas["paymentguarantee2lawsuit.invoice_number"] == "nome_indica_texto_livre"
 
 
+def test_descobrir_pendencias_schema_exclui_oab() -> None:
+    """oab guarda número de inscrição na OAB, identificador único, não código.
+
+    Confirmado em produção: `employees.oab` tinha 15 valores distintos em 15
+    ocorrências (cardinalidade total — um valor por registro), e a pista
+    `observations` trazia um nome de pessoa diferente por valor, fazendo a
+    investigação "traduzir" um número de registro para o nome de outro
+    advogado (ex: `'228.659'` -> `'Bárbara Isabely Lima Oliveira'`).
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE employees (
+                id INTEGER PRIMARY KEY,
+                code VARCHAR(20),
+                oab VARCHAR(50)
+            )
+        """))
+        conn.execute(text(
+            "INSERT INTO employees (id, code, oab) "
+            "VALUES (1, 'A', '228.659')"
+        ))
+        conn.commit()
+
+    pendencias, resumo = descobrir_pendencias_schema(engine, {})
+
+    tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
+    assert ("employees", "oab") not in tabelas_colunas
+    assert ("employees", "code") in tabelas_colunas
+
+    excluidas = {item["tabela_coluna"]: item["motivo"] for item in resumo["colunas_excluidas"]}
+    assert excluidas["employees.oab"] == "nome_indica_texto_livre"
+
+
 def test_descobrir_pendencias_schema_exclui_login_logout_time() -> None:
     """login_time/logout_time guardam horário HH:MM, não código/ENUM.
 
