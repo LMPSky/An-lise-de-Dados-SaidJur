@@ -220,6 +220,14 @@ _NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA: tuple[str, ...] = (
 # `compliment='AP 304 BL B'` → traducao `'GERALDO JOSE DO CARMO'`,
 # `num_ag='0001'` → traducao `'260'`) — além de ruído, expõe nome real
 # vinculado a dado bancário/endereço como se fosse tradução de código.
+#
+# Confirmado em produção (lawsuits): `delete_log` guarda nome de função
+# interna responsável pela exclusão do registro (ex: `'deleteLawsuit
+# function'`, `'cleanUpNewLawsuitLeftOverInformation function'`) — é um
+# campo de log/auditoria técnico, não um código/ENUM, mas como tem só 2
+# valores distintos na tabela inteira (poucos estados), a investigação
+# tentava "traduzi-lo" usando outra coluna-pista como se fosse rótulo de
+# código (ex: `'Espécies de Contratos'`).
 _NOMES_COLUNA_EXATOS_TEXTO_LIVRE_DESCOBERTA_SCHEMA: tuple[str, ...] = (
     "lawyer",
     "plaintiff",
@@ -227,6 +235,7 @@ _NOMES_COLUNA_EXATOS_TEXTO_LIVRE_DESCOBERTA_SCHEMA: tuple[str, ...] = (
     "compliment",
     "num_acc",
     "num_ag",
+    "delete_log",
 )
 
 # Nomes de coluna (correspondência EXATA) que guardam um valor já formatado e
