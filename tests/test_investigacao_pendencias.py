@@ -1171,6 +1171,35 @@ def test_selecionar_colunas_pista_prefere_portugues_sobre_name_en() -> None:
 
 
 
+def test_selecionar_colunas_pista_ignora_coluna_inteira_so_por_nome() -> None:
+    """Coluna INTEIRA (ID de FK) não vira pista só por bater com `_CHAVES_PISTA`.
+
+    Confirmado em produção: `publicationxml.observations_userid` (coluna
+    INTEGER, guarda ID de usuário, sempre valor 7) batia com "obs" em
+    `_CHAVES_PISTA` só por substring de nome, mesmo sendo um identificador
+    numérico sem relação semântica com o código investigado — isso gerava
+    dezenas de sugestões sem sentido (`traducao_sugerida='7'`).
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE publicationxml (
+                id INTEGER PRIMARY KEY,
+                code TEXT,
+                observations TEXT,
+                observations_userid INTEGER
+            )
+        """))
+        conn.commit()
+
+    colunas = listar_colunas_tabela(engine, "publicationxml")
+    candidatas = selecionar_colunas_pista(colunas, "code")
+
+    assert "observations" in candidatas
+    assert "observations_userid" not in candidatas
+
+
+
 def _engine_pagamento() -> Engine:
     engine = create_engine("sqlite:///:memory:")
     with engine.connect() as conn:

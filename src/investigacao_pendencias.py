@@ -1049,10 +1049,18 @@ def selecionar_colunas_pista(
         nome = coluna.nome.lower()
         if nome == coluna_codigo.lower():
             continue
+        # Uma coluna só pode ser "pista textual" se o tipo de fato for
+        # textual: sem essa checagem, uma coluna inteira de FK (ex:
+        # `observations_userid`) que só bate com `_CHAVES_PISTA` por
+        # substring (contém "obs") virava candidata a pista mesmo guardando
+        # um ID numérico sem relação semântica com o código investigado.
+        # Confirmado em produção: `publicationxml.observations_userid`
+        # (sempre valor 7) gerou dezenas de sugestões sem sentido
+        # (`traducao_sugerida='7'`) para códigos completamente diferentes.
+        if not _tipo_textual(coluna.tipo):
+            continue
 
-        score = 0
-        if _tipo_textual(coluna.tipo):
-            score += 3
+        score = 3
         if any(chave in nome for chave in _CHAVES_PISTA):
             score += 5
         if nome in {"id", "created_at", "updated_at"}:
