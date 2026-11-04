@@ -228,6 +228,13 @@ _NOMES_COLUNA_TEXTO_LIVRE_DESCOBERTA_SCHEMA: tuple[str, ...] = (
 # valores distintos na tabela inteira (poucos estados), a investigação
 # tentava "traduzi-lo" usando outra coluna-pista como se fosse rótulo de
 # código (ex: `'Espécies de Contratos'`).
+#
+# Confirmado em produção (paymentguarantee2lawsuit): `invoice_number`
+# guarda rótulo de parcela digitado manualmente, não um código estruturado.
+# A coluna é altamente esparsa (só 4 linhas preenchidas na tabela inteira),
+# o que gerou uma baixa cardinalidade coincidente e fez a investigação
+# tratar texto livre (ex: `'ENTRADA'`, `'1ª PARCELA'`, `'2ª PARCELA'`, até
+# um valor de teste `'teste 3'`) como se fosse código/ENUM.
 _NOMES_COLUNA_EXATOS_TEXTO_LIVRE_DESCOBERTA_SCHEMA: tuple[str, ...] = (
     "lawyer",
     "plaintiff",
@@ -236,6 +243,7 @@ _NOMES_COLUNA_EXATOS_TEXTO_LIVRE_DESCOBERTA_SCHEMA: tuple[str, ...] = (
     "num_acc",
     "num_ag",
     "delete_log",
+    "invoice_number",
 )
 
 # Nomes de coluna (correspondência EXATA) que guardam um valor já formatado e
