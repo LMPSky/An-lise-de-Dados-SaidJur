@@ -211,6 +211,13 @@ function app() {
     detalheIndiceContexto: -1,
     detalheColunas: [],
 
+    // ── Documentos externos do processo ──────────────────────────
+    documentosHabilitado: false,
+    documentosCarregando: false,
+    documentosArquivos: [],
+    documentosErro: null,
+    documentosNumeroCarregado: null,
+
     // ── Console SQL ──────────────────────────────────────────────
     sqlQuery: 'SELECT * FROM clientes LIMIT 50',
     sqlCarregando: false,
@@ -253,6 +260,17 @@ function app() {
       return ordem
         .filter(nome => Object.prototype.hasOwnProperty.call(this.detalheRegistro, nome))
         .map(nome => ({ nome, valor: this.detalheRegistro[nome] }));
+    },
+
+    get detalheNumeroProcesso() {
+      if (!this.detalheRegistro) return null;
+      const chave = Object.keys(this.detalheRegistro).find(
+        nome => nome.toLowerCase() === 'lawsuitnumber'
+      );
+      if (!chave) return null;
+      const valor = this.detalheRegistro[chave];
+      if (valor === null || valor === undefined || valor === '') return null;
+      return String(valor);
     },
 
     get sqlLinhasPaginadas() {
@@ -583,8 +601,19 @@ function app() {
       // ✅ Fixar paginação no topo durante scroll
       this.configurarScrollFixo();
       
-      await Promise.all([this.carregarTraducoes(), this.carregarTabelas(), this.carregarDashboard(), this.carregarDicionarios(), this.carregarColunasBooleanas()]);
+      await Promise.all([this.carregarTraducoes(), this.carregarTabelas(), this.carregarDashboard(), this.carregarDicionarios(), this.carregarColunasBooleanas(), this.carregarStatusDocumentos()]);
       window.addEventListener('keydown', (event) => this.atalhosTeclado(event));
+    },
+
+    async carregarStatusDocumentos() {
+      try {
+        const res = await fetch('/api/documentos/status');
+        if (!res.ok) return;
+        const dados = await res.json();
+        this.documentosHabilitado = Boolean(dados.habilitado);
+      } catch (e) {
+        this.documentosHabilitado = false;
+      }
     },
 
     /**
@@ -1376,6 +1405,12 @@ function app() {
       this.detalheLinhasContexto = contextoLinhas || [];
       this.detalheIndiceContexto = Number.isInteger(indice) ? indice : -1;
       this.detalheAberto = true;
+      this.documentosArquivos = [];
+      this.documentosErro = null;
+      this.documentosNumeroCarregado = null;
+      if (this.documentosHabilitado && this.detalheNumeroProcesso) {
+        this.carregarDocumentosProcesso(this.detalheNumeroProcesso);
+      }
     },
 
     fecharDetalhe() {
@@ -1383,6 +1418,36 @@ function app() {
       this.detalheRegistro = null;
       this.detalheTabela = null;
       this.detalheIndiceContexto = -1;
+      this.documentosArquivos = [];
+      this.documentosErro = null;
+      this.documentosNumeroCarregado = null;
+    },
+
+    async carregarDocumentosProcesso(numeroProcesso) {
+      this.documentosCarregando = true;
+      this.documentosErro = null;
+      try {
+        const res = await fetch(`/api/documentos/${encodeURIComponent(numeroProcesso)}`);
+        if (!res.ok) throw new Error(await res.text());
+        const dados = await res.json();
+        this.documentosArquivos = dados.arquivos || [];
+        this.documentosNumeroCarregado = numeroProcesso;
+      } catch (e) {
+        this.documentosErro = 'Falha ao carregar documentos: ' + e.message;
+      } finally {
+        this.documentosCarregando = false;
+      }
+    },
+
+    urlArquivoDocumento(numeroProcesso, nomeArquivo) {
+      return `/api/documentos/${encodeURIComponent(numeroProcesso)}/arquivo/${encodeURIComponent(nomeArquivo)}`;
+    },
+
+    formatarTamanhoArquivo(bytes) {
+      if (!bytes) return '0 KB';
+      const kb = bytes / 1024;
+      if (kb < 1024) return `${kb.toFixed(1)} KB`;
+      return `${(kb / 1024).toFixed(1)} MB`;
     },
 
     navegarDetalhe(delta) {

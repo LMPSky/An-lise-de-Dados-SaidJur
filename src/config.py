@@ -31,6 +31,7 @@ def _config_padrao() -> dict[str, Any]:
             "nome": "saidjur",
         },
         "busca": {"timeout_segundos": 10, "limite_padrao": 100, "parallelism": 8},
+        "documentos": {"diretorio_base": "", "habilitado": False},
     }
 
 
@@ -55,6 +56,9 @@ def carregar_config(caminho: Path | None = None) -> dict[str, Any]:
     dados.setdefault("servidor", {})
     dados.setdefault("banco", {})
     dados.setdefault("busca", {})
+    dados.setdefault("documentos", {})
+    dados["documentos"].setdefault("diretorio_base", "")
+    dados["documentos"].setdefault("habilitado", bool(dados["documentos"].get("diretorio_base")))
 
     # Sobrescreve com variáveis de ambiente (útil em testes e containers)
     if os.getenv("DB_HOST"):
@@ -71,6 +75,9 @@ def carregar_config(caminho: Path | None = None) -> dict[str, Any]:
         dados["servidor"]["host"] = os.environ["APP_HOST"]
     if os.getenv("APP_PORTA"):
         dados["servidor"]["porta"] = int(os.environ["APP_PORTA"])
+    if os.getenv("DOCUMENTOS_DIRETORIO_BASE"):
+        dados["documentos"]["diretorio_base"] = os.environ["DOCUMENTOS_DIRETORIO_BASE"]
+        dados["documentos"]["habilitado"] = True
 
     return dados
 
