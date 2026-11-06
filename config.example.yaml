@@ -13,3 +13,11 @@ busca:
   timeout_segundos: 10
   limite_padrao: 100
   parallelism: 8
+
+documentos:
+  # Pasta raiz onde ficam os arquivos do processo (fora do banco), com uma
+  # subpasta por número de processo (formato CNJ), ex:
+  #   <diretorio_base>/0000003-16.2025.5.07.0015/Processo_....pdf
+  # Deixe em branco para desativar a aba de documentos.
+  diretorio_base: ""
+  habilitado: false
