@@ -543,6 +543,39 @@ def _deduplicar_pendencias(pendencias: list[PendenciaEnum]) -> list[PendenciaEnu
     ]
 
 
+def _filtrar_pendencias_ja_traduzidas(
+    pendencias: list[PendenciaEnum], dicionarios: dict[str, Any]
+) -> list[PendenciaEnum]:
+    """Remove pendências cujo valor já possui tradução em ``dicionarios``.
+
+    ``descobrir_pendencias_schema`` já faz essa checagem por valor antes de
+    gerar uma pendência (ver ``if valor not in traducoes_coluna``), mas as
+    demais fontes — em especial ``carregar_pendencias_markdown`` (backlog
+    estático em ``PENDENCIAS_TRADUCAO_HUMANA.md``, expandido via
+    ``expandir_pendencias_com_dominio``) — não consultam o dicionário atual.
+    Isso faz com que itens **já traduzidos** (ex: tradução aplicada em uma
+    rodada anterior) continuem reaparecendo como ``sem_pista_encontrada`` em
+    relatórios futuros só porque o Markdown nunca foi atualizado para
+    remover a entrada. Confirmado em produção:
+    ``hearingcontrol.hearingstatus``/``hearings_log.hearingstatus`` e
+    ``lawsuitdocsmetadata.prazophase`` já tinham tradução completa em
+    ``dicionarios.yaml`` havia meses, mas continuavam sendo investigados e
+    reportados como pendência por virem do backlog documentado.
+    """
+    resultado = []
+    for item in pendencias:
+        traducoes_coluna = dicionarios.get(item.tabela, {})
+        if not isinstance(traducoes_coluna, dict):
+            traducoes_coluna = {}
+        traducoes_coluna = traducoes_coluna.get(item.coluna, {})
+        if not isinstance(traducoes_coluna, dict):
+            traducoes_coluna = {}
+        if item.valor != "*" and item.valor in traducoes_coluna:
+            continue
+        resultado.append(item)
+    return resultado
+
+
 def _normalizar_celula_markdown(celula: str) -> str:
     """Normaliza uma célula de cabeçalho Markdown para comparação estrutural."""
     sem_acentos = "".join(
@@ -3199,14 +3232,22 @@ def executar_investigacao(
         # que --colunas/--relatorio-cardinalidade fosse combinado com
         # --completo/--lote/--descobrir-schema, o que já causou uma investigação
         # completa acidental (2.540 pendências) em vez das 20 pedidas.
+        dicionarios_atuais = carregar_yaml(caminho_dicionarios)
         if caminho_pendencias_markdown and not colunas_diretas and not caminho_relatorio_cardinalidade:
             pendencias = expandir_pendencias_com_dominio(engine, pendencias)
         if descobrir_schema and not colunas_diretas and not caminho_relatorio_cardinalidade:
             pendencias_schema, resumo_descoberta_schema = descobrir_pendencias_schema(
-                engine, carregar_yaml(caminho_dicionarios), modo_completo=modo_completo
+                engine, dicionarios_atuais, modo_completo=modo_completo
             )
             pendencias.extend(pendencias_schema)
         pendencias = _deduplicar_pendencias(pendencias)
+        if caminho_pendencias_markdown or descobrir_schema:
+            # O backlog estático do Markdown (``PENDENCIAS_TRADUCAO_HUMANA.md``)
+            # não é atualizado automaticamente quando uma tradução é aplicada
+            # ao dicionário — sem este filtro, itens já resolvidos (ex:
+            # ``hearingcontrol.hearingstatus``, ``lawsuitdocsmetadata.prazophase``)
+            # continuam reaparecendo como pendência em todo relatório futuro.
+            pendencias = _filtrar_pendencias_ja_traduzidas(pendencias, dicionarios_atuais)
         relatorio = investigar_pendencias(
             engine,
             pendencias,
