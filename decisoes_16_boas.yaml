@@ -1,0 +1,81 @@
+decisoes:
+  - tabela: accounts
+    coluna: type
+    valor: 'a'
+    decisao: aplicar
+    traducao_final: 'Conta de ativos'
+  - tabela: accounts
+    coluna: type
+    valor: 'd'
+    decisao: aplicar
+    traducao_final: 'Conta de despesas'
+  - tabela: accounts
+    coluna: type
+    valor: 'p'
+    decisao: aplicar
+    traducao_final: 'Conta de passivos'
+  - tabela: accounts
+    coluna: type
+    valor: 'pl'
+    decisao: aplicar
+    traducao_final: 'Conta sistema auxiliar'
+  - tabela: accounts
+    coluna: type
+    valor: 'r'
+    decisao: aplicar
+    traducao_final: 'Conta de receita'
+  - tabela: accounts
+    coluna: nature
+    valor: 'a'
+    decisao: aplicar
+    traducao_final: 'Conta de ativos'
+  - tabela: accounts
+    coluna: nature
+    valor: 'd'
+    decisao: aplicar
+    traducao_final: 'Conta de despesas'
+  - tabela: accounts
+    coluna: nature
+    valor: 'p'
+    decisao: aplicar
+    traducao_final: 'Conta de passivos'
+  - tabela: accounts
+    coluna: nature
+    valor: 'pl'
+    decisao: aplicar
+    traducao_final: 'Conta sistema auxiliar'
+  - tabela: accounts
+    coluna: nature
+    valor: 'r'
+    decisao: aplicar
+    traducao_final: 'Conta de receita'
+  - tabela: country
+    coluna: nome
+    valor: 'Brasil'
+    decisao: aplicar
+    traducao_final: 'BR'
+  - tabela: paymenttype
+    coluna: name
+    valor: 'Boleto'
+    decisao: aplicar
+    traducao_final: 'Bol'
+  - tabela: paymenttype
+    coluna: name
+    valor: 'Cheque'
+    decisao: aplicar
+    traducao_final: 'chq'
+  - tabela: paymenttype
+    coluna: name
+    valor: 'Débito automático'
+    decisao: aplicar
+    traducao_final: 'deb'
+  - tabela: paymenttype
+    coluna: name
+    valor: 'Depósito em conta'
+    decisao: aplicar
+    traducao_final: 'dep'
+  - tabela: paymenttype
+    coluna: name
+    valor: 'Dinheiro'
+    decisao: aplicar
+    traducao_final: 'din'
