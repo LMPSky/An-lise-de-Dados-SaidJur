@@ -1,7 +1,8 @@
 activitynature:
   type:
-    com: Comercial / Desenvolvimento de Negócios
-    con: Consultivo / Assessoria Jurídica
+    com: Consultivo
+    con: Contencioso
+    '': Não definido
 automaticprazos_lawsuits:
   hearing_type:
     all: Todos
@@ -232,11 +233,12 @@ lawsuits_additional_info:
     n: Não
 lawsuitdocsmetadata:
   prazophase:
-    '1': RETIFICAR CTPS
-    '2': ENVIAR CTPS P/ ANOTAÇÃO
-    '3': Juntada de preposição e substabelecimento
-    '4': Encerramento
+    '1': Em Elaboração (Pendente)
+    '2': Em Revisão (Revisão Técnica/Sênior)
+    '3': Aguardando Protocolo / Pagamento
+    '4': Concluído / Protocolado
     f: Finalizado
+    '': Não classificado
   protocolstatus:
     '0': Pendente / Não Protocolado
     '2': Protocolado com Sucesso / Confirmado
@@ -246,6 +248,10 @@ lawsuits:
   status:
     '0': Inativo
     '1': Ativo
+  finalpayment_type:
+    '1': Boleto / Guia
+    '2': Depósito Judicial
+    '3': Transferência Bancária / PIX
   code_red:
     '0': Não
     '1': Sim
@@ -312,6 +318,7 @@ lawsuits:
     '3': 3ª instância
   deferred_protection:
     n: Não
+    y: Sim
   clientcond:
     d: Réu
     n: Neutro
@@ -361,8 +368,9 @@ lawsuits_log:
     '2': 2ª instância
     '1': 1ª instância
   finalpayment_type:
-    '1': Atraso na entrega
-    '3': Não recebimento do produto contratado
+    '1': Boleto / Guia
+    '2': Depósito Judicial
+    '3': Transferência Bancária / PIX
   impact:
     '2': Médio
   clientcond:
@@ -482,6 +490,7 @@ projectactivityprazos:
     '184': Gessica
 returned_prazo_reasons:
   status:
+    '0': Inativo
     '1': Ativo
   user_created_at:
     '128': Michelle
@@ -608,6 +617,10 @@ lawsuitdocs:
     '7': Outro
 otherdocs: {}
 pedidos2lawsuit:
+  ias:
+    '1': 1ª Instância
+    '2': 2ª Instância
+    '3': Instância Superior (STJ/STF)
   instance01:
     '3': 3ª Instância / Tribunais Superiores (STJ/TST)
     '4': Supremo Tribunal Federal (STF)
@@ -646,10 +659,11 @@ prazo2publication:
     '0': Inativo
     '1': Ativo
   pzphase:
-    '1': RETIFICAR CTPS
-    '2': ENVIAR CTPS P/ ANOTAÇÃO
-    '3': Juntada de preposição e substabelecimento
-    '4': Encerramento
+    '1': Em Elaboração (Pendente)
+    '2': Em Revisão (Revisão Técnica/Sênior)
+    '3': Aguardando Protocolo / Pagamento
+    '4': Concluído / Protocolado
+    '': Não classificado
   finishtype:
     p: processo físico
   hearingtype:
@@ -674,11 +688,12 @@ prazos_log:
     '0': Inativo
     '1': Ativo
   pzphase:
-    '1': RETIFICAR CTPS
-    '2': ENVIAR CTPS P/ ANOTAÇÃO
-    '3': Juntada de preposição e substabelecimento
-    '4': Encerramento
+    '1': Em Elaboração (Pendente)
+    '2': Em Revisão (Revisão Técnica/Sênior)
+    '3': Aguardando Protocolo / Pagamento
+    '4': Concluído / Protocolado
     '0': Sem prazo em curso
+    '': Não classificado
   finishtype:
     p: processo físico
 projects:
@@ -799,6 +814,7 @@ hearingcontrol:
   hearingstatus:
     '0': Agendada / Marcada
     '1': Realizada
+    '2': Cancelada / Adiada / Redesignada
 final_payments:
   payment_type:
     '1': Acordo
@@ -1074,6 +1090,8 @@ persons2project_prazos:
     '5': Analisar e tratar processos duplicados no SAID
     '3': Juntada de preposição e substabelecimento
 projectevents:
+  status:
+    '0': Ativo / Pendente
   project_id:
     '10': Resposta ofício (teste)
     '13': CONSULTAS E PARECERES
@@ -1362,7 +1380,9 @@ claims:
     j: Judicial
 projecteventtypes:
   type:
-    con: Consultivo / Assessoria Jurídica
+    con: Contencioso
+    com: Consultivo
+    '': Não definido
 templatesubject:
   type:
     '0': Interno
