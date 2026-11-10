@@ -608,8 +608,14 @@
                           </div>
                         </td>
                       </template>
-                      <td class="px-2 py-1.5">
+                      <td class="px-2 py-1.5 flex items-center gap-1">
                         <button @click="abrirDetalheIndice(indice)" class="bg-primary text-white rounded px-2 py-1 text-xs hover:bg-primary-dark">👁️</button>
+                        <button
+                          x-show="linhaTemNumeroProcesso(linha)"
+                          @click="abrirDetalheIndice(indice)"
+                          title="Documentos do processo"
+                          class="bg-gray-100 text-gray-700 rounded px-2 py-1 text-xs hover:bg-gray-200"
+                        >📁</button>
                       </td>
                     </tr>
                   </template>
@@ -631,6 +637,11 @@
                     >
                       <div class="flex flex-wrap gap-x-6 gap-y-1 flex-1 min-w-0">
                         <span class="text-xs font-semibold text-gray-400 shrink-0" x-text="'#' + (((pagina - 1) * porPagina) + indice + 1)"></span>
+                        <span
+                          x-show="linhaTemNumeroProcesso(linha)"
+                          title="Documentos do processo disponíveis"
+                          class="text-sm shrink-0"
+                        >📁</span>
                         <template x-for="campo in camposCardResumido(linha, colunasExibidas)" :key="campo.nome">
                           <span class="flex items-center gap-1 min-w-0">
                             <span class="text-xs text-gray-500 shrink-0" :class="modoAvancado ? '' : 'font-medium'" x-text="(campo.rotulo || exibirNomeCampo(campo.nome)) + ':'"></span>
