@@ -1194,6 +1194,40 @@ def test_descobrir_pendencias_schema_pula_tabela_catalogo_autorreferente() -> No
     assert excluidas["hearingtype.*"] == "tabela_catalogo_autorreferente"
 
 
+def test_descobrir_pendencias_schema_exclui_chave_primaria_propria() -> None:
+    """Coluna que é a PK (simples) da própria tabela nunca é uma pendência.
+
+    Confirmado em produção: `paymenttype.paymenttype_id` aparecia como
+    pendência mesmo sem nenhuma outra tabela usar `paymenttype` como
+    referência (diferente do padrão de tabela de catálogo autorreferente,
+    que exige confirmação manual) — checagem factual via metadado de
+    schema (`get_pk_constraint`), não convenção de nome.
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE paymenttype (
+                paymenttype_id INTEGER PRIMARY KEY,
+                code VARCHAR(10),
+                name VARCHAR(50)
+            )
+        """))
+        conn.execute(text(
+            "INSERT INTO paymenttype (paymenttype_id, code, name) VALUES "
+            "(1, 'Bol', 'Boleto'), (2, 'Pix', 'Pix')"
+        ))
+        conn.commit()
+
+    pendencias, resumo = descobrir_pendencias_schema(engine, {})
+
+    tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
+    assert ("paymenttype", "paymenttype_id") not in tabelas_colunas
+    assert ("paymenttype", "code") in tabelas_colunas
+
+    excluidas = {item["tabela_coluna"]: item["motivo"] for item in resumo["colunas_excluidas"]}
+    assert excluidas["paymenttype.paymenttype_id"] == "coluna_e_chave_primaria_propria"
+
+
 def test_descobrir_pendencias_schema_falha_isolada_nao_interrompe_demais_colunas() -> None:
     """Uma falha (timeout/erro SQL) ao consultar uma coluna não deve derrubar o lote."""
     import src.investigacao_pendencias as mod

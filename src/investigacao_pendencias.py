@@ -948,6 +948,17 @@ def descobrir_pendencias_schema(
     o rótulo final (ou a fonte usada por ``tabela_referencia`` em outra
     tabela), não códigos pendentes de tradução.
 
+    A coluna que é a chave primária simples (1 coluna) da própria tabela
+    também é sempre descartada (motivo ``coluna_e_chave_primaria_propria``,
+    em ambos os modos) — checagem factual via metadado de schema
+    (``get_pk_constraint``), não convenção de nome. Diferente da exclusão de
+    tabela de catálogo acima (que exige confirmação manual de que outra
+    tabela usa aquela tabela como referência), esta vale para qualquer
+    tabela: um valor de PK identifica a própria linha, nunca é um
+    código/ENUM a decodificar. Confirmado em produção:
+    ``paymenttype.paymenttype_id`` aparecia como pendência mesmo sem nenhuma
+    outra tabela usar ``paymenttype`` como referência.
+
     Quando ``modo_completo=True`` (varredura exaustiva do banco inteiro,
     pensada para rodar sem supervisão durante a noite — ver ``--completo``
     em ``investigar_pendencias.py``), a elegibilidade de coluna é ampliada
@@ -998,10 +1009,31 @@ def descobrir_pendencias_schema(
         else:
             limite_subselecao = None
 
+        pk_propria = _coluna_pk_propria_seguro(engine, tabela)
+
         traducoes_tabela = dicionarios.get(tabela, {})
         if not isinstance(traducoes_tabela, dict):
             traducoes_tabela = {}
         for coluna in listar_colunas_tabela(engine, tabela):
+            # Chave primária simples da própria tabela: é um identificador de
+            # linha, não um código a decodificar — não existe "tradução" para
+            # o valor de uma PK dentro da própria tabela que a declara (se
+            # outra tabela a referencia via FK, essa OUTRA coluna é resolvida
+            # separadamente por `_buscar_em_tabela_referencia`). Confirmado em
+            # produção: `paymenttype.paymenttype_id` aparecia como pendencia
+            # mesmo sem nenhuma outra tabela usar `paymenttype` como
+            # referência — checagem factual via metadado de schema, não
+            # convenção de nome.
+            if coluna.nome == pk_propria:
+                if not modo_completo:
+                    colunas_excluidas.append(
+                        {
+                            "tabela_coluna": f"{tabela}.{coluna.nome}",
+                            "motivo": "coluna_e_chave_primaria_propria",
+                        }
+                    )
+                continue
+
             if modo_completo:
                 if not _coluna_elegivel_para_descoberta_completa(coluna):
                     continue
@@ -1526,6 +1558,23 @@ def _selecionar_coluna_rotulo_referencia(colunas: list[ColunaTabela]) -> str | N
     pontuadas.sort(key=lambda item: (-item[0], item[1]))
     return _reordenar_colunas_pista_por_idioma([nome for _, nome in pontuadas], nomes_disponiveis)[0]
 
+
+
+def _coluna_pk_propria_seguro(engine: Engine, tabela: str) -> str | None:
+    """Retorna o nome da coluna, se ``tabela`` tiver chave primária simples (1 coluna).
+
+    Usa metadado real do schema (``get_pk_constraint``), não convenção de
+    nome — é uma checagem factual, não uma adivinhação. Retorna ``None``
+    quando a tabela não tem PK, tem PK composta (múltiplas colunas) ou a
+    introspecção falha (falha isolada não pode derrubar o lote).
+    """
+    try:
+        colunas_pk = inspect(engine).get_pk_constraint(tabela).get("constrained_columns") or []
+    except Exception:  # noqa: BLE001 - falha isolada não pode derrubar o lote
+        return None
+    if len(colunas_pk) == 1:
+        return str(colunas_pk[0])
+    return None
 
 
 def _fks_declaradas_seguro(engine: Engine, tabela: str) -> list[dict[str, str]]:
