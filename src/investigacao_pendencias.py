@@ -306,6 +306,41 @@ _NOMES_COLUNA_EXATOS_VALOR_FORMATADO_DESCOBERTA_SCHEMA: tuple[str, ...] = (
     "logout_time",
 )
 
+# Tabelas de catálogo/referência cujas próprias colunas descritivas (id +
+# name/activity/system) são, elas mesmas, a fonte de tradução usada por
+# ``_buscar_em_tabela_referencia`` em OUTRAS tabelas — não códigos/ENUM que
+# precisem de uma entrada própria em ``dicionarios.yaml``.
+#
+# Confirmado em produção: ``hearingtype.hearingtype_id=11`` + `.name='Instrução'`
+# é literalmente a linha que já resolve ``hearingcontrol.hearingtype='11'`` via
+# ``fk_declarada``/``tabela_referencia`` (motivo ``alta_confianca``). Mesmo
+# padrão confirmado em ``correspondent_activities.activity`` (ex: 'Alvará',
+# já em português, não um código), ``expensereportitems.name`` (ex:
+# 'Pedágio'), ``correspondent_document_types.name`` (ex: 'Ata de audiência'),
+# ``businessunit.name`` (ex: 'DF - Juiz de Fora'), ``tax.name`` (ex: 'PIS',
+# 'COFINS' — siglas, não códigos a decodificar), ``permissions.name``,
+# ``groups.name``, ``jobroles.name`` e ``client_systems.system``.
+#
+# A descoberta via schema (``descobrir_pendencias_schema``) ignora a tabela
+# inteira quando ela está nesta lista: suas próprias colunas nunca precisam
+# de uma entrada de tradução, pois já SÃO o rótulo final exibido (e, quando
+# usadas como referência por outra tabela, a tradução efetiva acontece na
+# tabela que aponta para cá, não aqui).
+_TABELAS_CATALOGO_AUTORREFERENTE: frozenset[str] = frozenset(
+    {
+        "hearingtype",
+        "correspondent_activities",
+        "expensereportitems",
+        "correspondent_document_types",
+        "businessunit",
+        "tax",
+        "permissions",
+        "groups",
+        "jobroles",
+        "client_systems",
+    }
+)
+
 # Nomes de colunas de observação/texto-livre usadas como contexto complementar.
 # Quando a coluna investigada não obtém tradução de alta confiança, a ferramenta
 # agrega os valores dessas colunas correlacionadas para ajudar o usuário a inferir
@@ -897,6 +932,22 @@ def descobrir_pendencias_schema(
     código/ENUM. Como os valores já foram buscados para montar as pendências,
     essa checagem não custa nenhuma consulta extra ao banco.
 
+    Colunas com 0 ou 1 valor distinto observado em uma varredura exaustiva
+    (não amostrada) da tabela inteira (motivo ``coluna_constante_valor_unico``)
+    também são descartadas: uma coluna sem nenhuma variação de valor (sempre
+    ``'0'``, por exemplo) não tem nada a decodificar — não há um segundo
+    estado para contrastar com o primeiro. Essa exclusão não se aplica a
+    tabelas colossais amostradas (``limite_subselecao`` definido): um único
+    valor na janela amostrada não confirma que a coluna seja de fato
+    constante em toda a tabela.
+
+    Tabelas inteiras conhecidas como catálogo/referência autorreferente
+    (``_TABELAS_CATALOGO_AUTORREFERENTE``, ex: ``hearingtype``, ``tax``,
+    ``businessunit``) são puladas por completo (motivo
+    ``tabela_catalogo_autorreferente``): suas próprias colunas id/name já SÃO
+    o rótulo final (ou a fonte usada por ``tabela_referencia`` em outra
+    tabela), não códigos pendentes de tradução.
+
     Quando ``modo_completo=True`` (varredura exaustiva do banco inteiro,
     pensada para rodar sem supervisão durante a noite — ver ``--completo``
     em ``investigar_pendencias.py``), a elegibilidade de coluna é ampliada
@@ -920,6 +971,12 @@ def descobrir_pendencias_schema(
     )
 
     for tabela in inspect(engine).get_table_names():
+        if tabela in _TABELAS_CATALOGO_AUTORREFERENTE:
+            colunas_excluidas.append(
+                {"tabela_coluna": f"{tabela}.*", "motivo": "tabela_catalogo_autorreferente"}
+            )
+            continue
+
         try:
             linhas_estimadas = _linhas_estimadas_tabela(engine, tabela)
         except Exception as exc:  # noqa: BLE001 - falha isolada não pode derrubar o lote
@@ -974,6 +1031,29 @@ def descobrir_pendencias_schema(
                 print(
                     f"⚠️  Descoberta via schema: falha ao consultar {tabela}.{coluna.nome}, "
                     f"pulando esta coluna: {exc}"
+                )
+                continue
+
+            # Coluna constante (0 ou 1 valor distinto em TODA a tabela): sem
+            # nenhuma variação, não há nada a decodificar — não existe um
+            # segundo estado para contrastar com o primeiro, então
+            # "traduzir" o único valor não tem utilidade alguma. Confirmado
+            # em produção: 29 das 30 tabelas com colunas assim em um
+            # relatório real (ex: ``hearings_log.canceled``,
+            # ``prazos_log.hearing``, ``companytype.companytype_id``,
+            # ``usertasks.language``).
+            #
+            # Só aplicamos essa exclusão quando a consulta de valores
+            # distintos foi exaustiva (``limite_subselecao is None``), isto
+            # é, varreu a tabela inteira de fato — mesmo cuidado de
+            # ``test_descobrir_pendencias_schema_nao_exclui_coluna_com_unico_valor_0_ou_1``.
+            # Em tabela colossal amostrada (ex: ``publicationxml``), um único
+            # valor observado pode ser apenas o primeiro estado de um domínio
+            # maior ainda não amostrado dentro da janela limitada — não
+            # confirma que a coluna seja de fato constante na tabela inteira.
+            if limite_subselecao is None and len(valores) <= 1:
+                colunas_excluidas.append(
+                    {"tabela_coluna": f"{tabela}.{coluna.nome}", "motivo": "coluna_constante_valor_unico"}
                 )
                 continue
 

@@ -1387,6 +1387,19 @@ function app() {
 
     // ── Modal de detalhe ─────────────────────────────────────────
 
+    // Verifica se a linha tem um número de processo (lawsuitnumber) preenchido,
+    // usado para exibir o ícone 📁 de documentos externos já na lista de
+    // resultados, antes de abrir o modal de detalhe (não confirma se a pasta
+    // de documentos realmente existe/tem arquivos — isso só é checado ao
+    // abrir o modal, para evitar uma chamada de API por linha da listagem).
+    linhaTemNumeroProcesso(linha) {
+      if (!this.documentosHabilitado || !linha) return false;
+      const chave = Object.keys(linha).find(nome => nome.toLowerCase() === 'lawsuitnumber');
+      if (!chave) return false;
+      const valor = linha[chave];
+      return valor !== null && valor !== undefined && valor !== '';
+    },
+
     abrirDetalheIndice(indice) {
       if (!this.linhas[indice]) return;
       this.abrirDetalheRegistro({

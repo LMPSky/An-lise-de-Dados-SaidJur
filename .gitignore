@@ -52,3 +52,5 @@ coverage.xml
 /relatorio_*.yaml
 /*.xlsx
 /*.diff
+
+.pytest_tmp/

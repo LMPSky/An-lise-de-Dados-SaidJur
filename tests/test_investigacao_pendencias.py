@@ -672,6 +672,7 @@ def test_descobrir_pendencias_schema_exclui_colunas_text_blob_json_por_tipo() ->
             )
         """))
         conn.execute(text("INSERT INTO emails (id, code, body) VALUES (1, 'A', 'texto grande de e-mail')"))
+        conn.execute(text("INSERT INTO emails (id, code, body) VALUES (2, 'B', 'outro e-mail')"))
         conn.commit()
 
     pendencias, resumo = descobrir_pendencias_schema(engine, {})
@@ -703,6 +704,9 @@ def test_descobrir_pendencias_schema_exclui_varchar_acima_do_limite() -> None:
         conn.execute(text(
             "INSERT INTO publications_duplicate_info (id, filecode, filename) VALUES (1, 'A', 'algum_arquivo.pdf')"
         ))
+        conn.execute(text(
+            "INSERT INTO publications_duplicate_info (id, filecode, filename) VALUES (2, 'B', 'outro_arquivo.pdf')"
+        ))
         conn.commit()
 
     pendencias, resumo = descobrir_pendencias_schema(engine, {})
@@ -729,6 +733,9 @@ def test_descobrir_pendencias_schema_exclui_por_nome_mesmo_com_tipo_curto() -> N
         """))
         conn.execute(text(
             "INSERT INTO publicacoes (id, code, summary, content) VALUES (1, 'A', 'resumo curto', 'conteudo curto')"
+        ))
+        conn.execute(text(
+            "INSERT INTO publicacoes (id, code, summary, content) VALUES (2, 'B', 'outro resumo', 'outro conteudo')"
         ))
         conn.commit()
 
@@ -765,6 +772,10 @@ def test_descobrir_pendencias_schema_exclui_colunas_de_nome_de_parte() -> None:
         conn.execute(text(
             "INSERT INTO publicationxml (id, code, lawyer, plaintiff, defendant) "
             "VALUES (1, 'A', 'ABRADEE', 'Fulano de Tal', 'Empresa XYZ')"
+        ))
+        conn.execute(text(
+            "INSERT INTO publicationxml (id, code, lawyer, plaintiff, defendant) "
+            "VALUES (2, 'B', 'Outro Advogado', 'Beltrano de Tal', 'Outra Empresa')"
         ))
         conn.commit()
 
@@ -806,6 +817,10 @@ def test_descobrir_pendencias_schema_exclui_colunas_de_identificador_pessoal() -
             "INSERT INTO persons (id, code, name, compliment, num_acc, num_ag) "
             "VALUES (1, 'A', 'GERALDO JOSE DO CARMO', 'AP 304 BL B', '67049654-8', '0001')"
         ))
+        conn.execute(text(
+            "INSERT INTO persons (id, code, name, compliment, num_acc, num_ag) "
+            "VALUES (2, 'B', 'MARIA DA SILVA', 'CASA 12', '12345678-9', '0002')"
+        ))
         conn.commit()
 
     pendencias, resumo = descobrir_pendencias_schema(engine, {})
@@ -844,6 +859,10 @@ def test_descobrir_pendencias_schema_exclui_delete_log() -> None:
             "INSERT INTO lawsuits (id, code, delete_log) "
             "VALUES (1, 'A', 'deleteLawsuit function')"
         ))
+        conn.execute(text(
+            "INSERT INTO lawsuits (id, code, delete_log) "
+            "VALUES (2, 'B', 'cleanUpNewLawsuitLeftOverInformation function')"
+        ))
         conn.commit()
 
     pendencias, resumo = descobrir_pendencias_schema(engine, {})
@@ -878,6 +897,10 @@ def test_descobrir_pendencias_schema_exclui_invoice_number() -> None:
             "INSERT INTO paymentguarantee2lawsuit (id, code, invoice_number) "
             "VALUES (1, 'A', '1\u00aa PARCELA')"
         ))
+        conn.execute(text(
+            "INSERT INTO paymentguarantee2lawsuit (id, code, invoice_number) "
+            "VALUES (2, 'B', '2\u00aa PARCELA')"
+        ))
         conn.commit()
 
     pendencias, resumo = descobrir_pendencias_schema(engine, {})
@@ -911,6 +934,10 @@ def test_descobrir_pendencias_schema_exclui_oab() -> None:
         conn.execute(text(
             "INSERT INTO employees (id, code, oab) "
             "VALUES (1, 'A', '228.659')"
+        ))
+        conn.execute(text(
+            "INSERT INTO employees (id, code, oab) "
+            "VALUES (2, 'B', '150.310')"
         ))
         conn.commit()
 
@@ -949,6 +976,11 @@ def test_descobrir_pendencias_schema_exclui_client_reference_e_receiver() -> Non
             "(id, code, client_reference, client_receiver) "
             "VALUES (1, 'A', 'CBD MULTIVAREJO', 'LUCIANO ALVES DE ALMEIDA SANTOS')"
         ))
+        conn.execute(text(
+            "INSERT INTO lawsuits_additional_info "
+            "(id, code, client_reference, client_receiver) "
+            "VALUES (2, 'B', 'ASSAI', 'OUTRO NOME DE PESSOA')"
+        ))
         conn.commit()
 
     pendencias, resumo = descobrir_pendencias_schema(engine, {})
@@ -985,6 +1017,10 @@ def test_descobrir_pendencias_schema_exclui_login_logout_time() -> None:
             "INSERT INTO usertasks (id, code, login_time, logout_time) "
             "VALUES (1, 'A', '07:00', '19:00')"
         ))
+        conn.execute(text(
+            "INSERT INTO usertasks (id, code, login_time, logout_time) "
+            "VALUES (2, 'B', '08:00', '18:00')"
+        ))
         conn.commit()
 
     pendencias, resumo = descobrir_pendencias_schema(engine, {})
@@ -1017,6 +1053,9 @@ def test_descobrir_pendencias_schema_exclusao_de_parte_e_exata_nao_substring() -
         """))
         conn.execute(text(
             "INSERT INTO lawsuits (id, defendant_classification) VALUES (1, 'PESSOA_FISICA')"
+        ))
+        conn.execute(text(
+            "INSERT INTO lawsuits (id, defendant_classification) VALUES (2, 'PESSOA_JURIDICA')"
         ))
         conn.commit()
 
@@ -1060,14 +1099,22 @@ def test_descobrir_pendencias_schema_exclui_coluna_com_valores_booleanos_0_1() -
     assert excluidas["usertasks.read_users"] == "flag_booleana_0_1"
 
 
-def test_descobrir_pendencias_schema_nao_exclui_coluna_com_unico_valor_0_ou_1() -> None:
+def test_descobrir_pendencias_schema_nao_exclui_coluna_com_unico_valor_em_tabela_colossal() -> None:
     """Um único valor '0' isolado não deve ser tratado como flag booleana.
 
     É preciso confirmar a real bimodalidade 0/1 (dois valores distintos) —
     um único código '0' observado pode ser apenas o primeiro valor de um
     domínio maior ainda não amostrado, mesmo cuidado já tomado em
-    `_coluna_e_booleana_no_banco`.
+    `_coluna_e_booleana_no_banco`. Em tabela colossal (amostrada por
+    subseleção, não varredura completa), essa ambiguidade é real: por isso o
+    cenário usa uma tabela colossal — para uma tabela normal, com DISTINCT
+    completo, um único valor observado é a confirmação de que a coluna é de
+    fato constante (ver
+    ``test_descobrir_pendencias_schema_exclui_coluna_constante_com_valor_unico``).
     """
+    import src.investigacao_pendencias as mod
+    from src.tabelas_grandes import LIMITE_LINHAS_TABELA_COLOSSAL
+
     engine = create_engine("sqlite:///:memory:")
     with engine.connect() as conn:
         conn.execute(text("""
@@ -1079,10 +1126,72 @@ def test_descobrir_pendencias_schema_nao_exclui_coluna_com_unico_valor_0_ou_1() 
         conn.execute(text("INSERT INTO lawsuits (id, status) VALUES (1, '0')"))
         conn.commit()
 
-    pendencias, _resumo = descobrir_pendencias_schema(engine, {})
+    with patch.object(
+        mod, "_linhas_estimadas_tabela", return_value=LIMITE_LINHAS_TABELA_COLOSSAL + 1
+    ):
+        pendencias, _resumo = descobrir_pendencias_schema(engine, {})
 
     tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
     assert ("lawsuits", "status") in tabelas_colunas
+
+
+def test_descobrir_pendencias_schema_exclui_coluna_constante_com_valor_unico() -> None:
+    """Coluna com um único valor distinto em varredura completa (não amostrada) é descartada.
+
+    Confirmado em produção: 29 tabelas reais (não colossais, varredura
+    completa) tinham colunas assim entre os itens ``sem_pista_encontrada``
+    de um relatório real (ex: ``hearings_log.canceled``,
+    ``companytype.companytype_id``, ``usertasks.language``) — sem nenhuma
+    variação de valor, não há nada a decodificar.
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE companytype (
+                id INTEGER PRIMARY KEY,
+                name VARCHAR(20)
+            )
+        """))
+        conn.execute(text("INSERT INTO companytype (id, name) VALUES (1, 'Matriz'), (2, 'Matriz')"))
+        conn.commit()
+
+    pendencias, resumo = descobrir_pendencias_schema(engine, {})
+
+    tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
+    assert ("companytype", "name") not in tabelas_colunas
+
+    excluidas = {item["tabela_coluna"]: item["motivo"] for item in resumo["colunas_excluidas"]}
+    assert excluidas["companytype.name"] == "coluna_constante_valor_unico"
+
+
+def test_descobrir_pendencias_schema_pula_tabela_catalogo_autorreferente() -> None:
+    """Tabela de catálogo autorreferente (ex: hearingtype) é pulada por completo.
+
+    Confirmado em produção: `hearingtype.hearingtype_id=11` + `.name='Instrução'`
+    é literalmente a linha que já resolve `hearingcontrol.hearingtype='11'` via
+    `tabela_referencia` — não é uma pendência de tradução, é a própria fonte
+    de tradução usada por outra tabela.
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE hearingtype (
+                hearingtype_id INTEGER PRIMARY KEY,
+                name VARCHAR(50)
+            )
+        """))
+        conn.execute(text(
+            "INSERT INTO hearingtype (hearingtype_id, name) VALUES (11, 'Instrução'), (12, 'Audiência')"
+        ))
+        conn.commit()
+
+    pendencias, resumo = descobrir_pendencias_schema(engine, {})
+
+    tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
+    assert not any(t == "hearingtype" for t, _ in tabelas_colunas)
+
+    excluidas = {item["tabela_coluna"]: item["motivo"] for item in resumo["colunas_excluidas"]}
+    assert excluidas["hearingtype.*"] == "tabela_catalogo_autorreferente"
 
 
 def test_descobrir_pendencias_schema_falha_isolada_nao_interrompe_demais_colunas() -> None:
@@ -1105,6 +1214,7 @@ def test_descobrir_pendencias_schema_falha_isolada_nao_interrompe_demais_colunas
         """))
         conn.execute(text("INSERT INTO emails (id, code) VALUES (1, 'A')"))
         conn.execute(text("INSERT INTO prazos_log (id, pzphase) VALUES (1, 'X')"))
+        conn.execute(text("INSERT INTO prazos_log (id, pzphase) VALUES (2, 'Y')"))
         conn.commit()
 
     original = mod._valores_distintos_coluna
@@ -1159,6 +1269,7 @@ def test_descobrir_pendencias_schema_amostra_tabela_colossal_em_vez_de_pular() -
         """))
         conn.execute(text("INSERT INTO publicationxml (id, nature) VALUES (1, 'p')"))
         conn.execute(text("INSERT INTO prazos_log (id, pzphase) VALUES (1, 'X')"))
+        conn.execute(text("INSERT INTO prazos_log (id, pzphase) VALUES (2, 'Y')"))
         conn.commit()
 
     def _estimativa_falsa(engine_, tabela):
@@ -1197,6 +1308,7 @@ def test_descobrir_pendencias_schema_falha_ao_estimar_linhas_nao_interrompe() ->
             )
         """))
         conn.execute(text("INSERT INTO prazos_log (id, pzphase) VALUES (1, 'X')"))
+        conn.execute(text("INSERT INTO prazos_log (id, pzphase) VALUES (2, 'Y')"))
         conn.commit()
 
     def _falha_estimativa(engine_, tabela):
