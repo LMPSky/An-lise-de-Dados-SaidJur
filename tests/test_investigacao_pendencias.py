@@ -1229,6 +1229,39 @@ def test_descobrir_pendencias_schema_exclui_chave_primaria_propria() -> None:
     assert excluidas["paymenttype.paymenttype_id"] == "coluna_e_chave_primaria_propria"
 
 
+def test_descobrir_pendencias_schema_exclui_coluna_confirmada_nao_traduzivel() -> None:
+    """Coluna já confirmada pelo usuário como "não traduzir" nunca reaparece.
+
+    Bug reproduzido em produção: `accountspaylimits.paymentlimit` (teto
+    financeiro configurado, não código), `projectactivityprazos.nature_id`
+    e `users.status_changed_userid` (FKs opacas) foram confirmadas pelo
+    usuário como "não traduzir", mas a descoberta via schema reescaneia o
+    banco a cada rodada e as mesmas colunas reaparecem para sempre em
+    `sem_pista_encontrada`, sem memória da decisão anterior.
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE accountspaylimits (
+                id INTEGER PRIMARY KEY,
+                paymentlimit VARCHAR(10)
+            )
+        """))
+        conn.execute(text(
+            "INSERT INTO accountspaylimits (id, paymentlimit) VALUES "
+            "(1, '200'), (2, 'todos')"
+        ))
+        conn.commit()
+
+    pendencias, resumo = descobrir_pendencias_schema(engine, {})
+
+    tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
+    assert ("accountspaylimits", "paymentlimit") not in tabelas_colunas
+
+    excluidas = {item["tabela_coluna"]: item["motivo"] for item in resumo["colunas_excluidas"]}
+    assert excluidas["accountspaylimits.paymentlimit"] == "confirmado_pelo_usuario_como_nao_traduzivel"
+
+
 def test_descobrir_pendencias_schema_falha_isolada_nao_interrompe_demais_colunas() -> None:
     """Uma falha (timeout/erro SQL) ao consultar uma coluna não deve derrubar o lote."""
     import src.investigacao_pendencias as mod
