@@ -442,6 +442,7 @@ paymenttype:
   name:
     Boleto: Bol
     Cheque: chq
+    DDA: dda
     Débito automático: deb
     Depósito em conta: dep
     Dinheiro: din
@@ -622,9 +623,12 @@ pedidos2lawsuit:
     '2': 2ª Instância
     '3': Instância Superior (STJ/STF)
   instance01:
+    '1': 1ª Instância
+    '2': 2ª Instância
     '3': 3ª Instância / Tribunais Superiores (STJ/TST)
     '4': Supremo Tribunal Federal (STF)
     '5': Instância Administrativa / Órgãos Públicos
+    '6': Extrajudicial
     '7': Turma Recursal (Recursos dos Juizados)
     '8': Arbitragem / Câmaras Arbitrais
   instance02:

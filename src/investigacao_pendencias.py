@@ -341,6 +341,25 @@ _TABELAS_CATALOGO_AUTORREFERENTE: frozenset[str] = frozenset(
     }
 )
 
+# Colunas específicas (``tabela.coluna``) que o usuário já confirmou, com
+# conhecimento de domínio, que NUNCA devem ser tratadas como código/ENUM a
+# traduzir — tipicamente FK opacas (``nature_id``, ``status_changed_userid``)
+# ou valores de configuração/negócio reais, não categorias (``paymentlimit``,
+# que guarda tetos financeiros configurados, ex: "200" ou "todos").
+#
+# Diferente das exclusões por tipo/nome acima (que são heurísticas gerais),
+# esta é uma lista de decisões pontuais e definitivas por coluna — sem ela,
+# `descobrir_pendencias_schema` reescaneia o schema do banco a cada rodada e
+# a mesma coluna reaparece para sempre em `sem_pista_encontrada`, mesmo após
+# o usuário já ter confirmado explicitamente que ela não deve ser traduzida.
+_COLUNAS_CONFIRMADAS_NAO_TRADUZIVEIS: frozenset[str] = frozenset(
+    {
+        "accountspaylimits.paymentlimit",
+        "projectactivityprazos.nature_id",
+        "users.status_changed_userid",
+    }
+)
+
 # Nomes de colunas de observação/texto-livre usadas como contexto complementar.
 # Quando a coluna investigada não obtém tradução de alta confiança, a ferramenta
 # agrega os valores dessas colunas correlacionadas para ajudar o usuário a inferir
@@ -1065,6 +1084,15 @@ def descobrir_pendencias_schema(
                             "motivo": "coluna_e_chave_primaria_propria",
                         }
                     )
+                continue
+
+            if f"{tabela}.{coluna.nome}" in _COLUNAS_CONFIRMADAS_NAO_TRADUZIVEIS:
+                colunas_excluidas.append(
+                    {
+                        "tabela_coluna": f"{tabela}.{coluna.nome}",
+                        "motivo": "confirmado_pelo_usuario_como_nao_traduzivel",
+                    }
+                )
                 continue
 
             if modo_completo:
