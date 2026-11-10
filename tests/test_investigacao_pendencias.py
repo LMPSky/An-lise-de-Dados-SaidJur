@@ -1164,6 +1164,36 @@ def test_descobrir_pendencias_schema_exclui_coluna_constante_com_valor_unico() -
     assert excluidas["companytype.name"] == "coluna_constante_valor_unico"
 
 
+def test_descobrir_pendencias_schema_pula_tabela_catalogo_autorreferente() -> None:
+    """Tabela de catálogo autorreferente (ex: hearingtype) é pulada por completo.
+
+    Confirmado em produção: `hearingtype.hearingtype_id=11` + `.name='Instrução'`
+    é literalmente a linha que já resolve `hearingcontrol.hearingtype='11'` via
+    `tabela_referencia` — não é uma pendência de tradução, é a própria fonte
+    de tradução usada por outra tabela.
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE hearingtype (
+                hearingtype_id INTEGER PRIMARY KEY,
+                name VARCHAR(50)
+            )
+        """))
+        conn.execute(text(
+            "INSERT INTO hearingtype (hearingtype_id, name) VALUES (11, 'Instrução'), (12, 'Audiência')"
+        ))
+        conn.commit()
+
+    pendencias, resumo = descobrir_pendencias_schema(engine, {})
+
+    tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
+    assert not any(t == "hearingtype" for t, _ in tabelas_colunas)
+
+    excluidas = {item["tabela_coluna"]: item["motivo"] for item in resumo["colunas_excluidas"]}
+    assert excluidas["hearingtype.*"] == "tabela_catalogo_autorreferente"
+
+
 def test_descobrir_pendencias_schema_falha_isolada_nao_interrompe_demais_colunas() -> None:
     """Uma falha (timeout/erro SQL) ao consultar uma coluna não deve derrubar o lote."""
     import src.investigacao_pendencias as mod
