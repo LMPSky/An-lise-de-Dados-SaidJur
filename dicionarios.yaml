@@ -431,6 +431,12 @@ paymenttype:
     deb: Débito automático
     dep: Depósito em conta
     din: Dinheiro
+  name:
+    Boleto: Bol
+    Cheque: chq
+    Débito automático: deb
+    Depósito em conta: dep
+    Dinheiro: din
 persons:
   persontype:
     n: Pessoa Física
@@ -1343,6 +1349,8 @@ permissions:
 country:
   sigla:
     BR: Brasil
+  nome:
+    Brasil: BR
 tax:
   rate:
     '0.65': PIS
