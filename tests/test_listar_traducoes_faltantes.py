@@ -31,7 +31,8 @@ def _engine_com_tabela_simples() -> object:
                 """
                 INSERT INTO paymenttype (id, code, name) VALUES
                 (1, 'Bol', 'Boleto'),
-                (2, 'Bol', 'Boleto')
+                (2, 'Bol', 'Boleto'),
+                (3, 'Pix', 'Pix')
                 """
             )
         )

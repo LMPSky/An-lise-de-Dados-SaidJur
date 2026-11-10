@@ -897,6 +897,15 @@ def descobrir_pendencias_schema(
     código/ENUM. Como os valores já foram buscados para montar as pendências,
     essa checagem não custa nenhuma consulta extra ao banco.
 
+    Colunas com 0 ou 1 valor distinto observado em uma varredura exaustiva
+    (não amostrada) da tabela inteira (motivo ``coluna_constante_valor_unico``)
+    também são descartadas: uma coluna sem nenhuma variação de valor (sempre
+    ``'0'``, por exemplo) não tem nada a decodificar — não há um segundo
+    estado para contrastar com o primeiro. Essa exclusão não se aplica a
+    tabelas colossais amostradas (``limite_subselecao`` definido): um único
+    valor na janela amostrada não confirma que a coluna seja de fato
+    constante em toda a tabela.
+
     Quando ``modo_completo=True`` (varredura exaustiva do banco inteiro,
     pensada para rodar sem supervisão durante a noite — ver ``--completo``
     em ``investigar_pendencias.py``), a elegibilidade de coluna é ampliada
@@ -974,6 +983,29 @@ def descobrir_pendencias_schema(
                 print(
                     f"⚠️  Descoberta via schema: falha ao consultar {tabela}.{coluna.nome}, "
                     f"pulando esta coluna: {exc}"
+                )
+                continue
+
+            # Coluna constante (0 ou 1 valor distinto em TODA a tabela): sem
+            # nenhuma variação, não há nada a decodificar — não existe um
+            # segundo estado para contrastar com o primeiro, então
+            # "traduzir" o único valor não tem utilidade alguma. Confirmado
+            # em produção: 29 das 30 tabelas com colunas assim em um
+            # relatório real (ex: ``hearings_log.canceled``,
+            # ``prazos_log.hearing``, ``companytype.companytype_id``,
+            # ``usertasks.language``).
+            #
+            # Só aplicamos essa exclusão quando a consulta de valores
+            # distintos foi exaustiva (``limite_subselecao is None``), isto
+            # é, varreu a tabela inteira de fato — mesmo cuidado de
+            # ``test_descobrir_pendencias_schema_nao_exclui_coluna_com_unico_valor_0_ou_1``.
+            # Em tabela colossal amostrada (ex: ``publicationxml``), um único
+            # valor observado pode ser apenas o primeiro estado de um domínio
+            # maior ainda não amostrado dentro da janela limitada — não
+            # confirma que a coluna seja de fato constante na tabela inteira.
+            if limite_subselecao is None and len(valores) <= 1:
+                colunas_excluidas.append(
+                    {"tabela_coluna": f"{tabela}.{coluna.nome}", "motivo": "coluna_constante_valor_unico"}
                 )
                 continue
 
