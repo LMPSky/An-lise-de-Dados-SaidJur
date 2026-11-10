@@ -398,6 +398,12 @@ paymenttype:
     deb: Débito automático
     dep: Depósito em conta
     din: Dinheiro
+  name:
+    Boleto: Bol
+    Cheque: chq
+    Débito automático: deb
+    Depósito em conta: dep
+    Dinheiro: din
 persons:
   persontype:
     n: Pessoa Física
@@ -775,8 +781,8 @@ automaticprazos_jurify:
   created_at_userid:
     '21': Naiara
   all_prazos:
-    '0': 'Não'
-    '1': 'Sim'
+    '0': Não
+    '1': Sim
 automaticprazos_jurify_clients:
   client_id:
     '6625': COMPANHIA BRASILEIRA DE DISTRIBUIÇÃO
@@ -1007,8 +1013,8 @@ instancia:
     '3': 3ª instância
     '4': Extraordinária
   turma_4:
-    '0': 'Não'
-    '1': 'Sim'
+    '0': Não
+    '1': Sim
 lawsuitnature2extralawsuitfields:
   person_id:
     '1046': VIA VAREJO S/A
@@ -1281,6 +1287,8 @@ permissions:
 country:
   sigla:
     BR: Brasil
+  nome:
+    Brasil: BR
 tax:
   rate:
     '0.65': PIS
