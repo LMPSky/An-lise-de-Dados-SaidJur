@@ -27,6 +27,7 @@ from src.investigacao_pendencias import (
     _converter_valor_para_param,
     _coluna_tem_nome_semantico,
     _coluna_elegivel_para_descoberta_completa,
+    _filtrar_pendencias_ja_traduzidas,
     _pista_e_booleana,
     _pista_parece_dado_especifico,
     _pista_parece_texto_livre,
@@ -2822,6 +2823,85 @@ def test_executar_investigacao_colunas_diretas_ignora_descoberta_via_schema(tmp_
     assert len(relatorio["investigacoes"]) == 1
     assert relatorio["investigacoes"][0]["tabela"] == "paymenttype"
     assert "descoberta_schema" not in relatorio
+
+
+def test_filtrar_pendencias_ja_traduzidas_remove_valor_com_entrada_no_dicionario() -> None:
+    pendencias = [
+        PendenciaEnum("hearingcontrol", "hearingstatus", "0", "pendencia_documentada"),
+        PendenciaEnum("hearingcontrol", "hearingstatus", "1", "pendencia_documentada"),
+        PendenciaEnum("hearingcontrol", "needwitness", "0", "pendencia_documentada"),
+    ]
+    dicionarios = {
+        "hearingcontrol": {
+            "hearingstatus": {"0": "Agendada", "1": "Realizada"},
+        }
+    }
+
+    resultado = _filtrar_pendencias_ja_traduzidas(pendencias, dicionarios)
+
+    assert resultado == [PendenciaEnum("hearingcontrol", "needwitness", "0", "pendencia_documentada")]
+
+
+def test_filtrar_pendencias_ja_traduzidas_preserva_sentinela_asterisco() -> None:
+    """``*`` ainda não foi expandido para um valor real — nunca deve ser filtrado."""
+    pendencias = [PendenciaEnum("tarefas", "status", "*", "pendencia_documentada")]
+    dicionarios = {"tarefas": {"status": {"novo": "Novo"}}}
+
+    assert _filtrar_pendencias_ja_traduzidas(pendencias, dicionarios) == pendencias
+
+
+def test_executar_investigacao_nao_reporta_pendencia_documentada_ja_traduzida(tmp_path: Path) -> None:
+    """Bug reproduzido em produção: ``hearingcontrol.hearingstatus`` e
+    ``lawsuitdocsmetadata.prazophase`` já tinham tradução completa em
+    ``dicionarios.yaml``, mas continuavam aparecendo como
+    ``sem_pista_encontrada`` em todo relatório ``--lote`` porque o backlog
+    estático em ``PENDENCIAS_TRADUCAO_HUMANA.md`` nunca é atualizado quando
+    uma tradução é aplicada, e a fonte ``pendencia_documentada`` (ao
+    contrário de ``descobrir_pendencias_schema``) não consultava o
+    dicionário antes de gerar a pendência.
+    """
+    import src.investigacao_pendencias as mod
+
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE hearingcontrol (
+                id INTEGER PRIMARY KEY,
+                hearingstatus TEXT
+            )
+        """))
+        conn.execute(text("""
+            INSERT INTO hearingcontrol (id, hearingstatus) VALUES (1, '0'), (2, '1')
+        """))
+        conn.commit()
+
+    caminho_markdown = tmp_path / "PENDENCIAS.md"
+    caminho_markdown.write_text(
+        "## Valores de ENUM/código pendentes\n"
+        "| Tabela | Coluna | Valores pendentes |\n"
+        "|--------|--------|-------------------|\n"
+        "| `hearingcontrol` | `hearingstatus` | `{0, 1}` |\n",
+        encoding="utf-8",
+    )
+
+    caminho_dicionarios = tmp_path / "dicionarios.yaml"
+    caminho_dicionarios.write_text(
+        yaml.safe_dump(
+            {"hearingcontrol": {"hearingstatus": {"0": "Agendada", "1": "Realizada"}}},
+            allow_unicode=True,
+        ),
+        encoding="utf-8",
+    )
+
+    caminho_saida = tmp_path / "relatorio.yaml"
+    with patch.object(mod, "criar_engine", return_value=engine):
+        relatorio = executar_investigacao(
+            caminho_saida=caminho_saida,
+            caminho_dicionarios=caminho_dicionarios,
+            caminho_pendencias_markdown=caminho_markdown,
+        )
+
+    assert relatorio["investigacoes"] == []
 
 
 def test_executar_investigacao_relatorio_cardinalidade_investiga_valores_ja_resolvidos(tmp_path: Path) -> None:
