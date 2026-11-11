@@ -1334,7 +1334,19 @@ acordo_nucleus:
   non_agreement_reason:
     '1': Divergência de Valores / Proposta Recusada
     '2': Ausência ou Inércia da Outra Parte
+    '3': Desinteresse do Autor em Acordo (Recusa Sumária)
+    '4': Desinteresse do Réu/Cliente (Estratégia de Defesa)
+    '5': Tese Jurídica Fixada / Matéria de Direito (Vedação a Acordo)
     '6': Política de Alçada / Sem Autorização da Empresa
+    '7': Recusa de Homologação pelo Juízo
+    '8': Litisconsórcio / Divergência com Corréus
+    '9': Falta de Documentação / Irregularidade de Representação
+    '10': Suspeita de Fraude / Lide Simulada
+    '11': Obrigação de Fazer Impossível ou Inviável
+    '12': Aguardando Produção de Provas (Perícia/Testemunhas)
+    '13': Dependência de Aprovação de Seguradora ou Terceiro
+    '14': Processo Suspenso / Sobrestamento (Tema Repetitivo)
+    '15': Outros Motivos
 correspondent_requests_cancel_reasons:
   correspondent_request_id:
     '5': Indefinido
