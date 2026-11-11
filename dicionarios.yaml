@@ -618,6 +618,7 @@ accounts:
     Conta de receita: RECEITAS
     Conta sistema auxiliar: SISTEMA AUXILIAR
   level:
+    '0': Conta
     '1': Classe / Grupo
     '2': Subgrupo
     '3': Conta Sintética / Conta-Mãe
