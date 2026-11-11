@@ -647,9 +647,18 @@ expedients:
     '778': comprovar pagamento do débito exequendo
 lawsuitdocs:
   doctype:
+    '1': Peças Principais (Inicial / Contestação / Laudos)
+    '2': Ata de Audiência / Sentença (Fluxo Interno)
+    '3': Defesa Administrativa / Recursos
+    '4': Ata de Audiência / Sentença (Correspondente Externo)
+    '5': Outros Documentos Processuais
+    '6': Ata de Audiência / Sentença (Captura Automática / Robô)
+    '8': Petições Intermediárias e Manifestações
+    '9': Ata de Audiência / Sentença (Portal do Cliente / Geral)
     '10': TRCT
     '11': Aviso Prévio
     '12': Comprovante depósito FGTS
+    '13': Outros Documentos Diversos
     '14': Descrição de Cargos
     '15': Comprovante mudança de função
     '7': Outro

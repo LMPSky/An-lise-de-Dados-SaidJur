@@ -1,0 +1,69 @@
+# traducoes_nao_confirmadas.yaml
+#
+# Rastreia traducoes ja aplicadas ao dicionarios.yaml que NAO sao baseadas em
+# evidencia direta do banco (ex: FK real, valor unico e consistente em coluna
+# descritiva), e sim em inferencia/hipotese de dominio juridico ou de
+# arquitetura de sistemas legados. Servem como "melhor palpite atual" para
+# destravar a leitura das telas, mas devem ser revisadas/confirmadas quando
+# houver acesso a mais contexto (ex: consulta direta as tabelas de apoio
+# correspondent_document_types / otherdocs, ou confirmacao do time jurídico).
+#
+# Formato de cada entrada:
+#   tabela, coluna, codigo, traducao_aplicada, confianca, motivo, evidencia
+
+traducoes:
+  - tabela: lawsuitdocs
+    coluna: doctype
+    codigo: '2'
+    traducao_aplicada: Ata de Audiência / Sentença (Fluxo Interno)
+    confianca: baixa
+    motivo: >-
+      Hipótese não documentada: os códigos 2, 4, 6 e 9 mostraram exatamente os
+      mesmos documentos de exemplo (Ata da audiência inicial, Ata da audiência
+      de instrução e julgamento, Sentença), sem nenhuma coluna de canal/origem
+      observada nos dados. O qualificador de canal (fluxo interno) foi
+      atribuído por hipótese de arquitetura típica de sistemas jurídicos
+      legados, não por evidência direta.
+    evidencia: >-
+      Linhas de exemplo com name em {Ata da audiência inicial, Ata da
+      audiência de instrução e julgamento, Sentença}, phase=1, alvara=0,
+      contains_add=0, processtype=j — idêntico aos códigos 4, 6 e 9.
+  - tabela: lawsuitdocs
+    coluna: doctype
+    codigo: '4'
+    traducao_aplicada: Ata de Audiência / Sentença (Correspondente Externo)
+    confianca: baixa
+    motivo: >-
+      Mesma situação do código 2: evidência de dados idêntica à dos códigos 2,
+      6 e 9. Qualificador de canal (correspondente externo) é hipótese, não
+      confirmação.
+    evidencia: >-
+      Linhas de exemplo com name em {Ata da audiência inicial, Ata da
+      audiência de instrução e julgamento, Sentença}, phase=1, alvara=0,
+      contains_add=0, processtype=j — idêntico aos códigos 2, 6 e 9.
+  - tabela: lawsuitdocs
+    coluna: doctype
+    codigo: '6'
+    traducao_aplicada: Ata de Audiência / Sentença (Captura Automática / Robô)
+    confianca: baixa
+    motivo: >-
+      Mesma situação do código 2: evidência de dados idêntica à dos códigos 2,
+      4 e 9. Qualificador de canal (captura automática/robô) é hipótese, não
+      confirmação.
+    evidencia: >-
+      Linhas de exemplo com name em {Ata da audiência inicial, Ata da
+      audiência de instrução e julgamento, Sentença}, phase=1, alvara=0,
+      contains_add=0, processtype=j — idêntico aos códigos 2, 4 e 9.
+  - tabela: lawsuitdocs
+    coluna: doctype
+    codigo: '9'
+    traducao_aplicada: Ata de Audiência / Sentença (Portal do Cliente / Geral)
+    confianca: baixa
+    motivo: >-
+      Mesma situação do código 2: evidência de dados idêntica à dos códigos 2,
+      4 e 6. Qualificador de canal (portal do cliente) é hipótese, não
+      confirmação.
+    evidencia: >-
+      Linhas de exemplo com name em {Ata da audiência inicial, Ata da
+      audiência de instrução e julgamento, Sentença}, phase=1, alvara=0,
+      contains_add=0, processtype=j — idêntico aos códigos 2, 4 e 6.
