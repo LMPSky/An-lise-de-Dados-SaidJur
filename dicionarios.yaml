@@ -445,7 +445,12 @@ paymentguarantee2lawsuit:
     '0': Não
     '1': Sim
   levantamento:
+    '2': Petição / Pedido de Levantamento Protocolado
     '3': Alvará expedido
+    '4': Alvará / Guia Encaminhado ao Banco / Em Processamento
+    '5': Valor Levantado / Creditado em Conta
+    '6': Repasse / Prestação de Contas Efetuada ao Cliente
+    '7': Levantamento Indeferido / Inadmitido
   payment_type:
     '1': Acordo
     '12': Seguro Garantia
@@ -1402,6 +1407,7 @@ sentence2lawsuit:
     '24': Provido
     '16': Laudo positivo
     '30': A revisar
+    '31': Liquidado / Comprovado (Cálculos Homologados)
   sentence_amount_risk:
     '1': Remoto
     '2': Possível
