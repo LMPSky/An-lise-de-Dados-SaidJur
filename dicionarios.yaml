@@ -231,6 +231,7 @@ lawsuits_additional_info:
     '2': Bacenjud
   supplier_flow:
     n: Não
+    y: Sim
 lawsuitdocsmetadata:
   prazophase:
     '1': Em Elaboração (Pendente)
@@ -244,6 +245,7 @@ lawsuitdocsmetadata:
     '2': Protocolado com Sucesso / Confirmado
   protocol_location:
     '1': Eletrônico (digital)
+    '2': Físico
 lawsuits:
   status:
     '0': Inativo
@@ -329,6 +331,7 @@ lawsuits:
     '21': Exclusão da lide
     '25': Pendente de julgamento
     '29': Arquivado
+    '30': A revisar
     '24': Provido
     '9': Não houve condenação
   result_instance:
@@ -344,6 +347,9 @@ lawsuits:
     p: Autor
   contract_type:
     co: Contrato de Êxito
+    es: Escopo / Partido Mensal
+    ctrl: Controladoria / Administrativo
+    es2: Escopo Especial / 2
 lawsuits_log:
   status:
     '0': Inativo
@@ -398,6 +404,9 @@ lawsuits_log:
     p: Autor
   contract_type:
     co: Contrato de Êxito
+    es: Escopo / Partido Mensal
+    ctrl: Controladoria / Administrativo
+    es2: Escopo Especial / 2
   lawsuit_phase:
     '33': Agravo de Petição
     '37': GRU
@@ -611,6 +620,10 @@ accounts:
     '5': Item / Conta Corrente / Centro
 clientsystem2lawsuit:
   status:
+    '1': Pendente / Na Fila
+    '2': Processando
+    '3': Sucesso / Sincronizado
+    '4': Erro de Negócio / Rejeitado
     '5': Erro técnico (falha de comunicação)
 emails:
   flow:
@@ -651,12 +664,18 @@ pedidos2lawsuit:
     '7': Turma Recursal (Recursos dos Juizados)
     '8': Arbitragem / Câmaras Arbitrais
   instance02:
+    '1': 1ª Instância
     '3': 3ª Instância / Tribunais Superiores (STJ/TST)
+    '4': Supremo Tribunal Federal (STF)
+    '5': Instância Administrativa / Órgãos Públicos
     '6': Juizados Especiais (JEC/JEF/JECRIM)
+    '7': Turma Recursal (Recursos dos Juizados)
     '8': Arbitragem / Câmaras Arbitrais
 person2lawsuit:
   link_type:
     u: SEM JUSTA CAUSA
+    s: Pedido de Demissão
+    t: Término de Contrato
   third_party_id:
     '29382': VIASUPER DISTRIBUIDORA DE PERIODICOS LTDA - ME
   sector:
@@ -689,6 +708,10 @@ prazo2publication:
     '': Não classificado
   finishtype:
     p: processo físico
+    pje: Processo Eletrônico (PJe)
+    adm: Administrativo
+    f: Fechamento Interno / Finalizado
+    n: Não Protocolado
   hearingtype:
     '13': Audiência de Conciliação
     '14': AIJ - Audiência de Instrução e Julgamento
@@ -719,10 +742,17 @@ prazos_log:
     '': Não classificado
   finishtype:
     p: processo físico
+    pje: Processo Eletrônico (PJe)
+    f: Fechamento Interno / Finalizado
+    n: Não Protocolado
 projects:
   coordinator_id:
     '779': NAIARA MARQUES
     '27701': GESSICA BERNARDO
+  type:
+    con: Contencioso
+    com: Consultivo
+    '': Não definido
 tasks2publication:
   status:
     '0': Pendente / Não Vinculada
@@ -950,6 +980,7 @@ claims_pericias_control:
     n: Negativa / Improcedente / Favorável à Empresa
     p: Positiva / Procedente / Desfavorável à Empresa
     pe: Parcial / Concorrência de Culpa
+    d: Desnecessária / Desistência
 client_publication_search_terms:
   client_id:
     '1074': LIGHT SERVIÇOS DE ELETRICIDADE S.A.
@@ -1297,6 +1328,7 @@ acordo_nucleus:
     y: Sim
   agreement_in_hearing:
     '1': Sim, feito em Audiência
+    '2': Não
     '3': Feito em Mutirão de Conciliação
     '4': Feito em Câmara de Mediação / Arbitragem
   non_agreement_reason:
