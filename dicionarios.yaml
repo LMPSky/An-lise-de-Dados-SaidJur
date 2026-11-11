@@ -248,6 +248,25 @@ lawsuits:
   status:
     '0': Inativo
     '1': Ativo
+  type:
+    j: Judicial
+  close_reason_id:
+    '1': Arquivada no Procon/Reclamação Atendida
+    '2': Pagamentos efetuados pelo co-réu
+    '3': Desistência da parte autora/Ausência em audiência
+    '4': Acordo efetuado pela corréu
+    '5': Apresentada Resposta
+    '6': Cumprimento da Condenação
+    '7': Sentenças de Improcedência/Ilegitimidade
+    '8': Processo sem julgamento do mérito
+    '9': Ilegitimidade do cliente
+    '10': Improcedente
+    '11': Pagamentos efetuados pelo cliente
+    '12': Substituição de Patrocínio Legal
+    '13': Retirada do processo pelo autor
+    '14': Acordo efetuado pelo cliente
+    '15': Trânsito em Julgado
+    '16': Alteração de Sistema
   finalpayment_type:
     '1': Boleto / Guia
     '2': Depósito Judicial
