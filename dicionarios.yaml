@@ -445,7 +445,12 @@ paymentguarantee2lawsuit:
     '0': Não
     '1': Sim
   levantamento:
+    '2': Petição / Pedido de Levantamento Protocolado
     '3': Alvará expedido
+    '4': Alvará / Guia Encaminhado ao Banco / Em Processamento
+    '5': Valor Levantado / Creditado em Conta
+    '6': Repasse / Prestação de Contas Efetuada ao Cliente
+    '7': Levantamento Indeferido / Inadmitido
   payment_type:
     '1': Acordo
     '12': Seguro Garantia
@@ -1334,7 +1339,19 @@ acordo_nucleus:
   non_agreement_reason:
     '1': Divergência de Valores / Proposta Recusada
     '2': Ausência ou Inércia da Outra Parte
+    '3': Desinteresse do Autor em Acordo (Recusa Sumária)
+    '4': Desinteresse do Réu/Cliente (Estratégia de Defesa)
+    '5': Tese Jurídica Fixada / Matéria de Direito (Vedação a Acordo)
     '6': Política de Alçada / Sem Autorização da Empresa
+    '7': Recusa de Homologação pelo Juízo
+    '8': Litisconsórcio / Divergência com Corréus
+    '9': Falta de Documentação / Irregularidade de Representação
+    '10': Suspeita de Fraude / Lide Simulada
+    '11': Obrigação de Fazer Impossível ou Inviável
+    '12': Aguardando Produção de Provas (Perícia/Testemunhas)
+    '13': Dependência de Aprovação de Seguradora ou Terceiro
+    '14': Processo Suspenso / Sobrestamento (Tema Repetitivo)
+    '15': Outros Motivos
 correspondent_requests_cancel_reasons:
   correspondent_request_id:
     '5': Indefinido
@@ -1390,6 +1407,7 @@ sentence2lawsuit:
     '24': Provido
     '16': Laudo positivo
     '30': A revisar
+    '31': Liquidado / Comprovado (Cálculos Homologados)
   sentence_amount_risk:
     '1': Remoto
     '2': Possível
