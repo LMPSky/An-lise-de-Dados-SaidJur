@@ -35,6 +35,8 @@ from src.investigacao_pendencias import (
     _coletar_contexto_coluna_obs,
     _propagar_entre_tabelas_irmas,
     _buscar_em_tabela_referencia,
+    _coluna_elegivel_para_descoberta_schema,
+    _tipo_numerico_pequeno,
     ColunaTabela,
 )
 
@@ -2008,6 +2010,87 @@ def test_descobrir_pendencias_schema_modo_completo_encontra_codigo_em_coluna_tex
     assert valores_encontrados == {"2", "9"}
     assert resumo_completo["colunas_excluidas"] == []
 
+
+def test_tipo_numerico_pequeno_cobre_tinyint_smallint_bit_boolean() -> None:
+    """TINYINT/SMALLINT/BIT/BOOLEAN têm cardinalidade limitada pelo próprio tipo."""
+    assert _tipo_numerico_pequeno("tinyint(1)") is True
+    assert _tipo_numerico_pequeno("smallint") is True
+    assert _tipo_numerico_pequeno("bit") is True
+    assert _tipo_numerico_pequeno("boolean") is True
+    assert _tipo_numerico_pequeno("int") is False
+    assert _tipo_numerico_pequeno("bigint") is False
+
+
+def test_coluna_elegivel_para_descoberta_schema_inclui_numerico_pequeno_sem_nome_de_codigo() -> None:
+    """Coluna TINYINT/SMALLINT/BOOLEAN é elegível mesmo com nome "comum".
+
+    Caso real: `lawsuits.pje`/`lawsuits.attachments`/`lawsuits.relevant` (entre
+    outras) nunca eram investigadas automaticamente porque seu nome não batia
+    com nenhuma substring de `_COLUNAS_CODIGO` — mesmo sendo colunas de
+    cardinalidade estruturalmente pequena e baratas de consultar.
+    """
+    assert _coluna_elegivel_para_descoberta_schema(ColunaTabela("pje", "tinyint(1)", 0)) is True
+    assert _coluna_elegivel_para_descoberta_schema(ColunaTabela("relevant", "smallint", 0)) is True
+    assert _coluna_elegivel_para_descoberta_schema(ColunaTabela("ativo", "boolean", 0)) is True
+    assert _coluna_elegivel_para_descoberta_schema(ColunaTabela("tribunal_manual", "int", 0)) is False
+
+
+def test_descobrir_pendencias_schema_investiga_coluna_numerica_pequena_sem_nome_de_codigo() -> None:
+    """Flag SMALLINT/BOOLEAN com nome comum é investigada sem precisar de `--completo`."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE lawsuits (
+                id INTEGER PRIMARY KEY,
+                pje SMALLINT,
+                ativo BOOLEAN
+            )
+        """))
+        conn.execute(text("INSERT INTO lawsuits (id, pje, ativo) VALUES (1, 1, 1), (2, 0, 0)"))
+        conn.commit()
+
+    pendencias, resumo = descobrir_pendencias_schema(engine, {})
+
+    tabelas_colunas = {(p.tabela, p.coluna) for p in pendencias}
+    # Valores observados são exatamente {'0', '1'}: tratado como flag booleana
+    # genérica (não como pendência de tradução de código individual).
+    assert ("lawsuits", "pje") not in tabelas_colunas
+    assert ("lawsuits", "ativo") not in tabelas_colunas
+    excluidas = {item["tabela_coluna"]: item["motivo"] for item in resumo["colunas_excluidas"]}
+    assert excluidas["lawsuits.pje"] == "flag_booleana_0_1"
+    assert excluidas["lawsuits.ativo"] == "flag_booleana_0_1"
+
+
+def test_descobrir_pendencias_schema_rastreia_coluna_fora_da_heuristica_padrao() -> None:
+    """Colunas numéricas "grandes" com nome fora da heurística padrão não são mais
+    descartadas sem rastro: aparecem em `colunas_excluidas` com motivo próprio,
+    sinalizando que o modo `--completo` pode ser necessário para investigá-las.
+    """
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE processos (
+                id INTEGER PRIMARY KEY,
+                tribunal_manual INT
+            )
+        """))
+        conn.execute(text("INSERT INTO processos (id, tribunal_manual) VALUES (1, 133), (2, 45)"))
+        conn.commit()
+
+    pendencias, resumo = descobrir_pendencias_schema(engine, {})
+
+    assert not any(p.tabela == "processos" and p.coluna == "tribunal_manual" for p in pendencias)
+    excluidas = {item["tabela_coluna"]: item["motivo"] for item in resumo["colunas_excluidas"]}
+    assert excluidas["processos.tribunal_manual"] == "fora_da_heuristica_padrao_considerar_modo_completo"
+
+    # Em modo completo, a mesma coluna é efetivamente investigada.
+    pendencias_completo, resumo_completo = descobrir_pendencias_schema(engine, {}, modo_completo=True)
+    assert any(
+        p.tabela == "processos" and p.coluna == "tribunal_manual" for p in pendencias_completo
+    )
+    assert "processos.tribunal_manual" not in {
+        item["tabela_coluna"] for item in resumo_completo["colunas_excluidas"]
+    }
 
 
 def test_investigar_pendencias_avisa_quando_pista_esta_so_em_outro_idioma() -> None:

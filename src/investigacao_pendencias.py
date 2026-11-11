@@ -185,6 +185,24 @@ _TIPOS_EXCLUIDOS_DESCOBERTA_SCHEMA: tuple[str, ...] = (
     "json",
 )
 
+# Tipos numéricos estruturalmente pequenos: o próprio tipo SQL já limita a
+# cardinalidade possível (TINYINT ≤ 256 valores, SMALLINT ≤ 65.536, BIT/
+# BOOLEAN = 2), então uma consulta DISTINCT nessas colunas é sempre barata e
+# segura — mesmo em tabelas colossais — independente do nome da coluna.
+# Sem esta exceção, qualquer flag/enum numérico com nome "comum" (ex:
+# `pje`, `attachments`, `relevant`, `migrated`, `deleted`, `mastercard`) era
+# descartado silenciosamente pela descoberta via schema por não casar com
+# nenhuma substring de `_COLUNAS_CODIGO` — caso real descoberto na tela de
+# detalhe do processo (13 colunas de `lawsuits` nunca investigadas
+# automaticamente, ver PR de rastreamento de cobertura de colunas).
+_TIPOS_NUMERICOS_PEQUENOS_SEMPRE_ELEGIVEIS: tuple[str, ...] = (
+    "tinyint",
+    "smallint",
+    "bit",
+    "boolean",
+    "bool",
+)
+
 # Tamanho máximo (em caracteres) de VARCHAR/CHAR ainda considerado candidato a
 # código/ENUM curto. Colunas VARCHAR/CHAR maiores que isso costumam guardar
 # texto livre (ex: nomes de arquivo, resumos) e são excluídas da descoberta.
@@ -820,13 +838,24 @@ def _coluna_parece_codigo(coluna: ColunaTabela) -> bool:
     return _tipo_textual(coluna.tipo) or any(chave in nome for chave in _COLUNAS_CODIGO)
 
 
+def _tipo_numerico_pequeno(tipo: str) -> bool:
+    """Indica se o tipo numérico declarado tem cardinalidade estruturalmente
+    pequena (ver :data:`_TIPOS_NUMERICOS_PEQUENOS_SEMPRE_ELEGIVEIS`)."""
+    return any(chave in tipo for chave in _TIPOS_NUMERICOS_PEQUENOS_SEMPRE_ELEGIVEIS)
+
+
 def _coluna_elegivel_para_descoberta_schema(coluna: ColunaTabela) -> bool:
     """Indica se a coluna deve ao menos ser avaliada pela descoberta via schema.
 
     Mais abrangente que :func:`_coluna_parece_codigo`: também inclui colunas de
     tipo explicitamente excluído (``TEXT``/``BLOB``/``JSON``) para que elas
     apareçam no resumo de "excluídas" em vez de serem silenciosamente
-    descartadas sem rastro.
+    descartadas sem rastro, e colunas de tipo numérico estruturalmente
+    pequeno (``TINYINT``/``SMALLINT``/``BIT``/``BOOLEAN``) independente do
+    nome, já que seu próprio tipo garante baixa cardinalidade.
+
+    Quando esta função retorna ``False``, a coluna ainda assim é registrada em
+    ``colunas_excluidas`` pelo chamador (não é descartada sem rastro).
     """
     nome = coluna.nome.lower()
     tipo = coluna.tipo.lower()
@@ -834,6 +863,7 @@ def _coluna_elegivel_para_descoberta_schema(coluna: ColunaTabela) -> bool:
         _tipo_textual(tipo)
         or any(chave in tipo for chave in _TIPOS_EXCLUIDOS_DESCOBERTA_SCHEMA)
         or any(chave in nome for chave in _COLUNAS_CODIGO)
+        or _tipo_numerico_pequeno(tipo)
     )
 
 
@@ -1101,6 +1131,19 @@ def descobrir_pendencias_schema(
                     continue
             else:
                 if not _coluna_elegivel_para_descoberta_schema(coluna):
+                    # Diferente de uma simples omissão: registrada em
+                    # `colunas_excluidas` para que o "ponto cego" fique
+                    # visível no relatório (rastreamento de cobertura) em vez
+                    # de a coluna simplesmente desaparecer sem rastro — era
+                    # exatamente assim que as 13 colunas de `lawsuits`
+                    # passaram batido pela descoberta automática antes desta
+                    # correção.
+                    colunas_excluidas.append(
+                        {
+                            "tabela_coluna": f"{tabela}.{coluna.nome}",
+                            "motivo": "fora_da_heuristica_padrao_considerar_modo_completo",
+                        }
+                    )
                     continue
 
                 motivo_exclusao = _motivo_exclusao_descoberta_schema(coluna)
