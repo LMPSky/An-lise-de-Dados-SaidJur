@@ -1,4 +1,4 @@
-atualizado_em: '2026-09-29T14:46:28.781126+00:00'
+atualizado_em: '2026-11-11T10:28:13.090911+00:00'
 confirmadas:
   automaticprazos_jurify.all_prazos:
     tabela: automaticprazos_jurify
@@ -76,14 +76,46 @@ confirmadas:
     tabela: jqcalendar
     coluna: IsAllDayEvent
     confirmado_em: '2026-09-29T14:39:17.373288+00:00'
+  lawsuits.attachments:
+    tabela: lawsuits
+    coluna: attachments
+    confirmado_em: '2026-11-11T10:28:13.090883+00:00'
   lawsuits.code_red:
     tabela: lawsuits
     coluna: code_red
     confirmado_em: '2026-09-29T14:39:35.779677+00:00'
+  lawsuits.deleted:
+    tabela: lawsuits
+    coluna: deleted
+    confirmado_em: '2026-11-11T10:28:13.090901+00:00'
+  lawsuits.execucao_provisoria:
+    tabela: lawsuits
+    coluna: execucao_provisoria
+    confirmado_em: '2026-11-11T10:28:13.090893+00:00'
   lawsuits.issuer_defendant:
     tabela: lawsuits
     coluna: issuer_defendant
     confirmado_em: '2026-09-29T14:39:30.972273+00:00'
+  lawsuits.mastercard:
+    tabela: lawsuits
+    coluna: mastercard
+    confirmado_em: '2026-11-11T10:28:13.090904+00:00'
+  lawsuits.migrated:
+    tabela: lawsuits
+    coluna: migrated
+    confirmado_em: '2026-11-11T10:28:13.090897+00:00'
+  lawsuits.newjnumberformat:
+    tabela: lawsuits
+    coluna: newjnumberformat
+    confirmado_em: '2026-11-11T10:28:13.090908+00:00'
+  lawsuits.pje:
+    tabela: lawsuits
+    coluna: pje
+    confirmado_em: '2026-11-11T10:28:13.090865+00:00'
+  lawsuits.relevant:
+    tabela: lawsuits
+    coluna: relevant
+    confirmado_em: '2026-11-11T10:28:13.090889+00:00'
   lawsuits_additional_info.solidarity:
     tabela: lawsuits_additional_info
     coluna: solidarity

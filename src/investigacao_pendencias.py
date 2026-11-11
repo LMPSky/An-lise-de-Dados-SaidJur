@@ -357,6 +357,7 @@ _COLUNAS_CONFIRMADAS_NAO_TRADUZIVEIS: frozenset[str] = frozenset(
         "accountspaylimits.paymentlimit",
         "projectactivityprazos.nature_id",
         "users.status_changed_userid",
+        "lawsuits.tribunal_manual",
     }
 )
 
