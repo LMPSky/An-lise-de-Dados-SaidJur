@@ -1341,6 +1341,12 @@ acordo_nucleus:
     n: Não
     na: Não aplicável
     y: Sim
+  agreement_viable:
+    y: Sim
+    n: Não
+  markup_approved:
+    y: Sim
+    n: Não
   agreement_in_hearing:
     '1': Sim, feito em Audiência
     '2': Não
