@@ -16,6 +16,8 @@ from src.investigacao_colunas import (
     listar_colunas_schema,
     _motivo_nao_booleano,
     _pista_provavel_booleano,
+    _tipo_compativel_booleano,
+    _valores_enum_declarados,
 )
 
 
@@ -234,6 +236,40 @@ def test_motivo_nao_booleano_identifica_tipo_incompativel() -> None:
         conn.commit()
 
     assert _motivo_nao_booleano(engine, "teste", "descricao", "VARCHAR(255)") == "tipo_incompativel"
+
+
+def test_valores_enum_declarados_extrai_valores_literais() -> None:
+    assert _valores_enum_declarados("ENUM('0','1')") == {"0", "1"}
+    assert _valores_enum_declarados("ENUM('0', '1')") == {"0", "1"}
+    assert _valores_enum_declarados("ENUM('S','N')") == {"S", "N"}
+    assert _valores_enum_declarados("VARCHAR(50)") is None
+    assert _valores_enum_declarados("INTEGER") is None
+
+
+def test_tipo_compativel_booleano_aceita_enum_restrito_a_0_e_1() -> None:
+    assert _tipo_compativel_booleano("ENUM('0','1')") is True
+    assert _tipo_compativel_booleano("ENUM('1','0')") is True
+
+
+def test_tipo_compativel_booleano_rejeita_enum_fora_do_dominio_0_1() -> None:
+    assert _tipo_compativel_booleano("ENUM('S','N')") is False
+    assert _tipo_compativel_booleano("ENUM('0','1','2')") is False
+
+
+def test_motivo_nao_booleano_aceita_coluna_enum_0_1_como_booleana() -> None:
+    """Regressão: coluna real `clientsystem2lawsuit.morto` é ENUM('0','1') no
+    MySQL, mas o SQLAlchemy reflete isso como tipo "ENUM(...)" em vez de
+    tinyint/int — antes desta correção, isso era descartado como
+    `tipo_incompativel` mesmo com domínio literal restrito a 0/1."""
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE clientsystem2lawsuit (morto TEXT)"))
+        conn.execute(text("INSERT INTO clientsystem2lawsuit (morto) VALUES ('0'), ('1')"))
+        conn.commit()
+
+    motivo = _motivo_nao_booleano(engine, "clientsystem2lawsuit", "morto", "ENUM('0','1')")
+
+    assert motivo is None
 
 
 def test_motivo_nao_booleano_identifica_amostra_vazia() -> None:

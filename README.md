@@ -384,7 +384,10 @@ O script é somente leitura e gera `relatorio_investigacao_colunas.yaml` com:
   - `chave_primaria` / `chave_estrangeira` — excluída por ser PK/FK (declarada ou
     inferida por nome)
   - `auditoria_usuario` — nome de coluna de auditoria (`*_userid`, etc.)
-  - `tipo_incompativel` — tipo de dado não é tinyint(1)/boolean/inteiro
+  - `tipo_incompativel` — tipo de dado não é tinyint(1)/boolean/inteiro nem
+    `ENUM(...)`/`SET(...)` cujos valores literais sejam um subconjunto de
+    `{'0','1'}` (ex.: `ENUM('0','1')` é aceito como booleano; `ENUM('S','N')`
+    não é)
   - `erro_ao_consultar_amostra_de_valores` — falha ao consultar a amostra distinta
   - `amostra_vazia_ou_somente_nulos` — sem valores não nulos na amostra
   - `amostra_contem_valor_fora_de_0_1` — amostra tem valor fora do domínio `0`/`1`

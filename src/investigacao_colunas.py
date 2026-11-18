@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -320,6 +321,24 @@ def _classificar_tipo_dado(tipo: str) -> dict[str, str] | None:
     return {"fonte": "tipo_dado", "valor": valor, "confianca": "baixa"}
 
 
+def _valores_enum_declarados(tipo: str) -> set[str] | None:
+    """Extrai os valores literais de um tipo ENUM(...)/SET(...), normalizados.
+
+    Retorna `None` quando `tipo` não é um ENUM/SET reconhecível (ex.: tipos
+    reflentidos pelo SQLAlchemy como `ENUM('0','1')`). O MySQL expõe colunas
+    ENUM com domínio literal `'0'`/`'1'` como um booleano de fato, mas o
+    reflection do SQLAlchemy não as tipa como tinyint/int, então precisam de
+    checagem própria para não serem descartadas como `tipo_incompativel`.
+    """
+    match = re.match(r"(?is)^\s*(?:enum|set)\s*\((.*)\)\s*$", tipo)
+    if not match:
+        return None
+    valores = re.findall(r"'((?:[^'\\]|\\.)*)'", match.group(1))
+    if not valores:
+        return None
+    return {valor.strip() for valor in valores}
+
+
 def _tipo_compativel_booleano(tipo: str) -> bool:
     """Retorna True para tipos compatíveis com armazenamento booleano."""
     tipo_limpo = tipo.lower().strip()
@@ -327,7 +346,10 @@ def _tipo_compativel_booleano(tipo: str) -> bool:
         return False
     if "tinyint(1)" in tipo_limpo or tipo_limpo == "boolean" or "bool" in tipo_limpo:
         return True
-    return tipo_limpo.split("(", 1)[0].strip() in {"tinyint", "int", "integer", "smallint", "bigint"}
+    if tipo_limpo.split("(", 1)[0].strip() in {"tinyint", "int", "integer", "smallint", "bigint"}:
+        return True
+    valores_enum = _valores_enum_declarados(tipo)
+    return valores_enum is not None and bool(valores_enum) and valores_enum <= {"0", "1"}
 
 
 def _normalizar_valor_booleano(valor: Any) -> str | None:
