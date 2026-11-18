@@ -1347,6 +1347,11 @@ acordo_nucleus:
     n: Não
     na: Não aplicável
     y: Sim
+  markup_reason:
+    '1': Majoração por Risco de Instrução / Mérito e Encargos
+    '2': Outros / Não Especificado
+    '3': Majoração por Condenação / Cálculos Homologados
+    '4': Não Aplicável / Dentro da Alçada ou Inviável
   agreement_viable:
     y: Sim
     n: Não
