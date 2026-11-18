@@ -625,6 +625,12 @@ accounts:
     '4': Subconta / Conta Analítica
     '5': Item / Conta Corrente / Centro
 clientsystem2lawsuit:
+  phase:
+    '1': Conhecimento
+    '2': Recursal
+    '3': Execução
+    '4': Acordo
+    '5': TST
   status:
     '1': Pendente / Na Fila
     '2': Processando
@@ -1328,19 +1334,27 @@ varas_cartorios:
     '16': TRT06 (PE)
 acordo_nucleus:
   resp_evaluation:
-    '7': Outro
-    '1': Ata de audiência
-    '9': Substabelecimento
-    '3': Certidão ou comprovante de indisponibilidade
-    '8': Publicação
-    '4': Comprovante pagamento
-    '5': Indefinido
-    '6': Orientações para audiência
-    '2': Autorização
+    '1': Fabricante / Fornecedor (Presente no Polo - Vício/Garantia)
+    '2': Lojista / Marketplace (Presente no Polo - Atraso/Troca)
+    '3': Seguradora (Presente no Polo - Sinistro/Furto)
+    '4': Fabricante / Fornecedor (Ausente no Polo)
+    '5': Lojista / Marketplace (Ausente no Polo - Falha de Envio)
+    '6': Seguradora (Ausente no Polo)
+    '7': Responsabilidade Própria / Varejista
+    '8': Fabricante / Fornecedor (Presente no Polo - Responsabilidade Integral)
+    '9': Lojista / Marketplace (Responsabilidade Exclusiva)
+    '10': Lojista / Marketplace (Ausente no Polo - Falta de Estoque/Estorno)
+    '11': Lojista / Marketplace (Presente no Polo - Responsabilidade Integral)
+    '12': Seguradora (Responsabilidade Integral / Franquia)
   markup_necessary:
     n: Não
     na: Não aplicável
     y: Sim
+  markup_reason:
+    '1': Majoração por Risco de Instrução / Mérito e Encargos
+    '2': Outros / Não Especificado
+    '3': Majoração por Condenação / Cálculos Homologados
+    '4': Não Aplicável / Dentro da Alçada ou Inviável
   agreement_viable:
     y: Sim
     n: Não
