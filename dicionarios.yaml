@@ -625,6 +625,12 @@ accounts:
     '4': Subconta / Conta Analítica
     '5': Item / Conta Corrente / Centro
 clientsystem2lawsuit:
+  phase:
+    '1': Conhecimento
+    '2': Recursal
+    '3': Execução
+    '4': Acordo
+    '5': TST
   status:
     '1': Pendente / Na Fila
     '2': Processando
