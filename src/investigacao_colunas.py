@@ -531,6 +531,55 @@ def _pista_provavel_booleano(
     }
 
 
+def _motivo_nao_booleano(
+    engine: Engine,
+    tabela: str,
+    coluna: str,
+    tipo: str,
+    *,
+    colunas_rejeitadas: set[str] | None = None,
+) -> str | None:
+    """Diagnostica por que a coluna não foi classificada como provável booleano.
+
+    Espelha, em ordem, as mesmas checagens de `_pista_provavel_booleano`, mas
+    retorna um código textual explicando qual delas reprovou a coluna — usado
+    apenas para diagnóstico/depuração (ex.: investigação direcionada via
+    `--colunas`), sem alterar a classificação em si. Retorna `None` quando a
+    coluna de fato seria classificada como booleana (nenhum motivo de
+    reprovação encontrado).
+    """
+    motivo = _motivo_exclusao_booleano(
+        engine,
+        tabela,
+        coluna,
+        colunas_rejeitadas=colunas_rejeitadas,
+    )
+    if motivo:
+        return motivo
+
+    if not _tipo_compativel_booleano(tipo):
+        return "tipo_incompativel"
+
+    try:
+        distintos = _valores_distintos_coluna(engine, tabela, coluna)
+    except Exception:
+        return "erro_ao_consultar_amostra_de_valores"
+
+    if not distintos:
+        return "amostra_vazia_ou_somente_nulos"
+
+    normalizados = {_normalizar_valor_booleano(valor) for valor in distintos}
+    if None in normalizados:
+        return "amostra_contem_valor_fora_de_0_1"
+
+    try:
+        if _existe_valor_fora_booleano(engine, tabela, coluna):
+            return "domínio_completo_contem_valor_fora_de_0_1"
+    except Exception:
+        return "erro_ao_verificar_dominio_completo"
+
+    return None
+
 
 def _compartilha_padrao_nome(alvo: str, candidato: str) -> bool:
     """Retorna True quando duas colunas compartilham prefixo/sufixo relevante."""
@@ -782,6 +831,16 @@ def investigar_coluna(
         pistas,
     )
 
+    motivo_nao_booleano = None
+    if pista_booleana is None:
+        motivo_nao_booleano = _motivo_nao_booleano(
+            engine,
+            tabela,
+            alvo["coluna"],
+            alvo["tipo"],
+            colunas_rejeitadas=colunas_rejeitadas,
+        )
+
     resultado = {
         "tabela": tabela,
         "coluna": alvo["coluna"],
@@ -794,6 +853,7 @@ def investigar_coluna(
         "nivel_confianca_nome": nivel_confianca_nome,
         "classificacao_valores": "provavel_booleano" if pista_booleana is not None else None,
         "provavel_booleano": pista_booleana is not None,
+        "motivo_nao_booleano": motivo_nao_booleano,
     }
     if decisoes_booleanos:
         sincronizar_decisoes_booleanos_relatorio(

@@ -377,6 +377,25 @@ O script é somente leitura e gera `relatorio_investigacao_colunas.yaml` com:
   decisões manuais de revisão com campos aditivos como
   `confirmado_manualmente`, `rejeitado_manualmente` e
   `revisao_booleano_manual`
+- `motivo_nao_booleano`: quando `provavel_booleano` for `false`, este campo explica
+  **por que** a coluna foi excluída da classificação booleana (diagnóstico, não
+  aparece quando a coluna já é provável booleano). Valores possíveis:
+  - `rejeitada_manualmente` — já rejeitada em `colunas_booleanas_confirmadas.yaml`
+  - `chave_primaria` / `chave_estrangeira` — excluída por ser PK/FK (declarada ou
+    inferida por nome)
+  - `auditoria_usuario` — nome de coluna de auditoria (`*_userid`, etc.)
+  - `tipo_incompativel` — tipo de dado não é tinyint(1)/boolean/inteiro
+  - `erro_ao_consultar_amostra_de_valores` — falha ao consultar a amostra distinta
+  - `amostra_vazia_ou_somente_nulos` — sem valores não nulos na amostra
+  - `amostra_contem_valor_fora_de_0_1` — amostra tem valor fora do domínio `0`/`1`
+  - `domínio_completo_contem_valor_fora_de_0_1` — a checagem completa (não só a
+    amostra) encontrou valor fora de `0`/`1`
+  - `erro_ao_verificar_dominio_completo` — falha na checagem completa de domínio
+  - `None`/ausente — nenhuma das exclusões conhecidas se aplica (inconsistência;
+    reporte este caso, pois a coluna deveria ter sido classificada como booleana)
+
+  Ao rodar `python investigar_colunas.py --colunas tabela.coluna`, o motivo é impresso
+  diretamente no terminal, sem precisar abrir o YAML do relatório.
 
 > **Importante:** tradução do **nome** da coluna e classificação do **domínio de valores**
 > são dimensões independentes. Uma mesma coluna pode aparecer simultaneamente como
