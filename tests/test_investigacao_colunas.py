@@ -14,6 +14,7 @@ from src.investigacao_colunas import (
     executar_investigacao_colunas,
     investigar_coluna,
     listar_colunas_schema,
+    _motivo_nao_booleano,
     _pista_provavel_booleano,
 )
 
@@ -187,6 +188,98 @@ def test_pista_provavel_booleano_rejeita_amostra_enviesada_com_valor_posterior()
     pista = _pista_provavel_booleano(engine, "eventos", "codigo_multiplo", "INTEGER")
 
     assert pista is None
+
+
+def test_motivo_nao_booleano_identifica_valor_fora_do_dominio() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE teste (status INTEGER)"))
+        conn.execute(text("INSERT INTO teste (status) VALUES (0), (1), (2)"))
+        conn.commit()
+
+    motivo = _motivo_nao_booleano(engine, "teste", "status", "INTEGER")
+
+    assert motivo == "amostra_contem_valor_fora_de_0_1"
+
+
+def test_motivo_nao_booleano_identifica_chave_primaria() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE country (id INTEGER PRIMARY KEY, nome TEXT)"))
+        conn.execute(text("INSERT INTO country (id, nome) VALUES (0, 'A'), (1, 'B')"))
+        conn.commit()
+
+    assert _motivo_nao_booleano(engine, "country", "id", "INTEGER") == "chave_primaria"
+
+
+def test_motivo_nao_booleano_identifica_chave_estrangeira() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE accounts (id INTEGER PRIMARY KEY, nome TEXT)"))
+        conn.execute(text("CREATE TABLE controlpanel2accounts (account_id INTEGER, remote INTEGER)"))
+        conn.execute(text("INSERT INTO controlpanel2accounts (account_id, remote) VALUES (0, 0), (1, 1)"))
+        conn.commit()
+
+    assert (
+        _motivo_nao_booleano(engine, "controlpanel2accounts", "account_id", "INTEGER")
+        == "chave_estrangeira"
+    )
+
+
+def test_motivo_nao_booleano_identifica_tipo_incompativel() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE teste (descricao TEXT)"))
+        conn.execute(text("INSERT INTO teste (descricao) VALUES ('0'), ('1')"))
+        conn.commit()
+
+    assert _motivo_nao_booleano(engine, "teste", "descricao", "VARCHAR(255)") == "tipo_incompativel"
+
+
+def test_motivo_nao_booleano_identifica_amostra_vazia() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE teste (flag INTEGER)"))
+        conn.execute(text("INSERT INTO teste (flag) VALUES (NULL)"))
+        conn.commit()
+
+    assert _motivo_nao_booleano(engine, "teste", "flag", "INTEGER") == "amostra_vazia_ou_somente_nulos"
+
+
+def test_motivo_nao_booleano_retorna_none_quando_coluna_e_booleana() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE teste (ativo INTEGER)"))
+        conn.execute(text("INSERT INTO teste (ativo) VALUES (0), (1), (NULL)"))
+        conn.commit()
+
+    assert _motivo_nao_booleano(engine, "teste", "ativo", "INTEGER") is None
+
+
+def test_investigar_coluna_expoe_motivo_nao_booleano() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE teste (status INTEGER)"))
+        conn.execute(text("INSERT INTO teste (status) VALUES (0), (1), (4)"))
+        conn.commit()
+
+    resultado = investigar_coluna(engine, "teste", "status")
+
+    assert resultado["provavel_booleano"] is False
+    assert resultado["motivo_nao_booleano"] == "amostra_contem_valor_fora_de_0_1"
+
+
+def test_investigar_coluna_nao_expoe_motivo_quando_booleana() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    with engine.connect() as conn:
+        conn.execute(text("CREATE TABLE usuarios (id INTEGER PRIMARY KEY, flag_binaria INTEGER)"))
+        conn.execute(text("INSERT INTO usuarios (flag_binaria) VALUES (0), (1), (NULL)"))
+        conn.commit()
+
+    resultado = investigar_coluna(engine, "usuarios", "flag_binaria")
+
+    assert resultado["provavel_booleano"] is True
+    assert resultado["motivo_nao_booleano"] is None
 
 
 def test_colunas_irmas_sugestao() -> None:

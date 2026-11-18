@@ -66,6 +66,16 @@ def main() -> None:
     print(f"   ❓ Sem pista: {resumo_nomes.get('sem_pista', resumo['sem_pista'])}")
     print(f"📝 Relatório: {args.saida}")
 
+    if args.colunas:
+        print("\n🔬 Diagnóstico da classificação booleana por coluna:")
+        for item in relatorio["investigacoes"]:
+            rotulo = f"{item['tabela']}.{item['coluna']}"
+            if item.get("provavel_booleano"):
+                print(f"   🟢 {rotulo}: provável booleano.")
+            else:
+                motivo = item.get("motivo_nao_booleano") or "motivo_desconhecido"
+                print(f"   ⚪ {rotulo}: não classificada como booleano (motivo: {motivo}).")
+
 
 if __name__ == "__main__":
     main()
