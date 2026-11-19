@@ -3,69 +3,10 @@ activitynature:
     com: Consultivo
     con: Contencioso
     '': Não definido
-automaticprazos_lawsuits:
-  hearing_type:
-    all: Todos
-  lawsuit_resp_id:
-    '64571': ANDREIA BARROS
-    '83829': CARLOS ALMEIDA
-    '94899': LUCIANA GOMES
-    '105895': CYNTHIA MENDONCA
-    '118664': THIAGO CÂMARA
-  lawsuit_coordinator_id:
-    '9': Lucimar
-    '13': Gustavo
-    '29': Carlos
-    '153': André
-    '203': Tarciso
-    '357': Igor
-    '370': Andréia
-    '507': Carlos
-    '570': Leonardo
-    '695': Cynthia
-    '779': Anna
-  busunit_id:
-    '1': Décio Freire e Advogados Associados - BH
-    '2': Décio Freire e Advogados Associados - SP
-    '4': Décio Freire e Advogados Associados - DF
-    '8': Décio Freire e Advogados Associados - PE
-    '14': Unidade criada para os processos da Lara Piau
-  automaticprazo_id:
-    '2233': ANEXAR ATA
-    '22439': Pós audiência
-  user_change_status:
-    '21': Naiara
-    '659': Rodson
-  user_inserted:
-    '21': Naiara
-    '88': Jessica
-    '97': Viviane
-  user_updated:
-    '21': Naiara
-    '659': Rodson
-  prazo_days:
-    '1': RETIFICAR CTPS
-    '2': ENVIAR CTPS P/ ANOTAÇÃO
 businessunit:
   deactivated:
     '0': Não
     '1': Sim
-  name:
-    DF - BH: Décio Freire e Advogados Associados - BH
-    DF - SP: Décio Freire e Advogados Associados - SP
-    DF - DF: Décio Freire e Advogados Associados - DF
-    DF - ES: Décio Freire e Advogados Associados - ES
-    DF - PE: Décio Freire e Advogados Associados - PE
-    DF - Varginha: Décio Freire e Advogados Associados - Varginha
-    DF - Ipatinga: Décio Freire e Advogados Associados - Ipatinga
-    DF - Uberlândia: Décio Freire e Advogados Associados - Uberlândia
-    Auditoria: Unidade criada para os processos da Lara Piau
-  description:
-    Décio Freire e Advogados Associados - BH: DF - BH
-    Décio Freire e Advogados Associados - SP: DF - SP
-    Décio Freire e Advogados Associados - DF: DF - DF
-    Décio Freire e Advogados Associados - ES: DF - ES
-    Décio Freire e Advogados Associados - PE: DF - PE
 chatmessages:
   recipienttype:
     s: Individual
@@ -82,24 +23,33 @@ correspondent_state_activity_rates:
     '0': Inativo
     '1': Ativo
   state_id:
-    '5': BAHIA
-    '11': MINAS GERAIS
-    '10': MARANHÃO
-    '26': SÃO PAULO
-    '7': DISTRITO FEDERAL
-    '9': GOIÁS
-    '13': MATO GROSSO
-    '12': MATO GROSSO DO SUL
-    '18': PARANÁ
-    '24': SANTA CATARINA
-    '23': RIO GRANDE DO SUL
-    '19': RIO DE JANEIRO
-    '17': PIAUÍ
-    '8': ESPÍRITO SANTO
-    '15': PARAÍBA
-    '21': RONDÔNIA
-    '20': RIO GRANDE DO NORTE
+    '1': ACRE
     '2': ALAGOAS
+    '3': AMAPÁ
+    '4': AMAZONAS
+    '5': BAHIA
+    '6': CEARÁ
+    '7': DISTRITO FEDERAL
+    '8': ESPÍRITO SANTO
+    '9': GOIÁS
+    '10': MARANHÃO
+    '11': MINAS GERAIS
+    '12': MATO GROSSO DO SUL
+    '13': MATO GROSSO
+    '14': PARÁ
+    '15': PARAÍBA
+    '16': PERNAMBUCO
+    '17': PIAUÍ
+    '18': PARANÁ
+    '19': RIO DE JANEIRO
+    '20': RIO GRANDE DO NORTE
+    '21': RONDÔNIA
+    '22': RORAIMA
+    '23': RIO GRANDE DO SUL
+    '24': SANTA CATARINA
+    '25': SERGIPE
+    '26': SÃO PAULO
+    '27': TOCANTINS
 correspondent_usertasks:
   access_module:
     '0': Não
@@ -131,37 +81,26 @@ correspondent_usertasks:
   write_requests:
     '0': Não
     '1': Sim
-  user_id:
-    '1': Dalton
-    '2': Jessé
-    '3': Suporte
-    '21': Naiara
-    '326': Adriana
-    '327': Naiara
-    '659': Rodson
 deniedprazo_reasons:
   status:
     '0': Inativo
     '1': Ativo
-  user_created_at:
-    '21': Naiara
-    '43': Fabiana
-    '83': Felipe
-    '88': Jessica
-    '97': Viviane
-    '212': Caroline
-    '243': Jefferson
-    '254': Bianca
-    '383': Aline
-    '394': Natália
-    '425': Brenda
-    '490': Ana
 employees:
   empstatus:
     '0': Inativo
     '1': Ativo
-  user_id:
-    '1': AmericoBarroso
+  lawyerdifflevel:
+    '0': Nível 0
+    '1': Nível 1
+    '2': Nível 2
+    '3': Nível 3
+    '4': Nível 4
+    '5': Nível 5
+    '6': Nível 6
+    '7': Nível 7
+    '8': Nível 8
+    '9': Nível 9
+    '10': Nível 10
 expedientfilemetadata:
   status:
     '0': Inativo
@@ -192,15 +131,44 @@ hearings_log:
     '22': Sentença
     '23': Perícia
   result:
-    '5': Extinto sem resolução do mérito
-    '4': Acordo
-    '10': Testemunhas
+    '1': Procedente
+    '2': Improcedente
     '3': Parcialmente procedente
+    '4': Acordo
+    '5': Extinto sem resolução do mérito
+    '6': Pagamentos por terceiros
+    '7': Sem custo
+    '8': Documento que comprove o alegado
+    '9': Não houve condenação
+    '10': Testemunhas
+    '11': Arquivamento - Ausência reclamante
+    '12': Ausência de documentos
     '13': Ausência de preposto - revelia
+    '14': Depoimento da testemunha do reclamante
+    '15': Duplicidade
+    '16': Laudo positivo
+    '17': Solicitado pelo pool
   hearingstatus:
     '0': Agendada / Marcada
     '1': Realizada
     '2': Cancelada / Adiada / Redesignada
+  confession:
+    y: Sim
+    n: Não
+  preposto_performance:
+    '1': Ótimo / Satisfatório
+    '2': Regular
+    '3': Insatisfatório
+  subsidy:
+    y: Sim
+    n: Não
+  third_party_presence:
+    y: Sim
+    n: Não
+  witness_performance:
+    '1': Ótimo / Satisfatório
+    '2': Regular
+    '3': Insatisfatório
 jqcalendar:
   IsAllDayEvent:
     '0': Não
@@ -209,12 +177,6 @@ jurify_api_log_salvarprocessos:
   type:
     insert: Inserção
     update: Atualização
-  created_at_userid:
-    '21': Naiara
-    '203': Tarciso
-    '394': Natália
-    '425': Brenda
-    '490': Ana
 lawsuit_pendencias_control:
   status:
     '0': Inativo
@@ -232,6 +194,21 @@ lawsuits_additional_info:
   supplier_flow:
     n: Não
     y: Sim
+  driving_demand:
+    i: Interna
+    e: Externa
+  insurer_flow:
+    y: Sim
+    n: Não
+  market_place:
+    y: Sim
+    n: Não
+  protection_inserted_system:
+    n: Não
+    y: Sim
+  subsidy_available:
+    y: Sim
+    n: Não
 lawsuitdocsmetadata:
   prazophase:
     '1': Em Elaboração (Pendente)
@@ -246,12 +223,23 @@ lawsuitdocsmetadata:
   protocol_location:
     '1': Eletrônico (digital)
     '2': Físico
+  docfiletype:
+    p: Peça Processual
+    e: E-mail
+    m: Memorando
+    ex: Expediente
+    a: Andamento
+    na: Próximo Andamento
+  docstatus:
+    '0': Inativo / Excluído
+    '1': Ativo
 lawsuits:
   status:
-    '0': Inativo
-    '1': Ativo
+    '0': Ativo
+    '1': Arquivado/Inativo
   type:
     j: Judicial
+    a: Administrativo
   close_reason_id:
     '1': Arquivada no Procon/Reclamação Atendida
     '2': Pagamentos efetuados pelo co-réu
@@ -299,44 +287,23 @@ lawsuits:
     '20': Extinção da execução
     '21': Exclusão da lide
     '22': Carta Precatória cumprida
-  busunit_id:
-    '1': Décio Freire e Advogados Associados - BH
-    '2': Décio Freire e Advogados Associados - SP
-    '3': Décio Freire e Advogados Associados - Varginha
-    '4': Décio Freire e Advogados Associados - DF
-    '7': Décio Freire e Advogados Associados - ES
-    '8': Décio Freire e Advogados Associados - PE
-    '9': Décio Freire e Advogados Associados - Ipatinga
-    '10': Décio Freire e Advogados Associados - Uberlândia
-  unit:
-    '2': DF - SP
-    '3': DF - Varginha
-    '4': DF - DF
-    '10': Dist/Passos
-    '11': Dist/Montes Claros
-    '12': Dist/Divinopolis
-    '5': Dist/Contagem
-    '6': Dist/Poços de Caldas
-    '7': Dist/Conselheiro Lafaiete
-    '8': Dist/Varginha
-    '9': Dist/Juiz de Fora
   causeamount_result:
+    '1': Procedente
     '2': Improcedente
     '3': Parcialmente procedente
-    '1': Procedente
     '4': Acordo
     '5': Extinto sem resolução do mérito
-    '26': Ilegitimidade acolhida
+    '9': Não houve condenação
     '11': Arquivamento - Ausência reclamante
     '21': Exclusão da lide
+    '24': Provido
     '25': Pendente de julgamento
+    '26': Ilegitimidade acolhida
     '29': Arquivado
     '30': A revisar
-    '24': Provido
-    '9': Não houve condenação
   result_instance:
-    '2': 2ª instância
     '1': 1ª instância
+    '2': 2ª instância
     '3': 3ª instância
   deferred_protection:
     n: Não
@@ -350,10 +317,76 @@ lawsuits:
     es: Escopo / Partido Mensal
     ctrl: Controladoria / Administrativo
     es2: Escopo Especial / 2
+  lawsuit_phase:
+    '33': Agravo de Petição
+    '37': GRU
+  pje:
+    '0': Não
+    '1': Sim
+  relevant:
+    '0': Não
+    '1': Sim
+  responsibility:
+    '1': Responsabilidade 1
+    '2': Responsabilidade 2
+  strategy_level:
+    '1': Nível 1
+    '2': Nível 2
+    '3': Nível 3
+  causeamount_risk:
+    '1': Remoto
+    '2': Possível
+    '3': Provável
+  classification:
+    t1: Tier 1
+    t2: Tier 2
+    t3: Tier 3
+    t4: Tier 4
+    t5: Tier 5
+    3a: 3ª Instância Administrativa
+    3i: 3ª Instância Judicial
+    pr: Prioritário
+    es: Especial
+  department:
+    '1': Departamento 1
+    '2': Departamento 2
+    '3': Departamento 3
+    '4': Departamento 4
+    '5': Departamento 5
+    '6': Departamento 6
+    '7': Departamento 7
+    '8': Departamento 8
+    '9': Departamento 9
+    '10': Departamento 10
+  esteira:
+    m: Massa
+    e: Estratégico
+    c: Crítico
+    n: Não Crítico
+    s: Especial
+  finalpayment_payer:
+    i: Emissor (Issuer)
+    c: Cliente
+  impact:
+    '0': Baixo
+    '1': Médio
+    '2': Alto
+  lawsuitdifflevel:
+    '0': Nível 0
+    '1': Nível 1
+    '2': Nível 2
+    '3': Nível 3
+    '4': Nível 4
+    '5': Nível 5
+    '6': Nível 6
+    '7': Nível 7
+    '8': Nível 8
+    '9': Nível 9
+    '10': Nível 10
 lawsuits_log:
   status:
-    '0': Inativo
-    '1': Ativo
+    '0': Ativo
+    '1': Arquivado/Inativo
   code_red:
     '0': Não
     '1': Sim
@@ -379,19 +412,19 @@ lawsuits_log:
     '20': Extinção da execução
     '22': Carta Precatória cumprida
   causeamount_result:
+    '1': Procedente
     '2': Improcedente
     '3': Parcialmente procedente
-    '1': Procedente
-    '5': Extinto sem resolução do mérito
-    '11': Arquivamento - Ausência reclamante
-    '25': Pendente de julgamento
     '4': Acordo
+    '5': Extinto sem resolução do mérito
+    '9': Não houve condenação
+    '11': Arquivamento - Ausência reclamante
     '21': Exclusão da lide
     '24': Provido
-    '9': Não houve condenação
+    '25': Pendente de julgamento
   result_instance:
-    '2': 2ª instância
     '1': 1ª instância
+    '2': 2ª instância
   finalpayment_type:
     '1': Boleto / Guia
     '2': Depósito Judicial
@@ -437,6 +470,65 @@ lawsuits_log:
     '28': Arquivar
     '29': Arquivado
     '32': Improcedência em relação ao cliente
+  causeamount_risk:
+    '1': Remoto
+    '2': Possível
+    '3': Provável
+  classification:
+    t1: Tier 1
+    t2: Tier 2
+    t3: Tier 3
+    t4: Tier 4
+    t5: Tier 5
+    3a: 3ª Instância Administrativa
+    3i: 3ª Instância Judicial
+    pr: Prioritário
+    es: Especial
+  deferred_protection:
+    y: Sim
+    n: Não
+  department:
+    '1': Departamento 1
+    '2': Departamento 2
+    '3': Departamento 3
+    '4': Departamento 4
+    '5': Departamento 5
+    '6': Departamento 6
+    '7': Departamento 7
+    '8': Departamento 8
+    '9': Departamento 9
+    '10': Departamento 10
+  esteira:
+    m: Massa
+    e: Estratégico
+    c: Crítico
+    n: Não Crítico
+    s: Especial
+  finalpayment_payer:
+    i: Emissor (Issuer)
+    c: Cliente
+  lawsuitdifflevel:
+    '0': Nível 0
+    '1': Nível 1
+    '2': Nível 2
+    '3': Nível 3
+    '4': Nível 4
+    '5': Nível 5
+    '6': Nível 6
+    '7': Nível 7
+    '8': Nível 8
+    '9': Nível 9
+    '10': Nível 10
+  responsibility:
+    '1': Responsabilidade 1
+    '2': Responsabilidade 2
+  strategy_level:
+    '1': Nível 1
+    '2': Nível 2
+    '3': Nível 3
+  type:
+    j: Judicial
+    a: Administrativo
 paymentguarantee2lawsuit:
   status:
     '0': Inativo
@@ -445,25 +537,83 @@ paymentguarantee2lawsuit:
     '0': Não
     '1': Sim
   levantamento:
+    '1': Solicitado
     '2': Petição / Pedido de Levantamento Protocolado
     '3': Alvará expedido
     '4': Alvará / Guia Encaminhado ao Banco / Em Processamento
     '5': Valor Levantado / Creditado em Conta
     '6': Repasse / Prestação de Contas Efetuada ao Cliente
     '7': Levantamento Indeferido / Inadmitido
+    '8': Concluído
   payment_type:
     '1': Acordo
-    '12': Seguro Garantia
     '2': Bacenjud
-    '6': Depósito Recursal (RR)
-    '10': Honorários Periciais
-    '7': Depósito Recursal (AIRR)
-    '5': Depósito Recursal (RO)
-    '9': Consignação
-    '8': Depósito Recursal
-    '4': Depósito Judicial
     '3': Custas
+    '4': Depósito Judicial
+    '5': Depósito Recursal (RO)
+    '6': Depósito Recursal (RR)
+    '7': Depósito Recursal (AIRR)
+    '8': Depósito Recursal
+    '9': Consignação
+    '10': Honorários Periciais
     '11': Pagamento
+    '12': Seguro Garantia
+    '13': Recurso Adesivo
+    '14': Recurso Extraordinário
+    '15': Embargos de Execução
+    '16': Pagamento Indenização
+    '17': INSS
+    '18': Pagamento IR
+    '19': Multa
+    '20': Depósito Recursal (TST)
+    '21': Penhora
+    '22': Parcelamento
+    '23': Honorários
+    '24': Judicial
+    '25': Depósito Judicial / Seguro Fiança
+    '26': Depósito Judicial / Móveis
+  paid_by:
+    c: Cliente
+    i: Emissor (Issuer)
+  containslevfile:
+    '0': Não
+    '1': Sim
+  impugnation:
+    i: Integral
+    p: Parcial
+    n: Não houve
+  impugnation_result:
+    i: Acolhida integralmente
+    p: Acolhida parcialmente
+    r: Rejeitada
+  nature:
+    '1': Depósito / Garantia
+    '2': Pagamento / Condenação
+    '3': Custas / Honorários
+  transferred:
+    y: Sim
+    n: Não
+  type_old:
+    '1': Acordo
+    '2': Bacenjud
+    '3': Custas
+    '4': Depósito Judicial
+    '5': Depósito Recursal (RO)
+    '6': Depósito Recursal (RR)
+    '7': Depósito Recursal (AIRR)
+    '8': Depósito Recursal
+    '9': Consignação
+    '10': Honorários Periciais
+    '11': Pagamento
+    '12': Seguro Garantia
+    '13': Recurso Adesivo
+    '14': Recurso Extraordinário
+    '15': Embargos de Execução
+    '16': Pagamento Indenização
+    '17': INSS
+    '18': Pagamento IR
+    '19': Multa
+    '20': Depósito Recursal (TST)
 paymenttype:
   code:
     Bol: Boleto
@@ -472,13 +622,6 @@ paymenttype:
     deb: Débito automático
     dep: Depósito em conta
     din: Dinheiro
-  name:
-    Boleto: Bol
-    Cheque: chq
-    DDA: dda
-    Débito automático: deb
-    Depósito em conta: dep
-    Dinheiro: din
 persons:
   persontype:
     n: Pessoa Física
@@ -489,8 +632,6 @@ persons:
   from_acordo_nucleus:
     '0': Não
     '1': Sim
-  person_group:
-    '1': Grupo do administrador root
 prazo2publication_persons:
   confirmed:
     '0': Não
@@ -516,19 +657,10 @@ projectactivityprazos:
   status:
     '0': Inativo
     '1': Ativo
-  finished_at_userid:
-    '21': Naiara
-    '184': Gessica
-  userinserted_id:
-    '21': Naiara
-    '184': Gessica
 returned_prazo_reasons:
   status:
     '0': Inativo
     '1': Ativo
-  user_created_at:
-    '128': Michelle
-    '144': Andressa
 sent_hearing_emails:
   type:
     lawyer: Advogado
@@ -538,7 +670,7 @@ users:
     '1': Ativo
   active:
     '0': Inativo
-    '1': Ativo
+    '1': Sim
 usertasks:
   read_opnature:
     '0': Não
@@ -591,6 +723,9 @@ usertasks:
   type_tech_assistant:
     '0': Não
     '1': Sim
+  language:
+    en: Inglês
+    pt: Português
 accounts:
   code:
     ativo: Ativo
@@ -611,12 +746,6 @@ accounts:
     d: Conta de despesas
     r: Conta de receita
     pl: Conta sistema auxiliar
-  description:
-    Conta de ativos: ATIVO
-    Conta de passivos: PASSIVO
-    Conta de despesas: DESPESAS
-    Conta de receita: RECEITAS
-    Conta sistema auxiliar: SISTEMA AUXILIAR
   level:
     '0': Conta
     '1': Classe / Grupo
@@ -640,18 +769,6 @@ clientsystem2lawsuit:
 emails:
   flow:
     i: Entrada (recebido)
-expedients:
-  lawsuit_id:
-    '76248': 'Motivo: indenização'
-  prazo_owner_id:
-    '24409': VISTA DOS COMPROVANTES DISPONIBILIZADOS
-    '26314': VISTAS/MANISFESTAÇÃO
-    '27701': ACOMPANHAR EXPEDIÇÃO DE CITAÇÃO
-    '28746': ANALISE DO PRAZO
-    '39724': CIENCIA DE PERICIA SUSPENSA
-    '6169': IMPUGNAR CALCULOS PERITO
-    '64571': OUTRAS ATIVIDADES - FGV REUNIÃO FGV AGRO X ICS
-    '778': comprovar pagamento do débito exequendo
 lawsuitdocs:
   doctype:
     '1': Peças Principais (Inicial / Contestação / Laudos)
@@ -660,6 +777,7 @@ lawsuitdocs:
     '4': Ata de Audiência / Sentença (Correspondente Externo)
     '5': Outros Documentos Processuais
     '6': Ata de Audiência / Sentença (Captura Automática / Robô)
+    '7': Outro
     '8': Petições Intermediárias e Manifestações
     '9': Ata de Audiência / Sentença (Portal do Cliente / Geral)
     '10': TRCT
@@ -668,13 +786,33 @@ lawsuitdocs:
     '13': Outros Documentos Diversos
     '14': Descrição de Cargos
     '15': Comprovante mudança de função
-    '7': Outro
-otherdocs: {}
+  processtype:
+    j: Jurídico
+    a: Administrativo
+  alvara:
+    '0': Não
+    '1': Sim
+  phase:
+    '0': Fase 0
+    1a: Fase 1A
+    1b: Fase 1B
+    '1': Fase 1
+    '2': Fase 2
+    '3': Fase 3
+    '4': Fase 4
+    '5': Fase 5
+  contains_add:
+    '0': Não
+    '1': Sim
+  procuracao:
+    '0': Não
+    '1': Sim
 pedidos2lawsuit:
   ias:
-    '1': 1ª Instância
-    '2': 2ª Instância
-    '3': Instância Superior (STJ/STF)
+    '1': Remoto
+    '2': Possível
+    '3': Provável
+    '4': Praticamente certo
   instance01:
     '1': 1ª Instância
     '2': 2ª Instância
@@ -692,19 +830,43 @@ pedidos2lawsuit:
     '6': Juizados Especiais (JEC/JEF/JECRIM)
     '7': Turma Recursal (Recursos dos Juizados)
     '8': Arbitragem / Câmaras Arbitrais
+  instanceextra:
+    '1': 1ª Instância
+    '2': 2ª Instância
+    '3': 3ª Instância / Tribunais Superiores (STJ/TST)
+    '4': Supremo Tribunal Federal (STF)
+    '5': Instância Administrativa / Órgãos Públicos
+    '6': Juizados Especiais (JEC/JEF/JECRIM)
+    '7': Turma Recursal
+    '8': Arbitragem / Câmaras Arbitrais
+  instancesup:
+    '1': 1ª Instância
+    '2': 2ª Instância
+    '3': 3ª Instância / Tribunais Superiores (STJ/TST)
+    '4': Supremo Tribunal Federal (STF)
+    '5': Instância Administrativa / Órgãos Públicos
+    '6': Juizados Especiais (JEC/JEF/JECRIM)
+    '7': Turma Recursal
+    '8': Arbitragem / Câmaras Arbitrais
+  status:
+    '0': Inativo
+    '1': Ativo
 person2lawsuit:
   link_type:
-    u: SEM JUSTA CAUSA
-    s: Pedido de Demissão
-    t: Término de Contrato
-  third_party_id:
-    '29382': VIASUPER DISTRIBUIDORA DE PERIODICOS LTDA - ME
-  sector:
-    '1': DSC
-    '2': TM&D
-    '3': INDUSTRIAL
-    '4': TABACO
-    '5': NÃO INFORMADO
+    u: Sindicato
+    s: Próprio
+    t: Terceiro
+    c: Consórcio
+  persontype:
+    p: Autor / Principal
+    d: Réu / Defendant
+    c: Consórcio / Co-réu
+  service_provider:
+    '0': Não
+    '1': Sim
+  service_provider_payment:
+    a: Adimplente
+    i: Inadimplente
 prazo2publication:
   canceled:
     '0': Não
@@ -728,16 +890,35 @@ prazo2publication:
     '4': Concluído / Protocolado
     '': Não classificado
   finishtype:
-    p: processo físico
+    p: Protocolo
     pje: Processo Eletrônico (PJe)
+    e: E-mail
+    n: NAF
+    m: Memorando
+    f: Peça Física
     adm: Administrativo
-    f: Fechamento Interno / Finalizado
-    n: Não Protocolado
+    exc: Planilha Excel
   hearingtype:
     '13': Audiência de Conciliação
     '14': AIJ - Audiência de Instrução e Julgamento
-  pubtype:
-    '58704': AVALIAR OPOSIÇÃO DE EMBARGOS DECLARATÓRIOS.
+  cpfl_spreadsheet_import:
+    '0': Não
+    '1': Sim
+  admprazo:
+    '0': Não
+    '1': Sim
+  protocol_confirmed:
+    '0': Não
+    '1': Sim
+  lawyerfinished:
+    '0': Não
+    '1': Sim
+  client_sys_updated:
+    '0': Não
+    '1': Sim
+  naf_confirmed:
+    '0': Não
+    '1': Sim
 prazos_log:
   canceled:
     '0': Não
@@ -762,45 +943,51 @@ prazos_log:
     '0': Sem prazo em curso
     '': Não classificado
   finishtype:
-    p: processo físico
+    p: Protocolo
     pje: Processo Eletrônico (PJe)
-    f: Fechamento Interno / Finalizado
-    n: Não Protocolado
+    e: E-mail
+    n: NAF
+    m: Memorando
+    f: Peça Física
+    adm: Administrativo
+    exc: Planilha Excel
 projects:
-  coordinator_id:
-    '779': NAIARA MARQUES
-    '27701': GESSICA BERNARDO
   type:
     con: Contencioso
     com: Consultivo
     '': Não definido
+  close_result:
+    '1': Favorável / Êxito
+    '2': Desfavorável / Sem Êxito
+  status:
+    '0': Inativo
+    '1': Ativo
+    '2': Concluído
+    c: Cancelado
 tasks2publication:
   status:
     '0': Pendente / Não Vinculada
     '1': Em Andamento / Vinculada
     '2': Concluída / Cumprida
 timesheet_tasks:
-  lawyer_id:
-    '89029': ISABELA OLIVEIRA
-  created_at_userid:
-    '563': Isabela
   type:
     i: Interno
+  status:
+    '0': Não Iniciada
+    '1': Em Execução (Running)
+    '2': Pausada (Paused)
+    '3': Finalizada (Finished)
+    '4': Fechada / Arquivada (Closed)
 varas:
   code:
+    '4': Vara Federal
     '5': Vara do Trabalho
     '8': Vara Cível
-    '4': Vara Federal
   name:
     Justiça do Trabalho: Labor Court
     Justiça Estadual: Civil Court
     Administrativo: Administrative
     Justiça Federal: Federal Court
-  name_en:
-    Labor Court: Justiça do Trabalho
-    Civil Court: Justiça Estadual
-    Administrative: Administrativo
-    Federal Court: Justiça Federal
 hearingcontrol:
   needwitness:
     '0': Não
@@ -851,11 +1038,11 @@ hearingcontrol:
     n: Não
     y: Sim
   hearingtype:
-    '11': Instrução
     '7': Inicial
     '8': Nova Inicial
     '9': Una
     '10': Nova Una
+    '11': Instrução
     '12': Oitiva de Testemunha
     '13': Audiência de Conciliação
     '14': AIJ - Audiência de Instrução e Julgamento
@@ -868,200 +1055,47 @@ hearingcontrol:
     '22': Sentença
     '23': Perícia
   result:
-    '2': Improcedente
-    '16': Laudo positivo
-    '4': Acordo
     '1': Procedente
-    '12': Ausência de documentos
-    '8': Documento que comprove o alegado
-    '6': Pagamentos por terceiros
+    '2': Improcedente
     '3': Parcialmente procedente
+    '4': Acordo
     '5': Extinto sem resolução do mérito
+    '6': Pagamentos por terceiros
+    '7': Sem custo
+    '8': Documento que comprove o alegado
     '9': Não houve condenação
     '10': Testemunhas
-    '15': Duplicidade
-    '7': Sem custo
-    '14': Depoimento da testemunha do reclamante
     '11': Arquivamento - Ausência reclamante
+    '12': Ausência de documentos
     '13': Ausência de preposto - revelia
+    '14': Depoimento da testemunha do reclamante
+    '15': Duplicidade
+    '16': Laudo positivo
     '17': Solicitado pelo pool
   hearingstatus:
     '0': Agendada / Marcada
     '1': Realizada
     '2': Cancelada / Adiada / Redesignada
-final_payments:
-  payment_type:
-    '1': Acordo
-    '2': Bacenjud
-    '3': Custas
+  preposto_performance:
+    '1': Ótimo / Satisfatório
+    '2': Regular
+    '3': Insatisfatório
+  subsidy:
+    y: Sim
+    n: Não
+  witness_performance:
+    '1': Ótimo / Satisfatório
+    '2': Regular
+    '3': Insatisfatório
 config_prazo_emails:
   prazos_not_finished_business_email:
     '1': Área comercial
-agenda_busunits:
-  busunit_id:
-    '1': Décio Freire e Advogados Associados - BH
-    '4': Décio Freire e Advogados Associados - DF
-automaticprazos_jurify:
-  created_at_userid:
-    '21': Naiara
-  all_prazos:
-    '0': Não
-    '1': Sim
-automaticprazos_jurify_clients:
-  client_id:
-    '6625': COMPANHIA BRASILEIRA DE DISTRIBUIÇÃO
-    '28586': MASTERCARD BRASIL SOLUÇÕES DE PAGAMENTO LTDA
-automaticprazos_jurify_employees:
-  employee_id:
-    '66503': VIVIAN ALVES
-    '67434': LEANDRO CARVALHO
-    '69684': LUCAS VELEZ
-    '81865': FRANCISCO ERIVALDO CARVALHO
-automaticprazos_lawsuit_groups:
-  group_id:
-    '3784': GRUPO SADA
-    '6119': GRUPO ADLER
-    '6476': GRUPO PROMA BRASIL
-    '6477': GRUPO SILA
-    '6557': GRUPO VB EDITORA
-    '21446': GRUPO GPA
-    '65006': GRUPO RAIA DROGASIL
-    '107431': GRUPO CSN
-    '107432': GRUPO RAIA
-    '109013': GRUPO HUAWEI
-automaticprazos_lawsuit_persons:
-  person_id:
-    '2730': CAMILA MARLEY
-    '63576': IGOR FOLENA
-    '64571': ANDREIA BARROS
-    '89615': LEONARDO LOPES
-    '94899': LUCIANA GOMES
-    '105895': CYNTHIA MENDONCA
-    '108432': LIVIA DINIZ
-    '113931': ANNA MELLO
-    '118633': ANA PAULA JUSTO
-    '118664': THIAGO CÂMARA
-    '122634': JOSE ANDRADE
-    '122636': LUCAS COUTINHO DA SILVA
-busunitaccess:
-  busunitid:
-    '1': Décio Freire e Advogados Associados - BH
-    '2': Décio Freire e Advogados Associados - SP
-    '3': Décio Freire e Advogados Associados - Varginha
-    '4': Décio Freire e Advogados Associados - DF
-    '7': Décio Freire e Advogados Associados - ES
-    '8': Décio Freire e Advogados Associados - PE
-    '9': Décio Freire e Advogados Associados - Ipatinga
-    '10': Décio Freire e Advogados Associados - Uberlândia
-    '14': Unidade criada para os processos da Lara Piau
-busunitaccess_controllerlawsuits:
-  busunitid:
-    '1': Décio Freire e Advogados Associados - BH
-    '2': Décio Freire e Advogados Associados - SP
-    '3': Décio Freire e Advogados Associados - Varginha
-    '4': Décio Freire e Advogados Associados - DF
-    '7': Décio Freire e Advogados Associados - ES
-    '8': Décio Freire e Advogados Associados - PE
-    '9': Décio Freire e Advogados Associados - Ipatinga
-    '10': Décio Freire e Advogados Associados - Uberlândia
-    '14': Unidade criada para os processos da Lara Piau
-busunitaccess_strategiclawsuits:
-  busunitid:
-    '1': Décio Freire e Advogados Associados - BH
-    '2': Décio Freire e Advogados Associados - SP
-    '3': Décio Freire e Advogados Associados - Varginha
-    '4': Décio Freire e Advogados Associados - DF
-    '7': Décio Freire e Advogados Associados - ES
-    '8': Décio Freire e Advogados Associados - PE
-    '9': Décio Freire e Advogados Associados - Ipatinga
-    '10': Décio Freire e Advogados Associados - Uberlândia
-    '14': Unidade criada para os processos da Lara Piau
-busunitaccess_strategiclawsuits2:
-  busunitid:
-    '1': Décio Freire e Advogados Associados - BH
-    '2': Décio Freire e Advogados Associados - SP
-    '3': Décio Freire e Advogados Associados - Varginha
-    '4': Décio Freire e Advogados Associados - DF
-    '7': Décio Freire e Advogados Associados - ES
-    '8': Décio Freire e Advogados Associados - PE
-    '9': Décio Freire e Advogados Associados - Ipatinga
-    '10': Décio Freire e Advogados Associados - Uberlândia
-    '14': Unidade criada para os processos da Lara Piau
-claims_pericias_control:
-  created_at_userid:
-    '1': Dalton
-    '7': Gabriela
-    '8': Gabriel
-    '71': Pietro
-  updated_at_userid:
-    '7': Gabriela
-    '8': Gabriel
-    '71': Pietro
-  pericia_result:
-    n: Negativa / Improcedente / Favorável à Empresa
-    p: Positiva / Procedente / Desfavorável à Empresa
-    pe: Parcial / Concorrência de Culpa
-    d: Desnecessária / Desistência
-client_publication_search_terms:
-  client_id:
-    '1074': LIGHT SERVIÇOS DE ELETRICIDADE S.A.
-    '1076': FGV
-    '1148': ADLER PTI S/A
-    '1152': PELZER DA BAHIA
-    '2267': SILA DO BRASIL
-    '2313': VB EDITORA
-    '3779': ICG PROMA BRASIL
-    '6288': PROMA BRASIL
-    '26184': CSN MINERAÇÃO S.A.
-    '26185': COMPANHIA SIDERÚRGICA NACIONAL
-    '28492': CSN MINERACAO S.A.
-    '38888': DROGA RAIA
-    '38904': DROGASIL
-    '39130': ONOFRE
-  created_at_userid:
-    '3': Suporte
-client_sectors:
-  client_id:
-    '2308': SOUZA CRUZ LTDA
-client_units:
-  client_id:
-    '1046': VIA VAREJO S/A
-    '2024': CERVEJARIA PETRÓPOLIS
-    '2308': SOUZA CRUZ LTDA
-    '2732': CERVEJARIA PETROPOLIS DE PERNAMBUCO LTDA
-    '2740': COL - CENTRO OESTE LOGISTICA LTDA
-    '2741': CERVEJARIA PETROPOLIS DO CENTRO OESTE LTDA
-    '2742': CERVEJARIA PETROPOLIS DA BAHIA LTDA
-    '6625': COMPANHIA BRASILEIRA DE DISTRIBUIÇÃO
-    '9182': NOVA CASAS BAHIA
-    '9603': GLOBEX UTILIDADES SA
-    '27114': VVLOG LOGISTICA LTDA
-    '63613': GPA
-coligadas:
-  group_id:
-    '3784': GRUPO SADA
-    '6184': GRUPO FIAT
-    '51732': SADA LOGISTICA E ARMAZENS GERAIS LTDA
-    '6119': GRUPO ADLER
-    '6137': GRUPO PETROPÓLIS
-    '6257': GRUPO SHC
-    '6476': GRUPO PROMA BRASIL
-    '6477': GRUPO SILA
-    '6557': GRUPO VB EDITORA
-    '21445': GRUPO VIA VAREJO
-    '21446': GRUPO GPA
-    '27711': GRUPO SOUZA CRUZ
-    '29580': GRUPO NEWTON CARDOSO
-    '65006': GRUPO RAIA DROGASIL
-    '68067': PAUTA DE AUDIÊNCIA TRABALHISTA
-    '69460': GRUPO ASSAÍ ATACADISTA
-    '101421': Grupo Sada - Relatórios Adriana Torres
-    '107431': GRUPO CSN
-    '107432': GRUPO RAIA
-    '109013': GRUPO HUAWEI
 correspondent2state:
   state_id:
+    '1': ACRE
     '2': ALAGOAS
+    '3': AMAPÁ
+    '4': AMAZONAS
     '5': BAHIA
     '6': CEARÁ
     '7': DISTRITO FEDERAL
@@ -1071,67 +1105,20 @@ correspondent2state:
     '11': MINAS GERAIS
     '12': MATO GROSSO DO SUL
     '13': MATO GROSSO
+    '14': PARÁ
     '15': PARAÍBA
+    '16': PERNAMBUCO
     '17': PIAUÍ
     '18': PARANÁ
     '19': RIO DE JANEIRO
     '20': RIO GRANDE DO NORTE
     '21': RONDÔNIA
+    '22': RORAIMA
     '23': RIO GRANDE DO SUL
     '24': SANTA CATARINA
     '25': SERGIPE
     '26': SÃO PAULO
-correspondent_requests:
-  busunit_id:
-    '1': Décio Freire e Advogados Associados - BH
-  city_id:
-    '94': RIO BRANCO
-  created_at_userid:
-    '326': Adriana
-  status:
-    '3': Cancelado
-correspondent_requests_actions:
-  created_at_userid:
-    '327': Naiara
-  correspondent_request_id:
-    '5': Indefinido
-  action:
-    refuse_request: Recusar solicitação
-correspondent_requests_messages:
-  created_at_userid:
-    '1': Dalton
-  correspondent_request_id:
-    '5': Indefinido
-correspondent_requests_refuse_reasons:
-  person_id:
-    '39598': NAIARA
-  correspondent_request_id:
-    '5': Indefinido
-  refuse_reason:
-    refused_by_email: Recusado por e-mail
-extralawsuitformfields2person:
-  person_id:
-    '1046': VIA VAREJO S/A
-    '1074': LIGHT SERVIÇOS DE ELETRICIDADE S.A.
-    '3784': GRUPO SADA
-    '21445': GRUPO VIA VAREJO
-    '28586': MASTERCARD BRASIL SOLUÇÕES DE PAGAMENTO LTDA
-    '63613': GPA
-group2permission:
-  group_id:
-    '1': Grupo do administrador root
-    '2': Usuário comum
-    '3': Usuário responsável por um grupo de colaboradores
-    '4': Coordenador de grupo de clientes (núcleo)
-    '5': Usuario com permissao para tudo
-    '7': Grupo com acesso limitado
-  permission_id:
-    '1': Root administrator permission level
-    '2': Usuario comum do sistema
-    '3': Analista
-    '4': Coordenador de grupos de clientes (nucleo)
-    '5': Regional Administrator
-    '7': Cadastra cliente para analise de credito.
+    '27': TOCANTINS
 instancia:
   instancia:
     '2': 2ª instância
@@ -1140,52 +1127,9 @@ instancia:
   turma_4:
     '0': Não
     '1': Sim
-lawsuitnature2extralawsuitfields:
-  person_id:
-    '1046': VIA VAREJO S/A
-    '1074': LIGHT SERVIÇOS DE ELETRICIDADE S.A.
-    '21445': GRUPO VIA VAREJO
-    '28586': MASTERCARD BRASIL SOLUÇÕES DE PAGAMENTO LTDA
-    '63613': GPA
-lawsuits_jurify_clients:
-  client_id:
-    '6625': COMPANHIA BRASILEIRA DE DISTRIBUIÇÃO
-    '28586': MASTERCARD BRASIL SOLUÇÕES DE PAGAMENTO LTDA
-persons2project_prazos:
-  person_id:
-    '64506': LARISSA OLIVEIRA
-    '779': NAIARA MARQUES
-    '27701': GESSICA BERNARDO
-    '35154': ANA CHAVES
-    '37808': LARISSA VILELA
-    '65995': VANESSA COSTA
-  prazo_id:
-    '9': xxx
-    '4': Analisar Dashbord do cível
-    '5': Analisar e tratar processos duplicados no SAID
-    '3': Juntada de preposição e substabelecimento
-projectevents:
-  status:
-    '0': Ativo / Pendente
-  project_id:
-    '10': Resposta ofício (teste)
-    '13': CONSULTAS E PARECERES
-    '14': PAUTAS DIÁRIAS
-    '15': DEMANDAS E-MAIL
-    '16': OPERACIONAL CÍVEL
-    '17': REUNIÕES
-    '18': DEMANDAS RIO DE JANEIRO
-    '19': teste lgpd
-    '20': xxx
-    '27': xxx
-publication_classifications:
-  created_at_userid:
-    '1': Dalton
-related_lawsuits:
-  parent_lawsuit_id:
-    '83434': 'Motivo: ESBULHO/TURBAÇÃO/AMEAÇA'
-    '100770': INSTITUTO DE PROTEÇÃO AMBIENTAL DO AMAZONAS
-    '73340': Ações Conexas
+  transito_injulgado:
+    '0': Não
+    '1': Sim
 sentence2lawsuit_2:
   sentence_amount_result:
     '1': Procedente
@@ -1222,8 +1166,6 @@ sentence2lawsuit_stf:
   sentence_amount_result:
     '2': Improcedente
     '3': Parcialmente procedente
-  user_id:
-    '1': AmericoBarroso
   sentence_amount_risk:
     '3': Provável
     '4': Praticamente certo
@@ -1258,65 +1200,6 @@ state:
     SE: SERGIPE
     SP: SÃO PAULO
     TO: TOCANTINS
-subclients:
-  client_id:
-    '1046': VIA VAREJO S/A
-    '1058': CNOVA
-  subclient_id:
-    '1048': PONTO FRIO.COM COMERCIO ELETRONICO S.A
-    '1049': CASAS BAHIA
-tech_assistant2pericia_controls:
-  tech_assistant_id:
-    '619': CLAUDINÉIA
-    '620': IGOR MAGELA
-    '621': MILLER GOMES
-    '622': DANIELA CAROLINA
-    '623': ALESSANDRO FERREIRA
-    '624': PAULA CRISTINA
-    '625': DANIEL MAROTA
-    '626': ANA PAULA COSTA
-    '627': DR. MILLER
-    '629': FLORÊNCIO
-    '630': ROBERTO CARLOS
-    '631': DIEKSON
-    '632': MÁRCIA MARIA
-    '633': GERMANO
-    '634': FREDSON SANTOS
-    '635': VICENTE DE PAULA
-    '637': EULER RODRIGUES
-thirdpartyaccess:
-  user_id:
-    '15': Sada
-    '248': SADA
-    '258': Heloisa
-    '259': Walter
-    '260': Leonardo
-    '261': Geraldo
-    '262': Pamela
-    '263': Alline
-    '264': Eliza
-    '265': Vagner
-    '266': Diego
-    '267': Mayara
-    '441': Grupo NC
-    '492': Arantes e Serenini Cálculos Trabalhistas
-  client_id:
-    '1046': VIA VAREJO S/A
-    '1625': NEWTON CARDOSO
-    '6625': COMPANHIA BRASILEIRA DE DISTRIBUIÇÃO
-    '29581': BRATIL EMPREENDIMENTOS E PARTICIPAÇÕES S/A
-    '38375': ASSAI ATACADISTA
-    '63613': GPA
-    '67360': NEWTON CARDOSO JUNIOR
-  group_id:
-    '3784': GRUPO SADA
-user2group:
-  group_id:
-    '1': Grupo do administrador root
-    '2': Usuário comum
-    '4': Coordenador de grupo de clientes (núcleo)
-    '5': Usuario com permissao para tudo
-    '7': Grupo com acesso limitado
 varas_cartorios:
   court_division_idcourt_division:
     '3': TRT03 (MG)
@@ -1382,9 +1265,6 @@ acordo_nucleus:
     '13': Dependência de Aprovação de Seguradora ou Terceiro
     '14': Processo Suspenso / Sobrestamento (Tema Repetitivo)
     '15': Outros Motivos
-correspondent_requests_cancel_reasons:
-  correspondent_request_id:
-    '5': Indefinido
 groups:
   group_id:
     '1': Área comercial
@@ -1398,46 +1278,24 @@ groups:
     Estagiário: Grupo com acesso limitado
     Supervisor: Usuário responsável por um grupo de colaboradores
     Coordenador: Coordenador de grupo de clientes (núcleo)
-  description:
-    Grupo do administrador root: root administrator
-    Usuário comum: Colaborador
-    Usuario com permissao para tudo: Administrador
-    Grupo com acesso limitado: Estagiário
-publicationxml:
-  user_id:
-    '1': AmericoBarroso
-publicationxml_extra:
-  search_term_id:
-    '1': Execução Provisória
-    '2': Cumprimento Sentença (CumSen)
-    '3': Execução de Certidão de Crédito Judicial
-    '4': Ação de Cumprimento (ACum)
-    '5': Execução Fiscal
-    '6': Execução de Título Extrajudicial
-    '9': Carta Precatória (CP)
-    '10': Recurso de Julgamento Parcial
-    '12': Cumprimento Sentença (CumPrSe)
-    '13': Ação de Cumprimento (AC)
-    '14': Ofício Circular AR
-    '19': Recurso de Julgamento Parcial
 sentence2lawsuit:
   sentence_amount_result:
-    '3': Parcialmente procedente
-    '5': Extinto sem resolução do mérito
     '1': Procedente
     '2': Improcedente
+    '3': Parcialmente procedente
     '4': Acordo
-    '26': Ilegitimidade acolhida
+    '5': Extinto sem resolução do mérito
+    '9': Não houve condenação
+    '16': Laudo positivo
+    '20': Extinção da execução
     '21': Exclusão da lide
     '23': Não provido
-    '20': Extinção da execução
-    '9': Não houve condenação
-    '25': Pendente de julgamento
-    '32': Improcedência em relação ao cliente
     '24': Provido
-    '16': Laudo positivo
+    '25': Pendente de julgamento
+    '26': Ilegitimidade acolhida
     '30': A revisar
     '31': Liquidado / Comprovado (Cálculos Homologados)
+    '32': Improcedência em relação ao cliente
   sentence_amount_risk:
     '1': Remoto
     '2': Possível
@@ -1449,11 +1307,6 @@ businessunitgroup:
     Operacional: Área Operacional
     Administrativa: Área administrativa
     Diretoria: Área da diretoria
-  description:
-    Área comercial: Comercial
-    Área Operacional: Operacional
-    Área administrativa: Administrativa
-    Área da diretoria: Diretoria
   operation:
     '1': Área da diretoria
 permissions:
@@ -1463,15 +1316,9 @@ permissions:
     Validator: Analista
     Coordenador: Coordenador de grupos de clientes (nucleo)
     Cadastrista: Cadastra cliente para analise de credito.
-  description:
-    Root administrator permission level: root administrator
-    Usuario comum do sistema: Usuario
-    Analista: Validator
 country:
   sigla:
     BR: Brasil
-  nome:
-    Brasil: BR
 tax:
   rate:
     '0.65': PIS
@@ -1504,79 +1351,65 @@ turmas:
     '2': 2ª Turma/Câmara
 court_division:
   court_division_code:
-    '03': Juizado Especial
-    '13': Conselho Regional de Administração
-    '25': Secretária do Meio Ambiente
     '01': Tribunal Regional
     '02': Tribunal de Justiça
-    '15': Delegacia
-    '05': Procon
-    '20': Tribunal de Contas do Estado
-    '24': MPF
-    08: Ministério Público
-    '22': IPAAM
-    09: CARF
-    '18': Superintendência de Administração Tributária
-    '06': MPT
+    '03': Juizado Especial
     '04': Superior
+    '05': Procon
+    '06': MPT
     '07': SEF
+    '08': Ministério Público
+    '09': CARF
     '10': CART
+    '11': Receita Federal
     '12': Conselho de Contribuinte
+    '13': Conselho Regional de Administração
+    '14': Tribunal de Contas da União
+    '15': Delegacia
     '16': Juizado Especial Federal
     '17': Superintendência Regional do Trabalho e Emprego
+    '18': Superintendência de Administração Tributária
     '19': Agência Nacional de Aviação Civil
+    '20': Tribunal de Contas do Estado
     '21': TRE
+    '22': IPAAM
     '23': IMAC
-    '11': Receita Federal
-    '14': Tribunal de Contas da União
+    '24': MPF
+    '25': Secretária do Meio Ambiente
 lawsuits_phase_log:
   lawsuit_phase:
     '33': Agravo de Petição
     '37': GRU
 lawsuits_result_log:
   result:
-    '3': Parcialmente procedente
-    '2': Improcedente
-    '4': Acordo
     '1': Procedente
-    '15': Duplicidade
-    '25': Pendente de julgamento
-    '21': Exclusão da lide
-    '23': Não provido
-    '9': Não houve condenação
-    '20': Extinção da execução
-    '26': Ilegitimidade acolhida
-    '6': Pagamentos por terceiros
-    '29': Arquivado
+    '2': Improcedente
+    '3': Parcialmente procedente
+    '4': Acordo
     '5': Extinto sem resolução do mérito
-    '32': Improcedência em relação ao cliente
-    '24': Provido
-    '22': Carta Precatória cumprida
+    '6': Pagamentos por terceiros
     '7': Sem custo
     '8': Documento que comprove o alegado
-    '14': Depoimento da testemunha do reclamante
+    '9': Não houve condenação
     '10': Testemunhas
-    '19': Confissão de preposto
-    '16': Laudo positivo
-    '28': Arquivar
-    '27': Sentença homologatória de acordo
     '11': Arquivamento - Ausência reclamante
     '13': Ausência de preposto - revelia
+    '14': Depoimento da testemunha do reclamante
+    '15': Duplicidade
+    '16': Laudo positivo
     '17': Solicitado pelo pool
-print_reports_options_order:
-  print_option:
-    '104': basegeral
-    '139': pedidos
-    '140': Padrão CV
-    '180': Sustentação Oral
-    '20': Relatório Geral audiências
-    '38': Bruno
-    '56': Renata
-    '6': REL. SADA TRABALHISTA
-    '75': BASE
-    '76': SANEAMENTO SAIDJUR
-    '77': ff
-    '8': Processos migrados
+    '19': Confissão de preposto
+    '20': Extinção da execução
+    '21': Exclusão da lide
+    '22': Carta Precatória cumprida
+    '23': Não provido
+    '24': Provido
+    '25': Pendente de julgamento
+    '26': Ilegitimidade acolhida
+    '27': Sentença homologatória de acordo
+    '28': Arquivar
+    '29': Arquivado
+    '32': Improcedência em relação ao cliente
 publication_text_search_terms:
   term:
     ExProvAS: Execução Provisória
@@ -1599,3 +1432,711 @@ publication_text_search_terms:
     Execucao de Titulo Extrajudicial: Execução de Título Extrajudicial
     CCCiv: Conflito de Competência
     TutCautAnt: Tutela Cautelar Antecedente
+accountspayable:
+  approved:
+    '0': Pendente
+    '1': Aprovado
+    '2': Reprovado
+  entrytype:
+    n: Normal
+    p: Programação de Despesa
+    s: Solicitação
+  payabletype:
+    v: Variável
+    f: Fixo
+  status:
+    '0': Inativo
+    '1': Ativo
+accountsreceivable:
+  payabletype:
+    v: Variável
+    f: Fixo
+  status:
+    '0': Inativo
+    '1': Ativo
+automaticprazos_lawsuits:
+  date_reference:
+    a: Após (After)
+    b: Antes (Before)
+  event:
+    l: Processo (Lawsuit)
+    h: Audiência (Hearing)
+    pp: Prazo de Análise de Provisão
+    pe: Prazo de Acompanhamento de Encerramento
+    lr: Resultado do Processo
+    ps: Prazo de Sentença
+  hearing_type:
+    all: Todas as audiências
+    first: Primeira audiência
+  lawsuit_phase:
+    '0': Todas as fases
+    '1': Conhecimento
+    '2': Recursal
+    '3': Execução
+    '4': Acordo
+  new_prazo_update_day:
+    '1': Dia 1
+    '2': Dia 2
+    '3': Dia 3
+    '4': Dia 4
+    '5': Dia 5
+    '6': Dia 6
+    '7': Dia 7
+    '8': Dia 8
+    '9': Dia 9
+    '10': Dia 10
+    '11': Dia 11
+    '12': Dia 12
+    '13': Dia 13
+    '14': Dia 14
+    '15': Dia 15
+    '16': Dia 16
+    '17': Dia 17
+    '18': Dia 18
+    '19': Dia 19
+    '20': Dia 20
+    '21': Dia 21
+    '22': Dia 22
+    '23': Dia 23
+    '24': Dia 24
+    '25': Dia 25
+    '26': Dia 26
+    '27': Dia 27
+    '28': Dia 28
+    '29': Dia 29
+    '30': Dia 30
+    '31': Dia 31
+  status:
+    '0': Inativo
+    '1': Ativo
+  type_days:
+    n: Dias Corridos (Normal)
+    b: Dias Úteis (Business)
+  what_lawsuits:
+    all: Todos os processos
+    even: Processos pares
+    odd: Processos ímpares
+claims_pericias_control:
+  pericia_result:
+    p: Positivo / Favorável
+    n: Negativo / Desfavorável
+    d: Dispensada
+    pe: Pendente
+clientfilemetadata:
+  type:
+    pz: Prazo
+contracts:
+  status:
+    '0': Inativo
+    '1': Ativo
+correspondent_requests:
+  status:
+    '0': Inativo / Pendente
+    '1': Ativo / Concluído
+dates2hearing:
+  reason:
+    '1': Adiada
+    '2': Adiada sine die
+    '3': Antecipada
+    '4': Cancelada
+employee2lawsuit:
+  lawsuitphase:
+    '1': Conhecimento
+    '2': Recursal
+    '3': Execução
+expedients:
+  type:
+    p: Publicação
+    l: Processo
+expensereport:
+  status:
+    '0': Aberto
+    '1': Fechado
+expenserequest:
+  settlement:
+    '0': Não liquidado
+    '1': Liquidado
+  status:
+    '0': Aberto
+    '1': Fechado
+final_payments:
+  payment_type:
+    '1': Boleto / Guia
+    '2': Depósito Judicial
+    '3': Transferência Bancária / PIX
+    '4': Outros
+generaltaskcontrol:
+  status:
+    '0': Pendente / Inativo
+    '1': Em Andamento / Ativo
+    '2': Concluído
+    '3': Cancelado
+lawsuitbudget:
+  status:
+    '0': Inativo
+    '1': Ativo
+lawsuitdifflevel:
+  difflevel:
+    '1': Nível 1
+    '2': Nível 2
+    '3': Nível 3
+    '4': Nível 4
+    '5': Nível 5
+    '6': Nível 6
+    '7': Nível 7
+    '8': Nível 8
+    '9': Nível 9
+    '10': Nível 10
+lawsuitnature:
+  processtype:
+    j: Judicial
+    a: Administrativo
+lawsuittasks:
+  processtype:
+    j: Judicial
+    a: Administrativo
+notifications_status:
+  status:
+    '0': Normal
+    '1': Minimizado
+operationnature:
+  type:
+    '1': Receita (Income)
+    '2': Despesa (Expense)
+operationnaturegroup:
+  type:
+    '1': Receita (Income)
+    '2': Despesa (Expense)
+otherdocs:
+  processtype:
+    j: Judicial
+    a: Administrativo
+projectevents:
+  status:
+    '0': Inativo
+    '1': Ativo
+    '2': Concluído
+publicationxml:
+  aut_event:
+    l: Processo (Lawsuit)
+    h: Audiência (Hearing)
+    pp: Prazo de Análise de Provisão
+    pe: Prazo de Acompanhamento de Encerramento
+    cl_update: Atualização Sistema do Cliente
+    pph: Prazo Pós-Audiência
+    lr: Resultado do Processo
+    ps: Prazo de Sentença
+  nature:
+    p: Publicação
+    m: Manual
+    i: Importação
+    a: Andamento
+    j: Jurify
+    av: Aviso
+    aut: Automático
+    api: API
+    cron: Rotina Agendada (Cron)
+    ag: Agenda
+    api_int: API Interna
+  status:
+    '0': Inativo
+    '1': Ativo
+purchaseorder:
+  approve_request:
+    '0': Pendente
+    '1': Aprovado
+    r: Reprovado
+  estimate_picked:
+    '1': Orçamento 1
+    '2': Orçamento 2
+    '3': Orçamento 3
+  status:
+    '0': Inativo
+    '1': Ativo
+taskcontrol:
+  status:
+    '0': Pendente
+    '1': Em Andamento
+    '2': Concluída
+    '3': Cancelada
+transactions:
+  agent:
+    '0': Não definido
+    c: Cliente
+    e: Colaborador (Employee)
+    s: Fornecedor (Supplier)
+    g: Grupo
+    aut: Transação gerada automaticamente
+  approved:
+    '0': Não aprovado
+    '1': Aprovado
+  nature:
+    c: Crédito
+    d: Débito
+user2xmlfile:
+  status:
+    '0': Inativo
+    '1': Ativo
+publicationxml_extra:
+  source_api:
+    '1': Publicação
+    '2': Intimação
+dominios_lookup:
+  varas: # lawsuits.vara_id -> varas.id (Natureza / Esfera)
+    1: Justiça do Trabalho
+    2: Justiça Estadual
+    3: Administrativo
+    4: Justiça Federal
+    5: Consultivo
+    6: Judicial
+    7: Ambiental
+    9: Juizado Especial Cível
+    10: Ministério Público do Trabalho
+    11: Ministério Público
+    12: Juizado Especial Federal
+    13: Criminal
+    14: Extrajudicial
+    15: Inquérito Civil
+
+  instances: # lawsuits.instance / instancia.instancia -> instances.id
+    1: 1ª instância
+    2: 2ª instância
+    3: 3ª instância
+    4: Extraordinária
+
+  client_systems: # persons.client_system / clientsystem2lawsuit.client_system_id -> client_systems.id
+    1: ELAW
+    2: CPJ
+    3: RR Sistemas
+
+  lawsuit_phases: # lawsuits.lawsuit_phase -> lawsuit_phases.id
+    1: Conhecimento
+    2: Recursal
+    3: Execução
+    4: Acordo
+    5: TST
+    6: Aguardando Arquivamento
+    7: Arquivado
+    8: Encerrado
+    9: Encaminhado para Encerramento
+    10: Análise Recursal
+    11: Tratamento Inicial
+    12: Recurso - Aguardando Contrarrazões
+    13: Instrução
+    14: ANDAMENTO
+    23: Ag Sentença
+    24: Arquivado Provisoriamente
+    25: Aguarda julgamento
+    26: Processo Suspenso
+    27: Execução Provisória
+    28: Extinto
+    29: FINALIZADO
+    30: Cumprimento de sentença
+    31: Aguardando Trânsito
+    32: Suspenso
+    33: Aguardando julgamento
+    34: Parcelamento
+    35: Conhecimenrto
+    36: Baixado
+    37: SENTENCIADO
+    38: Transito em Julgado
+    39: SENTENÇA
+    40: Inicial
+    41: Decisória
+    42: Inquérito
+    43: Postulatória
+    44: Instrutória
+    45: Executiva
+    46: Execução Provisória (TRT)
+    47: Execução Provisória (TST)
+
+  lawsuit_results: # lawsuits.result / hearingcontrol.result -> lawsuit_results.id
+    1: Procedente
+    2: Improcedente
+    3: Parcialmente procedente
+    4: Acordo
+    5: Extinto sem resolução do mérito
+    6: Pagamentos por terceiros
+    7: Sem custo
+    8: Documento que comprove o alegado
+    16: Laudo positivo
+    17: Solicitado pelo pool
+    18: Dispensa sem justa causa
+    19: Confissão de preposto
+    20: Extinção da execução
+    21: Exclusão da lide
+    22: Carta Precatória cumprida
+    23: Não provido
+    31: Sentença procedente em parte - Condenação subsidiária
+    32: Improcedência em relação ao cliente
+
+  lawsuit_close_reasons: # lawsuits.close_reason_id -> lawsuit_close_reasons.id
+    1: Arquivada no Procon/Reclamação Atendida
+    2: Pagamentos efetuados pelo co-réu
+    3: Desistência da parte autora/Ausência em audiência
+    4: Acordo efetuado pela corréu
+    5: Apresentada Resposta
+    6: Cumprimento da Condenação
+    7: Sentenças de Improcedência/Ilegitimidade
+    8: Processo sem julgamento do mérito
+    9: Ilegitimidade do cliente
+    10: Improcedente
+    11: Pagamentos efetuados pelo cliente
+    12: Substituição de Patrocínio Legal
+    13: Retirada do processo pelo autor
+    14: Acordo efetuado pelo cliente
+    15: Trânsito em Julgado
+    16: Alteração de Sistema
+
+  hearingtype: # hearingcontrol.hearingtype / prazo2publication.hearingtype -> hearingtype.hearingtype_id
+    7: Inicial
+    8: Nova Inicial
+    9: Una
+    10: Nova Una
+    11: Instrução
+    12: Oitiva de Testemunha
+    13: Audiência de Conciliação
+    14: AIJ - Audiência de Instrução e Julgamento
+    15: Encerramento de Instrução
+    17: Sustentação Oral
+    18: Reunião
+    19: Dispensados Partes e Procuradores
+    20: Audiência
+    21: Julgamento
+    22: Sentença
+    23: Perícia
+
+  paymentguarantee_types: # paymentguarantee2lawsuit.type -> paymentguarantee_types.id
+    1: Acordo
+    2: Bacenjud
+    3: Custas
+    4: Depósito Judicial
+    5: Depósito Recursal (RO)
+    6: Depósito Recursal (RR)
+    7: Depósito Recursal (AIRR)
+    8: Depósito Recursal
+    9: Consignação
+    10: Honorários Periciais
+    11: Pagamento
+    12: Seguro Garantia
+    13: Recurso Adesivo
+    14: Recurso Extraordinário
+    15: Embargos de Execução
+    16: Pagamento Indenização
+    17: INSS
+    18: Pagamento IR
+    19: Multa
+    20: Depósito Recursal (TST)
+    21: Penhora
+    22: Parcelamento
+    23: Honorários
+    24: Judicial
+    25: DEPÓSITO JUDICIAL/ SEGURO FIANÇA
+    26: DEPÓSITO JUDICIAL/ MÓVEIS
+    27: SEGURO FIANÇA
+
+  accountspaylimits: # usertasks.paymentlimit_id / usertasks.purchaseorderlimit -> accountspaylimits.limit_id
+    1: all
+    2: '200'
+    3: '1000'
+
+  claimfundamentos: # claimfundamentos.id (Fundamentos de Insalubridade / Periculosidade)
+    3: Ruído
+    4: Vibração
+    5: Calor
+    6: Agentes químicos
+    7: Inflamável
+    8: Altura
+    9: Explosivo
+    10: Alta Tensão
+    11: Radiação
+    12: Agente Armado
+    13: Motocicleta
+    14: Acidente de Trabalho
+    15: Doença Ocupacional
+    16: Atividade Periculosa
+    17: Exposição a agentes periculosos
+
+  companytype: # companytype.companytype_id
+    1: supervisor de controle
+
+  correspondent_activities: # correspondent_activity_rates.activity_id -> correspondent_activities.id
+    1: Alvará
+    2: Aud. Cível (adv)
+    3: Aud. Cível (adv+prep)
+    4: Aud. Cível (prep)
+    5: Aud. Inicial/Conciliação
+    6: Aud. Instrução julgamento
+    7: Aud. Trabalhista (adv)
+    8: Aud. Trabalhista (adv+prep)
+    9: Aud. Trabalhista (prep)
+    10: Cópia de processo
+    11: Despacho
+    12: Distribuição precatória
+    13: Distribuição inicial
+    14: Pagamento guia
+    15: Protocolo
+    16: Retirada de certidão
+    17: Retirada guia
+    18: Sustentação oral
+
+  correspondent_document_types: # correspondent_document_types.id
+    1: Ata de audiência
+    2: Autorização
+    3: Certidão ou comprovante de indisponibilidade
+    4: Comprovante pagamento
+    5: Indefinido
+    6: Orientações para audiência
+    7: Outro
+    8: Publicação
+    9: Substabelecimento
+
+  court: # court.idcourt
+    1: Tribunal Regional
+    2: Tribunal de Justiça
+    3: Juizado Especial
+    4: Superior
+    5: Procon
+    6: MPT
+    7: SEF
+    8: Ministério Público
+    9: CARF
+    10: CART
+    11: Receita Federal
+    12: Conselho de Contribuinte
+    13: Conselho Regional de Administração
+    14: Tribunal de Contas da União
+    15: Delegacia
+    16: Juizado Especial Federal
+    17: Superintendência Regional do Trabalho e Emprego
+    18: Superintendência de Administração Tributária
+    19: Agência Nacional de Aviação Civil
+    20: Tribunal de Contas do Estado
+    21: TRE
+    22: IPAAM
+    23: IMAC
+    24: MPF
+    25: Secretária do Meio Ambiente
+    26: Ministério do Trabalho e Emprego - MTE
+    27: INEA - Instituto Estadual do Ambiental
+    28: Agência Nacional de Transporte Aquaviários
+    29: IBAMA
+    30: INSS
+    31: Fundação Estadual do Meio Ambiente- FEAM
+    32: Superintendência de Projetos Prioritários- SUPPRI
+    33: SECRETARIA DO ESTADO DE MEIO AMBIENTE E DESENVOLVIMENTO SUSTENTÁVEL- SEMAD
+    34: PROCURADORIA DA REPUBLICA NO ESTADO DE RONDÔNIA
+    35: DEPARTAMENTO DE FISCALIZAÇÃO E MONITORAMENTO AMBIENTAL
+    36: Secretaria Municipal de Meio Ambiente de Congonhas
+    37: Prefeitura Municipal
+    38: Companhia de Energia de Tráfego - CET/SP
+
+  demandant_areas: # demandant_areas.id
+    1: ADM ADMINISTRATIVO
+    2: ADM GESTAO ADMINISTRATIVA
+    3: ATACADO COMERCIAL GESTAO
+    4: ATENDIMENTO GESTAO
+    5: ATENTO
+    6: B2B COMERCIAL GESTAO
+    7: B2C COMERCIAL GESTAO
+    8: B2C COMERCIAL IMPORTACAO
+    9: B2C PRICING
+    10: B2C SERVICOS DIVERSOS
+    11: B2C SERVICOS GARANTIA ESTEND
+    12: B2C SUPORTE COML PLANEJAMENTO
+    13: CARTAO BRADESCO CORP
+    14: CONTABILIDADE CORPORATIVA
+    15: CREDITO E COBRANCA
+    16: DCC PONTO FRIO
+    17: DIR SERVICOS
+    18: DIRETORIA REDE
+    19: DIST ABASTEC LOJA
+    20: DIST ENTREGA CLIENTE
+    21: DMM MONTAGEM
+    22: ENTREGA RETIRA RÁPIDO
+    23: FIN ANALISE CRED E-COMMERCE
+    24: FIN FISCAL E FATURAMENTO
+    25: FIN MEIOS DE PAGAMENTO
+    26: FIN TESOURARIA
+    27: FRAUDE - ONLINE
+    28: GPA
+    29: GPA (GLOBEX)
+    30: INOVAÇÃO E MEIOS DE PAGAMENTO
+    31: JUR CIVEL
+    32: JUR DMM BA/NE
+    33: JUR DMM RJ/ES
+    34: JUR DMM SP/SPI
+    35: JURIDICO DAT
+    36: JURIDICO LOJA CO
+    37: JURIDICO LOJA GDE SP
+    38: JURIDICO LOJA INT SP
+    39: JURIDICO LOJA MG NOR
+    40: JURIDICO LOJA RIO
+    41: JURIDICO LOJA SUL
+    42: LISTA DE CASAMENTO - ONLINE
+    43: MARKETPLACE GESTAO
+    44: MKT MULTICANALIDADE
+    45: MKT OUTROS NEGOCIOS
+    46: MONTAGEM - ONLINE
+    47: OPER JURIDICO CORP
+    48: OPERACOES MARKETPLA
+    49: PREVENCAO A FRAUDE
+    50: PREVENCAO DE PERDAS GESTAO
+    51: TI SOX E SEG DA INFORMACAO
+    52: TRANSPORTES GESTAO
+    53: TRANSPORTES PROGRAMACAO
+    54: VENDAS ONLINE
+
+  expensereportitems: # expensereportitems.item_id
+    1: Deslocamento
+    2: Pedágio
+    3: Táxi
+    4: Alimentação
+    6: Hospedagem
+    7: Passagem
+    8: Estacionamento
+    9: Cópias/Xerox
+    10: Cartório
+    11: Protocolo Integrado
+    12: Correios
+    14: Despesas de Viagem
+    15: Advogado Correspondente
+    16: Outros
+    17: Recolhimento de Custas
+    18: Combustível
+
+  jobroles: # users.jobrole_id -> jobroles.jobrole_id
+    1: TI
+    2: TELEFONISTA
+    3: TRABALHADOR FLORESTAL
+
+  publication_classifications: # publication_classifications.id
+    1: Acórdão
+    2: Acórdão JEC
+    3: Alegações Finais
+    4: Audiência
+    5: Carta precatória à disposição
+    6: Complementar custas de carta precatória
+    7: Comprovar cumprimento de obrigação de fazer/não fazer
+    8: Contrarrazões ao Agravo em Recurso Especial
+    9: Contrarrazões ao Agravo em Recurso Extraordinário
+    10: Contrarrazões de Agravo  de Instrumento
+    11: Contrarrazões de Agravo Interno
+    12: Contrarrazões de Apelação
+    13: Contrarrazões de Recurso Especial
+    14: Contrarrazões de Recurso Extraordinário
+    15: Contrarrazões de Recurso Inominado
+    16: Decisão Interlocutória
+    17: Decisão monocrática
+    18: Decisão monocrática Recurso Especial/ Recurso Extraordinário
+    19: Efetuar pagamento
+    20: Efetuar pagamento de honorários periciais
+    21: Embargos à execução
+    22: Emendar a Inicial
+    23: Especificar provas
+    24: Fim de vista
+    25: Impugnação à contestação
+    26: Impugnação ao cumprimento de sentença
+    27: Impugnação aos embargos à execução
+    28: Impugnação aos embargos monitórios
+    29: Impugnar cálculos
+    30: Indicar bens à penhora
+    31: Juntar documentos
+    32: Juntar planílha de cálculos atualizada
+    33: Juntar procuração
+    34: Manifestar fim da dilação
+    35: Manifestar fim da suspensão
+    36: Manifestar sobre honorários periciais
+    37: Manifestar interesse em audiência de conciliação
+    38: Manifestar oposição ao julgamento virtual
+    39: Manifestar sob pena
+    40: Manifestar sobre bloqueio online
+    41: Manifestar sobre despacho
+    42: Manifestar sobre embargos de declaração
+    43: Manifestar sobre laudo pericial
+    44: Manifestar sobre mandado/AR
+    45: Perícia
+    46: Praça/Leilão
+    47: Providenciar novo endereço
+    48: Providenciar publicação de Edital
+    49: Quesitos/ Indicar assistente técnico
+    50: Recolher custas finais
+    51: Recolher custas sob pena
+    52: Recolher/complementar custas
+    53: Recolher/complementar preparo
+    54: Regularizar a representacao processual
+    55: Requerer o que entender de direito
+    56: Requerer o que entender de direito sob pena de extinção
+    57: Retirar alvará
+    58: Retirar documentos
+    59: Retirar mandado de pagamento
+    60: Sentença
+    61: Sentença cível embargos declaração improcedente
+    62: Sentença cível embargos declaração parcialmente procedente
+    63: Sentença cível embargos declaração procedente
+    64: Sentença cível extinção
+    65: Sentença cível homologatória acordo
+    66: Sentença cível homologatória de desistência
+    67: Sentença cível improcedente
+    68: Sentença cível parcialmente procedente
+    69: Sentença cível procedente
+    70: Sentença JEC
+    71: Sessão de Julgamento
+    72: Verificar desarquivamento
+
+  publication_text_search_terms_categories: # publication_text_search_terms_categories.id
+    1: Ação de Cumprimento
+    2: Carta Precatória
+    3: Cumprimento de Sentença
+    4: Execução de Certidão de Crédito Judicial
+    5: Mandado de Segurança
+    6: Execução Fiscal
+    7: Execução de Título Extrajudicial
+    8: Execução Provisória
+    9: Recurso de Julgamento Parcial
+    10: Décio Freire
+    11: TRT 14 - Contrato GPA
+    12: Conflito de Competência
+    13: Tutela Cautelar Antecedente
+
+  strategic_motives: # strategic_motives.id
+    1: Acidente de Trabalho
+    2: Dano Moral
+    3: Dano Moral Assalto
+    4: Estabilidade/Reintegração
+    5: Fraude Contratual
+    6: Hora Extra
+    7: Justa Causa
+    8: Justa Causa/Periculosidade Transporte de Valores
+    9: Nulidade da Justa Causa
+    10: Reclamante
+    11: Reintegração
+    12: Rescição Indireta
+    13: Sindicato
+    14: Unicidade Contratual
+    15: Valor Envolvido
+    16: Vínculo Fraude
+    17: RESCISAO INDIRETA
+    18: REITEGRACAO
+    19: JUSTA CAUSA / PERICULOSIDADE TRANSPOTE DE VALORES
+    20: RESPONSABILIDADE SUBSIDIÁRIA
+    21: REVERSAO DA JUSTA CAUSA
+    22: ASSEDIO MORAL
+    23: VINCULO
+    24: INSALUBRIDADE
+    25: INSALUBRIDADE/PERICULOSIDADE
+    26: SINDICATOS/FEDERACOES/CONFEDERACOES
+    27: INPI
+    28: REINTEGRACAO/ESTABILIDADE
+    29: DANO MORAL DOENCA
+    30: PERICULOSIDADE
+    31: ESTABILIDADE
+    32: INSALUBRIDADE/ PERICULOSIDADE
+    33: PEDIDO
+    34: DANO MATERIAL
+    35: DANO MORALL TRANSPORTE DE VALORES
+    36: PERICULOSIDADE/ INSALUBRIDADE
+    37: PERICULOSIDADE TRANSPORTE DE VALORES
+    38: DANO MORAL TRASNPORTE DE VALORES
+    39: DANO MORAL TRANSPORTE DE VALORES
+    40: DANO MORAL TRANSPORTE DE VALOR

@@ -1,13 +1,157 @@
-atualizado_em: '2026-11-11T10:28:13.090911+00:00'
+atualizado_em: '2026-11-19T11:46:00.000000+00:00'
 confirmadas:
+  accountspayable.autodocnum:
+    tabela: accountspayable
+    coluna: autodocnum
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  accountspayable.denied:
+    tabela: accountspayable
+    coluna: denied
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  accountspayable.distcompdatepayments:
+    tabela: accountspayable
+    coluna: distcompdatepayments
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  accountspayable.entrytype_p_approved:
+    tabela: accountspayable
+    coluna: entrytype_p_approved
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  accountspayable.from_expensereport:
+    tabela: accountspayable
+    coluna: from_expensereport
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  accountspayable.multipleopna:
+    tabela: accountspayable
+    coluna: multipleopna
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  accountspayable.operational:
+    tabela: accountspayable
+    coluna: operational
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  accountspayable.provision:
+    tabela: accountspayable
+    coluna: provision
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  accountspayable.rateio_busunit:
+    tabela: accountspayable
+    coluna: rateio_busunit
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  accountspayable.reimb:
+    tabela: accountspayable
+    coluna: reimb
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  accountspayable.splitpayments:
+    tabela: accountspayable
+    coluna: splitpayments
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  accountspayable.transition:
+    tabela: accountspayable
+    coluna: transition
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  accountsreceivable.autodocnum:
+    tabela: accountsreceivable
+    coluna: autodocnum
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  accountsreceivable.customtax:
+    tabela: accountsreceivable
+    coluna: customtax
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  accountsreceivable.expensereport:
+    tabela: accountsreceivable
+    coluna: expensereport
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  accountsreceivable.provision:
+    tabela: accountsreceivable
+    coluna: provision
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  accountsreceivable.rateio_busunit:
+    tabela: accountsreceivable
+    coluna: rateio_busunit
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  accountsreceivable.rateio_opnaid:
+    tabela: accountsreceivable
+    coluna: rateio_opnaid
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  accountsreceivable.splitreceivable:
+    tabela: accountsreceivable
+    coluna: splitreceivable
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  accountsreceivable.transition:
+    tabela: accountsreceivable
+    coluna: transition
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  acordo_nucleus.agreement_in_hearing:
+    tabela: acordo_nucleus
+    coluna: agreement_in_hearing
+    confirmado_em: '2026-11-19T11:35:00.000000+00:00'
+  acordo_nucleus.markup_approved:
+    tabela: acordo_nucleus
+    coluna: markup_approved
+    confirmado_em: '2026-11-19T11:35:00.000000+00:00'
+  acordo_nucleus.resp_evaluation:
+    tabela: acordo_nucleus
+    coluna: resp_evaluation
+    confirmado_em: '2026-11-19T11:35:00.000000+00:00'
   automaticprazos_jurify.all_prazos:
     tabela: automaticprazos_jurify
     coluna: all_prazos
     confirmado_em: '2026-09-29T14:31:04.825092+00:00'
+  automaticprazos_lawsuits.all_clients:
+    tabela: automaticprazos_lawsuits
+    coluna: all_clients
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  automaticprazos_lawsuits.all_groups:
+    tabela: automaticprazos_lawsuits
+    coluna: all_groups
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  automaticprazos_lawsuits.insert_date_field:
+    tabela: automaticprazos_lawsuits
+    coluna: insert_date_field
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  automaticprazos_lawsuits.new_prazo_update_option:
+    tabela: automaticprazos_lawsuits
+    coluna: new_prazo_update_option
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  automaticprazos_lawsuits.validate:
+    tabela: automaticprazos_lawsuits
+    coluna: validate
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
   businessunit.deactivated:
     tabela: businessunit
     coluna: deactivated
     confirmado_em: '2026-09-29T14:31:18.763794+00:00'
+  claims.pericia:
+    tabela: claims
+    coluna: pericia
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  clientdoc.viewed:
+    tabela: clientdoc
+    coluna: viewed
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  clientsystem2lawsuit.morto:
+    tabela: clientsystem2lawsuit
+    coluna: morto
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  coligadas.direct_member:
+    tabela: coligadas
+    coluna: direct_member
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  config_prazo_emails.no_receive_prazo_confirmation_email:
+    tabela: config_prazo_emails
+    coluna: no_receive_prazo_confirmation_email
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  config_prazo_emails.prazos_not_finished_fatal_email:
+    tabela: config_prazo_emails
+    coluna: prazos_not_finished_fatal_email
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  config_prazo_emails.receive_prazo_confirmation_email:
+    tabela: config_prazo_emails
+    coluna: receive_prazo_confirmation_email
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  contracts.deleted:
+    tabela: contracts
+    coluna: deleted
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
   correspondent_activity_rates.status:
     tabela: correspondent_activity_rates
     coluna: status
@@ -56,14 +200,182 @@ confirmadas:
     tabela: correspondent_usertasks
     coluna: write_requests
     confirmado_em: '2026-09-29T14:36:33.872956+00:00'
+  court_division.no_uf:
+    tabela: court_division
+    coluna: no_uf
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  dates2hearing.active:
+    tabela: dates2hearing
+    coluna: active
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  dates2hearing.canceled:
+    tabela: dates2hearing
+    coluna: canceled
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  dates2hearing.rescheduled:
+    tabela: dates2hearing
+    coluna: rescheduled
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  dates2hearing.sinedie:
+    tabela: dates2hearing
+    coluna: sinedie
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  deniedpayables.fixed:
+    tabela: deniedpayables
+    coluna: fixed
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  deniedprotocol.denial_revised:
+    tabela: deniedprotocol
+    coluna: denial_revised
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  deniedprotocol.disconsidered:
+    tabela: deniedprotocol
+    coluna: disconsidered
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  deniedprotocol.resent:
+    tabela: deniedprotocol
+    coluna: resent
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  employee2hearing.confirmed:
+    tabela: employee2hearing
+    coluna: confirmed
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  employee2hearing_log.confirmed:
+    tabela: employee2hearing_log
+    coluna: confirmed
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  employee2jobrole.actual:
+    tabela: employee2jobrole
+    coluna: actual
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  employees.correspondent:
+    tabela: employees
+    coluna: correspondent
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  employees.hearing:
+    tabela: employees
+    coluna: hearing
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  employees.lawyer:
+    tabela: employees
+    coluna: lawyer
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  expedients.expedientfile:
+    tabela: expedients
+    coluna: expedientfile
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  expedients.finish_fail:
+    tabela: expedients
+    coluna: finish_fail
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  expedients.finish_success:
+    tabela: expedients
+    coluna: finish_success
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  expedients.instructions_respfinish:
+    tabela: expedients
+    coluna: instructions_respfinish
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  expedients.instructions_sent:
+    tabela: expedients
+    coluna: instructions_sent
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  expensereport.accountspayable:
+    tabela: expensereport
+    coluna: accountspayable
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  expensereport.advance:
+    tabela: expensereport
+    coluna: advance
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  expensereport.approved:
+    tabela: expensereport
+    coluna: approved
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  expensereport.billed:
+    tabela: expensereport
+    coluna: billed
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  expensereport.reeimburse:
+    tabela: expensereport
+    coluna: reeimburse
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  expensereport.viewed:
+    tabela: expensereport
+    coluna: viewed
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  expenserequest.approved:
+    tabela: expenserequest
+    coluna: approved
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  expenserequest.reeimburse:
+    tabela: expenserequest
+    coluna: reeimburse
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  expenserequest.viewed:
+    tabela: expenserequest
+    coluna: viewed
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  fixedaccountspayable.fixed:
+    tabela: fixedaccountspayable
+    coluna: fixed
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
   general_info.cnj_required:
     tabela: general_info
     coluna: cnj_required
     confirmado_em: '2026-09-29T14:37:17.763190+00:00'
+  general_info.self_protocol:
+    tabela: general_info
+    coluna: self_protocol
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  generalprojectconfigurations.send_prazo_email:
+    tabela: generalprojectconfigurations
+    coluna: send_prazo_email
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  generaltaskcontrol.internal:
+    tabela: generaltaskcontrol
+    coluna: internal
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
   hearingcontrol.remote:
     tabela: hearingcontrol
     coluna: remote
     confirmado_em: '2026-09-29T14:37:32.161562+00:00'
+  hearings_log.analise_prov:
+    tabela: hearings_log
+    coluna: analise_prov
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  hearings_log.canceled:
+    tabela: hearings_log
+    coluna: canceled
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  hearings_log.correspondent:
+    tabela: hearings_log
+    coluna: correspondent
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  hearings_log.deleted:
+    tabela: hearings_log
+    coluna: deleted
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  hearings_log.dispensed:
+    tabela: hearings_log
+    coluna: dispensed
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  hearings_log.hearingfile:
+    tabela: hearings_log
+    coluna: hearingfile
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  hearings_log.hearingresp_confirmed:
+    tabela: hearings_log
+    coluna: hearingresp_confirmed
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  hearings_log.need_preposto:
+    tabela: hearings_log
+    coluna: need_preposto
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  hearings_log.need_witness:
+    tabela: hearings_log
+    coluna: need_witness
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
   hearings_log.remote:
     tabela: hearings_log
     coluna: remote
@@ -76,10 +388,58 @@ confirmadas:
     tabela: jqcalendar
     coluna: IsAllDayEvent
     confirmado_em: '2026-09-29T14:39:17.373288+00:00'
+  lawsuitbudget.approved:
+    tabela: lawsuitbudget
+    coluna: approved
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  lawsuitbudget.denied:
+    tabela: lawsuitbudget
+    coluna: denied
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  lawsuitdocsmetadata.attachment:
+    tabela: lawsuitdocsmetadata
+    coluna: attachment
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  lawsuitdocsmetadata.imapemail:
+    tabela: lawsuitdocsmetadata
+    coluna: imapemail
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  lawsuitdocsmetadata.peca_fisica:
+    tabela: lawsuitdocsmetadata
+    coluna: peca_fisica
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  lawsuitdocsmetadata.pje:
+    tabela: lawsuitdocsmetadata
+    coluna: pje
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  lawsuitdocsmetadata.pjestatus:
+    tabela: lawsuitdocsmetadata
+    coluna: pjestatus
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  lawsuitdocsmetadata.procuracao_status:
+    tabela: lawsuitdocsmetadata
+    coluna: procuracao_status
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  lawsuitdocsmetadata.protocol_confirmed:
+    tabela: lawsuitdocsmetadata
+    coluna: protocol_confirmed
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  lawsuitdocsmetadata.protocolrequested:
+    tabela: lawsuitdocsmetadata
+    coluna: protocolrequested
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  lawsuitdocsmetadata.requestprotocol:
+    tabela: lawsuitdocsmetadata
+    coluna: requestprotocol
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
   lawsuits.attachments:
     tabela: lawsuits
     coluna: attachments
     confirmado_em: '2026-11-11T10:28:13.090883+00:00'
+  lawsuits.closed_gerencial:
+    tabela: lawsuits
+    coluna: closed_gerencial
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
   lawsuits.code_red:
     tabela: lawsuits
     coluna: code_red
@@ -92,6 +452,10 @@ confirmadas:
     tabela: lawsuits
     coluna: execucao_provisoria
     confirmado_em: '2026-11-11T10:28:13.090893+00:00'
+  lawsuits.individual_lawsuit:
+    tabela: lawsuits
+    coluna: individual_lawsuit
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
   lawsuits.issuer_defendant:
     tabela: lawsuits
     coluna: issuer_defendant
@@ -108,6 +472,10 @@ confirmadas:
     tabela: lawsuits
     coluna: newjnumberformat
     confirmado_em: '2026-11-11T10:28:13.090908+00:00'
+  lawsuits.pendingnumber:
+    tabela: lawsuits
+    coluna: pendingnumber
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
   lawsuits.pje:
     tabela: lawsuits
     coluna: pje
@@ -116,6 +484,10 @@ confirmadas:
     tabela: lawsuits
     coluna: relevant
     confirmado_em: '2026-11-11T10:28:13.090889+00:00'
+  lawsuits_additional_info.online:
+    tabela: lawsuits_additional_info
+    coluna: online
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
   lawsuits_additional_info.solidarity:
     tabela: lawsuits_additional_info
     coluna: solidarity
@@ -124,22 +496,190 @@ confirmadas:
     tabela: lawsuits_additional_info
     coluna: solidarity_redeemed
     confirmado_em: '2026-09-29T14:39:48.416869+00:00'
+  lawsuits_additional_info.structured_layoff:
+    tabela: lawsuits_additional_info
+    coluna: structured_layoff
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  lawsuits_exec_prov_log.execucao_provisoria:
+    tabela: lawsuits_exec_prov_log
+    coluna: execucao_provisoria
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  lawsuits_log.attachments:
+    tabela: lawsuits_log
+    coluna: attachments
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  lawsuits_log.closed_gerencial:
+    tabela: lawsuits_log
+    coluna: closed_gerencial
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
   lawsuits_log.code_red:
     tabela: lawsuits_log
     coluna: code_red
     confirmado_em: '2026-09-29T14:40:02.839385+00:00'
+  lawsuits_log.deleted:
+    tabela: lawsuits_log
+    coluna: deleted
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  lawsuits_log.execucao_provisoria:
+    tabela: lawsuits_log
+    coluna: execucao_provisoria
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  lawsuits_log.individual_lawsuit:
+    tabela: lawsuits_log
+    coluna: individual_lawsuit
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
   lawsuits_log.issuer_defendant:
     tabela: lawsuits_log
     coluna: issuer_defendant
     confirmado_em: '2026-09-29T14:39:57.977613+00:00'
+  lawsuits_log.mastercard:
+    tabela: lawsuits_log
+    coluna: mastercard
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  lawsuits_log.migrated:
+    tabela: lawsuits_log
+    coluna: migrated
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  lawsuits_log.newjnumberformat:
+    tabela: lawsuits_log
+    coluna: newjnumberformat
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  lawsuits_log.pendingnumber:
+    tabela: lawsuits_log
+    coluna: pendingnumber
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  lawsuits_log.pje:
+    tabela: lawsuits_log
+    coluna: pje
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  lawsuits_log.relevant:
+    tabela: lawsuits_log
+    coluna: relevant
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
   lawsuits_log.updated_values_calculation:
     tabela: lawsuits_log
     coluna: updated_values_calculation
     confirmado_em: '2026-09-29T14:40:08.856071+00:00'
+  lawsuits_relevant_log.relevant:
+    tabela: lawsuits_relevant_log
+    coluna: relevant
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  opna2accountspayable.provision:
+    tabela: opna2accountspayable
+    coluna: provision
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  opna2accountspayable.transition:
+    tabela: opna2accountspayable
+    coluna: transition
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  otherdocs.procuracao:
+    tabela: otherdocs
+    coluna: procuracao
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  otherdocsmetadata.attachmentother:
+    tabela: otherdocsmetadata
+    coluna: attachmentother
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  otherdocsmetadata.procuracao_status:
+    tabela: otherdocsmetadata
+    coluna: procuracao_status
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  persons.containsfiles:
+    tabela: persons
+    coluna: containsfiles
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
   persons.from_acordo_nucleus:
     tabela: persons
     coluna: from_acordo_nucleus
     confirmado_em: '2026-09-29T14:40:18.662976+00:00'
+  persons.person_group:
+    tabela: persons
+    coluna: person_group
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  persons.role_bank:
+    tabela: persons
+    coluna: role_bank
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  persons.role_client:
+    tabela: persons
+    coluna: role_client
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  persons.role_clientlawyer:
+    tabela: persons
+    coluna: role_clientlawyer
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  persons.role_correspondente:
+    tabela: persons
+    coluna: role_correspondente
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  persons.role_defendant:
+    tabela: persons
+    coluna: role_defendant
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  persons.role_desembargador:
+    tabela: persons
+    coluna: role_desembargador
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  persons.role_employee:
+    tabela: persons
+    coluna: role_employee
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  persons.role_judge:
+    tabela: persons
+    coluna: role_judge
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  persons.role_otherlawyer:
+    tabela: persons
+    coluna: role_otherlawyer
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  persons.role_plaintiff:
+    tabela: persons
+    coluna: role_plaintiff
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  persons.role_supplier:
+    tabela: persons
+    coluna: role_supplier
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  persons.role_tech_assistant:
+    tabela: persons
+    coluna: role_tech_assistant
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  persons.role_witness:
+    tabela: persons
+    coluna: role_witness
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  persons2project_prazos.confirmed:
+    tabela: persons2project_prazos
+    coluna: confirmed
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  prazo2publication.compdeadlineemail01:
+    tabela: prazo2publication
+    coluna: compdeadlineemail01
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  prazo2publication.compdeadlineemail02:
+    tabela: prazo2publication
+    coluna: compdeadlineemail02
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  prazo2publication.confirmed:
+    tabela: prazo2publication
+    coluna: confirmed
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  prazo2publication.confirmed_data:
+    tabela: prazo2publication
+    coluna: confirmed_data
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  prazo2publication.fataldeadlineemail01:
+    tabela: prazo2publication
+    coluna: fataldeadlineemail01
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  prazo2publication.fataldeadlineemail02:
+    tabela: prazo2publication
+    coluna: fataldeadlineemail02
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  prazo2publication.hearing:
+    tabela: prazo2publication
+    coluna: hearing
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
   prazo2publication_persons.confirmed:
     tabela: prazo2publication_persons
     coluna: confirmed
@@ -160,10 +700,758 @@ confirmadas:
     tabela: prazos
     coluna: inserted_for_jurify
     confirmado_em: '2026-09-29T14:41:31.079030+00:00'
+  prazos_log.admprazo:
+    tabela: prazos_log
+    coluna: admprazo
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  prazos_log.client_sys_updated:
+    tabela: prazos_log
+    coluna: client_sys_updated
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  prazos_log.compdeadlineemail01:
+    tabela: prazos_log
+    coluna: compdeadlineemail01
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  prazos_log.compdeadlineemail02:
+    tabela: prazos_log
+    coluna: compdeadlineemail02
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  prazos_log.confirmed:
+    tabela: prazos_log
+    coluna: confirmed
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  prazos_log.confirmed_data:
+    tabela: prazos_log
+    coluna: confirmed_data
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  prazos_log.cpfl_spreadsheet_import:
+    tabela: prazos_log
+    coluna: cpfl_spreadsheet_import
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  prazos_log.fataldeadlineemail01:
+    tabela: prazos_log
+    coluna: fataldeadlineemail01
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  prazos_log.fataldeadlineemail02:
+    tabela: prazos_log
+    coluna: fataldeadlineemail02
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  prazos_log.hearing:
+    tabela: prazos_log
+    coluna: hearing
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  prazos_log.lawyerfinished:
+    tabela: prazos_log
+    coluna: lawyerfinished
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  prazos_log.naf_confirmed:
+    tabela: prazos_log
+    coluna: naf_confirmed
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  prazos_log.protocol_confirmed:
+    tabela: prazos_log
+    coluna: protocol_confirmed
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  prazotype.automatic:
+    tabela: prazotype
+    coluna: automatic
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  projectactivityprazos.confirm_receive:
+    tabela: projectactivityprazos
+    coluna: confirm_receive
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  projectfilesmetadata.client_access:
+    tabela: projectfilesmetadata
+    coluna: client_access
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  publicationxml.acomp_encerramento:
+    tabela: publicationxml
+    coluna: acomp_encerramento
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  publicationxml.acum:
+    tabela: publicationxml
+    coluna: acum
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  publicationxml.analise_prov:
+    tabela: publicationxml
+    coluna: analise_prov
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  publicationxml.cartprecciv:
+    tabela: publicationxml
+    coluna: cartprecciv
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  publicationxml.containsprazo:
+    tabela: publicationxml
+    coluna: containsprazo
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  publicationxml.cpfl_spreadsheet_import:
+    tabela: publicationxml
+    coluna: cpfl_spreadsheet_import
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  publicationxml.cumsen:
+    tabela: publicationxml
+    coluna: cumsen
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  publicationxml.deleted:
+    tabela: publicationxml
+    coluna: deleted
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  publicationxml.disconsider:
+    tabela: publicationxml
+    coluna: disconsider
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  publicationxml.exccj:
+    tabela: publicationxml
+    coluna: exccj
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  publicationxml.exfis:
+    tabela: publicationxml
+    coluna: exfis
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  publicationxml.expedientfile:
+    tabela: publicationxml
+    coluna: expedientfile
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  publicationxml.exprovas:
+    tabela: publicationxml
+    coluna: exprovas
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  publicationxml.extiex:
+    tabela: publicationxml
+    coluna: extiex
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  publicationxml.from_lawsuit:
+    tabela: publicationxml
+    coluna: from_lawsuit
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  publicationxml.hearing:
+    tabela: publicationxml
+    coluna: hearing
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  publicationxml.includeexpedient:
+    tabela: publicationxml
+    coluna: includeexpedient
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  publicationxml.instructions_respfinish:
+    tabela: publicationxml
+    coluna: instructions_respfinish
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  publicationxml.instructions_sent:
+    tabela: publicationxml
+    coluna: instructions_sent
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  publicationxml.instructionsstatus:
+    tabela: publicationxml
+    coluna: instructionsstatus
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  publicationxml.naf:
+    tabela: publicationxml
+    coluna: naf
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  publicationxml.noprazoemailsent01:
+    tabela: publicationxml
+    coluna: noprazoemailsent01
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  publicationxml.revised:
+    tabela: publicationxml
+    coluna: revised
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  publicationxml.sent:
+    tabela: publicationxml
+    coluna: sent
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  publicationxml.sentence:
+    tabela: publicationxml
+    coluna: sentence
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  purchaseorder.advpay:
+    tabela: purchaseorder
+    coluna: advpay
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  purchaseorder.approve_invoice:
+    tabela: purchaseorder
+    coluna: approve_invoice
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  purchaseorder.approve_order:
+    tabela: purchaseorder
+    coluna: approve_order
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  purchaseorder.delivered:
+    tabela: purchaseorder
+    coluna: delivered
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  purchaseorder.estimatesfinished:
+    tabela: purchaseorder
+    coluna: estimatesfinished
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  purchaseorder.file_estimate01:
+    tabela: purchaseorder
+    coluna: file_estimate01
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  purchaseorder.file_estimate02:
+    tabela: purchaseorder
+    coluna: file_estimate02
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  purchaseorder.file_estimate03:
+    tabela: purchaseorder
+    coluna: file_estimate03
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  purchaseorder.file_invoice:
+    tabela: purchaseorder
+    coluna: file_invoice
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  purchaseorder.finished:
+    tabela: purchaseorder
+    coluna: finished
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  purchaseorder.finished_invoice:
+    tabela: purchaseorder
+    coluna: finished_invoice
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  purchaseorder.print_estimate01:
+    tabela: purchaseorder
+    coluna: print_estimate01
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  purchaseorder.print_estimate02:
+    tabela: purchaseorder
+    coluna: print_estimate02
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  purchaseorder.print_estimate03:
+    tabela: purchaseorder
+    coluna: print_estimate03
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  purchaseorder.reprove_request:
+    tabela: purchaseorder
+    coluna: reprove_request
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  purchaseorder.sent_payables:
+    tabela: purchaseorder
+    coluna: sent_payables
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  sent_hearing_emails.cron:
+    tabela: sent_hearing_emails
+    coluna: cron
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  thirdpartyaccess.accesscondition:
+    tabela: thirdpartyaccess
+    coluna: accesscondition
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  thirdpartyaccess.activate_g_lawsuit:
+    tabela: thirdpartyaccess
+    coluna: activate_g_lawsuit
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  thirdpartyaccess.close_f_lawsuit:
+    tabela: thirdpartyaccess
+    coluna: close_f_lawsuit
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  thirdpartyaccess.close_g_lawsuit:
+    tabela: thirdpartyaccess
+    coluna: close_g_lawsuit
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  thirdpartyaccess.expense_report:
+    tabela: thirdpartyaccess
+    coluna: expense_report
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  thirdpartyaccess.insert_docs:
+    tabela: thirdpartyaccess
+    coluna: insert_docs
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  thirdpartyaccess.write_claims:
+    tabela: thirdpartyaccess
+    coluna: write_claims
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  thirdpartyaccess.write_lawsuits:
+    tabela: thirdpartyaccess
+    coluna: write_lawsuits
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  thirdpartyaccess.write_persons:
+    tabela: thirdpartyaccess
+    coluna: write_persons
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  trans_settlement.settlement:
+    tabela: trans_settlement
+    coluna: settlement
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  transactions.confirm_reconcile:
+    tabela: transactions
+    coluna: confirm_reconcile
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  transactions.estorno:
+    tabela: transactions
+    coluna: estorno
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  transactions.multipleopna:
+    tabela: transactions
+    coluna: multipleopna
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  transactions.payment:
+    tabela: transactions
+    coluna: payment
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  transactions.rateio_busunit:
+    tabela: transactions
+    coluna: rateio_busunit
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  transactions.reconcile:
+    tabela: transactions
+    coluna: reconcile
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  transactions.transfer:
+    tabela: transactions
+    coluna: transfer
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  transactions.transition:
+    tabela: transactions
+    coluna: transition
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
   users.active:
     tabela: users
     coluna: active
     confirmado_em: '2026-09-29T14:41:37.166311+00:00'
+  users.notification:
+    tabela: users
+    coluna: notification
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.access_client_all:
+    tabela: usertasks
+    coluna: access_client_all
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.approve_contracts:
+    tabela: usertasks
+    coluna: approve_contracts
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.approve_expensereport:
+    tabela: usertasks
+    coluna: approve_expensereport
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.approve_lawsuitbudget:
+    tabela: usertasks
+    coluna: approve_lawsuitbudget
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.approve_purchaseinvoice:
+    tabela: usertasks
+    coluna: approve_purchaseinvoice
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.approve_purchaseorder:
+    tabela: usertasks
+    coluna: approve_purchaseorder
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.approve_purchaserequest:
+    tabela: usertasks
+    coluna: approve_purchaserequest
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.approvesales:
+    tabela: usertasks
+    coluna: approvesales
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.busdead_email:
+    tabela: usertasks
+    coluna: busdead_email
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.cancel_hearings:
+    tabela: usertasks
+    coluna: cancel_hearings
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.cancel_prazo:
+    tabela: usertasks
+    coluna: cancel_prazo
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.change_pub_lawsuit:
+    tabela: usertasks
+    coluna: change_pub_lawsuit
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.change_users_pwd:
+    tabela: usertasks
+    coluna: change_users_pwd
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.close_lawsuit:
+    tabela: usertasks
+    coluna: close_lawsuit
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.close_prazos:
+    tabela: usertasks
+    coluna: close_prazos
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.confirm_doc_for_protocol:
+    tabela: usertasks
+    coluna: confirm_doc_for_protocol
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.coordinator_hearing_email:
+    tabela: usertasks
+    coluna: coordinator_hearing_email
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.del_andamentos:
+    tabela: usertasks
+    coluna: del_andamentos
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.del_lawsuit:
+    tabela: usertasks
+    coluna: del_lawsuit
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.del_lawsuitdocs:
+    tabela: usertasks
+    coluna: del_lawsuitdocs
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.del_otherdocs:
+    tabela: usertasks
+    coluna: del_otherdocs
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.del_pub_with_prazos:
+    tabela: usertasks
+    coluna: del_pub_with_prazos
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.delete_prazo:
+    tabela: usertasks
+    coluna: delete_prazo
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.edit_jud_prazo_dates:
+    tabela: usertasks
+    coluna: edit_jud_prazo_dates
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.edit_jud_prazo_lawyer:
+    tabela: usertasks
+    coluna: edit_jud_prazo_lawyer
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.edit_lawsuits_full:
+    tabela: usertasks
+    coluna: edit_lawsuits_full
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.edit_lawsuits_partial:
+    tabela: usertasks
+    coluna: edit_lawsuits_partial
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.edit_prazo_dates:
+    tabela: usertasks
+    coluna: edit_prazo_dates
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.edit_prazo_lawyer:
+    tabela: usertasks
+    coluna: edit_prazo_lawyer
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.email_expedient:
+    tabela: usertasks
+    coluna: email_expedient
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.fataldead_email:
+    tabela: usertasks
+    coluna: fataldead_email
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.finish_prazo_email_to_supervisor:
+    tabela: usertasks
+    coluna: finish_prazo_email_to_supervisor
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.finish_prazo_notif:
+    tabela: usertasks
+    coluna: finish_prazo_notif
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.follow_generaltasks:
+    tabela: usertasks
+    coluna: follow_generaltasks
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.follow_lawsuittasks:
+    tabela: usertasks
+    coluna: follow_lawsuittasks
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.full_bu_access:
+    tabela: usertasks
+    coluna: full_bu_access
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.imap_email_access:
+    tabela: usertasks
+    coluna: imap_email_access
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.insert_clients:
+    tabela: usertasks
+    coluna: insert_clients
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.no_lawyer_hearing_email:
+    tabela: usertasks
+    coluna: no_lawyer_hearing_email
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.pubwithoutprazo_email:
+    tabela: usertasks
+    coluna: pubwithoutprazo_email
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_accountpayreport:
+    tabela: usertasks
+    coluna: read_accountpayreport
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_accountrecreport:
+    tabela: usertasks
+    coluna: read_accountrecreport
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_accounts:
+    tabela: usertasks
+    coluna: read_accounts
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_accountspay:
+    tabela: usertasks
+    coluna: read_accountspay
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_accountsrec:
+    tabela: usertasks
+    coluna: read_accountsrec
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_all_accountspay:
+    tabela: usertasks
+    coluna: read_all_accountspay
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_all_prazoreport:
+    tabela: usertasks
+    coluna: read_all_prazoreport
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_allhearings:
+    tabela: usertasks
+    coluna: read_allhearings
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_appropreport:
+    tabela: usertasks
+    coluna: read_appropreport
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_audit:
+    tabela: usertasks
+    coluna: read_audit
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_bankrecon:
+    tabela: usertasks
+    coluna: read_bankrecon
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_busunit:
+    tabela: usertasks
+    coluna: read_busunit
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_cashflowreport:
+    tabela: usertasks
+    coluna: read_cashflowreport
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_clientdoc:
+    tabela: usertasks
+    coluna: read_clientdoc
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_clients:
+    tabela: usertasks
+    coluna: read_clients
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_com:
+    tabela: usertasks
+    coluna: read_com
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_con:
+    tabela: usertasks
+    coluna: read_con
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_configbusiness:
+    tabela: usertasks
+    coluna: read_configbusiness
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_configconsultaudit:
+    tabela: usertasks
+    coluna: read_configconsultaudit
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_configexpensereports:
+    tabela: usertasks
+    coluna: read_configexpensereports
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_configjurisp:
+    tabela: usertasks
+    coluna: read_configjurisp
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_configlawsuits:
+    tabela: usertasks
+    coluna: read_configlawsuits
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_configprazos:
+    tabela: usertasks
+    coluna: read_configprazos
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_configpublications:
+    tabela: usertasks
+    coluna: read_configpublications
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_configtasks:
+    tabela: usertasks
+    coluna: read_configtasks
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_configtemplate:
+    tabela: usertasks
+    coluna: read_configtemplate
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_consult:
+    tabela: usertasks
+    coluna: read_consult
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_contracts:
+    tabela: usertasks
+    coluna: read_contracts
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_controllerlawsuits:
+    tabela: usertasks
+    coluna: read_controllerlawsuits
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_controlpanel:
+    tabela: usertasks
+    coluna: read_controlpanel
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_employees:
+    tabela: usertasks
+    coluna: read_employees
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_expedient:
+    tabela: usertasks
+    coluna: read_expedient
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_expensereport:
+    tabela: usertasks
+    coluna: read_expensereport
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_financialdashboard:
+    tabela: usertasks
+    coluna: read_financialdashboard
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_generaltasks:
+    tabela: usertasks
+    coluna: read_generaltasks
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_hearings:
+    tabela: usertasks
+    coluna: read_hearings
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_inventory:
+    tabela: usertasks
+    coluna: read_inventory
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_jobroles:
+    tabela: usertasks
+    coluna: read_jobroles
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_jurisp:
+    tabela: usertasks
+    coluna: read_jurisp
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_lawhourrate:
+    tabela: usertasks
+    coluna: read_lawhourrate
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_lawsuitbudget:
+    tabela: usertasks
+    coluna: read_lawsuitbudget
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_lawsuits:
+    tabela: usertasks
+    coluna: read_lawsuits
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_lawsuittasks:
+    tabela: usertasks
+    coluna: read_lawsuittasks
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_payments:
+    tabela: usertasks
+    coluna: read_payments
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_protocoldoc:
+    tabela: usertasks
+    coluna: read_protocoldoc
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_publications:
+    tabela: usertasks
+    coluna: read_publications
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_pubprodreport:
+    tabela: usertasks
+    coluna: read_pubprodreport
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_purchaseestimates:
+    tabela: usertasks
+    coluna: read_purchaseestimates
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_purchaseinvoice:
+    tabela: usertasks
+    coluna: read_purchaseinvoice
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_purchaseorder:
+    tabela: usertasks
+    coluna: read_purchaseorder
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_purchaserequest:
+    tabela: usertasks
+    coluna: read_purchaserequest
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_resultreport:
+    tabela: usertasks
+    coluna: read_resultreport
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_strategiclawsuits:
+    tabela: usertasks
+    coluna: read_strategiclawsuits
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_strategiclawsuits2:
+    tabela: usertasks
+    coluna: read_strategiclawsuits2
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_suppliers:
+    tabela: usertasks
+    coluna: read_suppliers
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_taskcontrolreport:
+    tabela: usertasks
+    coluna: read_taskcontrolreport
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_tax:
+    tabela: usertasks
+    coluna: read_tax
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_template:
+    tabela: usertasks
+    coluna: read_template
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_timesheet:
+    tabela: usertasks
+    coluna: read_timesheet
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_transfers:
+    tabela: usertasks
+    coluna: read_transfers
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.read_users:
+    tabela: usertasks
+    coluna: read_users
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.return_prazo:
+    tabela: usertasks
+    coluna: return_prazo
+    confirmado_em: '2026-11-19T11:41:00.000000+00:00'
+  usertasks.send_expedient:
+    tabela: usertasks
+    coluna: send_expedient
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.send_protocolfile:
+    tabela: usertasks
+    coluna: send_protocolfile
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.set_adm:
+    tabela: usertasks
+    coluna: set_adm
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.set_ph01:
+    tabela: usertasks
+    coluna: set_ph01
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.set_ph02:
+    tabela: usertasks
+    coluna: set_ph02
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.set_ph03:
+    tabela: usertasks
+    coluna: set_ph03
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.supervisor_prazo_email:
+    tabela: usertasks
+    coluna: supervisor_prazo_email
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.toggle_relevant:
+    tabela: usertasks
+    coluna: toggle_relevant
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
   usertasks.type_bank:
     tabela: usertasks
     coluna: type_bank
@@ -176,14 +1464,230 @@ confirmadas:
     tabela: usertasks
     coluna: type_corresp
     confirmado_em: '2026-09-29T14:42:26.594013+00:00'
+  usertasks.type_defendant:
+    tabela: usertasks
+    coluna: type_defendant
+    confirmado_em: '2026-11-19T11:35:00.000000+00:00'
   usertasks.type_judge:
     tabela: usertasks
     coluna: type_judge
     confirmado_em: '2026-09-29T14:42:06.163445+00:00'
+  usertasks.type_otherlaw:
+    tabela: usertasks
+    coluna: type_otherlaw
+    confirmado_em: '2026-11-19T11:35:00.000000+00:00'
+  usertasks.type_plaintiff:
+    tabela: usertasks
+    coluna: type_plaintiff
+    confirmado_em: '2026-11-19T11:35:00.000000+00:00'
   usertasks.type_tech_assistant:
     tabela: usertasks
     coluna: type_tech_assistant
     confirmado_em: '2026-09-29T14:42:12.634695+00:00'
+  usertasks.type_witness:
+    tabela: usertasks
+    coluna: type_witness
+    confirmado_em: '2026-11-19T11:35:00.000000+00:00'
+  usertasks.viewresults:
+    tabela: usertasks
+    coluna: viewresults
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_accountpayreport:
+    tabela: usertasks
+    coluna: write_accountpayreport
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_accounts:
+    tabela: usertasks
+    coluna: write_accounts
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_accountspay:
+    tabela: usertasks
+    coluna: write_accountspay
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_accountsrec:
+    tabela: usertasks
+    coluna: write_accountsrec
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_audit:
+    tabela: usertasks
+    coluna: write_audit
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_busunit:
+    tabela: usertasks
+    coluna: write_busunit
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_clientdoc:
+    tabela: usertasks
+    coluna: write_clientdoc
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_clients:
+    tabela: usertasks
+    coluna: write_clients
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_com:
+    tabela: usertasks
+    coluna: write_com
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_con:
+    tabela: usertasks
+    coluna: write_con
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_configbusiness:
+    tabela: usertasks
+    coluna: write_configbusiness
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_configconsultaudit:
+    tabela: usertasks
+    coluna: write_configconsultaudit
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_configexpensereports:
+    tabela: usertasks
+    coluna: write_configexpensereports
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_configjurisp:
+    tabela: usertasks
+    coluna: write_configjurisp
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_configlawsuits:
+    tabela: usertasks
+    coluna: write_configlawsuits
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_configprazos:
+    tabela: usertasks
+    coluna: write_configprazos
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_configpublications:
+    tabela: usertasks
+    coluna: write_configpublications
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_configtasks:
+    tabela: usertasks
+    coluna: write_configtasks
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_configtemplate:
+    tabela: usertasks
+    coluna: write_configtemplate
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_consult:
+    tabela: usertasks
+    coluna: write_consult
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_contracts:
+    tabela: usertasks
+    coluna: write_contracts
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_controlpanel:
+    tabela: usertasks
+    coluna: write_controlpanel
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_employees:
+    tabela: usertasks
+    coluna: write_employees
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_expedient:
+    tabela: usertasks
+    coluna: write_expedient
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_generaltasks:
+    tabela: usertasks
+    coluna: write_generaltasks
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_hearings:
+    tabela: usertasks
+    coluna: write_hearings
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_inventory:
+    tabela: usertasks
+    coluna: write_inventory
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_jobroles:
+    tabela: usertasks
+    coluna: write_jobroles
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_jurisp:
+    tabela: usertasks
+    coluna: write_jurisp
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_lawhourrate:
+    tabela: usertasks
+    coluna: write_lawhourrate
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_lawsuits:
+    tabela: usertasks
+    coluna: write_lawsuits
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_lawsuittasks:
+    tabela: usertasks
+    coluna: write_lawsuittasks
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_no_cnj:
+    tabela: usertasks
+    coluna: write_no_cnj
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_payments:
+    tabela: usertasks
+    coluna: write_payments
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_prazo_closed_lawsuits:
+    tabela: usertasks
+    coluna: write_prazo_closed_lawsuits
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_prazoreport:
+    tabela: usertasks
+    coluna: write_prazoreport
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_protocoldoc:
+    tabela: usertasks
+    coluna: write_protocoldoc
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_pub_weekend:
+    tabela: usertasks
+    coluna: write_pub_weekend
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_publications:
+    tabela: usertasks
+    coluna: write_publications
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_purchaseestimates:
+    tabela: usertasks
+    coluna: write_purchaseestimates
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_purchaseinvoice:
+    tabela: usertasks
+    coluna: write_purchaseinvoice
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_purchaseorder:
+    tabela: usertasks
+    coluna: write_purchaseorder
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_purchaserequest:
+    tabela: usertasks
+    coluna: write_purchaserequest
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_suppliers:
+    tabela: usertasks
+    coluna: write_suppliers
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_tax:
+    tabela: usertasks
+    coluna: write_tax
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_template:
+    tabela: usertasks
+    coluna: write_template
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_timesheet:
+    tabela: usertasks
+    coluna: write_timesheet
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_transfers:
+    tabela: usertasks
+    coluna: write_transfers
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
+  usertasks.write_users:
+    tabela: usertasks
+    coluna: write_users
+    confirmado_em: '2026-11-19T11:46:00.000000+00:00'
 rejeitadas:
   controlpanel2accounts.account_id:
     tabela: controlpanel2accounts
