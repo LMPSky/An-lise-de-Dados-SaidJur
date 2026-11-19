@@ -497,14 +497,146 @@ _COLUNAS_FK_IGNORADAS = frozenset({"paid", "said", "laid", "void", "fluid", "rap
 # por isso listamos as variações mais comuns. A primeira que existir no banco
 # será usada (a lógica em fks_inferidas verifica existência antes de usar).
 _COLUNAS_FK_EXTRAS: dict[str, str] = {
-    "pubtype": "pubtypes",          # Tipo de Publicação — FK sem sufixo _id
-    "pub_type": "pubtypes",         # variante com underscore
+    "pubtype": "prazotype",         # Tipo de Publicação — confirmado contra o banco real
+                                     # (prazo2publication.pubtype, prazos_log.pubtype):
+                                     # a tabela de fato é 'prazotype', não 'pubtypes'.
+    "pub_type": "pubtypes",         # variante com underscore (tabela diferente, não
+                                     # contradita por evidência de banco)
     "publicationtype": "pubtypes",  # nome mais descritivo
     "publication_type": "pubtypes", # variante com underscore
     "lawsuit_phase": "lawsuit_phases",  # Fase do processo — FK sem sufixo _id
                                         # (ex: lawsuits_log.lawsuit_phase,
                                         # lawsuits_phase_log.lawsuit_phase)
+
+    # --- Aliases de papéis de "pessoa" (confirmados via fk_map.yaml / consulta ao
+    # banco real): no SaidJur, todos esses papéis (cliente, advogado, fornecedor,
+    # funcionário etc.) são registros na tabela única 'persons', nunca em tabelas
+    # próprias tipo 'clients'/'suppliers'/'lawyers'. A heurística genérica de
+    # pluralização/tradução de nome (_candidatos_para) nunca chegaria em 'persons'
+    # a partir desses nomes, por isso precisam de mapeamento explícito.
+    "arearesp_id": "persons",
+    "av_clientid": "persons",
+    "client_id": "persons",
+    "clientrequester_id": "persons",
+    "coordinator_id": "persons",
+    "correspondent_id": "persons",
+    "desembargador_id": "persons",
+    "emp_id": "persons",
+    "employee_id": "persons",
+    "hearing_resp": "persons",          # sem sufixo _id
+    "hearinglawyerid": "persons",
+    "lawsuit_resp_id": "persons",
+    "lawyer_id": "persons",
+    "member_id": "persons",
+    "otherlawyer_id": "persons",
+    "otherlawyerid": "persons",
+    "personid_2": "persons",
+    "prazo_owner_id": "persons",
+    "subclient_id": "persons",
+    "supplier01": "persons",            # sem sufixo _id
+    "supplier02": "persons",            # sem sufixo _id
+    "supplier03": "persons",            # sem sufixo _id
+    "supplier_id": "persons",
+    "tech_assistant_id": "persons",
+    "terceiroclient_id": "persons",
+    "third_party_id": "persons",
+    "thirdparty_id": "persons",
+    # Observação: 'companytype_id', 'group_id' e 'unit' foram propositalmente
+    # excluídos deste mapeamento global — no fk_map.yaml verificado, o destino
+    # desses nomes de coluna varia conforme a tabela (ex.: group_id aponta para
+    # 'groups' em algumas tabelas e para 'persons' em outras), então um mapa
+    # global por nome de coluna erraria em um dos casos. Exigem heurística
+    # por tabela, não implementada aqui.
+
+    # --- Demais colunas FK sem sufixo _id/id/_pk, confirmadas via fk_map.yaml /
+    # consulta ao banco real.
+    "activity_type": "correspondent_activities",
+    "causeamount_result": "lawsuit_results",
+    "client_system": "client_systems",
+    "closed_by": "users",
+    "court_division_idcourt_division": "court_division",
+    "court_idcourt": "court",
+    "destinationaccount": "accounts",
+    "estado": "state",
+    "hearingtype": "hearingtype",
+    "idcomarca": "city",
+    "instancia": "instances",
+    "pais": "country",
+    "payment_type": "paymentguarantee_types",
+    "result": "lawsuit_results",
+    "sector": "client_sectors",
+    "sentence_amount_result": "lawsuit_results",
+    "sourceaccount": "accounts",
+    "user_change_status": "users",
+    "user_created_at": "users",
+    "user_inserted": "users",
+    "user_updated": "users",
+    "user_updated_at": "users",
 }
+
+
+# Nome real da coluna de chave primária por tabela de destino, para tabelas
+# cuja PK não segue a convenção genérica 'id' (confirmado via fk_map.yaml /
+# consulta ao banco real). A maioria das tabelas mais referenciadas do
+# SaidJur (persons, users, lawsuits, accounts, businessunit etc.) usa uma PK
+# nomeada (ex: persons.person_id), não 'id'. Sem este mapa, fks_inferidas()
+# assumia 'id' para toda tabela de destino e descartava silenciosamente FKs
+# válidas apontando para essas tabelas (a PK real nunca batia com "id" nas
+# colunas da tabela, então a checagem de existência falhava). O frontend
+# (src/web/app.js) já está preparado para isso — usa
+# `fk.coluna_referenciada || 'id'` ao montar os pedidos de resolução.
+_COLUNA_PK_POR_TABELA: dict[str, str] = {
+    "accounts": "account_id",
+    "accountspayable": "accountspayable_id",
+    "accountspaylimits": "limit_id",
+    "accountsreceivable": "accountsreceivable_id",
+    "businessunit": "busunit_id",
+    "businessunitgroup": "busunitgroup_id",
+    "coligadas": "group_id",
+    "companytype": "companytype_id",
+    "court": "idcourt",
+    "court_division": "idcourt_division",
+    "expensereport": "expensereport_id",
+    "expensereportitems": "item_id",
+    "expenserequest": "expenserequest_id",
+    "generaltasks": "generaltask_id",
+    "groups": "group_id",
+    "hearingcontrol": "hearingcontrol_id",
+    "hearingtype": "hearingtype_id",
+    "inventory": "inventory_id",
+    "jobroles": "jobrole_id",
+    "jurispsubject": "jurispsubject_id",
+    "lawsuitbudget": "lawsuitbudget_id",
+    "lawsuitdocs": "lawsuitdoc_id",
+    "lawsuitdocsmetadata": "lawsuitdocmetadata_id",
+    "lawsuitnature": "lawsuitnature_id",
+    "lawsuits": "lawsuit_id",
+    "lawsuittasks": "lawsuittask_id",
+    "operationnature": "operationnature_id",
+    "operationnaturegroup": "opnaturegroup_id",
+    "otherdocs": "otherdoc_id",
+    "otherdocsmetadata": "otherdocmetadata_id",
+    "paymenttype": "paymenttype_id",
+    "permissions": "permissions_id",
+    "persons": "person_id",
+    "purchaseorder": "purchaseorder_id",
+    "purchaseorderlimits": "limit_id",
+    "tax": "tax_id",
+    "templatemetadata": "templatemetadata_id",
+    "templateplaintifffunction": "templatefunction_id",
+    "templatesubject": "templatesubject_id",
+    "templatetype": "templatetype_id",
+    "transactiongroup": "transactiongroup_id",
+    "transactions": "transaction_id",
+    "users": "user_id",
+}
+
+
+def _coluna_pk_destino(tabela: str) -> str:
+    """Retorna o nome da coluna de chave primária esperada para a tabela de
+    destino de uma FK, usando o mapa de exceções quando aplicável e caindo
+    para a convenção genérica 'id' caso contrário."""
+    return _COLUNA_PK_POR_TABELA.get(tabela, "id")
 
 
 def fks_inferidas(engine: Engine, nome_tabela: str) -> list[dict[str, str]]:
@@ -553,11 +685,12 @@ def fks_inferidas(engine: Engine, nome_tabela: str) -> list[dict[str, str]]:
                     cols_ref = {c["nome"].lower() for c in listar_colunas(engine, tabela_candidata)}
                 except Exception:
                     cols_ref = set()
-                if "id" in cols_ref:
+                coluna_pk = _coluna_pk_destino(tabela_candidata)
+                if coluna_pk in cols_ref:
                     resultado.append({
                         "coluna": nome_col,
                         "tabela_referenciada": tabela_candidata,
-                        "coluna_referenciada": "id",
+                        "coluna_referenciada": coluna_pk,
                     })
             continue
 
@@ -582,13 +715,14 @@ def fks_inferidas(engine: Engine, nome_tabela: str) -> list[dict[str, str]]:
             cols_ref = {c["nome"].lower() for c in listar_colunas(engine, tabela_ref)}
         except Exception:
             continue
-        if "id" not in cols_ref:
+        coluna_pk = _coluna_pk_destino(tabela_ref)
+        if coluna_pk not in cols_ref:
             continue
 
         resultado.append({
             "coluna": nome_col,
             "tabela_referenciada": tabela_ref,
-            "coluna_referenciada": "id",
+            "coluna_referenciada": coluna_pk,
         })
 
     _CACHE_FKS_INFERIDAS[nome_tabela] = (agora, resultado)

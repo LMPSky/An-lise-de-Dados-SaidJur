@@ -66,6 +66,18 @@ def _criar_engine_sqlite() -> Engine:
             )
         """))
         conn.execute(text("""
+            CREATE TABLE accounts (
+                account_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nome       TEXT NOT NULL
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE transacoesteste (
+                id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                sourceaccount INTEGER
+            )
+        """))
+        conn.execute(text("""
             INSERT INTO clientes (nome, email, cidade, criado_em) VALUES
             ('João Silva', 'joao@ex.com', 'São Paulo', '2023-01-01 10:00:00'),
             ('Maria Souza', 'maria@ex.com', 'Rio de Janeiro', '2023-02-01 11:00:00'),
@@ -78,6 +90,8 @@ def _criar_engine_sqlite() -> Engine:
         """))
         conn.execute(text("INSERT INTO users (nome) VALUES ('Ana'), ('Bruno')"))
         conn.execute(text("INSERT INTO busunitaccess (userid, perfil, confirmado) VALUES (1, 'admin', 0), (2, 'leitura', 1)"))
+        conn.execute(text("INSERT INTO accounts (nome) VALUES ('Conta Matriz'), ('Conta Filial')"))
+        conn.execute(text("INSERT INTO transacoesteste (sourceaccount) VALUES (1), (2)"))
         conn.commit()
     return engine
 
@@ -258,6 +272,31 @@ class TestRotaTabelas:
 
 
 class TestExportacaoBusca:
+    def test_exporta_busca_csv_resolve_fk_com_pk_nao_padrao(self, client: TestClient) -> None:
+        """'sourceaccount' (sem sufixo _id) deve ser resolvido via a FK implícita
+        para 'accounts', usando a PK real 'account_id' (não 'id') ao montar o
+        pedido de resolução de labels — cobre _mapear_fks_para_exportacao /
+        _resolver_fks_dados_busca propagando coluna_referenciada != 'id'."""
+        payload = {
+            "dados": [
+                {
+                    "tabela": "transacoesteste",
+                    "coluna": "sourceaccount",
+                    "registros": [
+                        {"id": 1, "sourceaccount": 1},
+                        {"id": 2, "sourceaccount": 2},
+                    ],
+                },
+            ]
+        }
+
+        resp = client.post("/api/exportar/busca?formato=csv", json=payload)
+
+        assert resp.status_code == 200
+        texto = resp.text
+        assert 'Conta Matriz (1)' in texto
+        assert 'Conta Filial (2)' in texto
+
     def test_exporta_busca_csv_com_fk_resolvida_e_booleano_traduzido(self, client: TestClient) -> None:
         payload = {
             "dados": [

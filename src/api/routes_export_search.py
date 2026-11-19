@@ -329,29 +329,30 @@ def _formatar_label_fk(label: str, valor_original: Any) -> str:
     return f"{label} ({valor_str})" if label != valor_str else valor_str
 
 
-def _mapear_fks_para_exportacao(engine, tabela: str) -> dict[str, str]:
-    """Retorna mapa coluna FK → tabela referenciada para exportação."""
+def _mapear_fks_para_exportacao(engine, tabela: str) -> dict[str, tuple[str, str]]:
+    """Retorna mapa coluna FK → (tabela referenciada, coluna PK referenciada) para exportação."""
     fks = listar_chaves_estrangeiras(engine, tabela) + fks_inferidas(engine, tabela)
-    mapeamento: dict[str, str] = {}
+    mapeamento: dict[str, tuple[str, str]] = {}
     for fk in fks:
         coluna = fk.get("coluna")
         tabela_ref = fk.get("tabela_referenciada")
+        coluna_ref = fk.get("coluna_referenciada") or "id"
         if coluna and tabela_ref and coluna not in mapeamento:
-            mapeamento[coluna] = tabela_ref
+            mapeamento[coluna] = (tabela_ref, coluna_ref)
     return mapeamento
 
 
 def _resolver_fks_dados_busca(engine, dados_por_tabela: dict[str, list[dict]]) -> dict[tuple[str, str], dict[str, str]]:
     """Resolve em lote os labels de FKs presentes nos dados exportados."""
-    pedidos: dict[str, set[str]] = defaultdict(set)
-    mapeamentos: dict[tuple[str, str], str] = {}
+    pedidos: dict[tuple[str, str], set[str]] = defaultdict(set)
+    mapeamentos: dict[tuple[str, str], tuple[str, str]] = {}
 
     for tabela, registros in dados_por_tabela.items():
         mapa_fks = _mapear_fks_para_exportacao(engine, tabela)
         if not mapa_fks:
             continue
 
-        for coluna, tabela_ref in mapa_fks.items():
+        for coluna, (tabela_ref, coluna_ref) in mapa_fks.items():
             for registro in registros:
                 valor = registro.get(coluna)
                 if valor in (None, ""):
@@ -359,19 +360,22 @@ def _resolver_fks_dados_busca(engine, dados_por_tabela: dict[str, list[dict]]) -
                 valor_str = str(valor)
                 if not valor_str.strip():
                     continue
-                pedidos[tabela_ref].add(valor_str)
-                mapeamentos[(tabela, coluna)] = tabela_ref
+                pedidos[(tabela_ref, coluna_ref)].add(valor_str)
+                mapeamentos[(tabela, coluna)] = (tabela_ref, coluna_ref)
 
     resolucoes = [
-        {"tabela": tabela_ref, "coluna_chave": "id", "ids": sorted(ids)}
-        for tabela_ref, ids in pedidos.items()
+        {"tabela": tabela_ref, "coluna_chave": coluna_ref, "ids": sorted(ids)}
+        for (tabela_ref, coluna_ref), ids in pedidos.items()
         if ids
     ]
     if not resolucoes:
         return {}
 
     labels = resolver_labels(engine, resolucoes)
-    return {chave: labels.get(tabela_ref, {}) for chave, tabela_ref in mapeamentos.items()}
+    return {
+        chave: labels.get(tabela_ref, {})
+        for chave, (tabela_ref, _coluna_ref) in mapeamentos.items()
+    }
 
 
 def _normalizar_dados_para_exportacao(
