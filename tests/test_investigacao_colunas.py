@@ -150,7 +150,7 @@ def test_pista_provavel_booleano_rejeita_coluna_pk() -> None:
 def test_pista_provavel_booleano_rejeita_coluna_fk() -> None:
     engine = create_engine("sqlite:///:memory:")
     with engine.connect() as conn:
-        conn.execute(text("CREATE TABLE accounts (id INTEGER PRIMARY KEY, nome TEXT)"))
+        conn.execute(text("CREATE TABLE accounts (account_id INTEGER PRIMARY KEY, nome TEXT)"))
         conn.execute(text("CREATE TABLE controlpanel2accounts (account_id INTEGER, remote INTEGER)"))
         conn.execute(text("INSERT INTO controlpanel2accounts (account_id, remote) VALUES (0, 0), (1, 1), (NULL, NULL)"))
         conn.commit()
@@ -217,7 +217,7 @@ def test_motivo_nao_booleano_identifica_chave_primaria() -> None:
 def test_motivo_nao_booleano_identifica_chave_estrangeira() -> None:
     engine = create_engine("sqlite:///:memory:")
     with engine.connect() as conn:
-        conn.execute(text("CREATE TABLE accounts (id INTEGER PRIMARY KEY, nome TEXT)"))
+        conn.execute(text("CREATE TABLE accounts (account_id INTEGER PRIMARY KEY, nome TEXT)"))
         conn.execute(text("CREATE TABLE controlpanel2accounts (account_id INTEGER, remote INTEGER)"))
         conn.execute(text("INSERT INTO controlpanel2accounts (account_id, remote) VALUES (0, 0), (1, 1)"))
         conn.commit()
@@ -546,10 +546,10 @@ def test_pista_provavel_booleano_rejeita_todos_casos_fk_reportados(tmp_path: Pat
     with engine.connect() as conn:
         # Tabelas de referência necessárias para que a heurística de FK reconheça
         # cada coluna como FK válida (nomes gerados por _candidatos_para).
-        conn.execute(text("CREATE TABLE accounts (id INTEGER PRIMARY KEY, nome TEXT)"))
+        conn.execute(text("CREATE TABLE accounts (account_id INTEGER PRIMARY KEY, nome TEXT)"))
         conn.execute(text("CREATE TABLE sub_judicial_areas (id INTEGER PRIMARY KEY, nome TEXT)"))
-        conn.execute(text("CREATE TABLE coligadas (id INTEGER PRIMARY KEY, nome TEXT)"))
-        conn.execute(text("CREATE TABLE jobroles (id INTEGER PRIMARY KEY, nome TEXT)"))
+        conn.execute(text("CREATE TABLE coligadas (group_id INTEGER PRIMARY KEY, nome TEXT)"))
+        conn.execute(text("CREATE TABLE jobroles (jobrole_id INTEGER PRIMARY KEY, nome TEXT)"))
         conn.execute(text("CREATE TABLE busunits (id INTEGER PRIMARY KEY, nome TEXT)"))
         conn.execute(text("CREATE TABLE paymentlimits (id INTEGER PRIMARY KEY, nome TEXT)"))
 

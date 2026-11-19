@@ -304,7 +304,7 @@ padrão quanto no `--completo`) agora tenta, em ordem de confiabilidade:
 2. **`fk_inferida`** — FK detectada por convenção de nome já validada em
    outras partes do sistema (`src/db.py::fks_inferidas`, mesma heurística
    usada pela resolução de labels da interface web — cobre casos como
-   `userid`→`employees`, `pubtype`→`pubtypes`, `city_id`→`cities`).
+   `userid`→`employees`, `pubtype`→`prazotype`, `city_id`→`cities`).
 3. **`tabela_referencia`** — heurística de radical/nome local a este módulo
    (fallback quando as duas fontes acima não resolvem a coluna).
 
@@ -313,6 +313,28 @@ similaridade de nome — usam uma relação já conhecida —, por isso são mai
 confiáveis. Use `--aprovar-fonte fk_declarada` ou `--aprovar-fonte fk_inferida`
 para aprovar essas sugestões em lote com ainda mais segurança do que
 `tabela_referencia`.
+
+##### Chave primária real por tabela de destino (`_COLUNA_PK_POR_TABELA`)
+
+A heurística de `fks_inferidas()` (`src/db.py`) assumia antes que toda tabela
+de destino tem sua chave primária literalmente nomeada `id`. No SaidJur isso
+não é verdade para ~40 das tabelas mais referenciadas (ex: `persons.person_id`,
+`users.user_id`, `lawsuits.lawsuit_id`, `accounts.account_id`,
+`businessunit.busunit_id`) — a suposição errada fazia `fks_inferidas()`
+descartar silenciosamente FKs válidas apontando para essas tabelas, pois a
+checagem de existência de coluna `id` na tabela de destino nunca batia.
+`_COLUNA_PK_POR_TABELA` mapeia tabela → nome real da coluna de PK (caindo para
+`"id"` quando a tabela não está no mapa), e tanto `fks_inferidas()` quanto a
+exportação de busca (`src/api/routes_export_search.py`) agora usam esse nome
+real ao montar `coluna_referenciada`/`coluna_chave`, em vez de assumir `id`.
+
+`_COLUNAS_FK_EXTRAS` também foi ampliado (de 5 para ~60 entradas) para cobrir
+papéis de pessoa que no SaidJur sempre apontam para a tabela única `persons`
+(`client_id`, `lawyer_id`, `supplier_id`, `employee_id` etc. — nunca tabelas
+próprias tipo `clients`/`lawyers`) e colunas de FK sem sufixo `_id`/`id`/`_pk`
+(ex: `sourceaccount`/`destinationaccount`→`accounts`, `estado`→`state`,
+`pais`→`country`). Ambas as adições foram confirmadas contra o banco real
+(`fk_map.yaml`), não são suposições.
 
 Para aprovar explicitamente em lote apenas sugestões de alta confiança vindas de uma
 fonte específica (sem alertas de conteúdo sensível), use por exemplo:

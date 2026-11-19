@@ -240,7 +240,11 @@ class TestFksInferidasExtendidas:
 
     @pytest.fixture
     def engine_legal(self) -> Engine:
-        """Engine com tabelas do domínio jurídico para testar mapeamentos adicionais."""
+        """Engine com tabelas do domínio jurídico para testar mapeamentos adicionais.
+
+        Usa os nomes reais de PK confirmados via fk_map.yaml / banco real
+        (lawsuits.lawsuit_id, persons.person_id), não o genérico 'id'.
+        """
         import src.db as db_module
         db_module._CACHE_COLUNA_LABEL.clear()
         db_module._CACHE_FKS_INFERIDAS.clear()
@@ -251,18 +255,20 @@ class TestFksInferidasExtendidas:
             # tabela com numero como label (processos brasileiros)
             conn.execute(text("""
                 CREATE TABLE lawsuits (
-                    id      INTEGER PRIMARY KEY,
-                    numero  TEXT NOT NULL
+                    lawsuit_id INTEGER PRIMARY KEY,
+                    numero     TEXT NOT NULL
                 )
             """))
-            # tabela cliente referenciada pela tabela de processos do cliente
+            # tabela única de pessoas (papel 'cliente' incluído) — client_id
+            # aponta para 'persons' no SaidJur real, nunca para uma tabela
+            # própria tipo 'clientes'/'clients'.
             conn.execute(text("""
-                CREATE TABLE clientes (
-                    id   INTEGER PRIMARY KEY,
-                    nome TEXT NOT NULL
+                CREATE TABLE persons (
+                    person_id INTEGER PRIMARY KEY,
+                    nome      TEXT NOT NULL
                 )
             """))
-            # tabela com FK para clientes (mapeamento inglês→português)
+            # tabela com FK para persons e lawsuits
             conn.execute(text("""
                 CREATE TABLE processos_cliente (
                     id        INTEGER PRIMARY KEY,
@@ -271,7 +277,7 @@ class TestFksInferidasExtendidas:
                 )
             """))
             conn.execute(text("INSERT INTO lawsuits VALUES (1, '0001234-00.2023.8.26.0100')"))
-            conn.execute(text("INSERT INTO clientes VALUES (1, 'João Silva')"))
+            conn.execute(text("INSERT INTO persons VALUES (1, 'João Silva')"))
             conn.execute(text("INSERT INTO processos_cliente VALUES (1, 1, 1)"))
             conn.commit()
         return engine
@@ -281,20 +287,55 @@ class TestFksInferidasExtendidas:
         assert coluna_label(engine_legal, "lawsuits") == "numero"
 
     def test_detecta_client_id_com_mapeamento_portugues(self, engine_legal: Engine) -> None:
-        """client_id deve ser mapeado para a tabela 'clientes' (português)."""
+        """client_id deve ser mapeado para a tabela 'persons' (papel de pessoa)."""
         resultado = fks_inferidas(engine_legal, "processos_cliente")
         colunas = [r["coluna"] for r in resultado]
         assert "client_id" in colunas
         ref = next(r for r in resultado if r["coluna"] == "client_id")
-        assert ref["tabela_referenciada"] == "clientes"
+        assert ref["tabela_referenciada"] == "persons"
+        assert ref["coluna_referenciada"] == "person_id"
 
     def test_detecta_lawsuit_id_com_mapeamento_portugues(self, engine_legal: Engine) -> None:
-        """lawsuit_id deve ser mapeado para 'lawsuits' (nome original) ou 'processos'."""
+        """lawsuit_id deve ser mapeado para 'lawsuits' com a PK real 'lawsuit_id'."""
         resultado = fks_inferidas(engine_legal, "processos_cliente")
         colunas = [r["coluna"] for r in resultado]
         assert "lawsuit_id" in colunas
         ref = next(r for r in resultado if r["coluna"] == "lawsuit_id")
         assert ref["tabela_referenciada"] == "lawsuits"
+        assert ref["coluna_referenciada"] == "lawsuit_id"
+
+    def test_detecta_sourceaccount_sem_sufixo_com_pk_real(self) -> None:
+        """'sourceaccount' (sem sufixo _id) deve ser mapeado para 'accounts' usando
+        a PK real 'account_id', confirmando _COLUNAS_FK_EXTRAS + _coluna_pk_destino
+        funcionando em conjunto para uma coluna fora do padrão de sufixo."""
+        import src.db as db_module
+        db_module._CACHE_COLUNA_LABEL.clear()
+        db_module._CACHE_FKS_INFERIDAS.clear()
+
+        engine = create_engine("sqlite:///:memory:")
+        with engine.connect() as conn:
+            conn.execute(text("""
+                CREATE TABLE accounts (
+                    account_id INTEGER PRIMARY KEY,
+                    nome       TEXT NOT NULL
+                )
+            """))
+            conn.execute(text("""
+                CREATE TABLE transactions (
+                    id             INTEGER PRIMARY KEY,
+                    sourceaccount  INTEGER
+                )
+            """))
+            conn.execute(text("INSERT INTO accounts VALUES (1, 'Conta Principal')"))
+            conn.execute(text("INSERT INTO transactions VALUES (1, 1)"))
+            conn.commit()
+
+        resultado = fks_inferidas(engine, "transactions")
+        colunas = [r["coluna"] for r in resultado]
+        assert "sourceaccount" in colunas
+        ref = next(r for r in resultado if r["coluna"] == "sourceaccount")
+        assert ref["tabela_referenciada"] == "accounts"
+        assert ref["coluna_referenciada"] == "account_id"
 
 
 
@@ -726,7 +767,13 @@ class TestFksInferidasFuncionarioUsuario:
 
 
 class TestFksInferidasPubtype:
-    """Testes para resolução de FK de pubtype → pubtypes (sem sufixo _id)."""
+    """Testes para resolução de FK de pubtype → prazotype (sem sufixo _id).
+
+    Corrigido após confirmação via fk_map.yaml / consulta ao banco real: a
+    tabela de fato referenciada por ``prazo2publication.pubtype`` e
+    ``prazos_log.pubtype`` é ``prazotype``, não ``pubtypes`` (suposição
+    anterior, nunca confirmada contra o schema real).
+    """
 
     @pytest.fixture
     def engine_pub(self) -> Engine:
@@ -738,7 +785,7 @@ class TestFksInferidasPubtype:
         engine = create_engine("sqlite:///:memory:")
         with engine.connect() as conn:
             conn.execute(text("""
-                CREATE TABLE pubtypes (
+                CREATE TABLE prazotype (
                     id   INTEGER PRIMARY KEY,
                     name TEXT NOT NULL
                 )
@@ -749,20 +796,20 @@ class TestFksInferidasPubtype:
                     pubtype INTEGER
                 )
             """))
-            conn.execute(text("INSERT INTO pubtypes VALUES (58704, 'DJSP - Intimações')"))
+            conn.execute(text("INSERT INTO prazotype VALUES (58704, 'DJSP - Intimações')"))
             conn.execute(text("INSERT INTO prazos_log VALUES (1, 58704)"))
             conn.commit()
         return engine
 
-    def test_pubtype_mapeia_para_pubtypes(self, engine_pub: Engine) -> None:
-        """pubtype deve ser detectado como FK para pubtypes mesmo sem sufixo _id."""
+    def test_pubtype_mapeia_para_prazotype(self, engine_pub: Engine) -> None:
+        """pubtype deve ser detectado como FK para prazotype mesmo sem sufixo _id."""
         resultado = fks_inferidas(engine_pub, "prazos_log")
         colunas = [r["coluna"] for r in resultado]
         assert "pubtype" in colunas, (
-            "pubtype deve ser detectado como FK implícita para pubtypes"
+            "pubtype deve ser detectado como FK implícita para prazotype"
         )
         ref = next(r for r in resultado if r["coluna"] == "pubtype")
-        assert ref["tabela_referenciada"] == "pubtypes"
+        assert ref["tabela_referenciada"] == "prazotype"
 
 
 class TestFksInferidasLawsuitPhase:
