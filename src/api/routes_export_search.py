@@ -13,7 +13,13 @@ from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 import csv
 
-from src.db import fks_inferidas, listar_chaves_estrangeiras, resolver_labels
+from src.db import (
+    ROTULO_REGISTRO_RAIZ,
+    fks_inferidas,
+    listar_chaves_estrangeiras,
+    resolver_labels,
+    valor_e_raiz_autorreferencia,
+)
 from src.traducoes_colunas import (
     traduzir_nome_coluna,
     traduzir_nome_tabela_exportacao,
@@ -329,16 +335,19 @@ def _formatar_label_fk(label: str, valor_original: Any) -> str:
     return f"{label} ({valor_str})" if label != valor_str else valor_str
 
 
-def _mapear_fks_para_exportacao(engine, tabela: str) -> dict[str, tuple[str, str]]:
-    """Retorna mapa coluna FK → (tabela referenciada, coluna PK referenciada) para exportação."""
+def _mapear_fks_para_exportacao(engine, tabela: str) -> dict[str, tuple[str, str, bool]]:
+    """Retorna mapa coluna FK → (tabela referenciada, coluna PK referenciada,
+    autorreferência) para exportação. O terceiro elemento indica se a coluna
+    segue a convenção de autorreferência do SaidJur (0/NULL = registro raiz)."""
     fks = listar_chaves_estrangeiras(engine, tabela) + fks_inferidas(engine, tabela)
-    mapeamento: dict[str, tuple[str, str]] = {}
+    mapeamento: dict[str, tuple[str, str, bool]] = {}
     for fk in fks:
         coluna = fk.get("coluna")
         tabela_ref = fk.get("tabela_referenciada")
         coluna_ref = fk.get("coluna_referenciada") or "id"
+        autorreferencia = bool(fk.get("autorreferencia"))
         if coluna and tabela_ref and coluna not in mapeamento:
-            mapeamento[coluna] = (tabela_ref, coluna_ref)
+            mapeamento[coluna] = (tabela_ref, coluna_ref, autorreferencia)
     return mapeamento
 
 
@@ -352,7 +361,7 @@ def _resolver_fks_dados_busca(engine, dados_por_tabela: dict[str, list[dict]]) -
         if not mapa_fks:
             continue
 
-        for coluna, (tabela_ref, coluna_ref) in mapa_fks.items():
+        for coluna, (tabela_ref, coluna_ref, autorreferencia) in mapa_fks.items():
             for registro in registros:
                 valor = registro.get(coluna)
                 if valor in (None, ""):
@@ -360,8 +369,13 @@ def _resolver_fks_dados_busca(engine, dados_por_tabela: dict[str, list[dict]]) -
                 valor_str = str(valor)
                 if not valor_str.strip():
                     continue
-                pedidos[(tabela_ref, coluna_ref)].add(valor_str)
                 mapeamentos[(tabela, coluna)] = (tabela_ref, coluna_ref)
+                # Valores 0/NULL em coluna de autorreferência significam
+                # "registro raiz" e são exibidos como "Raiz" diretamente —
+                # não há registro com PK=0 na tabela de destino para buscar.
+                if autorreferencia and valor_e_raiz_autorreferencia(valor):
+                    continue
+                pedidos[(tabela_ref, coluna_ref)].add(valor_str)
 
     resolucoes = [
         {"tabela": tabela_ref, "coluna_chave": coluna_ref, "ids": sorted(ids)}
@@ -378,6 +392,19 @@ def _resolver_fks_dados_busca(engine, dados_por_tabela: dict[str, list[dict]]) -
     }
 
 
+
+def _colunas_autorreferencia_por_tabela(engine, dados_por_tabela: dict[str, list[dict]]) -> dict[tuple[str, str], bool]:
+    """Mapeia (tabela, coluna) → True para colunas de autorreferência presentes
+    nos dados exportados (0/NULL exibido como "Raiz" em vez de resolvido via FK)."""
+    autorreferencia: dict[tuple[str, str], bool] = {}
+    for tabela in dados_por_tabela:
+        mapa_fks = _mapear_fks_para_exportacao(engine, tabela)
+        for coluna, (_tabela_ref, _coluna_ref, e_autorreferencia) in mapa_fks.items():
+            if e_autorreferencia:
+                autorreferencia[(tabela, coluna)] = True
+    return autorreferencia
+
+
 def _normalizar_dados_para_exportacao(
     engine,
     dados_por_tabela: dict[str, list[dict]],
@@ -390,6 +417,7 @@ def _normalizar_dados_para_exportacao(
     tradução, sendo exibidos como "—" na serialização final.
     """
     labels_fk = _resolver_fks_dados_busca(engine, dados_por_tabela)
+    colunas_autorreferencia = _colunas_autorreferencia_por_tabela(engine, dados_por_tabela)
     normalizados: dict[str, list[dict]] = {}
 
     for tabela, registros in dados_por_tabela.items():
@@ -400,6 +428,10 @@ def _normalizar_dados_para_exportacao(
                 # Normaliza datas zeradas antes de qualquer outra lógica
                 if _eh_data_zero(valor):
                     novo_registro[coluna] = None
+                    continue
+
+                if colunas_autorreferencia.get((tabela, coluna)) and valor_e_raiz_autorreferencia(valor):
+                    novo_registro[coluna] = ROTULO_REGISTRO_RAIZ
                     continue
 
                 label_fk = labels_fk.get((tabela, coluna), {}).get(str(valor))

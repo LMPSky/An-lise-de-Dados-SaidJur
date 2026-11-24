@@ -68,7 +68,8 @@ def _criar_engine_sqlite() -> Engine:
         conn.execute(text("""
             CREATE TABLE accounts (
                 account_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nome       TEXT NOT NULL
+                nome       TEXT NOT NULL,
+                parent_id  INTEGER
             )
         """))
         conn.execute(text("""
@@ -90,7 +91,7 @@ def _criar_engine_sqlite() -> Engine:
         """))
         conn.execute(text("INSERT INTO users (nome) VALUES ('Ana'), ('Bruno')"))
         conn.execute(text("INSERT INTO busunitaccess (userid, perfil, confirmado) VALUES (1, 'admin', 0), (2, 'leitura', 1)"))
-        conn.execute(text("INSERT INTO accounts (nome) VALUES ('Conta Matriz'), ('Conta Filial')"))
+        conn.execute(text("INSERT INTO accounts (nome, parent_id) VALUES ('Conta Matriz', 0), ('Conta Filial', 1)"))
         conn.execute(text("INSERT INTO transacoesteste (sourceaccount) VALUES (1), (2)"))
         conn.commit()
     return engine
@@ -175,6 +176,14 @@ def client(monkeypatch: pytest.MonkeyPatch) -> Generator[TestClient, None, None]
     import src.db as db_module
 
     engine = _criar_engine_sqlite()
+
+    # Cache de FKs inferidas/labels é global por nome de tabela (não por
+    # engine) — sem limpar aqui, testes de outros módulos que também usam
+    # tabelas como "accounts" podem poluir o cache entre si (flakiness
+    # dependente da ordem de execução).
+    db_module._CACHE_FKS_INFERIDAS.clear()
+    db_module._CACHE_COLUNA_LABEL.clear()
+    db_module._CACHE_LABELS.clear()
 
     monkeypatch.setattr(db_module, "listar_tabelas", _listar_tabelas_sqlite)
     monkeypatch.setattr(db_module, "listar_colunas", _listar_colunas_sqlite)
@@ -297,7 +306,31 @@ class TestExportacaoBusca:
         assert 'Conta Matriz (1)' in texto
         assert 'Conta Filial (2)' in texto
 
-    def test_exporta_busca_csv_com_fk_resolvida_e_booleano_traduzido(self, client: TestClient) -> None:
+    def test_exporta_busca_csv_autorreferencia_zero_exibe_raiz(self, client: TestClient) -> None:
+        """'parent_id' em accounts é autorreferência (convenção AUTORREFERENCIA
+        do fk_map.yaml): valor 0 deve ser exibido como "Raiz", não resolvido
+        como uma busca por accounts.account_id = 0 (que não existe)."""
+        payload = {
+            "dados": [
+                {
+                    "tabela": "accounts",
+                    "coluna": "parent_id",
+                    "registros": [
+                        {"account_id": 1, "nome": "Conta Matriz", "parent_id": 0},
+                        {"account_id": 2, "nome": "Conta Filial", "parent_id": 1},
+                    ],
+                },
+            ]
+        }
+
+        resp = client.post("/api/exportar/busca?formato=csv", json=payload)
+
+        assert resp.status_code == 200
+        texto = resp.text
+        assert "Raiz" in texto
+        assert "Conta Matriz (1)" in texto
+
+
         payload = {
             "dados": [
                 {

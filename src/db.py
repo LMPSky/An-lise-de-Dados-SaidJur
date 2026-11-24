@@ -639,6 +639,72 @@ def _coluna_pk_destino(tabela: str) -> str:
     return _COLUNA_PK_POR_TABELA.get(tabela, "id")
 
 
+# Colunas de autorreferência: convenção do SaidJur em que o valor 0 (ou
+# NULL/vazio) significa "sem pai" / registro raiz da hierarquia, não um ID
+# literal a ser buscado na tabela de destino (que não possui registro com
+# PK=0). Confirmado via fk_map.yaml (tipo_mapeamento: AUTORREFERENCIA) contra
+# o banco real. Chave: (tabela_origem, nome_coluna) em minúsculas; valor:
+# tabela referenciada (normalmente a própria tabela de origem, exceto
+# lawsuits_log, que referencia lawsuits).
+_COLUNAS_FK_AUTORREFERENCIA: dict[tuple[str, str], str] = {
+    ("accounts", "parent_id"): "accounts",
+    ("accountspayable", "first_replication_id"): "accountspayable",
+    ("accountspayable", "rateio_parentid"): "accountspayable",
+    ("expedients", "parent_id"): "expedients",
+    ("hearingcontrol", "hearingparent_id"): "hearingcontrol",
+    ("lawsuitdocsmetadata", "parentmetadata_id"): "lawsuitdocsmetadata",
+    ("lawsuits", "lawsuitparent_id"): "lawsuits",
+    ("lawsuits_log", "lawsuitparent_id"): "lawsuits",
+    ("prazo2publication", "parentprazoid"): "prazo2publication",
+    ("transactions", "transactionparent_id"): "transactions",
+    ("transactions", "estorno_id"): "transactions",
+}
+
+# Rótulo exibido quando uma coluna de autorreferência contém 0/NULL/vazio.
+ROTULO_REGISTRO_RAIZ = "Raiz"
+
+
+def valor_e_raiz_autorreferencia(valor: Any) -> bool:
+    """True quando o valor bruto de uma coluna de autorreferência representa
+    'sem pai' (registro raiz): NULL, vazio ou 0 (numérico ou string)."""
+    if valor is None:
+        return True
+    valor_str = str(valor).strip()
+    if valor_str == "":
+        return True
+    try:
+        return float(valor_str) == 0
+    except ValueError:
+        return False
+
+
+# Colunas marcadas como REVISAR no fk_map.yaml: o destino real não é uma FK
+# clara para outra tabela do SaidJur (pode ser um domínio/dicionário estático
+# ou um ID vindo de uma fonte externa/API). Confirmado via fk_map.yaml
+# (tipo_mapeamento: REVISAR) contra o banco real. Mantemos o valor bruto
+# original para essas colunas — nunca inferir uma FK para elas, mesmo que o
+# nome bata por coincidência com a heurística genérica de sufixo `_id` — e
+# sinalizamos via log para que um humano confirme a origem real do dado.
+# Chave: (tabela_origem, nome_coluna) em minúsculas.
+_COLUNAS_FK_REVISAR: frozenset[tuple[str, str]] = frozenset({
+    ("clientsystem2lawsuit", "system_id"),
+    ("court_division", "region_id"),
+    ("emails", "msg_id"),
+    ("expedientfilemetadata", "lawsuitdocmetadata_id"),
+    ("extralawsuitformfields2person", "formfield_id"),
+    ("lawsuitnature2extralawsuitfields", "formfield_id"),
+    ("lawsuits", "unit"),
+    ("lawsuits_calculos", "success_id"),
+    ("lawsuits_log", "unit"),
+    ("materias2homologated_calcs", "materia_id"),
+    ("projectactivityprazos", "userinserted_id"),
+    ("sentencereason2pedidos", "reason_id"),
+})
+
+# Evita logar o mesmo aviso de REVISAR repetidamente a cada chamada.
+_COLUNAS_REVISAR_JA_SINALIZADAS: set[tuple[str, str]] = set()
+
+
 def fks_inferidas(engine: Engine, nome_tabela: str) -> list[dict[str, str]]:
     """Detecta FKs implícitas (não declaradas) por heurística de nomes de coluna.
 
@@ -673,11 +739,50 @@ def fks_inferidas(engine: Engine, nome_tabela: str) -> list[dict[str, str]]:
         if nome_col.lower() in _COLUNAS_FK_IGNORADAS:
             continue
 
+        nome_col_lower = nome_col.lower()
+        nome_tabela_lower = nome_tabela.lower()
+
+        # Colunas marcadas como REVISAR: nunca inferir FK para elas, mesmo que
+        # o nome coincida com um heurística genérica — mantemos o valor bruto
+        # e sinalizamos via log para revisão manual (origem real pode ser um
+        # domínio estático ou um ID de fonte externa/API).
+        if (nome_tabela_lower, nome_col_lower) in _COLUNAS_FK_REVISAR:
+            chave_log = (nome_tabela_lower, nome_col_lower)
+            if chave_log not in _COLUNAS_REVISAR_JA_SINALIZADAS:
+                _COLUNAS_REVISAR_JA_SINALIZADAS.add(chave_log)
+                logger.info(
+                    "Coluna %s.%s marcada como REVISAR no fk_map.yaml: valor bruto "
+                    "mantido, origem real (domínio estático ou ID externo) precisa "
+                    "de confirmação manual.",
+                    nome_tabela, nome_col,
+                )
+            continue
+
+        # Colunas de autorreferência (parent_id = 0/NULL → raiz da hierarquia):
+        # resolvidas para a própria tabela (ou tabela de origem equivalente),
+        # mas marcadas para que o valor 0/NULL seja exibido como "Raiz" em vez
+        # de buscar um ID=0 inexistente na tabela de destino.
+        if (nome_tabela_lower, nome_col_lower) in _COLUNAS_FK_AUTORREFERENCIA:
+            tabela_candidata = _COLUNAS_FK_AUTORREFERENCIA[(nome_tabela_lower, nome_col_lower)]
+            if tabela_candidata in todas_tabelas:
+                try:
+                    cols_ref = {c["nome"].lower() for c in listar_colunas(engine, tabela_candidata)}
+                except Exception:
+                    cols_ref = set()
+                coluna_pk = _coluna_pk_destino(tabela_candidata)
+                if coluna_pk in cols_ref:
+                    resultado.append({
+                        "coluna": nome_col,
+                        "tabela_referenciada": tabela_candidata,
+                        "coluna_referenciada": coluna_pk,
+                        "autorreferencia": True,
+                    })
+            continue
+
         # Verificar primeiro as colunas FK extras (sem sufixo id) — essas
         # entradas são mapeamentos explícitos e confiáveis por convenção do
         # SaidJur, então não exigimos tipo numérico: sistemas legados às
         # vezes guardam o código como CHAR/VARCHAR mesmo sendo uma FK.
-        nome_col_lower = nome_col.lower()
         if nome_col_lower in _COLUNAS_FK_EXTRAS:
             tabela_candidata = _COLUNAS_FK_EXTRAS[nome_col_lower]
             if tabela_candidata in todas_tabelas:

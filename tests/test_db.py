@@ -8,6 +8,7 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError
 
 from src.db import (
+    ROTULO_REGISTRO_RAIZ,
     conectar_com_timeout,
     criar_engine,
     executar_com_retry_db,
@@ -19,6 +20,7 @@ from src.db import (
     coluna_label,
     fks_inferidas,
     resumir_registro_para_card,
+    valor_e_raiz_autorreferencia,
 )
 
 
@@ -970,3 +972,158 @@ class TestFksInferidasTipoPublicacaoVariantes:
         )
         ref = next(r for r in resultado if r["coluna"] == "publicationtype")
         assert ref["tabela_referenciada"] == "pubtypes"
+
+
+class TestFksInferidasAutorreferencia:
+    """Testes para colunas de autorreferência (parent_id = 0/NULL → raiz).
+
+    Confirmado via fk_map.yaml (tipo_mapeamento: AUTORREFERENCIA): colunas
+    como accounts.parent_id ou transactions.estorno_id referenciam a própria
+    tabela (ou uma tabela de origem equivalente), e o valor 0/NULL significa
+    "sem pai" — não um ID=0 a ser buscado na tabela de destino.
+    """
+
+    def _engine_accounts(self) -> Engine:
+        import src.db as db_module
+        db_module._CACHE_COLUNA_LABEL.clear()
+        db_module._CACHE_FKS_INFERIDAS.clear()
+
+        engine = create_engine("sqlite:///:memory:")
+        with engine.connect() as conn:
+            conn.execute(text("""
+                CREATE TABLE accounts (
+                    account_id INTEGER PRIMARY KEY,
+                    name       TEXT NOT NULL,
+                    parent_id  INTEGER
+                )
+            """))
+            conn.execute(text("INSERT INTO accounts VALUES (1, 'Conta Raiz', 0)"))
+            conn.execute(text("INSERT INTO accounts VALUES (2, 'Subconta', 1)"))
+            conn.commit()
+        return engine
+
+    def test_accounts_parent_id_detectado_como_autorreferencia(self) -> None:
+        engine = self._engine_accounts()
+        resultado = fks_inferidas(engine, "accounts")
+        ref = next(r for r in resultado if r["coluna"] == "parent_id")
+        assert ref["tabela_referenciada"] == "accounts"
+        assert ref["coluna_referenciada"] == "account_id"
+        assert ref["autorreferencia"] is True
+
+    def test_lawsuits_log_lawsuitparent_id_referencia_lawsuits(self) -> None:
+        """lawsuits_log.lawsuitparent_id é autorreferência, mas aponta para a
+        tabela lawsuits (não para si mesma)."""
+        import src.db as db_module
+        db_module._CACHE_COLUNA_LABEL.clear()
+        db_module._CACHE_FKS_INFERIDAS.clear()
+
+        engine = create_engine("sqlite:///:memory:")
+        with engine.connect() as conn:
+            conn.execute(text("""
+                CREATE TABLE lawsuits (
+                    lawsuit_id INTEGER PRIMARY KEY,
+                    number     TEXT NOT NULL
+                )
+            """))
+            conn.execute(text("""
+                CREATE TABLE lawsuits_log (
+                    id               INTEGER PRIMARY KEY,
+                    lawsuitparent_id INTEGER
+                )
+            """))
+            conn.commit()
+        resultado = fks_inferidas(engine, "lawsuits_log")
+        ref = next(r for r in resultado if r["coluna"] == "lawsuitparent_id")
+        assert ref["tabela_referenciada"] == "lawsuits"
+        assert ref["coluna_referenciada"] == "lawsuit_id"
+        assert ref["autorreferencia"] is True
+
+    @pytest.mark.parametrize("valor", [0, "0", None, ""])
+    def test_valor_e_raiz_autorreferencia_reconhece_zero_nulo_vazio(self, valor) -> None:
+        assert valor_e_raiz_autorreferencia(valor) is True
+
+    @pytest.mark.parametrize("valor", [1, "1", 42, "abc"])
+    def test_valor_e_raiz_autorreferencia_rejeita_valores_reais(self, valor) -> None:
+        assert valor_e_raiz_autorreferencia(valor) is False
+
+    def test_rotulo_registro_raiz_e_string_raiz(self) -> None:
+        assert ROTULO_REGISTRO_RAIZ == "Raiz"
+
+
+class TestFksInferidasRevisar:
+    """Testes para colunas marcadas REVISAR no fk_map.yaml.
+
+    Essas colunas (ex: emails.msg_id, lawsuits.unit) não devem ser inferidas
+    como FK — mesmo que o nome bata por coincidência com a heurística
+    genérica de sufixo `_id` — porque sua origem real é um domínio estático
+    ou um ID vindo de fonte externa/API, ainda sem confirmação manual.
+    """
+
+    def test_emails_msg_id_nao_e_inferida_como_fk(self) -> None:
+        import src.db as db_module
+        db_module._CACHE_COLUNA_LABEL.clear()
+        db_module._CACHE_FKS_INFERIDAS.clear()
+
+        engine = create_engine("sqlite:///:memory:")
+        with engine.connect() as conn:
+            conn.execute(text("""
+                CREATE TABLE emails (
+                    id     INTEGER PRIMARY KEY,
+                    msg_id INTEGER
+                )
+            """))
+            conn.commit()
+        resultado = fks_inferidas(engine, "emails")
+        assert all(r["coluna"] != "msg_id" for r in resultado)
+
+    def test_materias2homologated_calcs_materia_id_nao_e_inferida_mesmo_com_tabela_candidata(self) -> None:
+        """Mesmo quando existe uma tabela 'materias' no banco (que bateria pela
+        heurística genérica de pluralização), a coluna REVISAR não deve ser
+        resolvida como FK."""
+        import src.db as db_module
+        db_module._CACHE_COLUNA_LABEL.clear()
+        db_module._CACHE_FKS_INFERIDAS.clear()
+
+        engine = create_engine("sqlite:///:memory:")
+        with engine.connect() as conn:
+            conn.execute(text("""
+                CREATE TABLE materias (
+                    id   INTEGER PRIMARY KEY,
+                    nome TEXT NOT NULL
+                )
+            """))
+            conn.execute(text("""
+                CREATE TABLE materias2homologated_calcs (
+                    id          INTEGER PRIMARY KEY,
+                    materia_id  INTEGER
+                )
+            """))
+            conn.commit()
+        resultado = fks_inferidas(engine, "materias2homologated_calcs")
+        assert all(r["coluna"] != "materia_id" for r in resultado)
+
+    def test_coluna_revisar_em_outra_tabela_nao_e_afetada(self) -> None:
+        """A mesma coluna 'materia_id' em uma tabela não listada como REVISAR
+        continua sendo resolvida normalmente pela heurística genérica."""
+        import src.db as db_module
+        db_module._CACHE_COLUNA_LABEL.clear()
+        db_module._CACHE_FKS_INFERIDAS.clear()
+
+        engine = create_engine("sqlite:///:memory:")
+        with engine.connect() as conn:
+            conn.execute(text("""
+                CREATE TABLE materias (
+                    id   INTEGER PRIMARY KEY,
+                    nome TEXT NOT NULL
+                )
+            """))
+            conn.execute(text("""
+                CREATE TABLE outra_tabela (
+                    id          INTEGER PRIMARY KEY,
+                    materia_id  INTEGER
+                )
+            """))
+            conn.commit()
+        resultado = fks_inferidas(engine, "outra_tabela")
+        ref = next(r for r in resultado if r["coluna"] == "materia_id")
+        assert ref["tabela_referenciada"] == "materias"
