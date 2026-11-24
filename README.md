@@ -336,6 +336,41 @@ próprias tipo `clients`/`lawyers`) e colunas de FK sem sufixo `_id`/`id`/`_pk`
 `pais`→`country`). Ambas as adições foram confirmadas contra o banco real
 (`fk_map.yaml`), não são suposições.
 
+##### Autorreferência (`parent_id = 0` → "Raiz") e colunas `REVISAR`
+
+Com base no mapeamento factual de `fk_map.yaml` contra o banco real, duas
+categorias especiais de coluna agora recebem tratamento dedicado em
+`fks_inferidas()` (`src/db.py`) e na exportação de busca
+(`src/api/routes_export_search.py`):
+
+- **Autorreferência** (`_COLUNAS_FK_AUTORREFERENCIA`) — colunas que apontam
+  para a própria tabela em uma hierarquia (registro "pai"), ex:
+  `accounts.parent_id`, `expedients.parent_id`,
+  `hearingcontrol.hearingparent_id`, `lawsuits.lawsuitparent_id`,
+  `transactions.transactionparent_id`/`estorno_id`, entre outras (11 colunas
+  no total, exatamente as marcadas `AUTORREFERENCIA` em `fk_map.yaml`). Como
+  essas tabelas usam `0` (ou `NULL`) para indicar "não tem pai" — não existe
+  registro com PK `0` —, a resolução de FK e a exportação agora tratam esse
+  valor como **"Raiz"** (`ROTULO_REGISTRO_RAIZ`) em vez de tentar (e falhar)
+  um lookup normal. `valor_e_raiz_autorreferencia()` centraliza essa checagem
+  (aceita `None`, string vazia ou qualquer valor que converta para `0`).
+- **`REVISAR`** (`_COLUNAS_FK_REVISAR`) — 12 colunas que no `fk_map.yaml`
+  foram marcadas com `tabela_destino: DOMINIO_OU_EXTERNO` por não terem uma
+  tabela de destino clara no próprio banco (ex: `emails.msg_id`,
+  `lawsuits.unit`, `court_division.region_id`,
+  `materias2homologated_calcs.materia_id`). Para essas colunas,
+  `fks_inferidas()` **não tenta nenhuma resolução automática** — mesmo que
+  uma heurística de nome/sufixo coincidentemente "bata" com outra tabela —, e
+  registra um aviso informativo (uma única vez por coluna) para sinalizar que
+  o valor bruto está sendo preservado como está.
+
+Escopo deliberado: apenas as colunas explicitamente marcadas
+`AUTORREFERENCIA`/`REVISAR` em `fk_map.yaml` foram tratadas. Colunas com o
+mesmo padrão semântico mas marcadas de forma diferente (ex:
+`contracts.parent_id`, marcado `DECLARADA`, ou os ponteiros de pai em
+`hearings_log`/`prazos_log`, marcados `CONVECAO_GLOBAL`) ficaram fora deste
+escopo e podem ser avaliadas em uma tarefa futura, se desejado.
+
 Para aprovar explicitamente em lote apenas sugestões de alta confiança vindas de uma
 fonte específica (sem alertas de conteúdo sensível), use por exemplo:
 
