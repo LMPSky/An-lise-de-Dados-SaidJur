@@ -1,0 +1,5 @@
+2026-10-07 10:50:56,679 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-10-07 10:51:23,547 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.yaml (100 tabelas)
+2026-10-07 10:52:16,626 [INFO] saidjur.dados: Tabela 'businessunit' | página 1 | filtros=None | total=15
+2026-10-07 12:33:29,477 [INFO] saidjur: Servidor iniciado em http://127.0.0.1:8000 — banco: saidjur
+2026-10-07 12:33:35,905 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.yaml (100 tabelas)

@@ -1,0 +1,7 @@
+2026-10-26 10:20:25,326 [INFO] saidjur: Servidor iniciado em http://0.0.0.0:8000 — banco: saidjur
+2026-10-26 10:20:37,183 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.yaml (105 tabelas)
+2026-10-26 10:20:50,530 [INFO] saidjur.dados: Tabela 'busunitaccess_strategiclawsuits' | página 1 | filtros=None | total=5384 (aproximado)
+2026-10-26 10:21:42,182 [INFO] saidjur.dados: Tabela 'busunitaccess_controllerlawsuits' | página 1 | filtros=None | total=2349 (aproximado)
+2026-10-26 10:21:45,173 [INFO] saidjur.dados: Tabela 'busunitaccess' | página 1 | filtros=None | total=5558 (aproximado)
+2026-10-26 10:21:55,339 [INFO] saidjur.dados: Tabela 'dates2hearing' | página 1 | filtros=None | total=75058 (aproximado)
+2026-10-26 10:22:18,870 [INFO] saidjur.dados: Tabela 'acordo_nucleus' | página 1 | filtros=None | total=7288 (aproximado)

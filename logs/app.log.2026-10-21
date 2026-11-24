@@ -1,0 +1,2176 @@
+2026-10-21 12:31:15,477 [INFO] saidjur: Servidor iniciado em http://0.0.0.0:8000 — banco: saidjur
+2026-10-21 12:31:36,125 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.yaml (100 tabelas)
+2026-10-21 12:31:36,404 [ERROR] saidjur.dashboard: Falha ao montar o dashboard
+Traceback (most recent call last):
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_dashboard.py", line 23, in get_dashboard
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 147, in executar_com_retry_db
+    return func()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_dashboard.py", line 25, in <lambda>
+    lambda: dados_dashboard(engine),
+            ~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 657, in dados_dashboard
+    tabelas = listar_tabelas(engine)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 192, in listar_tabelas
+    with engine.connect() as conn:
+         ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3260, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 149, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3284, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 445, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1303, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 709, in checkout
+    rec = pool._do_get()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 174, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 386, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 671, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 906, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 902, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 645, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 869, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 979, in _request_authentication
+    auth_packet = _auth.caching_sha2_password_auth(self, auth_packet)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 267, in caching_sha2_password_auth
+    data = sha2_rsa_encrypt(conn.password, conn.salt, conn.server_public_key)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 144, in sha2_rsa_encrypt
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2026-10-21 12:31:37,065 [ERROR] saidjur.tabelas: Falha ao listar tabelas
+Traceback (most recent call last):
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_tables.py", line 37, in get_tabelas
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 147, in executar_com_retry_db
+    return func()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_tables.py", line 39, in <lambda>
+    lambda: listar_tabelas(engine),
+            ~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 192, in listar_tabelas
+    with engine.connect() as conn:
+         ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3260, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 149, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3284, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 445, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1303, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 709, in checkout
+    rec = pool._do_get()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 174, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 386, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 671, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 906, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 902, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 645, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 869, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 979, in _request_authentication
+    auth_packet = _auth.caching_sha2_password_auth(self, auth_packet)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 267, in caching_sha2_password_auth
+    data = sha2_rsa_encrypt(conn.password, conn.salt, conn.server_public_key)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 144, in sha2_rsa_encrypt
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2026-10-21 12:43:12,089 [ERROR] saidjur.tabelas: Falha ao listar tabelas
+Traceback (most recent call last):
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_tables.py", line 37, in get_tabelas
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 147, in executar_com_retry_db
+    return func()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_tables.py", line 39, in <lambda>
+    lambda: listar_tabelas(engine),
+            ~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 192, in listar_tabelas
+    with engine.connect() as conn:
+         ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3260, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 149, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3284, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 445, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1303, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 709, in checkout
+    rec = pool._do_get()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 174, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 386, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 671, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 906, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 902, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 645, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 869, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 979, in _request_authentication
+    auth_packet = _auth.caching_sha2_password_auth(self, auth_packet)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 267, in caching_sha2_password_auth
+    data = sha2_rsa_encrypt(conn.password, conn.salt, conn.server_public_key)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 144, in sha2_rsa_encrypt
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2026-10-21 12:43:12,140 [ERROR] saidjur.dashboard: Falha ao montar o dashboard
+Traceback (most recent call last):
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_dashboard.py", line 23, in get_dashboard
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 147, in executar_com_retry_db
+    return func()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_dashboard.py", line 25, in <lambda>
+    lambda: dados_dashboard(engine),
+            ~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 657, in dados_dashboard
+    tabelas = listar_tabelas(engine)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 192, in listar_tabelas
+    with engine.connect() as conn:
+         ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3260, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 149, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3284, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 445, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1303, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 709, in checkout
+    rec = pool._do_get()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 174, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 386, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 671, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 906, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 902, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 645, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 869, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 979, in _request_authentication
+    auth_packet = _auth.caching_sha2_password_auth(self, auth_packet)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 267, in caching_sha2_password_auth
+    data = sha2_rsa_encrypt(conn.password, conn.salt, conn.server_public_key)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 144, in sha2_rsa_encrypt
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2026-10-21 12:43:23,467 [ERROR] saidjur.dashboard: Falha ao montar o dashboard
+Traceback (most recent call last):
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_dashboard.py", line 23, in get_dashboard
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 147, in executar_com_retry_db
+    return func()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_dashboard.py", line 25, in <lambda>
+    lambda: dados_dashboard(engine),
+            ~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 657, in dados_dashboard
+    tabelas = listar_tabelas(engine)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 192, in listar_tabelas
+    with engine.connect() as conn:
+         ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3260, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 149, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3284, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 445, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1303, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 709, in checkout
+    rec = pool._do_get()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 174, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 386, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 671, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 906, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 902, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 645, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 869, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 979, in _request_authentication
+    auth_packet = _auth.caching_sha2_password_auth(self, auth_packet)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 267, in caching_sha2_password_auth
+    data = sha2_rsa_encrypt(conn.password, conn.salt, conn.server_public_key)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 144, in sha2_rsa_encrypt
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2026-10-21 12:43:23,490 [ERROR] saidjur.tabelas: Falha ao listar tabelas
+Traceback (most recent call last):
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_tables.py", line 37, in get_tabelas
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 147, in executar_com_retry_db
+    return func()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_tables.py", line 39, in <lambda>
+    lambda: listar_tabelas(engine),
+            ~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 192, in listar_tabelas
+    with engine.connect() as conn:
+         ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3260, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 149, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3284, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 445, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1303, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 709, in checkout
+    rec = pool._do_get()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 174, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 386, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 671, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 906, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 902, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 645, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 869, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 979, in _request_authentication
+    auth_packet = _auth.caching_sha2_password_auth(self, auth_packet)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 267, in caching_sha2_password_auth
+    data = sha2_rsa_encrypt(conn.password, conn.salt, conn.server_public_key)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 144, in sha2_rsa_encrypt
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2026-10-21 12:48:22,701 [INFO] saidjur: Servidor encerrado.
+2026-10-21 12:49:15,923 [INFO] saidjur: Servidor iniciado em http://0.0.0.0:8000 — banco: saidjur
+2026-10-21 12:49:20,064 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.yaml (100 tabelas)
+2026-10-21 12:49:20,125 [ERROR] saidjur.dashboard: Falha ao montar o dashboard
+Traceback (most recent call last):
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_dashboard.py", line 23, in get_dashboard
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 147, in executar_com_retry_db
+    return func()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_dashboard.py", line 25, in <lambda>
+    lambda: dados_dashboard(engine),
+            ~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 657, in dados_dashboard
+    tabelas = listar_tabelas(engine)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 192, in listar_tabelas
+    with engine.connect() as conn:
+         ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3260, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 149, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3284, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 445, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1303, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 709, in checkout
+    rec = pool._do_get()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 174, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 386, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 671, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 906, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 902, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 645, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 869, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 979, in _request_authentication
+    auth_packet = _auth.caching_sha2_password_auth(self, auth_packet)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 267, in caching_sha2_password_auth
+    data = sha2_rsa_encrypt(conn.password, conn.salt, conn.server_public_key)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 144, in sha2_rsa_encrypt
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2026-10-21 12:49:20,519 [ERROR] saidjur.tabelas: Falha ao listar tabelas
+Traceback (most recent call last):
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_tables.py", line 37, in get_tabelas
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 147, in executar_com_retry_db
+    return func()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_tables.py", line 39, in <lambda>
+    lambda: listar_tabelas(engine),
+            ~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 192, in listar_tabelas
+    with engine.connect() as conn:
+         ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3260, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 149, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3284, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 445, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1303, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 709, in checkout
+    rec = pool._do_get()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 174, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 386, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 671, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 906, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 902, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 645, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 869, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 979, in _request_authentication
+    auth_packet = _auth.caching_sha2_password_auth(self, auth_packet)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 267, in caching_sha2_password_auth
+    data = sha2_rsa_encrypt(conn.password, conn.salt, conn.server_public_key)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 144, in sha2_rsa_encrypt
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2026-10-21 12:49:45,215 [ERROR] saidjur.tabelas: Falha ao listar tabelas
+Traceback (most recent call last):
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_tables.py", line 37, in get_tabelas
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 147, in executar_com_retry_db
+    return func()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_tables.py", line 39, in <lambda>
+    lambda: listar_tabelas(engine),
+            ~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 192, in listar_tabelas
+    with engine.connect() as conn:
+         ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3260, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 149, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3284, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 445, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1303, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 709, in checkout
+    rec = pool._do_get()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 174, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 386, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 671, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 906, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 902, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 645, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 869, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 979, in _request_authentication
+    auth_packet = _auth.caching_sha2_password_auth(self, auth_packet)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 267, in caching_sha2_password_auth
+    data = sha2_rsa_encrypt(conn.password, conn.salt, conn.server_public_key)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 144, in sha2_rsa_encrypt
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2026-10-21 12:49:45,228 [ERROR] saidjur.dashboard: Falha ao montar o dashboard
+Traceback (most recent call last):
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_dashboard.py", line 23, in get_dashboard
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 147, in executar_com_retry_db
+    return func()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_dashboard.py", line 25, in <lambda>
+    lambda: dados_dashboard(engine),
+            ~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 657, in dados_dashboard
+    tabelas = listar_tabelas(engine)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 192, in listar_tabelas
+    with engine.connect() as conn:
+         ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3260, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 149, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3284, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 445, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1303, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 709, in checkout
+    rec = pool._do_get()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 174, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 386, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 671, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 906, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 902, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 645, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 869, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 979, in _request_authentication
+    auth_packet = _auth.caching_sha2_password_auth(self, auth_packet)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 267, in caching_sha2_password_auth
+    data = sha2_rsa_encrypt(conn.password, conn.salt, conn.server_public_key)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 144, in sha2_rsa_encrypt
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2026-10-21 12:49:59,947 [ERROR] saidjur.dashboard: Falha ao montar o dashboard
+Traceback (most recent call last):
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_dashboard.py", line 23, in get_dashboard
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 147, in executar_com_retry_db
+    return func()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_dashboard.py", line 25, in <lambda>
+    lambda: dados_dashboard(engine),
+            ~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 657, in dados_dashboard
+    tabelas = listar_tabelas(engine)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 192, in listar_tabelas
+    with engine.connect() as conn:
+         ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3260, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 149, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3284, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 445, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1303, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 709, in checkout
+    rec = pool._do_get()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 174, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 386, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 671, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 906, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 902, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 645, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 869, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 979, in _request_authentication
+    auth_packet = _auth.caching_sha2_password_auth(self, auth_packet)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 267, in caching_sha2_password_auth
+    data = sha2_rsa_encrypt(conn.password, conn.salt, conn.server_public_key)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 144, in sha2_rsa_encrypt
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2026-10-21 12:49:59,970 [ERROR] saidjur.tabelas: Falha ao listar tabelas
+Traceback (most recent call last):
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_tables.py", line 37, in get_tabelas
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 147, in executar_com_retry_db
+    return func()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_tables.py", line 39, in <lambda>
+    lambda: listar_tabelas(engine),
+            ~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 192, in listar_tabelas
+    with engine.connect() as conn:
+         ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3260, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 149, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3284, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 445, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1303, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 709, in checkout
+    rec = pool._do_get()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 174, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 386, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 671, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 906, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 902, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 645, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 869, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 979, in _request_authentication
+    auth_packet = _auth.caching_sha2_password_auth(self, auth_packet)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 267, in caching_sha2_password_auth
+    data = sha2_rsa_encrypt(conn.password, conn.salt, conn.server_public_key)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 144, in sha2_rsa_encrypt
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2026-10-21 12:50:24,946 [ERROR] saidjur.tabelas: Falha ao listar tabelas
+Traceback (most recent call last):
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_tables.py", line 37, in get_tabelas
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 147, in executar_com_retry_db
+    return func()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_tables.py", line 39, in <lambda>
+    lambda: listar_tabelas(engine),
+            ~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 192, in listar_tabelas
+    with engine.connect() as conn:
+         ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3260, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 149, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3284, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 445, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1303, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 709, in checkout
+    rec = pool._do_get()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 174, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 386, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 671, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 906, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 902, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 645, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 869, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 979, in _request_authentication
+    auth_packet = _auth.caching_sha2_password_auth(self, auth_packet)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 267, in caching_sha2_password_auth
+    data = sha2_rsa_encrypt(conn.password, conn.salt, conn.server_public_key)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 144, in sha2_rsa_encrypt
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2026-10-21 12:50:24,969 [ERROR] saidjur.dashboard: Falha ao montar o dashboard
+Traceback (most recent call last):
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_dashboard.py", line 23, in get_dashboard
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 147, in executar_com_retry_db
+    return func()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_dashboard.py", line 25, in <lambda>
+    lambda: dados_dashboard(engine),
+            ~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 657, in dados_dashboard
+    tabelas = listar_tabelas(engine)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 192, in listar_tabelas
+    with engine.connect() as conn:
+         ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3260, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 149, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3284, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 445, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1303, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 709, in checkout
+    rec = pool._do_get()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 174, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 386, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 671, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 906, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 902, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 645, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 869, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 979, in _request_authentication
+    auth_packet = _auth.caching_sha2_password_auth(self, auth_packet)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 267, in caching_sha2_password_auth
+    data = sha2_rsa_encrypt(conn.password, conn.salt, conn.server_public_key)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 144, in sha2_rsa_encrypt
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2026-10-21 12:52:56,855 [INFO] saidjur: Servidor encerrado.
+2026-10-21 12:53:55,044 [INFO] saidjur: Servidor iniciado em http://0.0.0.0:8000 — banco: saidjur
+2026-10-21 12:53:56,714 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.yaml (100 tabelas)
+2026-10-21 12:53:56,744 [ERROR] saidjur.tabelas: Falha ao listar tabelas
+Traceback (most recent call last):
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_tables.py", line 37, in get_tabelas
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 147, in executar_com_retry_db
+    return func()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_tables.py", line 39, in <lambda>
+    lambda: listar_tabelas(engine),
+            ~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 192, in listar_tabelas
+    with engine.connect() as conn:
+         ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3260, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 149, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3284, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 445, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1303, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 709, in checkout
+    rec = pool._do_get()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 174, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 386, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 671, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 906, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 902, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 645, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 869, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 979, in _request_authentication
+    auth_packet = _auth.caching_sha2_password_auth(self, auth_packet)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 267, in caching_sha2_password_auth
+    data = sha2_rsa_encrypt(conn.password, conn.salt, conn.server_public_key)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 144, in sha2_rsa_encrypt
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2026-10-21 12:53:56,768 [ERROR] saidjur.dashboard: Falha ao montar o dashboard
+Traceback (most recent call last):
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_dashboard.py", line 23, in get_dashboard
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 147, in executar_com_retry_db
+    return func()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_dashboard.py", line 25, in <lambda>
+    lambda: dados_dashboard(engine),
+            ~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 657, in dados_dashboard
+    tabelas = listar_tabelas(engine)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 192, in listar_tabelas
+    with engine.connect() as conn:
+         ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3260, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 149, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3284, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 445, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1303, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 709, in checkout
+    rec = pool._do_get()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 174, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 386, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 671, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 906, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 902, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 645, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 869, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 979, in _request_authentication
+    auth_packet = _auth.caching_sha2_password_auth(self, auth_packet)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 267, in caching_sha2_password_auth
+    data = sha2_rsa_encrypt(conn.password, conn.salt, conn.server_public_key)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 144, in sha2_rsa_encrypt
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2026-10-21 12:54:02,970 [ERROR] saidjur.tabelas: Falha ao listar tabelas
+Traceback (most recent call last):
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_tables.py", line 37, in get_tabelas
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 147, in executar_com_retry_db
+    return func()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_tables.py", line 39, in <lambda>
+    lambda: listar_tabelas(engine),
+            ~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 192, in listar_tabelas
+    with engine.connect() as conn:
+         ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3260, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 149, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3284, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 445, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1303, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 709, in checkout
+    rec = pool._do_get()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 174, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 386, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 671, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 906, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 902, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 645, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 869, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 979, in _request_authentication
+    auth_packet = _auth.caching_sha2_password_auth(self, auth_packet)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 267, in caching_sha2_password_auth
+    data = sha2_rsa_encrypt(conn.password, conn.salt, conn.server_public_key)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 144, in sha2_rsa_encrypt
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2026-10-21 12:54:02,979 [ERROR] saidjur.dashboard: Falha ao montar o dashboard
+Traceback (most recent call last):
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_dashboard.py", line 23, in get_dashboard
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 147, in executar_com_retry_db
+    return func()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_dashboard.py", line 25, in <lambda>
+    lambda: dados_dashboard(engine),
+            ~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 657, in dados_dashboard
+    tabelas = listar_tabelas(engine)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 192, in listar_tabelas
+    with engine.connect() as conn:
+         ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3260, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 149, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3284, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 445, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1303, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 709, in checkout
+    rec = pool._do_get()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 174, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 386, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 671, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 906, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 902, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 645, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 869, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 979, in _request_authentication
+    auth_packet = _auth.caching_sha2_password_auth(self, auth_packet)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 267, in caching_sha2_password_auth
+    data = sha2_rsa_encrypt(conn.password, conn.salt, conn.server_public_key)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 144, in sha2_rsa_encrypt
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2026-10-21 12:54:20,293 [INFO] saidjur: Servidor encerrado.
+2026-10-21 12:55:38,085 [INFO] saidjur: Servidor iniciado em http://0.0.0.0:8000 — banco: saidjur
+2026-10-21 12:55:39,226 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.yaml (100 tabelas)
+2026-10-21 12:55:39,295 [ERROR] saidjur.dashboard: Falha ao montar o dashboard
+Traceback (most recent call last):
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_dashboard.py", line 23, in get_dashboard
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 147, in executar_com_retry_db
+    return func()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_dashboard.py", line 25, in <lambda>
+    lambda: dados_dashboard(engine),
+            ~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 657, in dados_dashboard
+    tabelas = listar_tabelas(engine)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 192, in listar_tabelas
+    with engine.connect() as conn:
+         ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3260, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 149, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3284, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 445, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1303, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 709, in checkout
+    rec = pool._do_get()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 174, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 386, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 671, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 906, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 902, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 645, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 869, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 979, in _request_authentication
+    auth_packet = _auth.caching_sha2_password_auth(self, auth_packet)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 267, in caching_sha2_password_auth
+    data = sha2_rsa_encrypt(conn.password, conn.salt, conn.server_public_key)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 144, in sha2_rsa_encrypt
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2026-10-21 12:55:39,321 [ERROR] saidjur.tabelas: Falha ao listar tabelas
+Traceback (most recent call last):
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_tables.py", line 37, in get_tabelas
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 147, in executar_com_retry_db
+    return func()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_tables.py", line 39, in <lambda>
+    lambda: listar_tabelas(engine),
+            ~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 192, in listar_tabelas
+    with engine.connect() as conn:
+         ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3260, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 149, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3284, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 445, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1303, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 709, in checkout
+    rec = pool._do_get()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 174, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 386, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 671, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 906, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 902, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 645, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 869, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 979, in _request_authentication
+    auth_packet = _auth.caching_sha2_password_auth(self, auth_packet)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 267, in caching_sha2_password_auth
+    data = sha2_rsa_encrypt(conn.password, conn.salt, conn.server_public_key)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 144, in sha2_rsa_encrypt
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2026-10-21 12:55:51,316 [ERROR] saidjur.dashboard: Falha ao montar o dashboard
+Traceback (most recent call last):
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_dashboard.py", line 23, in get_dashboard
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 147, in executar_com_retry_db
+    return func()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_dashboard.py", line 25, in <lambda>
+    lambda: dados_dashboard(engine),
+            ~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 657, in dados_dashboard
+    tabelas = listar_tabelas(engine)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 192, in listar_tabelas
+    with engine.connect() as conn:
+         ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3260, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 149, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3284, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 445, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1303, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 709, in checkout
+    rec = pool._do_get()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 174, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 386, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 671, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 906, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 902, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 645, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 869, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 979, in _request_authentication
+    auth_packet = _auth.caching_sha2_password_auth(self, auth_packet)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 267, in caching_sha2_password_auth
+    data = sha2_rsa_encrypt(conn.password, conn.salt, conn.server_public_key)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 144, in sha2_rsa_encrypt
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2026-10-21 12:55:51,346 [ERROR] saidjur.tabelas: Falha ao listar tabelas
+Traceback (most recent call last):
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_tables.py", line 37, in get_tabelas
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 147, in executar_com_retry_db
+    return func()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_tables.py", line 39, in <lambda>
+    lambda: listar_tabelas(engine),
+            ~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 192, in listar_tabelas
+    with engine.connect() as conn:
+         ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3260, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 149, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3284, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 445, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1303, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 709, in checkout
+    rec = pool._do_get()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 174, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 386, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 671, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 906, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 902, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 645, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 869, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 979, in _request_authentication
+    auth_packet = _auth.caching_sha2_password_auth(self, auth_packet)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 267, in caching_sha2_password_auth
+    data = sha2_rsa_encrypt(conn.password, conn.salt, conn.server_public_key)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 144, in sha2_rsa_encrypt
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2026-10-21 12:56:14,953 [INFO] saidjur: Servidor iniciado em http://0.0.0.0:8000 — banco: saidjur
+2026-10-21 12:56:26,609 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.yaml (100 tabelas)
+2026-10-21 12:56:26,645 [ERROR] saidjur.dashboard: Falha ao montar o dashboard
+Traceback (most recent call last):
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_dashboard.py", line 23, in get_dashboard
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 147, in executar_com_retry_db
+    return func()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_dashboard.py", line 25, in <lambda>
+    lambda: dados_dashboard(engine),
+            ~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 657, in dados_dashboard
+    tabelas = listar_tabelas(engine)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 192, in listar_tabelas
+    with engine.connect() as conn:
+         ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3260, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 149, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3284, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 445, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1303, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 709, in checkout
+    rec = pool._do_get()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 174, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 386, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 671, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 906, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 902, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 645, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 869, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 979, in _request_authentication
+    auth_packet = _auth.caching_sha2_password_auth(self, auth_packet)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 267, in caching_sha2_password_auth
+    data = sha2_rsa_encrypt(conn.password, conn.salt, conn.server_public_key)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 144, in sha2_rsa_encrypt
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2026-10-21 12:56:26,667 [ERROR] saidjur.tabelas: Falha ao listar tabelas
+Traceback (most recent call last):
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_tables.py", line 37, in get_tabelas
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\starlette\concurrency.py", line 42, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2706, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1100, in run
+    result = context.run(func, *args)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 147, in executar_com_retry_db
+    return func()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\api\routes_tables.py", line 39, in <lambda>
+    lambda: listar_tabelas(engine),
+            ~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\src\db.py", line 192, in listar_tabelas
+    with engine.connect() as conn:
+         ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3260, in connect
+    return self._connection_cls(self)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 149, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3284, in raw_connection
+    return self.pool.connect()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 445, in connect
+    return _ConnectionFairy._checkout(self)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1303, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 709, in checkout
+    rec = pool._do_get()
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 176, in _do_get
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 174, in _do_get
+    return self._create_connection()
+           ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 386, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 671, in __init__
+    self.__connect()
+    ~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 906, in __connect
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 902, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+                                         ~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 645, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 869, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 361, in __init__
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 669, in connect
+    self._request_authentication()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\connections.py", line 979, in _request_authentication
+    auth_packet = _auth.caching_sha2_password_auth(self, auth_packet)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 267, in caching_sha2_password_auth
+    data = sha2_rsa_encrypt(conn.password, conn.salt, conn.server_public_key)
+  File "C:\Users\lucas.paim\Documents\GitHub\An-lise-de-Dados-SaidJur\venv\Lib\site-packages\pymysql\_auth.py", line 144, in sha2_rsa_encrypt
+    raise RuntimeError(
+    ...<2 lines>...
+    )
+RuntimeError: 'cryptography' package is required for sha256_password or caching_sha2_password auth methods
+2026-10-21 12:57:55,596 [INFO] saidjur: Servidor encerrado.
+2026-10-21 13:00:06,145 [INFO] saidjur: Servidor iniciado em http://0.0.0.0:8000 — banco: saidjur
+2026-10-21 13:00:07,669 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.yaml (100 tabelas)
