@@ -1,0 +1,7 @@
+2026-11-19 11:57:43,054 [INFO] saidjur: Servidor iniciado em http://0.0.0.0:8000 — banco: saidjur
+2026-11-19 11:58:07,123 [INFO] saidjur.dicionarios: Dicionário recarregado de dicionarios.yaml (96 tabelas)
+2026-11-19 11:58:13,323 [INFO] saidjur.dados: Tabela 'accounts' | página 1 | filtros=None | total=56 (aproximado)
+2026-11-19 11:58:37,427 [INFO] saidjur.dados: Tabela 'acordo_nucleus' | página 1 | filtros=None | total=7288 (aproximado)
+2026-11-19 12:15:38,076 [INFO] saidjur.dados: Tabela 'accounts' | página 1 | filtros=None | total=56 (aproximado)
+2026-11-19 12:16:02,894 [INFO] saidjur.dados: Tabela 'agenda_busunits' | página 1 | filtros=None | total=26 (aproximado)
+2026-11-19 12:16:09,332 [INFO] saidjur.dados: Tabela 'automaticprazos_lawsuits' | página 1 | filtros=None | total=34 (aproximado)

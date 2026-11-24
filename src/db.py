@@ -463,18 +463,15 @@ def _candidatos_para(coluna: str) -> list[str]:
         "processos" if base == "lawsuit" else "",
     ]
 
-    # Colunas de papel/função de usuário que no SaidJur referenciam 'employees':
-    # userid, supervisorid, userchangedid e variações sem prefixo de entidade
-    # podem não gerar 'employees' pela heurística genérica, por isso forçamos
-    # a inclusão quando o base corresponde a esses papéis conhecidos.
-    # 'updateduser'/'updateuser' cobre "ID do Usuário Atualizador" (ex: updateduserid).
+    # Colunas de papel/função de usuário que no SaidJur referenciam 'users' ou 'employees':
+    # userid, supervisorid, userchangedid, created_at_userid, updated_at_userid etc.
     _BASES_USUARIO = frozenset({
         "user", "supervisor", "userchanged", "excludente", "criador",
         "updateduser", "updateuser", "updater", "updatedby", "userupdated",
         "atualizador", "useratualiz", "atualiz",
     })
-    if base in _BASES_USUARIO:
-        candidates.extend(["employees", "employee"])
+    if base in _BASES_USUARIO or base.endswith(("_user", "user")):
+        candidates.extend(["users", "employees", "employee"])
 
     # deduplicate preservando ordem
     seen: set[str] = set()
@@ -556,6 +553,11 @@ _COLUNAS_FK_EXTRAS: dict[str, str] = {
     "closed_by": "users",
     "court_division_idcourt_division": "court_division",
     "court_idcourt": "court",
+    "created_at_userid": "users",
+    "createdat_userid": "users",
+    "date_created_userid": "users",
+    "date_updated_userid": "users",
+    "deleted_at_userid": "users",
     "destinationaccount": "accounts",
     "estado": "state",
     "hearingtype": "hearingtype",
@@ -567,6 +569,7 @@ _COLUNAS_FK_EXTRAS: dict[str, str] = {
     "sector": "client_sectors",
     "sentence_amount_result": "lawsuit_results",
     "sourceaccount": "accounts",
+    "updated_at_userid": "users",
     "user_change_status": "users",
     "user_created_at": "users",
     "user_inserted": "users",
